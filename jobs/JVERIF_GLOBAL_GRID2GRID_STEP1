@@ -1,0 +1,99 @@
+#!/bin/sh
+
+export PS4='$SECONDS + '
+date
+set -xa
+
+##############################################
+# Specify NET and RUN Name and model
+##############################################
+export NET="verif_global"
+export RUN="grid2grid_step1"
+
+##############################################
+
+##############################################
+# Developer overrides
+export DATA=${DATAROOT}/${jobid}.${ECF_DATE}_${RUNTIME}
+export COMIN=$COMROOT/$NET/$envir/$RUN.${ECF_DATE}_${RUNTIME}
+export COMOUT=$COMROOT/$NET/$envir/$RUN.${ECF_DATE}_${RUNTIME}
+# SENDCOM  - Copy Files From TMPDIR to $COMOUT
+# SENDECF  - Flag Events on ECF, If the job is to be running using ECF
+# SENDDBN  - Issue DBNet Client Calls,  Set to NO for developers
+export SENDCOM="YES"
+export SENDECF="NO"
+export SENDDBN="NO"
+##############################################
+##############################################
+
+##########################################################
+# obtain unique process id (pid) and make temp directory
+##########################################################
+export pid=$$
+export DATA=${DATA:-${DATAROOT}/${jobid:?}}
+mkdir -p $DATA
+cd $DATA
+
+###########################################
+# Run setpdy and initialize PDY variables
+###########################################
+export cycle=${cycle:-t${cyc}z}
+setpdy.sh
+. PDY
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export pgmout="OUTPUT.${pid}"
+
+##############################################
+# Begin JOB SPECIFIC work
+##############################################
+export USHverif_global=$HOMEverif_global/ush
+export EXECverif_global=$HOMEverif_global/exec
+export PARMverif_global=$HOMEverif_global/parm
+export FIXverif_global=$HOMEverif_global/fix
+
+export DCOM=${DCOM:-$DCOMROOT/$NET}
+export PCOM=${PCOM:-$PCOMROOT/$NET}
+export GESIN=${GESIN:-$GESROOT/$envir}
+export GESOUT=${GESOUT:-$GESROOT/$envir}
+export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$PDY}
+export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$PDY}
+mkdir -p $COMOUT $DCOM $PCOM $GESOUT
+
+env
+
+# Execute the script.
+msg="HAS BEGUN on `hostname`"
+postmsg "$jlogfile" "$msg"
+sh $HOMEverif_global/scripts/exgrid2grid_step1.sh
+status=$?
+if [[ $status -ne 0 ]]; then
+    exit $status
+fi
+##############################################
+# End JOB SPECIFIC work
+#############################################
+
+
+##############################################
+# Final processing
+##############################################
+msg="ENDED NORMALLY."
+postmsg "$jlogfile" "$msg"
+
+if [ -e "$pgmout" ]; then
+    cat $pgmout
+fi
+
+##########################################
+# Remove the Temporary working directory
+##########################################
+cd $DATAROOT
+if [[ $KEEPDATA = "NO" ]]; then
+    rm -rf $DATA
+fi
+
+date

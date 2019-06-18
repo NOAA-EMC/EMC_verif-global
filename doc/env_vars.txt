@@ -1,0 +1,100 @@
+This file lists out where certain environment variables are set
+
+- ush/run_verif_global.sh
+HOMEverif_global
+RUN
+
+- ush/load_modules.sh
+HOMEmet
+HOMEMETplus
+
+- parm/config/config.base
+machine
+met_ver
+METplus_ver
+OUTPUTROOT
+RUN_ENVIR
+envir
+ACCOUNT
+QUEUE
+QUEUESHARED
+QUEUESERV
+HOMEverif_global
+PARMverif_global
+FIXverif_global
+USHverif_global
+UTILverif_global
+EXECverif_global
+HOMEmet
+HOMEMETplus
+PARMMETplus
+USHMETplus
+PATH
+PYTHONPATH
+NWROOT
+HOMEDIR
+STMP
+PTMP
+NOSCRUB
+gstat
+KEEPDATA
+NET
+SENDECF
+SENDCOM
+SENDDBN
+SENDDBN_NTC
+COMROOT
+NWGESROOT
+DCOMROOT
+PCOMROOT
+DATAROOT
+DATA
+verif_global_ARCDIR
+[NDATE, NHOUR, WGRIB, WGRRIB2 for Theia also set]
+
+- parm/config/config.vrfy
+RUN_GRID2GRID_STEP1
+RUN_GRID2GRID_STEP2
+RUN_GRID2OBS_STEP1
+RUN_GRID2OBS_STEP2
+RUN_PRECIP_STEP1
+RUN_PRECIP_STEP2
+RUN_TROPCYC
+RUN_FIT2OBS_STEP1
+RUN_FIT2OBS_STEP2
+RUN_MAPS2D
+RUN_MAPSGDAS
+RUN_MAPSENKF
+model_name_list
+model_dir_list
+model_fileformat_list
+start_date
+end_date
+date_type
+SEND2WEB
+webhost
+webhostid
+webdir
+-- grid2grid step 1
+g2g1_type_list
+g2g1_anl_name
+g2g1_anl_dir
+g2g_anl_fileformat
+g2g1_fcyc_list
+g2g1_nvhr_list
+g2g1_fhrmin
+g2g1_fhrmax
+
+- scripts/exgrid2grid_step1.sh
+vhr_list
+fcyc_list
+fhrmin
+
+- ush/set_init_valid_fhr_info.py
+fhrintvl
+fhr_list
+fhrmax
+loop_by_init
+start_hr
+end_hr
+hr_inc

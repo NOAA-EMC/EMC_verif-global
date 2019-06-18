@@ -1,0 +1,185 @@
+#!/bin/sh
+##---------------------------------------------------------------------------
+##---------------------------------------------------------------------------
+## NCEP EMC GLOBAL MODEL VERIFICATION
+##
+## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPGB
+## PURPOSE: Set up configurations to run user requested verification 
+##---------------------------------------------------------------------------
+##--------------------------------------------------------------------------
+
+echo "BEGIN: config.vrfy"
+
+####################################################
+# WHAT METPLUS USE CASES TO RUN
+####################################################
+## STEP 1 PRODUCES .STAT FILES FOR PARTIAL SUMS OR CONTINGENCY TABLE COUNTS
+## STEP 2 PRODUCES PLOTS FOR STATISTICS FROM .STAT FILES FROM STEP 1
+## SET TO "YES" or "NO"
+## EDIT SECTIONS BELOW FOR VERIFICATION TYPES REQUESTED
+#RUN_GRID2GRID_STEP1: runs METplus grid_stat, stat_analysis
+#RUN_GRID2GRID_STEP2: runs METplus stat_analysis, make_plots
+#RUN_GRID2OBS_STEP1:  runs METplus pb2nc, point_stat, stat_analysis
+#RUN_GRID2OBS_STEP2:  runs METplus stat_analysis, make_plots
+#RUN_PRECIP_STEP1:    runs METplus pcp_combine, grid_stat, stat_analysis
+#RUN_PRECIP_STEP2:    runs METplus stat_analysis, make_plots
+#RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
+#RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
+#RUN_MAPSGDAS:        run to make analysis maps of time-mean increments
+#RUN_MAPSENKF:        run to make maps of ENKF ensemble mean and ensemble spread
+export RUN_GRID2GRID_STEP1="YES"
+export RUN_GRID2GRID_STEP2="NO"
+export RUN_GRID2OBS_STEP1="YES"
+export RUN_GRID2OBS_STEP2="NO"
+export RUN_PRECIP_STEP1="YES"
+export RUN_PRECIP_STEP2="NO"
+export RUN_TROPCYC="NO"
+export RUN_MAPS2D="NO"
+export RUN_MAPSGDAS="NO"
+export RUN_MAPSENKF="NO"
+
+####################################################
+# GENERAL SETTINGS APPLIED TO ALL USE CASES
+####################################################
+## INPUT DATA SETTINGS
+#model_list:            list of comma separated models
+#model_dir_list:        directory path to model files
+#model_fileformat_list: file format of model files
+#model_hpssdir_list:    HPSS directory of data
+#model_data_runhpss:    get files from HPSS ("YES") if not online
+#hpss_walltime:         how long to run HPSS job to get data in minutes
+export model_list="gfs"                                                
+export model_dir_list="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
+export model_fileformat_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
+export model_data_runhpss="YES"
+export model_hpssdir_list="/NCEPPROD/hpssprod/runhistory"
+export hpss_walltime="10"
+## OUTPUT DATA SETTINGS
+#OUTPUTROOT: base output directory
+export OUTPUTROOT="/gpfs/hps3/stmp/$USER/verif_global_standalone_test"
+## DATE SETTINGS
+#start_date:       verification start date, format YYYYMMDD
+#end_date:         verification end date, format YYYYMMDD
+#make_met_data_by: how to treat dates, "VALID" or "INIT"
+export start_date="20190116"
+export end_date="20190120"
+export make_met_data_by="VALID"
+## WEB SETTINGS
+#SEND2WEB:  whether or not to send maps to webhost
+#webhost:   webhost(rzdm) computer
+#webhostid: webhost(rzdm) user name
+#webdir:    directory where to send maps on webhost
+export SEND2WEB="NO"
+export webhost="emcrzdm.ncep.noaa.gov"
+export webhostid="$USER"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus/TEST"
+## ARCHIVE SETTINGS
+#SENDARCH: "YES" to archive output
+#arch_dir:  directory to build archive
+export SENDARCH="YES"
+export arch_dir="/gpfs/hps3/emc/global/noscrub/$USER/archive"
+## METPLUS SETTINGS
+#MET_version:               MET version to use: 6.1, 7.0, 8.0, 8.1
+#METplus_version:           METplus version to use: 2.1
+#MET_verbosity:             MET verbosity for logging, 1-5 (most verbose is 5)
+#METplus_verbosity:         DEBUG, INFO, WARN, ERROR (most verbose is DEBUG)
+#log_MET_output_to_METplus: log MET output to METplus log, yes or no
+export MET_version="8.1"
+export METplus_version="2.1"
+export METplus_verbosity="INFO"
+export MET_verbosity="2"
+export log_MET_output_to_METplus="yes"
+## DATA DIRECTIVE SETTINGS
+export KEEPDATA="YES"
+export SENDECF="NO"
+export SENDCOM="NO"
+export SENDDBN="NO"
+export SENDDBN_NTC="NO"
+export RUNBATCH="YES" 
+####################################################
+# SETTINGS FOR SPECIFIC USE CASES
+####################################################
+if [ $RUN_GRID2GRID_STEP1 = YES ]; then
+    #g2g1_type_list:      list type of verifications to run for grid-to-grid, anom, pres, sfc
+    #g2g1_anl_name:       analysis type to compare models to, self, gfs_ops
+    #g2g1_anl_fileformat: analysis file format
+    #g2g1_fyc_list:       all forecst cycles to be included in verification: HH
+    #g2g1_vhr_list:       all valid hours to be included in verification: HH
+    #g2g1_fhr_min:        forecast hour to start verification HH[H]
+    #g2g1_fhr_max:        forecast hour to end verification HH[H]
+    #g2g1_grid:           grid to do verification on
+    #g2g1_gather_by:      how to group the verification data, VSDB, VALID, INIT
+    export g2g1_type_list="anom pres sfc"
+    export g2g1_anl_name="self"
+    export g2g1_anl_fileformat="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
+    export g2g1_fcyc_list="00 06 12 18"
+    export g2g1_vhr_list="00 06 12 18"
+    export g2g1_fhr_min="00"
+    export g2g1_fhr_max="384"
+    export g2g1_grid="G002"
+    export g2g1_gather_by="VSDB"
+fi
+
+if [ $RUN_GRID2GRID_STEP2 = YES ]; then
+    echo "Hold for RUN_GRID2GRID_STEP2 setting"
+fi
+
+if [ $RUN_GRID2OBS_STEP1 = YES ]; then
+    #g2o1_type_list:          list type of verifications to run for grid-to-obs, upper_air, conus_sfc
+    #g2o1_fyc_list:           all forecst cycles to be included in verification: HH
+    #g2o1_vhr_list_upper_air: all valid hours to be included in upper_air verification: HH
+    #g2o1_vhr_list_conus_sfc: all valid hours to be included in conus_sfc verification: HH
+    #g2o1_fhr_min:            forecast hour to start verification HH[H]
+    #g2o1_fhr_max:            forecast hour to end verification HH[H]
+    #g2o1_grid_upper_air:     grid to do upper_air verification on
+    #g2o1_grid_conus_sfc:     grid to do conus_sfc verification on
+    #g2o1_gather_by:          how to group the verification data, VSDB, VALID, INIT
+    #prepbufr_data_runhpss:   get files from HPSS ("YES") if not online
+    export g2o1_type_list="upper_air conus_sfc"
+    export g2o1_fcyc_list="00 06 12 18"
+    export g2o1_vhr_list_upper_air="00 06 12 18"
+    export g2o1_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
+    export g2o1_fhr_min="00"
+    export g2o1_fhr_max="168"
+    export g2o1_obtype_upper_air="ADPUPA"
+    export g2o1_obtype_conus_sfc="ONLYSF"
+    export g2o1_grid_upper_air="G003"
+    export g2o1_grid_conus_sfc="G104"
+    export g2o1_gather_by="VSDB"
+    export prepbufr_data_runhpss="YES"
+fi
+
+if [ $RUN_GRID2OBS_STEP2 = YES ]; then
+    echo "Hold for RUN_GRID2OBS_STEP2 setting"
+fi
+
+if [ $RUN_PRECIP_STEP1 = YES ]; then
+    #precip1_fyc_list:             all forecst cycles to be included in verification: HH
+    #precip1_fhr_min:              forecast hour to start verification HH[H]
+    #precip1_fhr_max:              forecast hour to end verification HH[H]
+    #precip1_obtype:               precip observation type/name
+    #precip1_accum_length:         verification accumulation length in hours
+    #precip1_model_bucket_list:    model file accumulation bucket in HH, support continuous bucket in future
+    #precip1_model_varname_list:   model file precip variable to use: APCP or PRATE
+    #precip_model_fileformat_list: file format of model files
+    #precip1_grid:                 grid to do verification on
+    #precip1_gather_by:            how to group the verification data, VSDB, VALID, INIT
+    #precip1_obs_data_runhpss:     get files from HPSS ("YES") if not online
+    export precip1_fcyc_list="00 06 12 18"
+    export precip1_fhr_min="00"
+    export precip1_fhr_max="180"
+    export precip1_obtype="ccpa"
+    export precip1_accum_length="24"
+    export precip1_model_bucket_list="06"
+    export precip1_model_varname_list="APCP"
+    export precip1_model_fileformat_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}" 
+    export precip1_grid="G211"
+    export precip1_gather_by="VSDB"
+    export precip1_obs_data_runhpss="YES"
+fi
+
+if [ $RUN_PRECIP_STEP2 = YES ]; then
+    echo "Hold for RUN_PRECIP_STEP2 setting"
+fi
+
+echo "END: config.vrfy"

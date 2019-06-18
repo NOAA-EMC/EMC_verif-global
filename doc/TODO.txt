@@ -1,0 +1,9 @@
+GENERAL:
+- add support for METplus confs for initialization 
+  verification (have valid vs. init METplus conf files)
+- write to jlogfile
+- create list of environment variables
+- comment through scripts
+PRECIP_STEP1:
+- use flxf files [MET needs to support Gaussian grids]
+- implement continuous buckets/SUBTRACT method [METplus needs to support file naming in SUBTRACT so files don't override each other for multiple forecast hours]

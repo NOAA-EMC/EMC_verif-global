@@ -1,0 +1,51 @@
+Be aware of the wiki in the “Virtual Lab” project (https://vlab.ncep.noaa.gov/redmine/projects/vlab/wiki).  It contains lots of good guidance, including sections devoted to:
+* Helping Project Owners
+* Repository Management 
+* Redmine usage
+* and even tips for how to use Eclipse IDE
+
+Some basic repo interactions are listed below.  Note that anything preceded by a “$” represents a variable.
+
+*** Git ****
+
+	clone: (assumes you have setup a 'gerrit' ssh alias -- see https://vlab.ncep.noaa.gov/redmine/projects/vlab/wiki/Gerrit_Configuration) 
+
+		git clone gerrit:$REPO_NAME
+
+                Alternative is to get the syntax from the project overview at https://vlab.ncep.noaa.gov/code-review
+
+                git clone ssh://$username@vlab.ncep.noaa.gov:29418/$REPO_NAME
+
+	local commit: 
+		git add $FILE_NAME
+		git commit -a (for all) OR
+		git commit $FILE_NAME(S)
+
+	squash: 
+		git rebase -i $BRANCH_NAME~<# of commits to include>
+		ex: git rebase -i My_Branch~5
+
+	change branch:
+		git checkout $BRANCH_NAME
+
+        create new branch (based upon current checked out branch):
+                git checkout -b $NEW_BRANCH_NAME
+
+	commit message keywords:
+		VLab Issue #NNNN; fixes #NNNN
+
+	push to gerrit for review: 
+		git push gerrit:$REPO_NAME HEAD:refs/for/$BRANCH_NAME
+		(alt): git push $DEFINED_REMOTE
+
+        push from local master branch to VLab's master branch without code review:
+                git push origin master
+
+        push from local branch to VLab's remote branch:
+                git push origin $LOCAL_BRANCH_NAME:$VLAB_REMOTE_BRANCH_NAME
+
+        fetch changes from VLab (does not merge with currently checked out branch):
+                git fetch
+
+        pull down changes from VLab and merge within current checked out branch:
+                git pull

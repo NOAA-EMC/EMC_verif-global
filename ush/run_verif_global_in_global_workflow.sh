@@ -1,0 +1,243 @@
+#!/bin/sh
+##---------------------------------------------------------------------------
+##---------------------------------------------------------------------------
+## NCEP EMC GLOBAL MODEL VERIFICATION
+##
+## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPGB
+## PURPOSE: Used to run the verif_global package in the Global Workflow.
+##---------------------------------------------------------------------------
+##---------------------------------------------------------------------------
+
+export HOMEverif_global="${HOMEverif_global:-${HOMEgfs}/sorc/verif_global}"
+export RUN_GRID2GRID_STEP1="${RUN_METPLUS_GRID2GRID_STEP1:-NO}"
+export RUN_GRID2OBS_STEP1="${RUN_METPLUS_GRID2OBS_STEP1:-NO}"
+export RUN_PRECIP_STEP1="${RUN_METPLUS_PRECIP_STEP1:-NO}"
+## INPUT DATA SETTINGS
+export model_list="${model_list:-$PSLOT}"
+export model_dir_list="${model_dir_list:-${NOSCRUB}/archive}"
+export model_fileformat_list="${model_fileformat_list:-pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}}"
+export model_hpssdir_list=${model_hpssdir_list:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
+export model_data_runhpss=${get_data_from_hpss:-NO}
+export hpss_walltime=${hpss_walltime:-10}
+## OUTPUT DATA SETTINGS
+export OUTPUTROOT=${rundir:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
+## DATE SETTINGS
+VRFYBACK_HRS=${VRFYBACK_HRS:-00}
+export start_date=$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)
+export end_date=$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)
+export make_met_data_by=${make_met_data_by:-VALID}
+export make_met_data_by=${make_met_data_by:-VSDB}
+## ARCHIVE SETTINGS
+export SENDARCH="YES"
+export arch_dir=${arch_dir:-${NOSCRUB}/archive}
+## METPLUS SETTINGS
+export MET_version=${MET_version:-8.1}
+export METplus_version=${METplus_version:-2.1}
+export METplus_verbosity=${METplus_verbosity:-INFO}
+export MET_verbosity=${MET_verbosity:-2}
+export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
+## DATA DIRECTIVE SETTINGS
+export KEEPDATA=${KEEPDATA:-NO}
+export SENDECF=${SENDECF:-NO}
+export SENDCOM=${SENDCOM:-NO}
+export SENDDBN=${SENDDBN:-NO}
+export RUNBATCH=${RUNBATCH:-NO}
+## FORECAST VERIFICATION SETTINGS
+if [ $gfs_cyc = 1 ]; then
+    export fcyc_list="$cyc"
+    export vhr_list="$cyc"
+    export cyc2run="$cyc"
+elif [ $gfs_cyc = 2 ]; then
+    export fcyc_list="00 12"
+    export vhr_list="00 12"
+    export cyc2run=12
+elif [ $gfs_cyc = 4 ]; then
+    export fcyc_list="00 06 12 18"
+    export vhr_list="00 06 12 18"
+    export cyc2run=18
+else
+    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4."                                          
+    exit 1
+fi
+fhr_min=${fhr_min:-00}
+fhr_max=${fhr_max:-180}
+
+## GRID-TO-GRID STEP 1
+export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
+export g2g1_anl_name=${g2g1_anl_name:-self}
+export g2g1_anl_fileformat=${g2g1_anl_fileformat:-pgbanl.gfs.{valid?fmt=%Y%m%d%H}}
+export g2g1_fcyc_list=$fcyc_list
+export g2g1_vhr_list=$vhr_list
+export g2g1_fhr_min=$fhr_min
+export g2g1_fhr_max=$fhr_max
+export g2g1_grid=${g2g1_grid:-G002}
+export g2g1_gather_by=$gather_by
+
+## GRID2OBS 1
+export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
+export g2o1_fcyc_list=$fcyc_list
+export g2o1_fhr_min=$fhr_min
+export g2o1_fhr_max=$fhr_max
+export g2o1_fhr_out_upper_air=${g2o1_fhr_out_upper_air:-6}
+export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
+export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
+export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
+export g2o1_gather_by=$gather_by
+export prepbufr_data_runhpss=${get_data_from_hpss:-NO}
+if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
+    export g2o1_vhr_list_upper_air="00 12"
+elif [ $g2o1_fhr_out_upper_air -eq 6 ]; then
+    export g2o1_vhr_list_upper_air="00 06 12 18"
+else
+    echo "ERROR: g2o1_fhr_out_upper_air=$g2o1_fhr_out_upper_air is not supported"
+fi
+if [ $g2o1_fhr_out_conus_sfc -eq 12 ]; then
+    export g2o1_vhr_list_conus_sfc="00 12"
+elif [ $g2o1_fhr_out_conus_sfc -eq 6 ]; then
+    export g2o1_vhr_list_conus_sfc="00 06 12 18"
+elif [ $g2o1_fhr_out_conus_sfc -eq 3 ]; then
+    export g2o1_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
+else
+    echo "ERROR: g2o1_fhr_out_conus_sfc=$g2o1_fhr_out_conus_sfc is not supported"
+fi
+
+## PRECIP 1
+export precip1_fcyc_list=$fcyc_list
+export precip1_fhr_min=$fhr_min
+export precip1_fhr_max=$fhr_max
+export precip1_obtype=${precip1_obtype:-ccpa}
+export precip1_accum_length=${precip1_accum_length:-24}
+export precip1_model_bucket_list=${precip_model_bucket_list:-06}
+export precip1_model_varname_list=${precip_model_varname_list:-APCP}
+export precip1_model_fileformat_list=${precip1_model_filefomat_list:-$model_fileformat_list}
+export precip1_grid=${precip1_grid:-G211}
+export precip1_gather_by=$gather_by
+export obs_data_runhpss=${get_data_from_hpss:-NO}
+
+## Set up
+export NET=$NET
+export RUN_ENVIR=$RUN_ENVIR
+export envir=$envir
+export DATA=$OUTPUTROOT
+mkdir -p $DATA
+cd $DATA
+
+## Get machine
+python $HOMEverif_global/ush/get_machine.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
+echo
+if [ -s config.machine ]; then
+    . config.machine
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
+    echo
+fi
+
+## Load modules and set machine specific variables
+if [ $machine != "THEIA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+    echo "ERROR: $machine is not supported"
+    exit 1
+fi
+
+. $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
+echo
+
+## Account and queues for machines
+export ACCOUNT=$ACCOUNT
+export QUEUE=$QUEUE
+export QUEUESERV=$QUEUE_ARCH
+
+## Installations for verif_global, met, and METplus
+export HOMEverif_global=$HOMEverif_global
+export PARMverif_global=$HOMEverif_global/parm
+export FIXverif_global=$FIXgfs/fix_verif
+export USHverif_global=$HOMEverif_global/ush
+export UTILverif_global=$HOMEverif_global/util
+export EXECverif_global=$HOMEverif_global/exec
+export HOMEMET=$HOMEMET
+export HOMEMETplus=$HOMEMETplus
+export PARMMETplus=$HOMEMETplus/parm
+export USHMETplus=$HOMEMETplus/ush
+export PATH="${USHMETplus}:${PATH}"
+export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
+
+## Machine and user specific paths
+export HOMEDIR=$HOMEDIR
+export STMP=$STMP
+export PTMP=$PTMP
+export NOSCRUB=$NOSCRUB
+export WGRIB2=$WGRIB2
+export CNVGRIB=$CNVGRIB
+if [ $machine = "THEIA" ]; then
+    export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
+    export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
+elif [ $machine = "WCOSS_C" ]; then
+    export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
+    export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
+elif [ $machine = "WCOSS_DELL_P3" ]; then
+    export gstat="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/stat"
+    export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
+fi
+
+## Some operational directories
+export prepbufr_prod_upper_air_dir="/gpfs/hps/nco/ops/com/gfs/prod"
+export prepbufr_prod_conus_sfc_dir="/com2/nam/prod"
+export ccpa_24hr_prod_dir="/com/verf/prod"
+
+## Do checks on switches to run verification for
+if [ $cyc != $cyc2run ]; then 
+    RUN_GRID2GRID_STEP1=NO 
+    RUN_GRID2OBS_STEP1=NO 
+    RUN_PRECIP_STEP1=NO
+fi
+if [ ${CDATE}${cyc2run} -le $SDATE ]; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
+    RUN_PRECIP_STEP1=NO
+fi
+
+echo "=============== RUNNING METPLUS ==============="
+if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
+    echo
+    echo "===== RUNNING GRID-TO-GRID STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for grid-to-grid verifcation using METplus ====="
+    export RUN="grid2grid_step1"
+    if [ $RUNBATCH = YES ]; then
+        export script_to_run="$HOMEverif_global/scripts/exgrid2grid_step1.sh"
+        python $HOMEverif_global/ush/run_batch.py $machine script
+    else
+        $HOMEverif_global/scripts/exgrid2grid_step1.sh
+    fi
+fi 
+
+if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
+    echo
+    echo "===== RUNNING GRID-TO-OBSERVATIONS STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for grid-to-observations verifcation using METplus ====="
+    export RUN="grid2obs_step1"
+    if [ $RUNBATCH = YES ]; then
+        export script_to_run="$HOMEverif_global/scripts/exgrid2obs_step1.sh"
+        python $HOMEverif_global/ush/run_batch.py $machine script
+    else
+        $HOMEverif_global/scripts/exgrid2obs_step1.sh
+    fi
+fi  
+
+if [ $RUN_PRECIP_STEP1 = YES ] ; then
+    echo
+    echo "===== RUNNING PRECIPITATION STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for precipitation verifcation using METplus ====="
+    export RUN="precip_step1"
+    if [ $RUNBATCH = YES ]; then
+        export script_to_run="$HOMEverif_global/scripts/exprecip_step1.sh"
+        python $HOMEverif_global/ush/run_batch.py $machine script
+    else
+        $HOMEverif_global/scripts/exprecip_step1.sh
+    fi
+fi

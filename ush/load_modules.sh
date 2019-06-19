@@ -76,7 +76,8 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load NetCDF/4.5.0 2>>/dev/null
     module load HPSS/5.0.2.5 2>>/dev/null
     module load python/2.7.14 2>>/dev/null
-    module load CFP/2.0.1
+    module load CFP/2.0.1 2>>/dev/null
+    module unload ips 2>>/dev/null
     if [ $MET_version = 8.1 ]; then
         module load met/$MET_version 2>>/dev/null
         export HOMEMET="/usrx/local/dev/met/${MET_version}"

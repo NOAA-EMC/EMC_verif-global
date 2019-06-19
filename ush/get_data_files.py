@@ -111,12 +111,21 @@ def get_hpss_data(hpss_job_filename,
     print("Submitting "+hpss_job_filename+" to "+queueserv)
     print("Output sent to "+os.path.join(link_data_dir,
           "from_HPSS_"+hpss_file+".out"))
-    if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+    if machine == 'WCOSS_C':
         os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
                   '-P '+account+' -o '+os.path.join(link_data_dir,
                   'from_HPSS_'+hpss_file+'.out')+' -e '+os.path.join(
                   link_data_dir, 'from_HPSS_'+hpss_file+'.out')+' '
                   '-J from_HPSS_'+hpss_file+' -R rusage[mem=2048] '+hpss_job_filename)
+        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
+                         '-noheader -J from_HPSS_'+hpss_file
+                         +'| grep "RUN\|PEND" | wc -l')
+    elif machine == 'WCOSS_DELL_P3':
+        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
+                  '-P '+account+' -o '+os.path.join(link_data_dir,
+                  'from_HPSS_'+hpss_file+'.out')+' -e '+os.path.join(
+                  link_data_dir, 'from_HPSS_'+hpss_file+'.out')+' '
+                  '-J from_HPSS_'+hpss_file+' -M 2048 -R "affinity[core(1)]" '+hpss_job_filename)
         job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
                          '-noheader -J from_HPSS_'+hpss_file
                          +'| grep "RUN\|PEND" | wc -l')

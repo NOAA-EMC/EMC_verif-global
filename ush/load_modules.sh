@@ -38,7 +38,7 @@ if [ $machine = WCOSS_C ]; then
     module load cfp-intel-sandybridge/1.1.0 2>>/dev/null
     module load prod_util 2>>/dev/null
     #module load prod_envir 2>>/dev/null
-    module load grib_util/1.0.5 2>>/dev/null
+    module load grib_util/1.1.0 2>>/dev/null
     module load util_shared/1.0.7 2>>/dev/null
     module load nco-gnu-sandybridge/4.4.4 2>>/dev/null
     module load NetCDF-intel-sandybridge/4.2 2>>/dev/null

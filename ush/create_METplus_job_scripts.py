@@ -38,7 +38,7 @@ edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]),
 
 def set_job_common_env(job_file):
     env_var_list = [ 'HOMEMETplus', 'HOMEMET', 'DATA', 'WGRIB2', 'NCAP2', 
-                     'NCDUMP', 'METplus_verbosity', 'MET_verbosity', 
+                     'NCDUMP', 'CONVERT', 'METplus_verbosity', 'MET_verbosity', 
                      'log_MET_output_to_METplus', 'PARMverif_global',
                      'USHMETplus', 'FIXverif_global', 'METplus_version',
                      'MET_version' ]

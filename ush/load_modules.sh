@@ -77,10 +77,11 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load HPSS/5.0.2.5 2>>/dev/null
     module load python/2.7.14 2>>/dev/null
     module load CFP/2.0.1 2>>/dev/null
+    module load imagemagick/6.9.9-25 2>>/dev/null
     module unload ips 2>>/dev/null
     if [ $MET_version = 8.1 ]; then
         module load met/$MET_version 2>>/dev/null
-        export HOMEMET="/usrx/local/dev/met/${MET_version}"
+        export HOMEMET="/usrx/local/dev/packages/met/${MET_version}"
     elif [ $MET_version = 7.0 -o $MET_version = 8.0 ]; then
         module use /gpfs/dell2/emc/verification/noscrub/Julie.Prestopnik/modulefiles 2>>/dev/null
         module load met/$MET_version 2>>/dev/null
@@ -127,6 +128,7 @@ fi
 export NCAP2=`which ncap2`
 export NCDUMP=`which ncdump`
 export HTAR=`which htar`
+export CONVERT=`which convert`
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 

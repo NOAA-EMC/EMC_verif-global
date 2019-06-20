@@ -24,7 +24,7 @@ start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 make_met_data_by = os.environ['make_met_data_by']
 model_hpssdir_list = os.environ['model_hpssdir_list'].split(' ')
-hpss_base_dir = '/NCEPPROD/hpssprod/runhistory'
+hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 
 class TimeObj(object):
     __slots__ = 'validtime', 'inittime', 'lead'
@@ -102,41 +102,39 @@ def get_hpss_data(hpss_job_filename,
         hpss_job_file.write('#!/bin/sh'+'\n')
         hpss_job_file.write('cd '+link_data_dir+'\n')
         hpss_job_file.write(htar+' -xf '+hpss_tar+' ./'+hpss_file+'\n')
-        if hpss_file[0:5] != 'ccpa.':
+        if hpss_file[0:4] == 'gfs.':
             cnvgrib = os.environ['CNVGRIB']
             hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
                                 +link_data_file+'\n')
-            hpss_job_file.write('rm '+hpss_file)
+        else:
+            hpss_job_file.write('mv '+hpss_file+' '+link_data_file+'\n')
+        hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
     os.chmod(hpss_job_filename, 0o755)
+    hpss_job_output = hpss_job_filename.replace('.sh', '.out')
+    hpss_job_name = hpss_job_filename.rpartition('/')[2].replace('.sh', '')
     print("Submitting "+hpss_job_filename+" to "+queueserv)
-    print("Output sent to "+os.path.join(link_data_dir,
-          "from_HPSS_"+hpss_file+".out"))
+    print("Output sent to "+hpss_job_output)
     if machine == 'WCOSS_C':
         os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
-                  '-P '+account+' -o '+os.path.join(link_data_dir,
-                  'from_HPSS_'+hpss_file+'.out')+' -e '+os.path.join(
-                  link_data_dir, 'from_HPSS_'+hpss_file+'.out')+' '
-                  '-J from_HPSS_'+hpss_file+' -R rusage[mem=2048] '+hpss_job_filename)
+                  '-P '+account+' -o '+hpss_job_output+' -e '+hpss_job_output+' '
+                  '-J '+hpss_job_name+' -R rusage[mem=2048] '+hpss_job_filename)
         job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         '-noheader -J from_HPSS_'+hpss_file
+                         '-noheader -J '+hpss_job_name
                          +'| grep "RUN\|PEND" | wc -l')
     elif machine == 'WCOSS_DELL_P3':
         os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
-                  '-P '+account+' -o '+os.path.join(link_data_dir,
-                  'from_HPSS_'+hpss_file+'.out')+' -e '+os.path.join(
-                  link_data_dir, 'from_HPSS_'+hpss_file+'.out')+' '
-                  '-J from_HPSS_'+hpss_file+' -M 2048 -R "affinity[core(1)]" '+hpss_job_filename)
+                  '-P '+account+' -o '+hpss_job_output+' -e '+hpss_job_output+' '
+                  '-J '+hpss_job_name+' -M 2048 -R "affinity[core(1)]" '+hpss_job_filename)
         job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         '-noheader -J from_HPSS_'+hpss_file
+                         '-noheader -J '+hpss_job_name
                          +'| grep "RUN\|PEND" | wc -l')
     elif machine == 'THEIA':
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   '--partition='+queueserv+' --account='+account+' '
-                  '--output='
-                  +os.path.join(link_data_dir, 'from_HPSS_'+hpss_file+'.out')+' '
-                  '--job-name=from_HPSS_'+hpss_file+' '+hpss_job_filename)
-        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n from_HPSS_'
-                         +hpss_file+' -t R,PD -h | wc -l')
+                  '--output='+hpss_job_output+' '
+                  '--job-name='+hpss_job_name+' '+hpss_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +hpss_job_name+' -t R,PD -h | wc -l')
     sleep_counter, sleep_checker = 1, 10
     while (sleep_counter*sleep_checker) <= walltime_seconds:
         sleep(sleep_checker)
@@ -160,22 +158,36 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_suffix,
     if 'NCEPPROD' in hpss_dir:
         hpss_date_dir = os.path.join(hpss_dir, 'rh'+YYYY, YYYYmm,
                                      YYYYmmdd)
-        if int(YYYYmmdd) >= 20170720:
+        if int(YYYYmmdd) >= 20190612:
+            hpss_tar = os.path.join(hpss_date_dir,
+                                    'gpfs_dell1_nco_ops_com_gfs_prod_gfs.'
+                                    +YYYYmmdd+'_'+HH+'.gfs_pgrb2.tar')
+            hpss_file = (
+                'gfs.'+YYYYmmdd+'/'+HH+'/gfs.t'+HH
+                +'z.pgrb2.0p25.'+hpss_file_suffix
+                )
+        elif int(YYYYmmdd) >= 20170720 and int(YYYYmmdd) < 20190612:
             hpss_tar = os.path.join(hpss_date_dir, 
                                     'gpfs_hps_nco_ops_com_gfs_prod_gfs.'
                                     +YYYYmmddHH+'.pgrb2_0p25.tar')
+            hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
         elif int(YYYYmmdd) >= 20160510 and int(YYYYmmdd) < 20170720:
             hpss_tar = os.path.join(hpss_date_dir,
                                     'com2_gfs_prod_gfs.'
                                     +YYYYmmddHH+'.pgrb2_0p25.tar')
+            hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
         else:
             hpss_tar = os.path.join(hpss_date_dir,
                                     'com_gfs_prod_gfs.'
                                     +YYYYmmddHH+'.pgrb2_0p25.tar')
+            hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
     else:
         hpss_tar = os.path.join(hpss_dir, name, YYYYmmddHH, 'gfsa.tar')
-    hpss_job_filename = os.path.join(link_data_dir,'from_HPSS_'
-                                     +hpss_file+'.sh')
+        hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
+    hpss_job_filename = os.path.join(
+        link_data_dir, 'HPSS_jobs', 'HPSS_'+hpss_tar.rpartition('/')[2]
+        +'_'+hpss_file.replace('/', '_')+'.sh'
+        )
     return hpss_tar, hpss_file, hpss_job_filename
 
 if RUN == 'grid2grid_step1':
@@ -205,6 +217,7 @@ if RUN == 'grid2grid_step1':
         link_model_data_dir = os.path.join(cwd, 'data', name)
         if not os.path.exists(link_model_data_dir):
             os.makedirs(link_model_data_dir)
+            os.makedirs(link_model_data_dir+'/HPSS_jobs')
         for time in time_info:
             valid_time = time.validtime
             init_time = time.inittime
@@ -261,6 +274,7 @@ if RUN == 'grid2grid_step1':
         link_model_data_dir = os.path.join(cwd, 'data', name)
         if not os.path.exists(link_model_data_dir):
             os.makedirs(link_model_data_dir)
+            os.makedirs(link_model_data_dir+'/HPSS_jobs')
         for valid_time in valid_time_list:
             link_anl_file = os.path.join(
                 link_model_data_dir,
@@ -386,6 +400,7 @@ elif RUN == 'grid2obs_step1':
             link_model_data_dir = os.path.join(cwd, 'data', name)
             if not os.path.exists(link_model_data_dir):
                 os.makedirs(link_model_data_dir)
+                os.makedirs(link_model_data_dir+'/HPSS_jobs')
             for time in time_info:
                 valid_time = time.validtime
                 init_time = time.inittime
@@ -456,15 +471,22 @@ elif RUN == 'grid2obs_step1':
                                          'gdas.t'+HH+'z.prepbufr')
                 arch_file = os.path.join(prepbufr_arch_dir, 'gdas',
                                           'prepbufr.gdas.'+YYYYmmddHH)
-                hpss_date_dir = os.path.join(hpss_base_dir,
+                hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                              'rh'+YYYY, YYYYmm,
                                              YYYYmmdd)
-                if  int(YYYYmmdd) >= 20170720:
+                if int(YYYYmmdd) >= 20190612:
                     hpss_tar_file = (
-                        'gpfs_hps_nco_ops_com_gfs_prod_gdas.'+YYYYmmddHH+'.tar'
+                        'gpfs_dell1_nco_ops_com_gfs_prod_gdas.'
+                        +YYYYmmdd+'_'+HH+'.gdas.tar'
+                        )
+                    hpss_file = 'gdas.'+YYYYmmdd+'/'+HH+'/gdas.t'+HH+'z.prepbufr'
+                elif int(YYYYmmdd) >= 20170720 and int(YYYYmmdd) < 20190612:
+                    hpss_tar_file = (
+                        'gpfs_hps_nco_ops_com_gfs_prod_gdas.'
+                        +YYYYmmddHH+'.tar'
                         )
                     hpss_file = 'gdas.t'+HH+'z.prepbufr'
-                elif int(YYYYmmdd) >= 20160510 and  int(YYYYmmdd) < 20170720:
+                elif int(YYYYmmdd) >= 20160510 and int(YYYYmmdd) < 20170720:
                     hpss_tar_file = 'com2_gfs_prod_gdas.'+YYYYmmddHH+'.tar'
                     hpss_file = 'gdas1.t'+HH+'z.prepbufr'
                 else:
@@ -503,7 +525,7 @@ elif RUN == 'grid2obs_step1':
                    arch_file = os.path.join(prepbufr_arch_dir, 'nam',
                                             'nam.'+offset_YYYYmmdd,
                                             'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr)
-                   hpss_date_dir = os.path.join(hpss_base_dir,
+                   hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                                 'rh'+offset_YYYY, offset_YYYYmm,
                                                  offset_YYYYmmdd)
                    if int(offset_YYYYmmdd) == 20170320:
@@ -570,7 +592,7 @@ elif RUN == 'grid2obs_step1':
                            +'z.prepbufr.tm00'
                            )
                        hpss_tar1 = os.path.join(
-                           hpss_base_dir, 'rh'+ndas_prepbufr_dict['YYYY12'],
+                           hpss_prod_base_dir, 'rh'+ndas_prepbufr_dict['YYYY12'],
                            ndas_prepbufr_dict['YYYYmm12'], 
                            ndas_prepbufr_dict['YYYYmmdd12'],
                            'com_nam_prod_ndas.'
@@ -578,7 +600,7 @@ elif RUN == 'grid2obs_step1':
                            +ndas_prepbufr_dict['HH12']+'.bufr.tar'
                            )
                        hpss_tar2 = os.path.join(
-                           hpss_base_dir, 'rh'+ndas_prepbufr_dict['YYYY06'],
+                           hpss_prod_base_dir, 'rh'+ndas_prepbufr_dict['YYYY06'],
                            ndas_prepbufr_dict['YYYYmm06'],
                            ndas_prepbufr_dict['YYYYmmdd06'],
                            'com_nam_prod_ndas.'
@@ -586,7 +608,7 @@ elif RUN == 'grid2obs_step1':
                            +ndas_prepbufr_dict['HH06']+'.bufr.tar'
                            )
                        hpss_tar3 = os.path.join(
-                           hpss_base_dir, 'rh'+ndas_prepbufr_dict['YYYY00'],
+                           hpss_prod_base_dir, 'rh'+ndas_prepbufr_dict['YYYY00'],
                            ndas_prepbufr_dict['YYYYmm00'],
                            ndas_prepbufr_dict['YYYYmmdd00'],
                            'com_nam_prod_nam.'+ndas_prepbufr_dict['YYYYmmdd00']
@@ -651,7 +673,7 @@ elif RUN == 'grid2obs_step1':
                            +'z.prepbufr.tm03'
                            )
                        hpss_tar1 = os.path.join(
-                           hpss_base_dir, 'rh'+ndas_prepbufr_dict['YYYY09'],
+                           hpss_prod_base_dir, 'rh'+ndas_prepbufr_dict['YYYY09'],
                            ndas_prepbufr_dict['YYYYmm09'],
                            ndas_prepbufr_dict['YYYYmmdd09'],
                            'com_nam_prod_ndas.'
@@ -659,7 +681,7 @@ elif RUN == 'grid2obs_step1':
                            +ndas_prepbufr_dict['HH09']+'.bufr.tar'
                            )
                        hpss_tar2 = os.path.join(
-                           hpss_base_dir, 'rh'+ndas_prepbufr_dict['YYYY03'],
+                           hpss_prod_base_dir, 'rh'+ndas_prepbufr_dict['YYYY03'],
                            ndas_prepbufr_dict['YYYYmm03'],
                            ndas_prepbufr_dict['YYYYmmdd03'],
                            'com_nam_prod_ndas.'
@@ -690,6 +712,7 @@ elif RUN == 'grid2obs_step1':
                        prepbufr_files_to_check.append(pbo2)
             if not os.path.exists(link_prepbufr_data_dir):
                 os.makedirs(link_prepbufr_data_dir)
+                os.makedirs(link_prepbufr_data_dir+'/HPSS_jobs')
             if not os.path.exists(link_prepbufr_file):
                 for prepbufr_file_group in prepbufr_files_to_check:
                     prod_file = prepbufr_file_group.prodfile
@@ -708,7 +731,9 @@ elif RUN == 'grid2obs_step1':
                                   "to get file from HPSS")
                             hpss_job_filename = os.path.join(
                                   link_prepbufr_data_dir,
-                                  'from_HPSS_'+hpss_file+'.sh'
+                                  'HPSS_jobs', 'HPSS_'
+                                  +hpss_tar.rpartition('/')[2]
+                                  +'_'+hpss_file.replace('/', '_')+'.sh'
                                   )
                             get_hpss_data(hpss_job_filename,
                                           link_prepbufr_data_dir, 
@@ -778,6 +803,7 @@ elif RUN == 'precip_step1':
         link_model_data_dir = os.path.join(cwd, 'data', name)
         if not os.path.exists(link_model_data_dir):
             os.makedirs(link_model_data_dir)
+            os.makedirs(link_model_data_dir+'/HPSS_jobs')
         for time in time_info:
             valid_time = time.validtime
             init_time = time.inittime
@@ -886,7 +912,7 @@ elif RUN == 'precip_step1':
             arch_dir = '/no/online/ccpa_24hr/arch/dir'
             arch_file = os.path.join(arch_dir,
                                      'ccpa.'+YYYYmmdd+'12.24h')
-            hpss_date_dir = os.path.join(hpss_base_dir,
+            hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                          'rh'+YYYY, YYYYmm,
                                          YYYYmmdd)
             hpss_tar = os.path.join(hpss_date_dir,
@@ -900,6 +926,7 @@ elif RUN == 'precip_step1':
             exit(1)
         if not os.path.exists(link_obs_data_dir):
             os.makedirs(link_obs_data_dir)
+            os.makedirs(link_obs_data_dir+'/HPSS_jobs')
         if not os.path.exists(link_obs_file):
             if os.path.exists(prod_file):
                 os.system('ln -sf '+prod_file+' '+link_obs_file)
@@ -909,9 +936,11 @@ elif RUN == 'precip_step1':
                 if obs_run_hpss == 'YES':
                     print("Did not find "+prod_file+" or "+arch_file+" "
                           +"online...going to try to get file from HPSS")
-                    hpss_job_filename = os.path.join(link_obs_data_dir,
-                                                     'from_HPSS_'
-                                                     +hpss_file+'.sh')
+                    hpss_job_filename = os.path.join(
+                        link_obs_data_dir, 'HPSS_jobs', 
+                        'HPSS_'+hpss_tar.rpartition('/')[2]
+                        +'_'+hpss_file.replace('/', '_')+'.sh'
+                        )
                     get_hpss_data(hpss_job_filename,
                                   link_obs_data_dir, link_obs_file,
                                   hpss_tar, hpss_file)

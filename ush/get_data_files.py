@@ -106,9 +106,11 @@ def get_hpss_data(hpss_job_filename,
             cnvgrib = os.environ['CNVGRIB']
             hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
                                 +link_data_file+'\n')
+            hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
         else:
-            hpss_job_file.write('mv '+hpss_file+' '+link_data_file+'\n')
-        hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
+            if hpss_file[0:5] != 'ccpa.':
+                hpss_job_file.write('cp '+hpss_file+' '+link_data_file+'\n')
+                hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
     os.chmod(hpss_job_filename, 0o755)
     hpss_job_output = hpss_job_filename.replace('.sh', '.out')
     hpss_job_name = hpss_job_filename.rpartition('/')[2].replace('.sh', '')

@@ -167,7 +167,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
 fi
 
 ## Some operational directories
-export prepbufr_prod_upper_air_dir="/gpfs/hps/nco/ops/com/gfs/prod" 
+export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod" 
 export prepbufr_prod_conus_sfc_dir="/com2/nam/prod"
 hostname_letter=`echo $(hostname) |cut -c 1-1 `
 if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then

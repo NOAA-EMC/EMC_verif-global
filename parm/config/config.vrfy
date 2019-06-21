@@ -95,7 +95,6 @@ export SENDECF="NO"
 export SENDCOM="NO"
 export SENDDBN="NO"
 export SENDDBN_NTC="NO"
-export RUNBATCH="YES" 
 ####################################################
 # SETTINGS FOR SPECIFIC USE CASES
 ####################################################

@@ -13,9 +13,9 @@ export cyc=$cyc
 
 ### config.base settings
 export KEEPDATA=$KEEPDATA
-export SENDECF=$SENDECF
-export SENDCOM=$SENDCOM
-export SENDDBN=$SENDDBN
+export SENDECF="NO"
+export SENDCOM="NO"
+export SENDDBN="NO"
 export gfs_cyc=$gfs_cyc
 export NET=$NET
 export RUN_ENVIR=$RUN_ENVIR
@@ -30,36 +30,50 @@ export CNVGRIB=$CNVGRIB
 export ACCOUNT=$ACCOUNT
 export QUEUE=$QUEUE
 export QUEUESERV=$QUEUE_ARCH
-export nproc=$npe_node_vrfy_gfs
 
 ### config.vrfy settings
-export RUN_GRID2GRID_STEP1="${RUN_METPLUS_GRID2GRID_STEP1:-NO}"
-export RUN_GRID2OBS_STEP1="${RUN_METPLUS_GRID2OBS_STEP1:-NO}"
-export RUN_PRECIP_STEP1="${RUN_METPLUS_PRECIP_STEP1:-NO}"
-export HOMEverif_global="${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}"
-export RUNBATCH="${RUNBATCH:-NO}"
+export RUN_GRID2GRID_STEP1=${RUN_METPLUS_GRID2GRID_STEP1:-NO}
+export RUN_GRID2OBS_STEP1=${RUN_METPLUS_GRID2OBS_STEP1:-NO}
+export RUN_PRECIP_STEP1=${RUN_METPLUS_PRECIP_STEP1:-NO}
+export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
+export RUNBATCH=${RUNBATCH:-NO}
 ## INPUT DATA SETTINGS
-export model_list="${model_list:-$PSLOT}"
-export model_dir_list="${model_dir_list:-${NOSCRUB}/archive}"
-export model_fileformat_list="${model_fileformat_list:-pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}}"
-export model_hpssdir_list="${model_hpssdir_list:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}"
-export model_data_runhpss="${model_data_runhpss:-NO}"
-export hpss_walltime="${hpss_walltime:-10}"
+export model_list=${model_list:-$PSLOT}
+export model_dir_list=${model_dir_list:-${NOSCRUB}/archive}
+export model_fileformat_list=${model_fileformat_list:-"pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}"}
+export model_hpssdir_list=${model_hpssdir_list:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
+export get_data_from_hpss=${get_data_from_hpss:-NO}
+export hpss_walltime=${hpss_walltime:-10}
 ## OUTPUT DATA SETTINGS
-export OUTPUTROOT="${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}"
-export make_met_data_by="${make_met_data_by:-VALID}"
-export gather_by="${gather_by:-VSDB}"
+export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
+if [ -d $OUTPUTROOT ]; then
+    rm -r $OUTPUTROOT
+fi
+export make_met_data_by=${make_met_data_by:-VALID}
+export gather_by=${gather_by:-VSDB}
 ## DATE SETTINGS
-VRFYBACK_HRS="${VRFYBACK_HRS:-00}"
+VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
-export arch_dir="${arch_dir:-${NOSCRUB}/archive}"
+export arch_dir=${arch_dir:-${NOSCRUB}/archive}
 ## METPLUS SETTINGS
-export METplus_verbosity="${METplus_verbosity:-INFO}"
-export MET_verbosity="${MET_verbosity:-2}"
-export log_MET_output_to_METplus="${log_MET_output_to_METplus:-yes}"
+export METplus_verbosity=${METplus_verbosity:-INFO}
+export MET_verbosity=${MET_verbosity:-2}
+export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
 ## FORECAST VERIFICATION SETTINGS
-fhr_min="${FHMIN_GFS:-00}"
-fhr_max="${FHMAX_GFS:-180}"
+fhr_min=${FHMIN_GFS:-00}
+fhr_max=${FHMAX_GFS:-180}
+
+###for running MPMD
+export MPMD="YES"
+export nproc=$npe_node_max
+if [ $CUE2RUN = dev_shared ]; then  MPMD="NO"; fi
+if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
+#if [ $RUNBATCH = "NO" ]; then
+#    export MPMD="NO"
+#else
+#    if [ $machine != WCOSS_C -a $machine != WCOSS_D ]; then MPMD=NO; fi
+#    if [ $CUE2RUN = dev_shared ]; then  MPMD="NO"; fi
+#fi
 
 ### run_verif_global_in_global_workflow.sh settings
 ## OUTPUT DATA SETTINGS
@@ -93,24 +107,27 @@ export METplus_version="2.1"
 # GRID-TO-GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
 export g2g1_anl_name=${g2g1_anl_name:-self}
-export g2g1_anl_fileformat=${g2g1_anl_fileformat:-pgbanl.gfs.{valid?fmt=%Y%m%d%H}}
+export g2g1_anl_fileformat=${g2g1_anl_fileformat:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
 export g2g1_fcyc_list=$fcyc_list
 export g2g1_vhr_list=$vhr_list
 export g2g1_fhr_min=$fhr_min
 export g2g1_fhr_max=$fhr_max
 export g2g1_grid=${g2g1_grid:-G002}
 export g2g1_gather_by=$gather_by
+export model_data_runhpss=$get_data_from_hpss
 # GRID-TO-OBS STEP 1
 export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
 export g2o1_fcyc_list=$fcyc_list
 export g2o1_fhr_min=$fhr_min
 export g2o1_fhr_max=$fhr_max
+export g2o1_obtype_upper_air=${g2o1_obtype_upper_air:-"ADPUPA"}
+export g2o1_obtype_conus_sfc=${g2o1_obtype_conus_sfc:-"ONLYSF"}
 export g2o1_fhr_out_upper_air=${g2o1_fhr_out_upper_air:-6}
 export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
 export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
 export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
 export g2o1_gather_by=$gather_by
-export prepbufr_data_runhpss=${get_data_from_hpss:-NO}
+export prepbufr_data_runhpss="YES"
 if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
     export g2o1_vhr_list_upper_air="00 12"
 elif [ $g2o1_fhr_out_upper_air -eq 6 ]; then
@@ -138,7 +155,7 @@ export precip1_model_varname_list=${precip_model_varname_list:-APCP}
 export precip1_model_fileformat_list=${precip1_model_filefomat_list:-$model_fileformat_list}
 export precip1_grid=${precip1_grid:-G211}
 export precip1_gather_by=$gather_by
-export obs_data_runhpss=${get_data_from_hpss:-NO}
+export precip1_obs_data_runhpss="YES"
 
 ## Set up output location
 mkdir -p $DATA

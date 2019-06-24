@@ -121,7 +121,6 @@ while [ $DATE -le ${end_date} ] ; do
     export DATE=$DATE
     export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
     export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    mkdir -p $COMOUT
     for model in $model_list; do
         export model=$model
         for type in $g2g1_type_list; do
@@ -136,6 +135,7 @@ while [ $DATE -le ${end_date} ] ; do
                        cp $verif_global_filename $arch_filename
                    fi
                    if [ $SENDCOM = YES ]; then
+                       mkdir -p $COMOUT
                        cpfs $verif_global_filename $comout_filename
                        if [ "${SENDDBN^^}" = YES ]; then
                            $DBNROOT/bin/dbn_alert MODEL VERIF_GLOBAL $job $veif_global_filename

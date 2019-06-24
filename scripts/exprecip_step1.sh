@@ -144,6 +144,7 @@ while [ $DATE -le ${end_date} ] ; do
                        cp $verif_global_filename $arch_filename
                    fi
                    if [ $SENDCOM = YES ]; then
+                       mkdir -p $COMOUT
                        cpfs $verif_global_filename $comout_filename
                        if [ "${SENDDBN^^}" = YES ]; then
                            $DBNROOT/bin/dbn_alert MODEL VERIF_GLOBAL $job $veif_global_filename

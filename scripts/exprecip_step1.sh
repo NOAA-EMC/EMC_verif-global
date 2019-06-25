@@ -120,7 +120,6 @@ while [ $DATE -le ${end_date} ] ; do
     export DATE=$DATE
     export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
     export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    mkdir -p $COMOUT
     for model in $model_list; do
         export model=$model
         for type in $precip1_type_list; do

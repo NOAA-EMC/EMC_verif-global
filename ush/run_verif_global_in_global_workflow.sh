@@ -187,7 +187,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"
 echo
 
-## Installations for verif_global, met, and METplus
+## Installations for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
 export FIXverif_global=$FIXgfs/fix_verif
@@ -231,12 +231,18 @@ if [ $cyc != $cyc2run ]; then
     RUN_GRID2OBS_STEP1=NO 
     RUN_PRECIP_STEP1=NO
 fi
-if [ ${CDATE}${cyc2run} -le $SDATE ]; then
+if [ ${start_date}${cyc2run} -le $SDATE ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
+precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
+precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
+if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then
+    RUN_PRECIP_STEP1=NO
+fi
 
+## Run METplus
 echo "=============== RUNNING METPLUS ==============="
 if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
     echo

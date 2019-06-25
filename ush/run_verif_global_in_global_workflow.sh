@@ -66,7 +66,7 @@ fhr_max=${FHMAX_GFS:-180}
 ###for running MPMD
 export MPMD="YES"
 export nproc=$npe_node_max
-if [ $CUE2RUN = dev_shared ]; then  MPMD="NO"; fi
+if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
 if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
 #if [ $RUNBATCH = "NO" ]; then
 #    export MPMD="NO"

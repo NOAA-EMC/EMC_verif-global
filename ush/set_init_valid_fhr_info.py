@@ -9,6 +9,7 @@
 
 from __future__ import (print_function, division)
 import os
+import numpy as np
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -140,6 +141,14 @@ elif RUN == 'precip_step1':
     fhr_max = int(nfhr*fhr_intvl)
     if fhr_min < accum_length:
         fhr_min = accum_length
+    fhr_min_fcyc_list = []
+    if obtype == 'ccpa' and accum_length == 24:
+        for fcyc in fcyc_list:
+            fhr_min_fcyc = fhr_min + (12 - int(fcyc))
+            if fhr_min_fcyc < accum_length:
+                fhr_min_fcyc+=accum_length
+            fhr_min_fcyc_list.append(fhr_min_fcyc)
+    fhr_min = np.amin(np.array(fhr_min_fcyc_list)) 
     fhr_list = []
     fhr = fhr_min
     while fhr <= fhr_max:

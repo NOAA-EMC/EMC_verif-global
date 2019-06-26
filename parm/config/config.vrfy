@@ -8,7 +8,7 @@
 ##---------------------------------------------------------------------------
 ##--------------------------------------------------------------------------
 
-echo "BEGIN: config.vrfy"
+echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 
 ####################################################
 # WHAT METPLUS USE CASES TO RUN
@@ -181,4 +181,4 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     echo "Hold for RUN_PRECIP_STEP2 setting"
 fi
 
-echo "END: config.vrfy"
+echo "END: $(basename ${BASH_SOURCE[0]})"

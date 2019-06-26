@@ -8,19 +8,29 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-
 export HOMEverif_global=`eval "cd ../;pwd"`  # Home base of verif_global
 
 echo "=============== SOURCING CONFIGS ==============="
-config_list="vrfy"
-for config in $config_list; do
-    . $HOMEverif_global/parm/config/config.${config}
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully sourced config.${config}"
-    echo
-done
-
+passed_config=$1
+passed_config_strlength=$(echo -n $passed_config | wc -m)
+if [ $passed_config_strlength = 0 ]; then
+    echo "No config passed, using default: $HOMEverif_global/parm/config/config.vrfy"
+    config=$HOMEverif_global/parm/config/config.vrfy
+else
+    config=$(realpath $passed_config)
+    if [ ! -e $config ]; then
+        echo "The passed config $config does not exist"
+        exit 1
+    else
+        echo "Using passed config: $config"
+    fi
+fi
+. $config
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully sourced ${config}"
+echo
+ 
 echo "=============== SETTING UP ==============="
 . $HOMEverif_global/ush/set_up_verif_global.sh
 status=$?

@@ -17,7 +17,7 @@ if [ $passed_config_strlength = 0 ]; then
     echo "No config passed, using default: $HOMEverif_global/parm/config/config.vrfy"
     config=$HOMEverif_global/parm/config/config.vrfy
 else
-    config=$(realpath $passed_config)
+    config=$(readlink -f $passed_config)
     if [ ! -e $config ]; then
         echo "The passed config $config does not exist"
         exit 1

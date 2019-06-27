@@ -56,13 +56,13 @@ export model_hpssdir_list="/NCEPPROD/hpssprod/runhistory"
 export hpss_walltime="10"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/hps3/stmp/$USER/verif_global_standalone_test"
+export OUTPUTROOT="/gpfs/hps3/stmp/$USER/verif_global_standalone"
 ## DATE SETTINGS
 #start_date:       verification start date, format YYYYMMDD
 #end_date:         verification end date, format YYYYMMDD
 #make_met_data_by: how to treat dates, "VALID" or "INIT"
-export start_date="20190116"
-export end_date="20190120"
+export start_date="20190101"
+export end_date="20190101"
 export make_met_data_by="VALID"
 ## WEB SETTINGS
 #SEND2WEB:  whether or not to send maps to webhost

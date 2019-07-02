@@ -105,7 +105,7 @@ def get_hpss_data(hpss_job_filename,
         if hpss_file[0:4] == 'gfs.':
             cnvgrib = os.environ['CNVGRIB']
             hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
-                                +link_data_file+'\n')
+                                +link_data_file+' > /dev/null 2>&1\n')
             hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
         else:
             if hpss_file[0:5] != 'ccpa.':
@@ -192,6 +192,13 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_suffix,
         )
     return hpss_tar, hpss_file, hpss_job_filename
 
+def convert_grib2_grib1(grib2_file, grib1_file):
+    print("Converting GRIB2 file "+grib2_file
+          +" to GRIB1 file "+grib1_file)
+    cnvgrib = os.environ['CNVGRIB']
+    os.system(cnvgrib+' -g21 '+model_forecast_file+' '
+              +link_model_forecast_file+' > /dev/null 2>&1')
+
 if RUN == 'grid2grid_step1':
     anl_name = os.environ['g2g1_anl_name']
     anl_file_format = os.environ['g2g1_anl_fileformat']
@@ -238,8 +245,12 @@ if RUN == 'grid2grid_step1':
                     model_forecast_file = os.path.join(dir, name,
                                                        model_forecast_filename)
                     if os.path.exists(model_forecast_file):
-                        os.system('ln -sf '+model_forecast_file+' '
-                                  +link_model_forecast_file)
+                        if "grib2" in model_forecast_file:
+                            convert_grib2_grib1(model_forecast_file, 
+                                                link_model_forecast_file)
+                        else:
+                            os.system('ln -sf '+model_forecast_file+' '
+                                      +link_model_forecast_file)
                     else:
                         if model_data_run_hpss == 'YES':
                             print("Did not find "+model_forecast_file+" "
@@ -296,7 +307,11 @@ if RUN == 'grid2grid_step1':
                     exit(1)
                 anl_file = os.path.join(anl_dir, anl_filename)
                 if os.path.exists(anl_file):
-                    os.system('ln -sf '+anl_file+' '+link_anl_file)
+                    if "grib2" in anl_file:
+                            convert_grib2_grib1(anl_file,
+                                                link_anl_file) 
+                    else:
+                        os.system('ln -sf '+anl_file+' '+link_anl_file)
                 else:
                     if model_data_run_hpss == 'YES':
                         print("Did not find "+anl_file+" "
@@ -342,7 +357,11 @@ if RUN == 'grid2grid_step1':
                     f00_file = os.path.join(dir, name,
                                             f00_filename)
                     if os.path.exists(f00_file):
-                        os.system('ln -sf '+f00_file+' '+link_f00_file)
+                        if "grib2" in f00_file:
+                            convert_grib2_grib1(f00_file,
+                                                link_f00_file)
+                        else:  
+                            os.system('ln -sf '+f00_file+' '+link_f00_file)
                     else:
                         if model_data_run_hpss == 'YES':
                             print("Did not find "+f00_file+" "
@@ -423,8 +442,12 @@ elif RUN == 'grid2obs_step1':
                             dir, name, model_forecast_filename
                             )
                         if os.path.exists(model_forecast_file):
-                            os.system('ln -sf '+model_forecast_file+' '
-                                      +link_model_forecast_file)
+                            if "grib2" in model_forecast_file:
+                                convert_grib2_grib1(model_forecast_file,
+                                                    link_model_forecast_file)
+                            else:
+                                os.system('ln -sf '+model_forecast_file+' '
+                                          +link_model_forecast_file)
                         else:
                             if model_data_run_hpss == 'YES':
                                 print("Did not find "
@@ -836,10 +859,18 @@ elif RUN == 'precip_step1':
                                 )
                             if os.path.exists(model_forecast_file):
                                 if var_name == 'APCP':
-                                    os.system('ln -sf '+model_forecast_file
-                                              +' '+link_model_forecast_file)
+                                    if "grib2" in model_forecast_file:
+                                        convert_grib2_grib1(model_forecast_file,
+                                                            link_model_forecast_file)
+                                    else:
+                                        os.system('ln -sf '+model_forecast_file
+                                                  +' '+link_model_forecast_file)
                                 elif var_name == 'PRATE':
-                                    os.system('cp '+model_forecast_file
+                                    if "grib2" in model_forecast_file:
+                                        convert_grib2_grib1(model_forecast_file,
+                                                            link_model_forecast_file)
+                                    else:
+                                        os.system('cp '+model_forecast_file
                                               +' '+link_model_forecast_file)
                             else:
                                 if model_data_run_hpss == 'YES':

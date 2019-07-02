@@ -68,12 +68,6 @@ export MPMD="YES"
 export nproc=$npe_node_max
 if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
 if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
-#if [ $RUNBATCH = "NO" ]; then
-#    export MPMD="NO"
-#else
-#    if [ $machine != WCOSS_C -a $machine != WCOSS_D ]; then MPMD=NO; fi
-#    if [ $CUE2RUN = dev_shared ]; then  MPMD="NO"; fi
-#fi
 
 ### run_verif_global_in_global_workflow.sh settings
 ## OUTPUT DATA SETTINGS

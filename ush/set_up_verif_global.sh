@@ -113,11 +113,11 @@ fi
 
 ## Get fix directory
 if [ $machine = "THEIA" ]; then
-    export FIXverif_global="scratch4/NCEPDEV/global/save/glopara/git/global-workflow/master/fix/fix_verif"
+    export FIXverif_global="/scratch4/NCEPDEV/global/save/glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS_C" ] ; then
-    export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/global-workflow/master/fix/fix_verif"
+    export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/global-workflow/master/fix/fix_verif"
+    export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 fi
 
 ## Installations for verif_global, met, and METplus

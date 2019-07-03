@@ -201,7 +201,7 @@ def convert_grib2_grib1(grib2_file, grib1_file):
 
 if RUN == 'grid2grid_step1':
     anl_name = os.environ['g2g1_anl_name']
-    anl_file_format = os.environ['g2g1_anl_fileformat']
+    anl_file_format_list = os.environ['g2g1_anl_fileformat_list'].split(' ')
     if make_met_data_by == 'VALID':
         start_hr = os.environ['g2g1_valid_hr_beg']
         end_hr = os.environ['g2g1_valid_hr_end']
@@ -282,7 +282,10 @@ if RUN == 'grid2grid_step1':
     for name in model_list:
         index = model_list.index(name)
         dir = model_dir_list[index]
-        file_format = model_fileformat_list[index]
+        if anl_name == 'gfs_ops' or len(anl_file_format_list) == 1:
+            anl_file_format = anl_file_format_list[0]
+        else:
+            anl_file_format = anl_file_format_list[index]
         hpss_dir = model_hpssdir_list[index]
         link_model_data_dir = os.path.join(cwd, 'data', name)
         if not os.path.exists(link_model_data_dir):

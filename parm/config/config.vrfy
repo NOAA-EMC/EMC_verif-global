@@ -42,14 +42,16 @@ export RUN_MAPSENKF="NO"
 # GENERAL SETTINGS APPLIED TO ALL USE CASES
 ####################################################
 ## INPUT DATA SETTINGS
-#model_list:            list of comma separated models
+#model_list:            model names
 #model_dir_list:        directory path to model files
+#model_arch_dir_list:   model archive directories
 #model_fileformat_list: file format of model files
 #model_hpssdir_list:    HPSS directory of data
 #model_data_runhpss:    get files from HPSS ("YES") if not online
 #hpss_walltime:         how long to run HPSS job to get data in minutes
 export model_list="gfs"                                                
 export model_dir_list="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
+export model_arch_dir_list="/gpfs/hps3/emc/global/noscrub/$USER/archive"
 export model_fileformat_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
 export model_data_runhpss="YES"
 export model_hpssdir_list="/NCEPPROD/hpssprod/runhistory"
@@ -73,11 +75,6 @@ export SEND2WEB="NO"
 export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus/TEST"
-## ARCHIVE SETTINGS
-#SENDARCH: "YES" to archive output
-#arch_dir:  directory to build archive
-export SENDARCH="YES"
-export arch_dir="/gpfs/hps3/emc/global/noscrub/$USER/archive"
 ## METPLUS SETTINGS
 #MET_version:               MET version to use: 6.1, 7.0, 8.0, 8.1
 #METplus_version:           METplus version to use: 2.1
@@ -90,6 +87,7 @@ export METplus_verbosity="INFO"
 export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
+export SENDARCH="YES"
 export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"
@@ -99,18 +97,18 @@ export SENDDBN_NTC="NO"
 # SETTINGS FOR SPECIFIC USE CASES
 ####################################################
 if [ $RUN_GRID2GRID_STEP1 = YES ]; then
-    #g2g1_type_list:      list type of verifications to run for grid-to-grid, anom, pres, sfc
-    #g2g1_anl_name:       analysis type to compare models to, self, gfs_ops
-    #g2g1_anl_fileformat: analysis file format
-    #g2g1_fyc_list:       all forecst cycles to be included in verification: HH
-    #g2g1_vhr_list:       all valid hours to be included in verification: HH
-    #g2g1_fhr_min:        forecast hour to start verification HH[H]
-    #g2g1_fhr_max:        forecast hour to end verification HH[H]
-    #g2g1_grid:           grid to do verification on
-    #g2g1_gather_by:      how to group the verification data, VSDB, VALID, INIT
+    #g2g1_type_list:           list type of verifications to run for grid-to-grid, anom, pres, sfc
+    #g2g1_anl_name:            analysis type to compare models to, self, gfs_ops
+    #g2g1_anl_fileformat_list: list of analysis file format(s), more than 1 if g2g1_anl_name is self
+    #g2g1_fyc_list:            all forecst cycles to be included in verification: HH
+    #g2g1_vhr_list:            all valid hours to be included in verification: HH
+    #g2g1_fhr_min:             forecast hour to start verification HH[H]
+    #g2g1_fhr_max:             forecast hour to end verification HH[H]
+    #g2g1_grid:                grid to do verification on
+    #g2g1_gather_by:           how to group the verification data, VSDB, VALID, INIT
     export g2g1_type_list="anom pres sfc"
     export g2g1_anl_name="self"
-    export g2g1_anl_fileformat="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
+    export g2g1_anl_fileformat_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
     export g2g1_fcyc_list="00 06 12 18"
     export g2g1_vhr_list="00 06 12 18"
     export g2g1_fhr_min="00"

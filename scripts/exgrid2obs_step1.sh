@@ -123,8 +123,15 @@ while [ $DATE -le ${end_date} ] ; do
     export DATE=$DATE
     export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
     export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
+    m=0
+    arch_dirs=($model_arch_dir_list)
     for model in $model_list; do
         export model=$model
+        export arch_dir=${arch_dirs[m]}
+        arch_dir_strlength=$(echo -n $arch_dir | wc -m)
+        if [ $arch_dir_strlength = 0 ]; then
+            arch_dir=${arch_dirs[0]}
+        fi
         for type in $g2o1_type_list; do
             if [ $gather_by = VALID ]; then
                 if [ $type = upper_air ]; then
@@ -167,6 +174,7 @@ while [ $DATE -le ${end_date} ] ; do
                 fi
             done
         done
+        m=$((m+1))
     done
     DATE=$(echo $($NDATE +24 ${DATE}00 ) |cut -c 1-8 )
 done

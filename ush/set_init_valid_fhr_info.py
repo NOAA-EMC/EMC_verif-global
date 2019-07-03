@@ -44,15 +44,12 @@ if RUN == 'grid2grid_step1':
     init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
 
-    #env_var_dict['fhr_intvl'] = str(fhr_intvl)
-    #env_var_dict['fhr_min'] = str(int(fhr_min))
-    #env_var_dict['fhr_max'] = str(int(fhr_max))
     env_var_dict['g2g1_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
-    env_var_dict['g2g1_valid_hr_beg'] = str(valid_hr_beg)
-    env_var_dict['g2g1_valid_hr_end'] = str(valid_hr_end)
+    env_var_dict['g2g1_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['g2g1_valid_hr_end'] = str(valid_hr_end).zfill(2)
     env_var_dict['g2g1_valid_hr_inc'] = str(valid_hr_inc)
-    env_var_dict['g2g1_init_hr_beg'] = str(init_hr_beg)
-    env_var_dict['g2g1_init_hr_end'] = str(init_hr_end)
+    env_var_dict['g2g1_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['g2g1_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['g2g1_init_hr_inc'] = str(init_hr_inc)
 
 elif RUN == 'grid2obs_step1':
@@ -90,32 +87,28 @@ elif RUN == 'grid2obs_step1':
         fhr+=fhr_intvl_conus_sfc
  
     valid_hr_beg_upper_air = vhr_list_upper_air[0]
-    valid_hr_end_upper_air = int(vhr_list_upper_air[-1])
+    valid_hr_end_upper_air = vhr_list_upper_air[-1]
     valid_hr_inc_upper_air = int((24/nvhr_upper_air)*3600)
     valid_hr_beg_conus_sfc = vhr_list_conus_sfc[0]
-    valid_hr_end_conus_sfc = int(vhr_list_conus_sfc[-1])
+    valid_hr_end_conus_sfc = vhr_list_conus_sfc[-1]
     valid_hr_inc_conus_sfc = int((24/nvhr_conus_sfc)*3600)
     init_hr_beg = fcyc_list[0]
-    init_hr_end = int(fcyc_list[-1])+1
+    init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
 
-    #env_var_dict['fhr_intvl_upper_air'] = str(fhr_intvl_upper_air)
-    #env_var_dict['fhr_intvl_conus_sfc'] = str(fhr_intvl_conus_sfc)
-    #env_var_dict['fhr_min'] = str(int(fhr_min))
-    #env_var_dict['fhr_max'] = str(int(fhr_max))
     env_var_dict['g2o1_fhr_list_upper_air'] = ' '.join(fhr_list_upper_air) \
         .replace(' ', ', ')
     env_var_dict['g2o1_fhr_list_conus_sfc'] = ' '.join(fhr_list_conus_sfc) \
         .replace(' ', ', ')
-    env_var_dict['g2o1_valid_hr_beg_upper_air'] = str(valid_hr_beg_upper_air)
-    env_var_dict['g2o1_valid_hr_end_upper_air'] = str(valid_hr_end_upper_air)
+    env_var_dict['g2o1_valid_hr_beg_upper_air'] = str(valid_hr_beg_upper_air).zfill(2)
+    env_var_dict['g2o1_valid_hr_end_upper_air'] = str(valid_hr_end_upper_air).zfill(2)
     env_var_dict['g2o1_valid_hr_inc_upper_air'] = str(valid_hr_inc_upper_air)
-    env_var_dict['g2o1_valid_hr_beg_conus_sfc'] = str(valid_hr_beg_conus_sfc)
-    env_var_dict['g2o1_valid_hr_end_conus_sfc'] = str(valid_hr_end_conus_sfc)
+    env_var_dict['g2o1_valid_hr_beg_conus_sfc'] = str(valid_hr_beg_conus_sfc).zfill(2)
+    env_var_dict['g2o1_valid_hr_end_conus_sfc'] = str(valid_hr_end_conus_sfc).zfill(2)
     env_var_dict['g2o1_valid_hr_inc_conus_sfc'] = str(valid_hr_inc_conus_sfc)
-    env_var_dict['g2o1_init_hr_beg'] = str(init_hr_beg)
-    env_var_dict['g2o1_init_hr_end'] = str(init_hr_end)
-    env_var_dict['g2o1_init_hr_inc'] = str(init_hr_inc)
+    env_var_dict['g2o1_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['g2o1_init_hr_end'] = str(init_hr_end).zfill(2)
+    env_var_dict['g2o1_init_hr_inc'] = str(init_hr_inc).zfill(2)
 
 elif RUN == 'precip_step1':
     fhr_min = float(os.environ['precip1_fhr_min'])
@@ -162,16 +155,13 @@ elif RUN == 'precip_step1':
     init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
 
-    #env_var_dict['fhr_intvl'] = str(fhr_intvl)
-    #env_var_dict['fhr_min'] = str(int(fhr_min))
-    #env_var_dict['fhr_max'] = str(int(fhr_max))
     env_var_dict['precip1_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
     env_var_dict['precip1_vhr_list'] = ' '.join(vhr_list).replace(', ', ' ')
-    env_var_dict['precip1_valid_hr_beg'] = str(valid_hr_beg)
-    env_var_dict['precip1_valid_hr_end'] = str(valid_hr_end)
+    env_var_dict['precip1_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['precip1_valid_hr_end'] = str(valid_hr_end).zfill(2)
     env_var_dict['precip1_valid_hr_inc'] = str(valid_hr_inc)
-    env_var_dict['precip1_init_hr_beg'] = str(init_hr_beg)
-    env_var_dict['precip1_init_hr_end'] = str(init_hr_end)
+    env_var_dict['precip1_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['precip1_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['precip1_init_hr_inc'] = str(init_hr_inc)
     env_var_dict['precip1_obs_daily_file'] = obs_daily_file
 

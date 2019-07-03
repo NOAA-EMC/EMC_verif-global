@@ -54,7 +54,7 @@ export gather_by=${gather_by:-VSDB}
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
-export arch_dir=${arch_dir:-${NOSCRUB}/archive}
+export model_arch_dir_list=${model_arch_dir_list:-${NOSCRUB}/archive}
 ## METPLUS SETTINGS
 export METplus_verbosity=${METplus_verbosity:-INFO}
 export MET_verbosity=${MET_verbosity:-2}
@@ -101,7 +101,7 @@ export METplus_version="2.1"
 # GRID-TO-GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
 export g2g1_anl_name=${g2g1_anl_name:-self}
-export g2g1_anl_fileformat=${g2g1_anl_fileformat:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
+export g2g1_anl_fileformat_list=${g2g1_anl_fileformat_list:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
 export g2g1_fcyc_list=$fcyc_list
 export g2g1_vhr_list=$vhr_list
 export g2g1_fhr_min=$fhr_min

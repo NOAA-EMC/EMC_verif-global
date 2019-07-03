@@ -196,8 +196,8 @@ def convert_grib2_grib1(grib2_file, grib1_file):
     print("Converting GRIB2 file "+grib2_file
           +" to GRIB1 file "+grib1_file)
     cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g21 '+model_forecast_file+' '
-              +link_model_forecast_file+' > /dev/null 2>&1')
+    os.system(cnvgrib+' -g21 '+grib2_file+' '
+              +grib1_file+' > /dev/null 2>&1')
 
 if RUN == 'grid2grid_step1':
     anl_name = os.environ['g2g1_anl_name']

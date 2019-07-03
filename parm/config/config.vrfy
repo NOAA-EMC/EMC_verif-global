@@ -42,7 +42,7 @@ export RUN_MAPSENKF="NO"
 # GENERAL SETTINGS APPLIED TO ALL USE CASES
 ####################################################
 ## INPUT DATA SETTINGS
-#model_list:            list of comma separated models
+#model_list:            model names
 #model_dir_list:        directory path to model files
 #model_fileformat_list: file format of model files
 #model_hpssdir_list:    HPSS directory of data

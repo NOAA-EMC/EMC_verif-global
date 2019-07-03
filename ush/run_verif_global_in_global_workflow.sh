@@ -54,7 +54,7 @@ export gather_by=${gather_by:-VSDB}
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
-export arch_dir=${arch_dir:-${NOSCRUB}/archive}
+export model_arch_dir_list=${model_arch_dir_list:-${NOSCRUB}/archive}
 ## METPLUS SETTINGS
 export METplus_verbosity=${METplus_verbosity:-INFO}
 export MET_verbosity=${MET_verbosity:-2}

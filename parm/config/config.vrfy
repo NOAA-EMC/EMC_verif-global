@@ -44,12 +44,14 @@ export RUN_MAPSENKF="NO"
 ## INPUT DATA SETTINGS
 #model_list:            model names
 #model_dir_list:        directory path to model files
+#model_arch_dir_list:   model archive directories
 #model_fileformat_list: file format of model files
 #model_hpssdir_list:    HPSS directory of data
 #model_data_runhpss:    get files from HPSS ("YES") if not online
 #hpss_walltime:         how long to run HPSS job to get data in minutes
 export model_list="gfs"                                                
 export model_dir_list="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
+export model_arch_dir_list="/gpfs/hps3/emc/global/noscrub/$USER/archive"
 export model_fileformat_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
 export model_data_runhpss="YES"
 export model_hpssdir_list="/NCEPPROD/hpssprod/runhistory"
@@ -73,11 +75,6 @@ export SEND2WEB="NO"
 export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus/TEST"
-## ARCHIVE SETTINGS
-#SENDARCH: "YES" to archive output
-#arch_dir:  directory to build archive
-export SENDARCH="YES"
-export arch_dir="/gpfs/hps3/emc/global/noscrub/$USER/archive"
 ## METPLUS SETTINGS
 #MET_version:               MET version to use: 6.1, 7.0, 8.0, 8.1
 #METplus_version:           METplus version to use: 2.1
@@ -90,6 +87,7 @@ export METplus_verbosity="INFO"
 export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
+export SENDARCH="YES"
 export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"

@@ -67,7 +67,7 @@ fhr_max=${FHMAX_GFS:-180}
 export MPMD="YES"
 export nproc=$npe_node_max
 if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
-if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
+if [ $machine != WCOSS_C ]; then MPMD="NO"; fi
 
 ### run_verif_global_in_global_workflow.sh settings
 ## OUTPUT DATA SETTINGS

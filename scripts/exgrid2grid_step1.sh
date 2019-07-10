@@ -70,8 +70,6 @@ while [ $nc -lt $ncount ]; do
         if [ $machine = THEIA ]; then
             echo "$rank $DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
             rank=$((rank+1))
-        elif [ $machine = WCOSS_DELL_P3 ]; then
-            echo "-n 1 $DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
         else
             echo "$DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
         fi
@@ -86,8 +84,6 @@ while [ $nc -lt $ncount ]; do
                     if [ $machine = THEIA ]; then
                         echo "$rank /bin/echo $iproc" >> $poe_script
                         rank=$((rank+1))
-                    elif [ $machine = WCOSS_DELL_P3 ]; then
-                        echo "-n 1 /bin/echo $iproc" >> $poe_script
                     else
                         echo "/bin/echo $iproc" >> $poe_script
                     fi
@@ -99,7 +95,7 @@ while [ $nc -lt $ncount ]; do
             if [ $machine = WCOSS_C ]; then
                 launcher="aprun -j 1 -n ${iproc} -N ${iproc} -d 1 cfp"
             elif [ $machine = WCOSS_DELL_P3 ]; then
-                launcher="mpirun -configfile"
+                launcher="mpirun -n ${iproc} cfp"
             elif [ $machine = THEIA ]; then
                 launcher="srun --export=ALL --multi-prog"
             fi

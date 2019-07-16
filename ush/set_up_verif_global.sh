@@ -65,7 +65,7 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
 echo
-pwd
+
 if [ -s config.machine ]; then
     . $DATA/config.machine
     status=$?

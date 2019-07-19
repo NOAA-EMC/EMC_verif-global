@@ -102,6 +102,9 @@ export METplus_version="2.1"
 # GRID-TO-GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
 export g2g1_anl_name=${g2g1_anl_name:-self_anl}
+if [ $g2g1_anl_name = self ]; then
+    export g2g1_anl_name="self_anl"
+fi
 export g2g1_anl_fileformat_list=${g2g1_anl_fileformat_list:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
 export g2g1_fcyc_list=$fcyc_list
 export g2g1_vhr_list=$vhr_list

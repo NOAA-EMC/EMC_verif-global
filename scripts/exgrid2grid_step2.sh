@@ -108,11 +108,3 @@ while [ $nc -lt $ncount ]; do
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     fi
 done
-
-# Do some cleanup and organizing of data
-if [ $METplus_version = 2.1 ];then
-    for type in $g2g2_type_list; do
-        mv $DATA/$RUN/metplus_output/plot_by_$plot_by/stat_analysis/grid2grid/$type $DATA/$RUN/metplus_output/plot_by_$plot_by/stat_analysis/$type
-    done
-    rm -r $DATA/$RUN/metplus_output/plot_by_$plot_by/stat_analysis/grid2grid
-fi

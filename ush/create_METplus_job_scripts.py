@@ -175,6 +175,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
     for type in type_list:
         if case == 'grid2grid':
             model_plot_name_list = os.environ['g2g2_model_plot_name_list'].split(' ')
+            anl_name_list = os.environ['g2g2_anl_name_list'].split(' ')
             fhr_list = os.environ['g2g2_fhr_list']
             valid_hr_beg = os.environ['g2g2_valid_hr_beg']
             valid_hr_end = os.environ['g2g2_valid_hr_end']
@@ -273,10 +274,15 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 if type == 'sfc':
                     obtype = model+'_f00'
                 else:
-                    if os.environ['g2g2_anl_name'] == 'self':
+                    anl_name = anl_name_list[index]
+                    if anl_name == 'self_anl':
                         obtype = model+'_anl'
-                    else:
-                        obtype = os.environ['g2g2_anl_name']+'_anl'
+                    elif anl_name == 'self_f00':
+                        obtype = model+'_f00'
+                    elif anl_name == 'gfs_anl':
+                        obtype = 'gfs_anl'
+                    elif anl_name == 'gfs_f00':
+                        obtype = 'gfs_f00'
                 model_info['model'+str(model_num)+'_obtype'] = obtype
                     
         for var_name, var_levels in vars_and_levels_dict.items():

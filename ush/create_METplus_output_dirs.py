@@ -43,17 +43,11 @@ elif RUN == 'grid2grid_step2':
            index = model_list.index(model)
            model_plot_name = g2g2_model_plot_name_list[index]
            metplus_output_subdir_list.append(
-               'plot_by_'+plot_by+'/stat_analysis/grid2grid/'+type+'/'+model_plot_name
+               'plot_by_'+plot_by+'/stat_analysis'
            )
            metplus_output_subdir_list.append(
-               'plot_by_'+plot_by+'/make_plots/grid2grid/'+type+'/'+model_plot_name
+               'plot_by_'+plot_by+'/make_plots'
            )
-           #metplus_output_subdir_list.append(
-           #    'plot_by_'+plot_by+'/stat_analysis/'+type+'/'+model
-           #)
-           #metplus_output_subdir_list.append(
-           #    'plot_by_'+plot_by+'/make_plots/'+type+'/'+model
-           #)
 elif RUN == 'grid2obs_step1':
     gather_by = os.environ['g2o1_gather_by']
     for type in os.environ['g2o1_type_list'].split(' '):

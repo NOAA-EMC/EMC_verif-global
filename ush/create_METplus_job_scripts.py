@@ -71,8 +71,14 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     if type == 'sfc':
                         obtype = model+'_f00'
                     else:
-                        if os.environ['g2g1_anl_name'] == 'self':
+                        if os.environ['g2g1_anl_name'] == 'self_anl':
                             obtype = model+'_anl'
+                        elif os.environ['g2g1_anl_name'] == 'self_f00':
+                            obtype = model+'_f00'
+                        elif os.environ['g2g1_anl_name'] == 'gfs_anl':
+                            obtype = 'gfs_anl'
+                        elif os.environ['g2g1_anl_name'] == 'gfs_f00':
+                            obtype = 'gfs_f00'
                         else:
                             obtype = os.environ['g2g1_anl_name']+'_anl'
                     extra_env_info['verif_grid'] = os.environ['g2g1_grid']

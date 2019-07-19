@@ -302,9 +302,9 @@ if RUN == 'grid2grid_step1':
                 anl_filename = format_filler(anl_file_format,
                                              valid_time, 
                                              init_time, lead)
-                if anl_name == 'self':
+                if anl_name == 'self_anl' or anl_name == 'self_f00':
                     anl_dir = os.path.join(dir, name)
-                elif anl_name == 'gfs_ops':
+                elif anl_name == 'gfs_anl' or anl_name == 'gfs_f00':
                     anl_dir = os.path.join(os.environ['gstat'], 'gfs')
                 else:
                     print("ERROR: "+anl_name+" is not a valid option "

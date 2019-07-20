@@ -176,6 +176,16 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
         if case == 'grid2grid':
             model_plot_name_list = os.environ['g2g2_model_plot_name_list'].split(' ')
             anl_name_list = os.environ['g2g2_anl_name_list'].split(' ')
+            if len(model_plot_name_list) != len(model_list):
+                print(
+                    "model_list and g2g2_model_plot_name_list not of equal length"
+                )
+                exit(1)
+            if len(anl_name_list) != len(model_list):
+                print(
+                    "model_list and g2g2_anl_name_list not of equal length"
+                )
+                exit(1)
             fhr_list = os.environ['g2g2_fhr_list']
             valid_hr_beg = os.environ['g2g2_valid_hr_beg']
             valid_hr_end = os.environ['g2g2_valid_hr_end']
@@ -253,17 +263,28 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     'TOZNE': [ 'L0' ]
                 }
             model_info = {}
+            nmodels = int(len(model_list))
+            if nmodels > 8:
+                print(
+                    "Too many models listed in model_list. " \
+                    "Current maximum is 8."
+                )
+                exit(1)
             for model in model_list:
                 index = model_list.index(model)
                 model_num = index + 1
                 model_info['model'+str(model_num)] = model
-                try:
-                     model_info['model'+str(model_num)+'_plot_name'] = (
+                model_info['model'+str(model_num)+'_plot_name'] = (
                          model_plot_name_list[index]
-                     )
-                except IndexError:
-                     model_info['model'+str(model_num)+'_plot_name'] = model
-                if len(model_arch_dir_list) != len(model_list):
+                )
+                if (len(model_arch_dir_list) != len(model_list) 
+                        and len(model_arch_dir_list) > 1):
+                    print(
+                        "model_arch_dir_list and model_list not of equal length"
+                    )
+                    exit(1)
+                elif (len(model_arch_dir_list) != len(model_list) 
+                        and len(model_arch_dir_list) == 1):
                     model_info['model'+str(model_num)+'_arch_dir'] = (
                         model_arch_dir_list[0]
                     )
@@ -321,7 +342,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         '-c '+PARMverif_global+'/metplus_config/machine.conf '
                         '-c '+PARMverif_global+'/metplus_config/metplus_use_cases/'
                         'METplusV'+METplus_version+'/'+case+'/plot_by_'
-                        +plot_by+'/'+type+'_height.conf\n'
+                        +plot_by+'/'+type+'_height_nmodels'+str(nmodels)+'.conf\n'
                     )
                 else:
                     job_file.write(
@@ -329,7 +350,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         '-c '+PARMverif_global+'/metplus_config/machine.conf '
                         '-c '+PARMverif_global+'/metplus_config/metplus_use_cases/'
                         'METplusV'+METplus_version+'/'+case+'/plot_by_'
-                        +plot_by+'/'+type+'.conf\n'
+                        +plot_by+'/'+type+'_nmodels'+str(nmodels)+'.conf\n'
                     )
 
 if RUN in [ 'grid2grid_step1', 'grid2obs_step1', 'precip_step1' ]:

@@ -242,13 +242,12 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                 'NPO', 'SPO', 'NAO',
                                 'SAO', 'CONUS' ]
                 vars_and_levels_dict = {
-                    'TMP': [ 'Z2' ],
+                    'TMP': [ 'Z2', 'Z0', 'L0' ],
                     'RH': [ 'Z2' ],
                     'SPFH': [ 'Z2' ],
                     'HPBL': [ 'L0' ],
-                    'PRES': [ 'Z0' ],
+                    'PRES': [ 'Z0', 'L0' ],
                     'PRMSL': [ 'Z0' ],
-                    'TMP': [ 'Z0' ],
                     'UGRD': [ 'Z10' ],
                     'VGRD': [ 'Z10' ],
                     'TSOIL': [ 'Z0-10' ],
@@ -257,9 +256,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     'CAPE': [ 'Z0' ],
                     'PWAT': [ 'L0' ],
                     'CWAT': [ 'L0' ],
-                    'TMP': [ 'L0' ],
                     'HGT': [ 'L0' ],
-                    'PRES': [ 'L0' ],
                     'TOZNE': [ 'L0' ]
                 }
             model_info = {}

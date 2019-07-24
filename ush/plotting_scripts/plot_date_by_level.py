@@ -1,14 +1,5 @@
-'''
-Name: plot_date_by_level.py
-Contact(s): Mallory Row
-Abstract: Reads filtered files from stat_analysis_wrapper run_all_times to make date-pressure plots
-History Log: First version
-Usage: Called by make_plots_wrapper.py 
-Parameters: None
-Input Files: MET .stat files
-Output Files: .png images
-Condition codes: 0 for success, 1 for failure
-'''
+## Edited from METplus V2.1
+## for EMC purposes
 
 from __future__ import (print_function, division)
 import os
@@ -49,30 +40,49 @@ end_date_YYYYmmdd = os.environ['END_DATE_YYYYmmdd']
 valid_time_info = os.environ['VALID_TIME_INFO'].replace('"','').split(", ")
 init_time_info = os.environ['INIT_TIME_INFO'].replace('"','').split(", ")
 fcst_var_name = os.environ['FCST_VAR_NAME']
-fcst_var_extra = os.environ['FCST_VAR_EXTRA'].replace(" ", "").replace("=","").replace(";","").replace('"','').replace("'","").replace(",","-").replace("_","")
+fcst_var_level_list = os.environ['FCST_VAR_LEVEL_LIST'].split(" ")
+fcst_var_extra = (
+    os.environ['FCST_VAR_EXTRA'].replace(" ", "")
+    .replace("=","").replace(";","").replace('"','')
+    .replace("'","").replace(",","-").replace("_","")
+)
 if fcst_var_extra == "None":
     fcst_var_extra = ""
 if os.environ['FCST_VAR_EXTRA'] == "None":
     fcst_var_extra_title = ""
 else:
     fcst_var_extra_title = " "+os.environ['FCST_VAR_EXTRA']+" "
-fcst_var_level_list = os.environ['FCST_VAR_LEVEL_LIST'].split(" ")
-fcst_var_thresh = os.environ['FCST_VAR_THRESH'].replace(" ","").replace(">=","ge").replace("<=","le").replace(">","gt").replace("<","lt").replace("==","eq").replace("!=","ne")
+fcst_var_thresh = (
+    os.environ['FCST_VAR_THRESH'].replace(" ","")
+    .replace(">=","ge").replace("<=","le")
+    .replace(">","gt").replace("<","lt")
+    .replace("==","eq").replace("!=","ne")
+)
 if fcst_var_thresh == "None":
     fcst_var_thresh = ""
     fcst_var_thresh_title = ""
 else:
     fcst_var_thresh_title = " "+fcst_var_thresh
 obs_var_name = os.environ['OBS_VAR_NAME']
-obs_var_extra = os.environ['OBS_VAR_EXTRA'].replace(" ", "").replace("=","").replace(";","").replace('"','').replace("'","").replace(",","-").replace("_","")
+obs_var_level_list = os.environ['OBS_VAR_LEVEL_LIST'].split(" ")
+obs_var_extra = (
+    os.environ['OBS_VAR_EXTRA'].replace(" ", "")
+    .replace("=","").replace(";","")
+    .replace('"','').replace("'","")
+    .replace(",","-").replace("_","")
+)
 if obs_var_extra == "None":
     obs_var_extra = ""
 if os.environ['OBS_VAR_EXTRA'] == "None":
     obs_var_extra_title = ""
 else:
     obs_var_extra_title = " "+os.environ['OBS_VAR_EXTRA']+" "
-obs_var_level_list = os.environ['OBS_VAR_LEVEL_LIST'].split(" ")
-obs_var_thresh = os.environ['OBS_VAR_THRESH'].replace(" ","").replace(">=","ge").replace("<=","le").replace(">","gt").replace("<","lt").replace("==","eq").replace("!=","ne")
+obs_var_thresh = (
+    os.environ['OBS_VAR_THRESH'].replace(" ","")
+    .replace(">=","ge").replace("<=","le")
+    .replace(">","gt").replace("<","lt")
+    .replace("==","eq").replace("!=","ne")
+)
 if obs_var_thresh == "None":
     obs_var_thresh = ""
     obs_var_thresh_title = ""
@@ -83,8 +93,13 @@ region = os.environ['REGION']
 lead = os.environ['LEAD']
 stat_file_input_dir_base = os.environ['STAT_FILES_INPUT_DIR']
 plotting_out_dir = os.environ['PLOTTING_OUT_DIR_FULL']
-plotting_out_dir_data = os.path.join(plotting_out_dir, "data", plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z")
-plotting_out_dir_imgs = os.path.join(plotting_out_dir, "imgs", plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z")
+plotting_out_dir_data = os.path.join(plotting_out_dir,
+                                     "data",
+                                     plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
+                                     +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
+                                     +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z")
+plotting_out_dir_imgs = os.path.join(plotting_out_dir,
+                                     "imgs")
 if not os.path.exists(plotting_out_dir_data):
     os.makedirs(plotting_out_dir_data)
 if not os.path.exists(plotting_out_dir_imgs):
@@ -99,12 +114,18 @@ event_equalization = os.environ['EVENT_EQUALIZATION']
 met_version = os.environ['MET_VERSION']
 logger = logging.getLogger(os.environ['LOGGING_FILENAME'])
 logger.setLevel(os.environ['LOGGING_LEVEL'])
-formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d) ""%(levelname)s: %(message)s","%m/%d %H:%M:%S")
+formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)" 
+                              +"%(levelname)s: %(message)s","%m/%d %H:%M:%S")
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd, valid_time_info, init_time_info, lead)
+plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time, 
+                                                                      start_date_YYYYmmdd, 
+                                                                      end_date_YYYYmmdd, 
+                                                                      valid_time_info, 
+                                                                      init_time_info, 
+                                                                      lead)
 total_days = len(plot_time_dates)
 stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
 fcst_var_levels = np.empty(len(fcst_var_level_list), dtype=int)
@@ -120,23 +141,68 @@ for model in model_info:
     for vl in range(len(fcst_var_level_list)):
         fcst_var_level = fcst_var_level_list[vl]
         obs_var_level = obs_var_level_list[vl]
-        logger.debug("Processing data for FCST_VAR_LEVEL "+fcst_var_level+" OBS_VAR_LEVEL "+obs_var_level)
-        model_level_data_now_index = pd.MultiIndex.from_product([[model_plot_name], [fcst_var_level], expected_stat_file_dates], names=['model_plot_name', 'levels', 'dates'])
-        model_stat_file = os.path.join(stat_file_input_dir_base, verif_case, verif_type, model_plot_name, plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z", model_plot_name+"_f"+lead+"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh+"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh+"_interp"+interp+"_region"+region+".stat")
+        logger.debug("Processing data for VAR_LEVEL "+fcst_var_level)
+        model_level_data_now_index = (
+            pd.MultiIndex.from_product([[model_plot_name], [fcst_var_level], 
+                                       expected_stat_file_dates], 
+                                       names=['model_plot_name', 'levels', 'dates'])
+        )
+        model_stat_file = os.path.join(stat_file_input_dir_base, 
+                                       verif_case, 
+                                       verif_type, 
+                                       model_plot_name, 
+                                       plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
+                                       +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
+                                       +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z", 
+                                       model_plot_name
+                                       +"_f"+lead
+                                       +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
+                                       +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
+                                       +"_interp"+interp
+                                       +"_region"+region
+                                       +".stat")
         if os.path.exists(model_stat_file):
             nrow = sum(1 for line in open(model_stat_file))
             if nrow == 0:
-                logger.warning("Model "+str(model_num)+" "+model_name+" with plot name "+model_plot_name+" file: "+model_stat_file+" empty")
-                model_level_now_data = pd.DataFrame(np.nan, index=model_level_data_now_index, columns=[ 'TOTAL' ])
+                logger.warning("Model "+str(model_num)+" "
+                               +model_name+" with plot name "
+                               +model_plot_name+" file: "
+                               +model_stat_file+" empty")
+                model_level_now_data = pd.DataFrame(np.nan, 
+                                                    index=model_level_data_now_index, 
+                                                    columns=[ 'TOTAL' ])
             else:
-                logger.debug("Model "+str(model_num)+" "+model_name+" with plot name "+model_plot_name+" file: "+model_stat_file+" exists")
-                model_now_stat_file_data = pd.read_csv(model_stat_file, sep=" ", skiprows=1, skipinitialspace=True, header=None)
-                model_now_stat_file_data.rename(columns=dict(zip(model_now_stat_file_data.columns[:len(stat_file_base_columns)], stat_file_base_columns)), inplace=True)
+                logger.debug("Model "+str(model_num)+" "
+                             +model_name+" with plot name "
+                             +model_plot_name+" file: "
+                             +model_stat_file+" exists")
+                model_now_stat_file_data = pd.read_csv(model_stat_file, 
+                                                       sep=" ",
+                                                       skiprows=1,
+                                                       skipinitialspace=True,
+                                                       header=None)
+                model_now_stat_file_data.rename(
+                    columns=dict(
+                        zip(model_now_stat_file_data.columns[:len(stat_file_base_columns)], 
+                            stat_file_base_columns)
+                    ), 
+                    inplace=True
+                )
                 line_type = model_now_stat_file_data['LINE_TYPE'][0]
-                stat_file_line_type_columns = plot_util.get_stat_file_line_type_columns(logger, met_version, line_type)
-                model_now_stat_file_data.rename(columns=dict(zip(model_now_stat_file_data.columns[len(stat_file_base_columns):], stat_file_line_type_columns)), inplace=True)
+                stat_file_line_type_columns = plot_util.get_stat_file_line_type_columns(logger,
+                                                                                        met_version,
+                                                                                        line_type)
+                model_now_stat_file_data.rename(
+                    columns=dict(
+                        zip(model_now_stat_file_data.columns[len(stat_file_base_columns):], 
+                            stat_file_line_type_columns)
+                    ),
+                    inplace=True
+                )
                 model_now_stat_file_data_fcst_valid_dates = model_now_stat_file_data.loc[:]['FCST_VALID_BEG'].values
-                model_level_now_data = pd.DataFrame(np.nan, index=model_level_data_now_index, columns=stat_file_line_type_columns)
+                model_level_now_data = pd.DataFrame(np.nan, 
+                                                    index=model_level_data_now_index, 
+                                                    columns=stat_file_line_type_columns)
                 for expected_date in expected_stat_file_dates:
                     if expected_date in model_now_stat_file_data_fcst_valid_dates:
                          matching_date_index = model_now_stat_file_data_fcst_valid_dates.tolist().index(expected_date)
@@ -144,8 +210,13 @@ for model in model_info:
                          for column in stat_file_line_type_columns:
                              model_level_now_data.loc[(model_plot_name, fcst_var_level, expected_date)][column] = model_now_stat_file_data_indexed.loc[:][column]
         else:
-            logger.warning("Model "+str(model_num)+" "+model_name+" with plot name "+model_plot_name+" file: "+model_stat_file+" does not exist")
-            model_level_now_data = pd.DataFrame(np.nan, index=model_level_data_now_index, columns=[ 'TOTAL' ])
+            logger.warning("Model "+str(model_num)+" "
+                           +model_name+" with plot name "
+                           +model_plot_name+" file: "
+                           +model_stat_file+" does not exist")
+            model_level_now_data = pd.DataFrame(np.nan,
+                                                index=model_level_data_now_index,
+                                                columns=[ 'TOTAL' ])
         if vl > 0:
             model_now_data = pd.concat([model_now_data, model_level_now_data])
         else:
@@ -158,7 +229,9 @@ for model in model_info:
 logger.info("Calculating and plotting statistics")
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_values, stat_values_array, stat_plot_name = plot_util.calculate_stat(logger, model_data, stat)
+    stat_values, stat_values_array, stat_plot_name = plot_util.calculate_stat(logger,
+                                                                              model_data,
+                                                                              stat)
     if stat == "fbar_obar":
         logger.warning(stat+" is not currently supported for this type of plot")
         continue
@@ -200,10 +273,14 @@ for stat in plot_stats_list:
         ax.tick_params(axis='x', pad=10)
         ax.set_xlabel(plot_time.title()+" Date")
         ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
-        if len(plot_time_dates) < 31:
-            day_interval=5
+        if len(plot_time_dates) <= 3:
+            day_interval = 1
+        elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
+            day_interval = 2
+        elif len(plot_time_dates) > 10 and len(plot_time_dates) < 31:
+            day_interval = 5
         else:
-            day_interval=10
+            day_interval = 10
         ax.xaxis.set_major_locator(md.DayLocator(interval=day_interval))
         ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
         ax.xaxis.set_minor_locator(md.DayLocator())
@@ -216,48 +293,151 @@ for stat in plot_stats_list:
         ax.set_yticklabels(fcst_var_levels)
         ax.set_ylim([fcst_var_levels[0],fcst_var_levels[-1]])
         if stat == "bias":
-            logger.debug("Plotting model "+str(model_num)+" "+model_name+" with name on plot "+model_plot_name)
+            logger.debug("Plotting model "+str(model_num)+" "
+                         +model_name+" with name on plot "
+                         +model_plot_name)
             ax.set_title(model_plot_name, loc='left')
             if model_num == 1:
                 clevels_bias = plot_util.get_clevels(model_stat_values_array)
-                CF1 = ax.contourf(xx, yy, model_stat_values_array, levels=clevels_bias, cmap=cmap_bias, locator=matplotlib.ticker.MaxNLocator(symmetric=True), extend='both')
-                C1 = ax.contour(xx, yy, model_stat_values_array, levels=CF1.levels, colors='k', linewidths=1.0)
-                ax.clabel(C1, C1.levels, fmt='%1.2f', inline=True, fontsize=12.5)
+                CF1 = ax.contourf(xx, yy, model_stat_values_array, 
+                                 levels=clevels_bias, 
+                                 cmap=cmap_bias, 
+                                 locator=matplotlib.ticker.MaxNLocator(symmetric=True), 
+                                 extend='both')
+                C1 = ax.contour(xx, yy, model_stat_values_array, 
+                                levels=CF1.levels, 
+                                colors='k', 
+                                linewidths=1.0)
+                ax.clabel(C1, C1.levels, 
+                          fmt='%1.2f', 
+                          inline=True, fontsize=12.5)
             else:
-                CF = ax.contourf(xx, yy, model_stat_values_array, levels=CF1.levels, cmap=cmap_bias, extend='both')
-                C = ax.contour(xx, yy, model_stat_values_array, levels=CF1.levels, colors='k', linewidths=1.0)
-                ax.clabel(C, C.levels, fmt='%1.2f', inline=True, fontsize=12.5)
+                CF = ax.contourf(xx, yy, model_stat_values_array, 
+                                 levels=CF1.levels, 
+                                 cmap=cmap_bias, 
+                                 extend='both')
+                C = ax.contour(xx, yy, model_stat_values_array, 
+                               levels=CF1.levels, 
+                               colors='k', 
+                               linewidths=1.0)
+                ax.clabel(C, 
+                          C.levels, 
+                          fmt='%1.2f', 
+                          inline=True, 
+                          fontsize=12.5)
         else:
             if model_num == 1:
-                logger.debug("Plotting model "+str(model_num)+" "+model_name+" with name on plot "+model_plot_name)   
+                logger.debug("Plotting model "+str(model_num)+" "
+                             +model_name+" with name on plot "
+                             +model_plot_name)   
                 model1_name = model_name
                 model1_plot_name = model_plot_name
                 model1_stat_values_array = model_stat_values_array
                 ax.set_title(model_plot_name, loc='left')
-                CF1 = ax.contourf(xx, yy, model_stat_values_array, cmap=cmap, extend='both')
-                C1 = ax.contour(xx, yy, model_stat_values_array, levels=CF1.levels, colors='k', linewidths=1.0)
-                ax.clabel(C1, C1.levels, fmt='%1.2f', inline=True, fontsize=12.5)
+                CF1 = ax.contourf(xx, yy, model_stat_values_array, 
+                                  cmap=cmap, 
+                                  extend='both')
+                C1 = ax.contour(xx, yy, model_stat_values_array, 
+                                levels=CF1.levels, 
+                                colors='k', 
+                                linewidths=1.0)
+                ax.clabel(C1, 
+                          C1.levels, 
+                          fmt='%1.2f', 
+                          inline=True, 
+                          fontsize=12.5)
             else:
-                logger.debug("Plotting model "+str(model_num)+" "+model_name+" - model 1 "+model1_name+" with name on plot "+model_plot_name+"-"+model1_plot_name)
+                logger.debug("Plotting model "+str(model_num)+" "+model_name
+                             +" - model 1 "+model1_name+" with name on plot "
+                             +model_plot_name+"-"+model1_plot_name)
                 ax.set_title(model_plot_name+"-"+model1_plot_name, loc='left')
                 model_model1_diff = model_stat_values_array - model1_stat_values_array
                 if model_num == 2:
                     clevels_diff = plot_util.get_clevels(model_model1_diff)
-                    CF2 = ax.contourf(xx, yy, model_model1_diff, levels=clevels_diff, cmap=cmap_diff, locator=matplotlib.ticker.MaxNLocator(symmetric=True),extend='both')
-                    C2 = ax.contour(xx, yy, model_model1_diff, levels=CF2.levels, colors='k', linewidths=1.0)
-                    ax.clabel(C2, C2.levels, fmt='%1.2f', inline=True, fontsize=12.5)
+                    CF2 = ax.contourf(xx, yy, model_model1_diff, 
+                                      levels=clevels_diff, 
+                                      cmap=cmap_diff, 
+                                      locator=matplotlib.ticker.MaxNLocator(symmetric=True),
+                                      extend='both')
+                    C2 = ax.contour(xx, yy, model_model1_diff, 
+                                    levels=CF2.levels, 
+                                    colors='k', 
+                                    linewidths=1.0)
+                    ax.clabel(C2, 
+                              C2.levels, 
+                              fmt='%1.2f', 
+                              inline=True, 
+                              fontsize=12.5)
                 else:
-                    CF = ax.contourf(xx, yy, model_model1_diff, levels=CF2.levels, cmap=cmap_diff, locator=matplotlib.ticker.MaxNLocator(symmetric=True),extend='both')
-                    C = ax.contour(xx, yy, model_model1_diff, levels=CF2.levels, colors='k', linewidths=1.0)
-                    ax.clabel(C, C.levels, fmt='%1.2f', inline=True, fontsize=12.5)
+                    CF = ax.contourf(xx, yy, model_model1_diff, 
+                                     levels=CF2.levels, 
+                                     cmap=cmap_diff, 
+                                     locator=matplotlib.ticker.MaxNLocator(symmetric=True),
+                                     extend='both')
+                    C = ax.contour(xx, yy, model_model1_diff, 
+                                   levels=CF2.levels, 
+                                   colors='k', 
+                                   linewidths=1.0)
+                    ax.clabel(C, 
+                              C.levels, 
+                              fmt='%1.2f', 
+                              inline=True, 
+                              fontsize=12.5)
     if nmodels > 1:
         cax = fig.add_axes([0.1, -0.05, 0.8, 0.05])
         if stat == "bias":
-            cbar = fig.colorbar(CF1, cax=cax, orientation='horizontal', ticks=CF1.levels)
+            cbar = fig.colorbar(CF1, 
+                                cax=cax, 
+                                orientation='horizontal', 
+                                ticks=CF1.levels)
         else:
-            cbar = fig.colorbar(CF2, cax=cax, orientation='horizontal', ticks=CF2.levels)
-    fig.suptitle(stat_plot_name+"\n"+"Fcst: "+fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title+" Obs: "+obs_var_name+" "+obs_var_extra_title+obs_var_thresh_title+" "+interp+" "+grid+"-"+region+"\n"+plot_time+": "+str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"+str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))+", valid: "+valid_time_info[0][0:4]+"-"+valid_time_info[-1][0:4]+"Z, init: "+init_time_info[0][0:4]+"-"+init_time_info[-1][0:4]+"Z, forecast hour "+lead+"\n", fontsize=14, fontweight='bold')
-    savefig_name = os.path.join(plotting_out_dir_imgs, stat+"_fhr"+lead+"_fcst"+fcst_var_name+fcst_var_extra+fcst_var_thresh+"_obs"+obs_var_name+obs_var_extra+obs_var_thresh+"_"+interp+"_"+grid+region+".png")
+            cbar = fig.colorbar(CF2, 
+                                cax=cax, 
+                                orientation='horizontal', 
+                                ticks=CF2.levels)
+    if grid == region:
+        gridregion = grid
+        gridregion_title = grid
+    else:
+        gridregion = grid+region
+        gridregion_title = grid+"-"+region
+    if interp[0:2] == 'WV':
+        fcst_var_name = fcst_var_name+"_"+interp
+    if plot_time == 'valid':
+        savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                    stat
+                                    +"_"+fcst_var_name
+                                    +"_all_fhr"+lead
+                                    +"_valid"+valid_time_info[0][0:2]+"Z"
+                                    +"_"+gridregion
+                                    +".png")
+        full_title = (
+            stat_plot_name+"\n"
+            +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+            +" "+gridregion_title+"\n"
+            +plot_time+": "
+            +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+            +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+            +" "+valid_time_info[0][0:2]+"Z"
+            +", forecast hour "+lead+"\n"
+        )
+    elif plot_time == 'init':
+        savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                    stat+"_"
+                                    +fcst_var_name+"_all_fhr"+lead
+                                    +"_init"+init_time_info[0][0:2]+"Z_"
+                                    +gridregion+".png")
+        full_title = (
+            stat_plot_name+"\n"
+            +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+            +" "+gridregion_title+"\n"
+            +plot_time+": "
+            +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+            +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+            +" "+init_time_info[0][0:2]+"Z"
+            +", forecast hour "+lead+"\n"
+        )
+    fig.suptitle(full_title, fontsize=14, fontweight='bold')
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.close()

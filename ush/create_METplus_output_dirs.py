@@ -43,6 +43,9 @@ elif RUN == 'grid2grid_step2':
        metplus_output_subdir_list.append(
           'plot_by_'+plot_by+'/make_plots'
        )
+       metplus_output_subdir_list.append(
+          'images'
+       )
 elif RUN == 'grid2obs_step1':
     gather_by = os.environ['g2o1_gather_by']
     for type in os.environ['g2o1_type_list'].split(' '):

@@ -108,3 +108,11 @@ while [ $nc -lt $ncount ]; do
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     fi
 done
+
+# Move images to common directory
+ln -sf $DATA/$RUN/metplus_output/plot_by_$plot_by/make_plots/*/grid2grid/*/imgs/* $DATA/$RUN/metplus_output/images/.
+
+# Send images to web
+if [ $SEND2WEB = YES ] ; then
+    python $USHverif_global/build_webpage.py
+fi

@@ -118,6 +118,9 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+noaa_logo_img_array = matplotlib.image.imread(os.path.join(os.environ['USHverif_global'],
+                                                           'plotting_scripts',
+                                                           'noaa.png'))
 
 stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
 
@@ -265,10 +268,11 @@ for stat in plot_stats_list:
         ax = plt.subplot(gs[model_index])
         ax.grid(True)
         ax.tick_params(axis='x', pad=10)
+        ax.set_xlabel("Forecast Hour", labelpad=20)
         ax.set_xticks(leads)
         ax.set_xlim([leads[0], leads[-1]])
         ax.tick_params(axis='y', pad=10)
-        ax.set_ylabel(plot_time.title()+" Date")
+        ax.set_ylabel(plot_time.title()+" Date", labelpad=20)
         ax.set_ylim([plot_time_dates[0],plot_time_dates[-1]])
         if len(plot_time_dates) <= 3:
             day_interval = 1
@@ -427,6 +431,7 @@ for stat in plot_stats_list:
             +" "+init_time_info[0][0:2]+"Z\n"
         )
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
+    fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.close()

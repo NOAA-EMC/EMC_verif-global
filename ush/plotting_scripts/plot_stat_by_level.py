@@ -122,6 +122,9 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+noaa_logo_img_array = matplotlib.image.imread(os.path.join(os.environ['USHverif_global'],
+                                                           'plotting_scripts',
+                                                           'noaa.png'))
 
 fcst_var_levels = np.empty(len(fcst_var_level_list), dtype=int)
 for vl in range(len(fcst_var_level_list)):
@@ -191,9 +194,9 @@ for stat in plot_stats_list:
             fig, ax = plt.subplots(1,1,figsize=(10,12))
             ax.grid(True)
             ax.tick_params(axis='x', pad=10)
-            ax.set_xlabel(stat_plot_name)
+            ax.set_xlabel(stat_plot_name, labelpad=20)
             ax.tick_params(axis='y', pad=15)
-            ax.set_ylabel('Pressure Level')
+            ax.set_ylabel('Pressure Level', labelpad=20)
             ax.set_yscale("log")
             ax.invert_yaxis()
             ax.minorticks_off()
@@ -260,6 +263,7 @@ for stat in plot_stats_list:
             +", forecast hour "+lead+"\n"
         )               
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
+    fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.close()

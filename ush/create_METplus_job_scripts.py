@@ -232,7 +232,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                    'P500', 'P200', 'P100',
                                    'P50', 'P20', 'P10' ],
                     'O3MR': [ 'P100', 'P70', 'P50', 
-                              'P20', 'P10' ]
+                              'P30', 'P20', 'P10' ]
                 }
             elif type == 'sfc':
                 line_type_list = 'SL1L2, VL1L2'

@@ -19,7 +19,7 @@
 # 
 # User controllable options: None
 
-#set -x 
+set -x 
 
 # Set up directories
 mkdir -p $RUN

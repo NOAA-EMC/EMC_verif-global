@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xe
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -51,6 +51,7 @@ if [ -d $OUTPUTROOT ]; then
 fi
 export make_met_data_by=${make_met_data_by:-VALID}
 export gather_by=${gather_by:-VSDB}
+export plot_by="VALID"
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
@@ -100,7 +101,10 @@ export METplus_version="2.1"
 ## some set in config.vrfy
 # GRID-TO-GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
-export g2g1_anl_name=${g2g1_anl_name:-self}
+export g2g1_anl_name=${g2g1_anl_name:-self_anl}
+if [ $g2g1_anl_name = self ]; then
+    export g2g1_anl_name="self_anl"
+fi
 export g2g1_anl_fileformat_list=${g2g1_anl_fileformat_list:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
 export g2g1_fcyc_list=$fcyc_list
 export g2g1_vhr_list=$vhr_list

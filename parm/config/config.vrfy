@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -63,9 +63,11 @@ export OUTPUTROOT="/gpfs/hps3/stmp/$USER/verif_global_standalone"
 #start_date:       verification start date, format YYYYMMDD
 #end_date:         verification end date, format YYYYMMDD
 #make_met_data_by: how to treat dates, "VALID" or "INIT"
+#plot_by:          how to plot data, "VALID" or "INIT"
 export start_date="20190101"
 export end_date="20190101"
 export make_met_data_by="VALID"
+export plot_by="VALID"
 ## WEB SETTINGS
 #SEND2WEB:  whether or not to send maps to webhost
 #webhost:   webhost(rzdm) computer
@@ -98,7 +100,7 @@ export SENDDBN_NTC="NO"
 ####################################################
 if [ $RUN_GRID2GRID_STEP1 = YES ]; then
     #g2g1_type_list:           list type of verifications to run for grid-to-grid, anom, pres, sfc
-    #g2g1_anl_name:            analysis type to compare models to, self, gfs_ops
+    #g2g1_anl_name:            analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
     #g2g1_anl_fileformat_list: list of analysis file format(s), more than 1 if g2g1_anl_name is self
     #g2g1_fyc_list:            all forecst cycles to be included in verification: HH
     #g2g1_vhr_list:            all valid hours to be included in verification: HH
@@ -107,7 +109,7 @@ if [ $RUN_GRID2GRID_STEP1 = YES ]; then
     #g2g1_grid:                grid to do verification on
     #g2g1_gather_by:           how to group the verification data, VSDB, VALID, INIT
     export g2g1_type_list="anom pres sfc"
-    export g2g1_anl_name="self"
+    export g2g1_anl_name="self_anl"
     export g2g1_anl_fileformat_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
     export g2g1_fcyc_list="00 06 12 18"
     export g2g1_vhr_list="00 06 12 18"
@@ -118,7 +120,26 @@ if [ $RUN_GRID2GRID_STEP1 = YES ]; then
 fi
 
 if [ $RUN_GRID2GRID_STEP2 = YES ]; then
-    echo "Hold for RUN_GRID2GRID_STEP2 setting"
+    #g2g2_model_plot_name_list: list of models reference name on plots
+    #g2g2_anl_name_list:        list of analysis type used for model in step 1: self_anl, self_f00, gfs_anl, gfs_f00
+    #g2g2_gather_by_list:       list of how model data was gathered in step 1
+    #g2g2_type_list:            list type of verifications to run for grid-to-grid, anom, pres, sfc
+    #g2g2_fyc_list:             all forecst cycles to be included in verification: HH
+    #g2g2_vhr_list:             all valid hours to be included in verification: HH
+    #g2g2_fhr_min:              forecast hour to start verification HH[H]
+    #g2g2_fhr_max:              forecast hour to end verification HH[H]
+    #g2g2_event_eq:             do event equalization (True) or not (False)
+    #g2g2_grid:                 grid verification was done on
+    export g2g2_model_plot_name_list="ops_gfs"
+    export g2g2_anl_name_list="self_anl"
+    export g2g2_gather_by_list="VSDB"
+    export g2g2_type_list="anom pres sfc"
+    export g2g2_fcyc_list="00"
+    export g2g2_vhr_list="00"
+    export g2g2_fhr_min="00"
+    export g2g2_fhr_max="48"
+    export g2g2_event_eq="True"
+    export g2g2_grid="G002"
 fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then

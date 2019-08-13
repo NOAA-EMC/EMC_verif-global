@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xe
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -95,6 +95,7 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
         exit 1
     fi
 elif [ $machine = THEIA ]; then
+    source /apps/lmod/lmod/init/sh
     module use /scratch4/NCEPDEV/global/save/glopara/git/NCEPLIBS-prod_util/modulefiles 
     module use /contrib/modulefiles 
     module load impi/5.1.2.150 
@@ -130,3 +131,5 @@ echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 
 echo "END: load_modules.sh"
+
+module list

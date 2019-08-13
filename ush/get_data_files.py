@@ -18,11 +18,13 @@ print("BEGIN: "+os.path.basename(__file__))
 RUN = os.environ['RUN']
 model_list = os.environ['model_list'].split(' ')
 model_dir_list = os.environ['model_dir_list'].split(' ')
+model_arch_dir_list = os.environ['model_arch_dir_list'].split(' ')
 model_fileformat_list = os.environ['model_fileformat_list'].split(' ')
 model_data_run_hpss = os.environ['model_data_runhpss']
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 make_met_data_by = os.environ['make_met_data_by']
+plot_by = os.environ['plot_by']
 model_hpssdir_list = os.environ['model_hpssdir_list'].split(' ')
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 
@@ -300,9 +302,9 @@ if RUN == 'grid2grid_step1':
                 anl_filename = format_filler(anl_file_format,
                                              valid_time, 
                                              init_time, lead)
-                if anl_name == 'self':
+                if anl_name == 'self_anl' or anl_name == 'self_f00':
                     anl_dir = os.path.join(dir, name)
-                elif anl_name == 'gfs_ops':
+                elif anl_name == 'gfs_anl' or anl_name == 'gfs_f00':
                     anl_dir = os.path.join(os.environ['gstat'], 'gfs')
                 else:
                     print("ERROR: "+anl_name+" is not a valid option "
@@ -394,7 +396,70 @@ if RUN == 'grid2grid_step1':
                         if not os.path.exists(error_file):
                             with open(error_file, 'a') as file:
                                 file.write(error_msg)
-                    
+
+elif RUN == 'grid2grid_step2':
+    type_list = os.environ['g2g2_type_list'].split(' ')
+    gather_by_list = os.environ['g2g2_gather_by_list'].split(' ')
+    if plot_by == 'VALID':
+        start_hr = os.environ['g2g2_valid_hr_beg']
+        end_hr = os.environ['g2g2_valid_hr_end']
+        hr_inc = os.environ['g2g2_valid_hr_inc']
+    else:
+        start_hr = os.environ['g2g2_init_hr_beg']
+        end_hr = os.environ['g2g2_init_hr_end']
+        hr_inc = os.environ['g2g2_init_hr_inc']
+    fhr_list = os.environ['g2g2_fhr_list'].split(', ')
+   
+    time_info = get_time_info(start_date, end_date,
+                              start_hr, end_hr, hr_inc,
+                              fhr_list, plot_by)
+
+    cwd = os.getcwd()
+    for name in model_list:
+        index = model_list.index(name)
+        if len(model_arch_dir_list) != len(model_list):
+            arch_dir = model_arch_dir_list[0]
+        else:
+            arch_dir = model_arch_dir_list[index]
+        if len(gather_by_list) != len(model_list):
+            gather_by = gather_by_list[0]
+        else:
+            gather_by = gather_by_list[index]
+        for type in type_list:
+            full_arch_dir = os.path.join(arch_dir, 'metplus_data', 
+                                         'by_'+gather_by, 'grid2grid',
+                                          type)
+            link_model_data_dir = os.path.join(cwd, 'data', name, type)
+            if not os.path.exists(link_model_data_dir):
+                os.makedirs(link_model_data_dir)
+            for time in time_info:
+                valid_time = time.validtime
+                init_time = time.inittime
+                lead = time.lead
+                if gather_by == 'VALID' or gather_by == 'VSDB':
+                    stat_file = os.path.join(full_arch_dir, 
+                                             valid_time.strftime('%H')+'Z', 
+                                             name, 
+                                             name+'_'+valid_time.strftime('%Y%m%d')+'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, 
+                                                  name+'_valid'+valid_time.strftime('%Y%m%d')+
+                                                  '_valid'+valid_time.strftime('%H')+'.stat')
+                elif gather_by == 'INIT':
+                    stat_file = os.path.join(full_arch_dir, 
+                                             init_time.strftime('%H')+'Z', 
+                                             name, 
+                                             name+'_'+init_time.strftime('%Y%m%d')+'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, 
+                                                  name+'_init'+init_time.strftime('%Y%m%d')+
+                                                  '_init'+init_time.strftime('%H')+'.stat')
+                if not os.path.exists(link_stat_file):
+                    if os.path.exists(stat_file):
+                        os.system('ln -sf '+stat_file+' '
+                                  +link_stat_file)
+                    else:
+                        print("WARNING: "+stat_file
+                              +" does not exist")
+ 
 elif RUN == 'grid2obs_step1':
     type_list = os.environ['g2o1_type_list'].split(' ')
     prepbufr_prod_upper_air_dir = os.environ['prepbufr_prod_upper_air_dir']

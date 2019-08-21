@@ -97,8 +97,10 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
 elif [ $machine = THEIA ]; then
     source /apps/lmod/lmod/init/sh
     module use /scratch4/NCEPDEV/global/save/glopara/git/NCEPLIBS-prod_util/modulefiles 
-    module use /contrib/modulefiles 
-    module load impi/5.1.2.150 
+    module use /contrib/modulefiles
+    module load intel/16.1.150 
+    module load impi/5.1.2.150
+    module load contrib 
     module load prod_util/v1.1.0_slurm 
     module load netcdf 
     module load nco 

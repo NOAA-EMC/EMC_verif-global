@@ -560,7 +560,7 @@ elif RUN == 'grid2obs_step1':
                 link_prepbufr_file = os.path.join(link_prepbufr_data_dir,
                                                   'prepbufr.gdas.'+YYYYmmddHH)
                 prod_file = os.path.join(prepbufr_prod_upper_air_dir, 
-                                         'gdas.'+YYYYmmdd,
+                                         'gdas.'+YYYYmmdd, HH,
                                          'gdas.t'+HH+'z.prepbufr')
                 arch_file = os.path.join(prepbufr_arch_dir, 'gdas',
                                           'prepbufr.gdas.'+YYYYmmddHH)
@@ -621,7 +621,13 @@ elif RUN == 'grid2obs_step1':
                    hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                                 'rh'+offset_YYYY, offset_YYYYmm,
                                                  offset_YYYYmmdd)
-                   if int(offset_YYYYmmdd) == 20170320:
+                   if int(offset_YYYYmmdd) > 20190820:
+                       hpss_tar_file = (
+                           'gpfs_dell1_nco_ops_com_nam_prod_nam.'
+                           +offset_YYYYmmddHH+'.bufr.tar'
+                       )
+                       hpss_file = 'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
+                   elif int(offset_YYYYmmdd) == 20170320:
                        hpss_tar_file = 'com_nam_prod_nam.'+offset_YYYYmmddHH+'.bufr.tar'
                        hpss_file = 'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
                    else:

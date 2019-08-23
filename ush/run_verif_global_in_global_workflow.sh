@@ -234,6 +234,13 @@ if [ ${start_date}${cyc2run} -le $SDATE ]; then
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
+for fcyc in $fcyc_list; do
+    if [ ${start_date}${fcyc} -le $SDATE ]; then
+         RUN_GRID2GRID_STEP1=NO
+         RUN_GRID2OBS_STEP1=NO
+         RUN_PRECIP_STEP1=NO
+    fi
+done
 precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
 precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
 if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then

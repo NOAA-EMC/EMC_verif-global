@@ -213,7 +213,7 @@ fi
 
 ## Some operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
-export prepbufr_prod_conus_sfc_dir="/com2/nam/prod"
+export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 hostname_letter=`echo $(hostname) |cut -c 1-1 `
 if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then
     export ccpa_24hr_prod_dir="/gpfs/tp1/nco/ops/com/verf/prod"
@@ -234,6 +234,13 @@ if [ ${start_date}${cyc2run} -le $SDATE ]; then
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
+for fcyc in $fcyc_list; do
+    if [ ${start_date}${fcyc} -le $SDATE ]; then
+         RUN_GRID2GRID_STEP1=NO
+         RUN_GRID2OBS_STEP1=NO
+         RUN_PRECIP_STEP1=NO
+    fi
+done
 precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
 precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
 if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then

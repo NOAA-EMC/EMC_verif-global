@@ -249,6 +249,11 @@ precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
 if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then
     RUN_PRECIP_STEP1=NO
 fi
+for fcyc in $fcyc_list; do
+    if [ ${precip_check_date}${fcyc} -le $SDATE ]; then
+         RUN_PRECIP_STEP1=NO
+    fi
+done
 
 ## Run METplus
 echo "=============== RUNNING METPLUS ==============="

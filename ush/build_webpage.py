@@ -54,7 +54,7 @@ elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
               '-P '+account+' -o '+web_job_output+' -e '+web_job_output+' '
               '-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '+web_job_filename)
-elif machine == 'THEIA':
+elif machine == 'THEIA' or machine == 'HERA':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
               '--partition='+queueserv+' --account='+account+' '
               '--output='+web_job_output+' '

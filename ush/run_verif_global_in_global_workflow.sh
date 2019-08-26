@@ -174,7 +174,7 @@ if [ -s config.machine ]; then
 fi
 
 ## Load modules and set machine specific variables
-if [ $machine != "THEIA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+if [ $machine != "THEIA" -a $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
     echo "ERROR: $machine is not supported"
     exit 1
 fi
@@ -203,6 +203,9 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 if [ $machine = "THEIA" ]; then
     export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
     export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
+elif [ $machine = "HERA" ]; then
+    export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
 elif [ $machine = "WCOSS_C" ]; then
     export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"

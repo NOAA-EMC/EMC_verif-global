@@ -121,6 +121,34 @@ elif [ $machine = THEIA ]; then
         exit 1
     fi
     module switch anaconda/anaconda2
+elif [ $machine = HERA ]; then
+    source /apps/lmod/lmod/init/sh
+    module use /scratch1/NCEPDEV/global/gwv/l819/lib/modulefiles
+    export NCEPLIBS=/scratch1/NCEPDEV/global/gwv/l819/lib
+    module use /contrib/modulefiles
+    module load intel
+    module load impi
+    module load contrib
+    module load prod_util/v1.1.0
+    module load netcdf
+    module load nco
+    module load wgrib2
+    module load hpss/hpss
+    module load anaconda/anaconda2-4.4.0
+    if [ $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
+        module load met/$MET_version
+        export HOMEMET="/contrib/met/${MET_version}"
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 2.1 ]; then
+        export HOMEMETplus="/contrib/METplus/METplus-$METplus_version"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
+    module switch anaconda/anaconda2
 else
     echo "ERROR: $machine is not supported"
     exit 1

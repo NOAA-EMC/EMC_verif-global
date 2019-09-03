@@ -228,9 +228,9 @@ for stat in plot_stats_list:
         savefig_name = os.path.join(plotting_out_dir_imgs,
                                     stat
                                     +obs
+                                    +"_valid"+valid_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name
                                     +"_all_fhr"+lead
-                                    +"_valid"+valid_time_info[0][0:2]+"Z"
                                     +"_"+gridregion
                                     +".png")
         full_title = (
@@ -247,9 +247,9 @@ for stat in plot_stats_list:
         savefig_name = os.path.join(plotting_out_dir_imgs,
                                     stat
                                     +obs
+                                    +"_init"+init_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name
                                     +"_all_fhr"+lead
-                                    +"_init"+init_time_info[0][0:2]+"Z"
                                     +"_"+gridregion
                                     +".png")
         full_title = (

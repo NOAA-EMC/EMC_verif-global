@@ -23,10 +23,10 @@ plt.rcParams['ytick.labelsize'] = 15
 plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
-colors = [ 'black', 'darkgreen', 'darkred', 
-           'indigo', 'blue', 'crimson', 
-           'goldenrod', 'sandybrown', 'thistle' ]
-
+colors = [
+    '#000000', '#2F1E80', '#D55E00', '#882255', 
+    '#018C66', '#D6B616', '#036398', '#CC79A7'
+]
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
 plot_time = os.environ['PLOT_TIME']
@@ -428,8 +428,9 @@ for stat in plot_stats_list:
     if plot_time == 'valid':
         savefig_name = os.path.join(plotting_out_dir_imgs, 
                                     stat
+                                    +"_valid"+valid_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhrmean_valid"+valid_time_info[0][0:2]+"Z"
+                                    +"_fhrmean"
                                     +"_"+gridregion
                                     +".png")
         full_title = (
@@ -445,8 +446,9 @@ for stat in plot_stats_list:
     elif plot_time == 'init':
         savefig_name = os.path.join(plotting_out_dir_imgs,
                                     stat
+                                    +"_init"+init_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhrmean_init"+init_time_info[0][0:2]+"Z"
+                                    +"_fhrmean"
                                     +"_"+gridregion
                                     +".png")
         full_title = (

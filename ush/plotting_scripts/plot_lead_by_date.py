@@ -401,8 +401,9 @@ for stat in plot_stats_list:
     if plot_time == 'valid':
         savefig_name = os.path.join(plotting_out_dir_imgs, 
                                     stat
+                                    +"_valid"+valid_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_leaddate_valid"+valid_time_info[0][0:2]+"Z"
+                                    +"_leaddate"
                                     +"_"+gridregion
                                     +".png")
         full_title = (
@@ -417,8 +418,9 @@ for stat in plot_stats_list:
     elif plot_time == 'init':
         savefig_name = os.path.join(plotting_out_dir_imgs, 
                                     stat
+                                    +"_init"+init_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_leaddate_init"+init_time_info[0][0:2]+"Z"
+                                    +"_leaddate"
                                     +"_"+gridregion
                                     +".png")
         full_title = (

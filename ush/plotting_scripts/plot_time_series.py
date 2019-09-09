@@ -161,7 +161,7 @@ for model in model_info:
                                           index=model_data_now_index, 
                                           columns=[ 'TOTAL' ])
         else:
-            logger.debug("Model "+str(model_num)+" "
+            logger.info("Model "+str(model_num)+" "
                          +model_name+" with plot name "
                          +model_plot_name+" file: "
                          +model_stat_file+" exists")
@@ -337,6 +337,19 @@ for stat in plot_stats_list:
             ax.xaxis.set_minor_locator(md.DayLocator())
             ax.tick_params(axis='y', pad=15)
             ax.set_ylabel(stat_plot_name, labelpad=20)
+            count = (
+                len(model_stat_values_array)
+                - np.ma.count_masked(model_stat_values_array)
+            )
+            ax.plot_date(plot_time_dates, model_stat_values_array,
+                     color=colors[model_index],
+                     ls='-',
+                     linewidth=3,
+                     marker='None',
+                     markersize=7,
+                     label=(model_plot_name
+                            +' '+str(round(model_stat_values_array.mean(),3))
+                            +' '+str(count)))
             if stat == "fbar_obar":
                 obs_count = len(obs_stat_values_array) - np.ma.count_masked(obs_stat_values_array)
                 ax.plot_date(plot_time_dates, obs_stat_values_array,
@@ -347,19 +360,21 @@ for stat in plot_stats_list:
                              markersize=7, 
                              label=('obs '
                                      +str(round(obs_stat_values_array.mean(),3))
-                                     +' '+str(obs_count))
-                             )
-        count = len(model_stat_values_array) - np.ma.count_masked(model_stat_values_array)
-        ax.plot_date(plot_time_dates, model_stat_values_array, 
-                     color=colors[model_index], 
-                     ls='-', 
-                     linewidth=2.0, 
-                     marker='o', 
-                     markersize=7, 
-                     label=(model_plot_name
-                            +' '+str(round(model_stat_values_array.mean(),2))
-                            +' '+str(count))
-                     )
+                                     +' '+str(obs_count)))
+        else:
+            count = (
+                len(model_stat_values_array)
+                - np.ma.count_masked(model_stat_values_array)
+            )
+            ax.plot_date(plot_time_dates, model_stat_values_array, 
+                         color=colors[model_index], 
+                         ls='-', 
+                         linewidth=2.0, 
+                         marker='o', 
+                         markersize=7, 
+                         label=(model_plot_name
+                                +' '+str(round(model_stat_values_array.mean(),3))
+                                +' '+str(count)))
     ax.legend(bbox_to_anchor=(1.025, 1.0, 0.375, 0.0), loc='upper right', 
               ncol=1, fontsize='13', mode="expand", borderaxespad=0.)
     if grid == region:

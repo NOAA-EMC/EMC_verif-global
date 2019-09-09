@@ -310,8 +310,8 @@ for stat in plot_stats_list:
                 ax1.plot(leads, model_mean_data, 
                          color=colors[model_index], 
                          ls='-', 
-                         linewidth=2.0, 
-                         marker='o', 
+                         linewidth=3.0, 
+                         marker='None', 
                          markersize=7, 
                          label=model_plot_name)
                 ax2.plot(leads, np.zeros_like(leads), 

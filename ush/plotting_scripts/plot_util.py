@@ -28,6 +28,10 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
                                            based on user provided information,
                                            formatted as "%Y%m%d"+"_"+"%H%M%S"
     """
+    if len(lead) == 2 or len(lead) == 4:
+        lead = lead.ljust(6, '0')
+    elif len(lead) == 3 or len(lead) == 5:
+        lead = lead.ljust(7, '0')
     plot_time_dates = []
     expected_stat_file_dates = []
     if plot_time == "valid":
@@ -35,14 +39,14 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
              valid_start_hour = valid_time_info[0]
              valid_end_hour = valid_time_info[-1]
         else:
-             lead_hour_seconds = int(int(lead[0:2])%24) * 3600
-             if lead[2:]:
-                 lead_min_seconds = int(lead[2:]) * 60
+             lead_hour_seconds = int(int(lead[:-4])%24) * 3600
+             if lead[-4:]:
+                 lead_min_seconds = int(lead[-4:-2]) * 60
              else:
                   lead_min_seconds = 0
-             init_hour_seconds = int(int(init_time_info[0][0:2])%24) * 3600
-             if init_time_info[0][2:]:
-                 init_min_seconds = int(init_time_info[0][2:]) * 60
+             init_hour_seconds = int(int(init_time_info[0][:-4])%24) * 3600
+             if init_time_info[0][-4:]:
+                 init_min_seconds = int(init_time_info[0][-4:-2]) * 60
              else:
                  init_min_seconds = 0
              lead_init_offset = datetime.timedelta(seconds=lead_hour_seconds
@@ -83,14 +87,14 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
            init_start_hour = init_time_info[0]
            init_end_hour = init_time_info[-1]
         else:
-           lead_hour_seconds = int(int(lead[0:2])%24) * 3600
-           if lead[2:]:
-               lead_min_seconds = int(lead[2:]) * 60
+           lead_hour_seconds = int(int(lead[:-4])%24) * 3600
+           if lead[-4:-2]:
+               lead_min_seconds = int(lead[-4:-2]) * 60
            else:
                lead_min_seconds = 0
-           valid_hour_seconds = int(int(valid_time_info[0][0:2])%24) * 3600
-           if valid_time_info[0][2:]:
-               valid_min_seconds = int(valid_time_info[0][2:]) * 60
+           valid_hour_seconds = int(int(valid_time_info[0][:-4])%24) * 3600
+           if valid_time_info[0][-4:-2]:
+               valid_min_seconds = int(valid_time_info[0][-4:-2]) * 60
            else:
                valid_min_seconds = 0
            lead_init_offset = datetime.timedelta(seconds=lead_hour_seconds
@@ -125,10 +129,10 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
             dt = date.time()
             seconds = (dt.hour * 60 + dt.minute) * 60 + dt.second
             plot_time_dates.append(date.toordinal() + seconds/86400.)
-            lead_time_HHMMSS = lead.ljust(6,'0')
-            delta_lead = datetime.timedelta(hours=int(lead_time_HHMMSS[0:2]),
-                                            minutes=int(lead_time_HHMMSS[2:4]),
-                                            seconds=int(lead_time_HHMMSS[4:]))
+            lead_time_HHMMSS = lead
+            delta_lead = datetime.timedelta(hours=int(lead_time_HHMMSS[:-4]),
+                                            minutes=int(lead_time_HHMMSS[-4:-2]),
+                                            seconds=int(lead_time_HHMMSS[-2:]))
             expected_stat_file_dates.append( \
                 (datetime.datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S") \
                 + delta_lead).strftime("%Y%m%d"+"_"+"%H%M%S"))

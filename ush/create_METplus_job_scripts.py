@@ -236,7 +236,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                               'P30', 'P20', 'P10' ]
                 }
             elif type == 'sfc':
-                line_type_list = 'SL1L2, VL1L2'
+                line_type = 'SL1L2, VL1L2'
                 plot_stats_list = 'fbar'
                 vx_mask_list = [ 'G002', 'NHX', 'SHX', 
                                 'N60', 'S60', 'TRO',

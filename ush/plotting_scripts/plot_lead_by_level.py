@@ -182,8 +182,8 @@ for stat in plot_stats_list:
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
                     for lead in lead_list:
                         lead_index = lead_list.index(lead)
-                        if lead.ljust(6,'0') in model_mean_file_data_leads:
-                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead.ljust(6,'0'))
+                        if lead in model_mean_file_data_leads:
+                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead)
                             if model_mean_file_data_vals[model_mean_file_data_lead_index] == "--":
                                 model_level_mean_data[vl,lead_index] = np.nan
                             else:
@@ -196,29 +196,29 @@ for stat in plot_stats_list:
         if model_num == 1:
             if nmodels == 1:
                 fig = plt.figure(figsize=(10,12))
-                gs = gridspec.GridSpec(2,1)
-                gs.update(wspace=0.3, hspace=0.25)
+                gs = gridspec.GridSpec(1,1)
             elif nmodels == 2:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(2,1)
-                gs.update(wspace=0.3, hspace=0.25)
+                gs.update(hspace=0.35)
             elif nmodels > 2 and nmodels <= 4:
-                fig = plt.figure(figsize=(15,12))
+                fig = plt.figure(figsize=(20,12))
                 gs = gridspec.GridSpec(2,2)
-                gs.update(wspace=0.3, hspace=0.25)
+                gs.update(wspace=0.4, hspace=0.35)
             elif nmodels > 4 and nmodels <= 6:
-                fig = plt.figure(figsize=(19,12))
+                fig = plt.figure(figsize=(30,12))
                 gs = gridspec.GridSpec(2,3)
-                gs.update(wspace=0.3, hspace=0.25)
-            elif nmodels > 6 and nmodels <=9:
-                fig = plt.figure(figsize=(21,17))
+                gs.update(wspace=0.4, hspace=0.35)
+            elif nmodels > 6 and nmodels <= 9:
+                fig = plt.figure(figsize=(30,18))
                 gs = gridspec.GridSpec(3,3)
-                gs.update(wspace=0.35, hspace=0.25)
+                gs.update(wspace=0.4, hspace=0.35)
             else:
                 logger.error("Too many models selected, max. is 9")
                 exit(1)
         ax = plt.subplot(gs[model_index])
         ax.grid(True)
+        ax.tick_params(axis='x', pad=15)
         ax.set_xticks(leads)
         ax.set_xlim([leads[0], leads[-1]])
         ax.set_xlabel("Forecast Hour", labelpad=20)

@@ -244,24 +244,23 @@ for stat in plot_stats_list:
             stat_values_array[:,vl,:] = np.ma.mask_cols(stat_values_array[:,vl,:])
     if nmodels == 1:
         fig = plt.figure(figsize=(10,12))
-        gs = gridspec.GridSpec(2,1)
-        gs.update(wspace=0.3, hspace=0.25)
+        gs = gridspec.GridSpec(1,1)
     elif nmodels == 2:
         fig = plt.figure(figsize=(10,12))
         gs = gridspec.GridSpec(2,1)
-        gs.update(wspace=0.3, hspace=0.25)
+        gs.update(hspace=0.35)
     elif nmodels > 2 and nmodels <= 4:
-        fig = plt.figure(figsize=(15,12))
+        fig = plt.figure(figsize=(20,12))
         gs = gridspec.GridSpec(2,2)
-        gs.update(wspace=0.3, hspace=0.25)
+        gs.update(wspace=0.4, hspace=0.35)
     elif nmodels > 4 and nmodels <= 6:
-        fig = plt.figure(figsize=(19,12))
+        fig = plt.figure(figsize=(30,12))
         gs = gridspec.GridSpec(2,3)
-        gs.update(wspace=0.3, hspace=0.25)
+        gs.update(wspace=0.4, hspace=0.35)
     elif nmodels > 6 and nmodels <= 9:
-        fig = plt.figure(figsize=(21,17))
+        fig = plt.figure(figsize=(30,18))
         gs = gridspec.GridSpec(3,3)
-        gs.update(wspace=0.35, hspace=0.25)
+        gs.update(wspace=0.4, hspace=0.35)
     else:
         logger.error("Too many models selected, max. is 9")
         exit(1)
@@ -273,7 +272,7 @@ for stat in plot_stats_list:
         model_stat_values_array = stat_values_array[model_index,:,:]
         ax = plt.subplot(gs[model_index])
         ax.grid(True)
-        ax.tick_params(axis='x', pad=10)
+        ax.tick_params(axis='x', pad=15)
         ax.set_xlabel(plot_time.title()+" Date", labelpad=20)
         ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
         if len(plot_time_dates) <= 3:
@@ -411,7 +410,7 @@ for stat in plot_stats_list:
                                     stat
                                     +"_valid"+valid_time_info[0][0:2]+"Z"
                                     +"_"+fcst_var_name
-                                    +"_all_fhr"+lead+"_"
+                                    +"_all_fhr"+lead
                                     +"_"+gridregion
                                     +".png")
         full_title = (

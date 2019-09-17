@@ -121,7 +121,18 @@ logger.addHandler(file_handler)
 noaa_logo_img_array = matplotlib.image.imread(os.path.join(os.environ['USHverif_global'],
                                                            'plotting_scripts',
                                                            'noaa.png'))
-
+leads_sec = leads * 3600.
+nmodels = len(model_name_list)
+CI_bar_max_widths = np.append(np.diff(leads_sec),
+                              leads[-1]-leads[-2])/1.5
+CI_bar_min_widths = np.append(np.diff(leads_sec),
+                              leads[-1]-leads[-2])/nmodels
+CI_bar_intvl_widths = (
+    (CI_bar_max_widths-CI_bar_min_widths)/nmodels
+)
+CI_bar_intvl_widths = CI_bar_intvl_widths/3600.
+CI_bar_max_widths = CI_bar_max_widths/3600.
+CI_bar_min_widths = CI_bar_min_widths/3600.
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
     stat_plot_name = plot_util.get_stat_plot_name(logger, 
@@ -171,8 +182,8 @@ for stat in plot_stats_list:
                     model_mean_file_data_ovals = model_mean_file_data.loc[:]['OVALS'].tolist()
                     for lead in lead_list:
                         lead_index = lead_list.index(lead)
-                        if lead.ljust(6,'0') in model_mean_file_data_leads:
-                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead.ljust(6,'0'))
+                        if lead in model_mean_file_data_leads:
+                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead)
                             if model_mean_file_data_vals[model_mean_file_data_lead_index] == "--":
                                  model_mean_data[0,lead_index] = np.nan
                             else:
@@ -186,8 +197,8 @@ for stat in plot_stats_list:
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
                     for lead in lead_list:
                         lead_index = lead_list.index(lead)
-                        if lead.ljust(6,'0') in model_mean_file_data_leads:
-                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead.ljust(6,'0'))
+                        if lead in model_mean_file_data_leads:
+                            model_mean_file_data_lead_index = model_mean_file_data_leads.index(lead)
                             if model_mean_file_data_vals[model_mean_file_data_lead_index] == "--":
                                 model_mean_data[lead_index] = np.nan
                             else:
@@ -200,16 +211,16 @@ for stat in plot_stats_list:
         if model_num == 1:
             fig, (ax1, ax2) = plt.subplots(2,1,figsize=(10,12), sharex=True)
             ax1.grid(True)
-            ax1.tick_params(axis='x', pad=10)
+            ax1.tick_params(axis='x', pad=15)
             ax1.set_xticks(leads)
             ax1.set_xlim([leads[0], leads[-1]])
             ax1.tick_params(axis='y', pad=15)
-            ax1.set_ylabel("Mean", labelpad=20)
+            ax1.set_ylabel("Mean", labelpad=30)
             ax2.grid(True)
-            ax2.tick_params(axis='x', pad=10)
-            ax2.set_xlabel("Forecast Hour", labelpad=20)
+            ax2.tick_params(axis='x', pad=15)
+            ax2.set_xlabel("Forecast Hour", labelpad=30)
             ax2.tick_params(axis='y', pad=15)
-            ax2.set_ylabel("Difference", labelpad=20)
+            ax2.set_ylabel("Difference", labelpad=30)
             boxstyle = matplotlib.patches.BoxStyle("Square", pad=0.25)
             props = {'boxstyle': boxstyle,
             'facecolor': 'white',
@@ -229,27 +240,31 @@ for stat in plot_stats_list:
                 ax1.plot(leads, model_mean_data[0,:], 
                          color=colors[model_index], 
                          ls='-', 
-                         linewidth=2.0, 
-                         marker='o', 
+                         linewidth=3.0, 
+                         marker='None', 
                          markersize=7, 
-                         label=model_plot_name)
+                         label=model_plot_name,
+                         zorder=(nmodels-model_index)+4)
                 ax1.plot(leads, model_mean_data[1,:], 
                          color='dimgrey', 
                          ls='-', 
-                         linewidth=2.0, 
-                         marker='o', 
+                         linewidth=2.5, 
+                         marker='None', 
                          markersize=7, 
-                         label="Obs.")
+                         label="Obs.",
+                         zorder=4)
                 ax2.plot(leads, np.zeros_like(leads), 
                          color='black', 
                          ls='-', 
-                         linewidth=2.0)
+                         linewidth=2.0,
+                         zorder=4)
                 ax2.plot(leads, model_mean_data[0,:]-model_mean_data[1,:], 
                          color=colors[model_index], 
                          ls='-', 
                          linewidth=2.0, 
                          marker='o', 
-                         markersize=7)
+                         markersize=7,
+                         zorder=(nmodels-model_index)+4)
                 if ci_method != "NONE":
                     model_ci_data = np.empty(len(lead_list))
                     model_ci_data.fill(np.nan)
@@ -286,8 +301,8 @@ for stat in plot_stats_list:
                             model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
                             for lead in lead_list:
                                 lead_index = lead_list.index(lead)
-                                if lead.ljust(6,'0') in model_ci_file_data_leads:
-                                    model_ci_file_data_lead_index = model_ci_file_data_leads.index(lead.ljust(6,'0'))
+                                if lead in model_ci_file_data_leads:
+                                    model_ci_file_data_lead_index = model_ci_file_data_leads.index(lead)
                                     if model_ci_file_data_vals[model_ci_file_data_lead_index] == "--":
                                         model_ci_data[lead_index] = np.nan
                                     else:
@@ -299,12 +314,12 @@ for stat in plot_stats_list:
                                        +model_mean_file+" does not exist")
                     for lead in leads:
                         index = np.where(leads == lead)[0][0]
-                        ax2.bar(leads[index], 2*model_ci_data[index],
-                                bottom=-1*model_ci_data[index],
+                        ax2.bar(leads[index], 2*np.absolute(model_ci_data[index]),
+                                bottom=-1*np.absolute(model_ci_data[index]),
                                 color='None',
-                                width=1.5+((model_num+2)*0.2),
+                                width=CI_bar_max_widths-(CI_bar_intvl_widths*model_index),
                                 edgecolor=colors[model_index], 
-                                linewidth='1')
+                                linewidth='1.5')
             else:
                 ax2.set_title("Difference from "+model_plot_name, loc="left")
                 ax1.plot(leads, model_mean_data, 
@@ -313,11 +328,13 @@ for stat in plot_stats_list:
                          linewidth=3.0, 
                          marker='None', 
                          markersize=7, 
-                         label=model_plot_name)
+                         label=model_plot_name,
+                         zorder=(nmodels-model_index)+4)
                 ax2.plot(leads, np.zeros_like(leads), 
                          color=colors[model_index], 
                          ls='-', 
-                         linewidth=2.0)
+                         linewidth=2.0,
+                         zorder=4)
                 model1_mean_data = model_mean_data
         else:
             if stat == "fbar_obar":
@@ -327,13 +344,15 @@ for stat in plot_stats_list:
                           linewidth=2.0, 
                           marker='o', 
                           markersize=7, 
-                          label=model_plot_name)
+                          label=model_plot_name,
+                          zorder=(nmodels-model_index)+4)
                  ax2.plot(leads, model_mean_data[0,:]-model_mean_data[1,:], 
                           color=colors[model_index], 
                           ls='-', 
                           linewidth=2.0,  
                           marker='o', 
-                          markersize=7)
+                          markersize=7,
+                          zorder=(nmodels-model_index)+4)
             else:
                 ax1.plot(leads, model_mean_data, 
                          color=colors[model_index], 
@@ -341,13 +360,15 @@ for stat in plot_stats_list:
                          linewidth=2.0, 
                          marker='o', 
                          markersize=7, 
-                         label=model_plot_name)
+                         label=model_plot_name,
+                         zorder=(nmodels-model_index)+4)
                 ax2.plot(leads, model_mean_data-model1_mean_data, 
                          color=colors[model_index], 
                          ls='-', 
                          linewidth=2.0,  
                          marker='o', 
-                         markersize=7)
+                         markersize=7,
+                         zorder=(nmodels-model_index)+4)
             if ci_method != "NONE":
                 model_ci_data = np.empty(len(lead_list))
                 model_ci_data.fill(np.nan)
@@ -384,8 +405,8 @@ for stat in plot_stats_list:
                         model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
                         for lead in lead_list:
                             lead_index = lead_list.index(lead)
-                            if lead.ljust(6,'0') in model_ci_file_data_leads:
-                                model_ci_file_data_lead_index = model_ci_file_data_leads.index(lead.ljust(6,'0'))
+                            if lead in model_ci_file_data_leads:
+                                model_ci_file_data_lead_index = model_ci_file_data_leads.index(lead)
                                 if model_ci_file_data_vals[model_ci_file_data_lead_index] == "--":
                                     model_ci_data[lead_index] = np.nan
                                 else:
@@ -397,23 +418,23 @@ for stat in plot_stats_list:
                                    +model_mean_file+" does not exist")
                 for lead in leads:
                     index = np.where(leads == lead)[0][0]
-                    ax2.bar(leads[index], 2*model_ci_data[index], 
-                            bottom=-1*model_ci_data[index], 
+                    ax2.bar(leads[index], 2*np.absolute(model_ci_data[index]), 
+                            bottom=-1*np.absolute(model_ci_data[index]), 
                             color='None',
-                            width=1.5+((model_num+2)*0.2), 
+                            width=CI_bar_max_widths-(CI_bar_intvl_widths*model_index), 
                             edgecolor=colors[model_index], 
                             linewidth='1')
     if stat == "fbar_obar":
         ax1.legend(bbox_to_anchor=(0.0, 1.02, 1.0, .102), 
                    loc=3, 
-                   ncol=len(model_name_list)+1, 
+                   ncol=nmodels+1, 
                    fontsize='13', 
                    mode="expand", 
                    borderaxespad=0.)
     else:
         ax1.legend(bbox_to_anchor=(0.0, 1.02, 1.0, .102), 
                    loc=3, 
-                   ncol=len(model_name_list), 
+                   ncol=nmodels, 
                    fontsize='13', 
                    mode="expand", 
                    borderaxespad=0.)

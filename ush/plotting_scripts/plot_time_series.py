@@ -213,6 +213,7 @@ for model in model_info:
     else:
         model_data = model_now_data
 
+nmodels = len(model_info)
 logger.info("Calculating and plotting statistics")
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
@@ -250,11 +251,11 @@ for stat in plot_stats_list:
                      +lead_mean_filename)
         with open(lead_mean_filename, 'a') as lead_mean_file:
             if stat == "fbar_obar":
-                lead_mean_file.write(lead.ljust(6,'0')
+                lead_mean_file.write(lead
                                      +' '+str(model_stat_values_array.mean())
                                      +' '+str(obs_stat_values_array.mean())+'\n')
             else:
-                lead_mean_file.write(lead.ljust(6,'0')
+                lead_mean_file.write(lead
                                      +' '+str(model_stat_values_array.mean())+'\n')
         if ci_method == "NONE":
             logger.debug("Not calculating confidence intervals")
@@ -283,7 +284,7 @@ for stat in plot_stats_list:
                              +model_plot_name+" and the observations at lead "
                              +lead+" to file: "+CI_filename)
                 with open(CI_filename, 'a') as CI_file:
-                    CI_file.write(lead.ljust(6,'0')+' '+str(stat_CI)+ '\n')
+                    CI_file.write(lead+' '+str(stat_CI)+ '\n')
             else:
                 if model_num == 1:
                     model1_stat_values_array = model_stat_values_array
@@ -314,15 +315,15 @@ for stat in plot_stats_list:
                                  +" with name on plot "+model1_plot_name+" at lead "+lead
                                  +" to file: "+CI_filename)
                     with open(CI_filename, 'a') as CI_file:
-                        CI_file.write(lead.ljust(6,'0')+' '+str(stat_CI)+ '\n')
+                        CI_file.write(lead+' '+str(stat_CI)+ '\n')
         logger.debug("Plotting model "+str(model_num)+" "
                      +model_name+" with name on plot "
                      +model_plot_name)
         if model_num == 1:
             fig, ax = plt.subplots(1,1,figsize=(10,6))
             ax.grid(True)
-            ax.tick_params(axis='x', pad=10)
-            ax.set_xlabel(plot_time.title()+" Date", labelpad=20)
+            ax.tick_params(axis='x', pad=15)
+            ax.set_xlabel(plot_time.title()+" Date", labelpad=30)
             ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
             if len(plot_time_dates) <= 3:
                 day_interval = 1
@@ -336,7 +337,7 @@ for stat in plot_stats_list:
             ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
             ax.xaxis.set_minor_locator(md.DayLocator())
             ax.tick_params(axis='y', pad=15)
-            ax.set_ylabel(stat_plot_name, labelpad=20)
+            ax.set_ylabel(stat_plot_name, labelpad=30)
             count = (
                 len(model_stat_values_array)
                 - np.ma.count_masked(model_stat_values_array)
@@ -349,18 +350,20 @@ for stat in plot_stats_list:
                      markersize=7,
                      label=(model_plot_name
                             +' '+str(round(model_stat_values_array.mean(),3))
-                            +' '+str(count)))
+                            +' '+str(count)),
+                     zorder=(nmodels-model_index)+4)
             if stat == "fbar_obar":
                 obs_count = len(obs_stat_values_array) - np.ma.count_masked(obs_stat_values_array)
                 ax.plot_date(plot_time_dates, obs_stat_values_array,
                              color='dimgrey', 
                              ls='-', 
-                             linewidth=2.0, 
-                             marker='o', 
+                             linewidth=2.5, 
+                             marker='None', 
                              markersize=7, 
                              label=('obs '
                                      +str(round(obs_stat_values_array.mean(),3))
-                                     +' '+str(obs_count)))
+                                     +' '+str(obs_count)),
+                             zorder=4)
         else:
             count = (
                 len(model_stat_values_array)
@@ -374,7 +377,8 @@ for stat in plot_stats_list:
                          markersize=7, 
                          label=(model_plot_name
                                 +' '+str(round(model_stat_values_array.mean(),3))
-                                +' '+str(count)))
+                                +' '+str(count)),
+                         zorder=(nmodels-model_index)+4)
     ax.legend(bbox_to_anchor=(1.025, 1.0, 0.375, 0.0), loc='upper right', 
               ncol=1, fontsize='13', mode="expand", borderaxespad=0.)
     if grid == region:
@@ -422,7 +426,7 @@ for stat in plot_stats_list:
             +", forecast hour "+lead+"\n"
         )
     ax.set_title(full_title, fontsize=14, fontweight='bold')
-    fig.figimage(noaa_logo_img_array, 0, 0, zorder=1, alpha=0.5)
+    fig.figimage(noaa_logo_img_array, -0.2, 0, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')
     plt.close()

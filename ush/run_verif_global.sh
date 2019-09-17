@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -48,8 +48,10 @@ fi
 
 if [ $RUN_GRID2GRID_STEP2 = YES ] ; then
     echo
-    echo "===== GRID-TO-GRID VERIFICATION PLOTTING IS NOT SUPPORTED AT THIS TIME ====="
+    echo "===== RUNNING GRID-TO-GRID STEP 2 VERIFICATION  ====="
+    echo "===== calculating statistics and creating plots for grid-to-grid verifcation using METplus ====="
     export RUN="grid2grid_step2"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exgrid2grid_step2.sh
 fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ] ; then

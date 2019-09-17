@@ -19,7 +19,7 @@
 # 
 # User controllable options: None
 
-#set -x
+set -x
 
 # Set up directories
 mkdir -p $RUN
@@ -70,7 +70,7 @@ while [ $nc -lt $ncount ]; do
         fi
         nc=$((nc+1))
         iproc=$((iproc+1))
-        if [ $machine = THEIA ]; then
+        if [ $machine = THEIA -o $machine = HERA ]; then
             echo "$rank $DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
             rank=$((rank+1))
         else
@@ -84,7 +84,7 @@ while [ $nc -lt $ncount ]; do
                 while [ $iproc -lt $nproc ]; do
                     nc=$((nc+1))
                     iproc=$((iproc+1))
-                    if [ $machine = THEIA ]; then
+                    if [ $machine = THEIA -o $machine = HERA ]; then
                         echo "$rank /bin/echo $iproc" >> $poe_script
                         rank=$((rank+1))
                     else
@@ -99,7 +99,7 @@ while [ $nc -lt $ncount ]; do
                 launcher="aprun -j 1 -n ${iproc} -N ${iproc} -d 1 cfp"
             elif [ $machine = WCOSS_DELL_P3 ]; then
                 launcher="mpirun -n ${iproc} cfp"
-            elif [ $machine = THEIA ]; then
+            elif [ $machine = THEIA -o $machine = HERA ]; then
                 launcher="srun --export=ALL --multi-prog"
             fi
             $launcher $MP_CMDFILE 

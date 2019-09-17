@@ -52,7 +52,7 @@ with open(job_card_filename, 'a') as job_card:
             job_card.write('#BSUB -n '+nproc+'\n')
             job_card.write('#BSUB -R "span[ptile='+nproc+']"\n')
             job_card.write('#BSUB -R affinity[core(1):distribute=balance]\n')
-    elif machine == 'THEIA':
+    elif machine == 'THEIA' or machine == 'HERA':
         job_card.write('#!/bin/sh --login\n')
         job_card.write('#SBATCH --qos='+queue+'\n')
         job_card.write('#SBATCH --account='+account+'\n')
@@ -70,7 +70,7 @@ print("Submitting "+job_card_filename+" to "+queue)
 print("Output sent to "+job_output_filename)
 if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
     os.system('bsub < '+job_card_filename)
-elif machine == 'THEIA':
+elif machine == 'THEIA' or machine == 'HERA':
     os.system('sbatch '+job_card_filename)
 
 print("END: "+os.path.basename(__file__))

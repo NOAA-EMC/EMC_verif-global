@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xe
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -30,6 +30,7 @@ fi
 
 ## Load
 if [ $machine = WCOSS_C ]; then
+    source /opt/modules/default/init/sh
     module use /usrx/local/prod/modulefiles
     module use /usrx/local/dev/modulefiles
     module load xt-lsfhpc/9.1.3 
@@ -62,6 +63,7 @@ if [ $machine = WCOSS_C ]; then
         exit 1
     fi
 elif [ $machine = WCOSS_DELL_P3 ]; then
+    source /usrx/local/prod/lmod/lmod/init/sh
     module load EnvVars/1.0.2
     module load lsf/10.1 
     module load ips/18.0.1.163 
@@ -95,9 +97,12 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
         exit 1
     fi
 elif [ $machine = THEIA ]; then
+    source /apps/lmod/lmod/init/sh
     module use /scratch4/NCEPDEV/global/save/glopara/git/NCEPLIBS-prod_util/modulefiles 
-    module use /contrib/modulefiles 
-    module load impi/5.1.2.150 
+    module use /contrib/modulefiles
+    module load intel/16.1.150 
+    module load impi/5.1.2.150
+    module load contrib 
     module load prod_util/v1.1.0_slurm 
     module load netcdf 
     module load nco 
@@ -106,6 +111,34 @@ elif [ $machine = THEIA ]; then
     module load anaconda/anaconda2-4.4.0 
     if [ $MET_version = 6.1 -o $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
         module load met/$MET_version 
+        export HOMEMET="/contrib/met/${MET_version}"
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 2.1 ]; then
+        export HOMEMETplus="/contrib/METplus/METplus-$METplus_version"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
+    module switch anaconda/anaconda2
+elif [ $machine = HERA ]; then
+    source /apps/lmod/lmod/init/sh
+    module use /scratch1/NCEPDEV/global/gwv/l819/lib/modulefiles
+    export NCEPLIBS=/scratch1/NCEPDEV/global/gwv/l819/lib
+    module use /contrib/modulefiles
+    module load intel
+    module load impi
+    module load contrib
+    module load prod_util/v1.1.0
+    module load netcdf
+    module load nco
+    module load wgrib2
+    module load hpss/hpss
+    module load anaconda/anaconda2-4.4.0
+    if [ $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
+        module load met/$MET_version
         export HOMEMET="/contrib/met/${MET_version}"
     else
         "ERROR: $MET_version is not supported on $machine"
@@ -130,3 +163,5 @@ echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 
 echo "END: load_modules.sh"
+
+module list

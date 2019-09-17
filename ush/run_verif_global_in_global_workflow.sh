@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xe
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -51,6 +51,7 @@ if [ -d $OUTPUTROOT ]; then
 fi
 export make_met_data_by=${make_met_data_by:-VALID}
 export gather_by=${gather_by:-VSDB}
+export plot_by="VALID"
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
@@ -100,7 +101,10 @@ export METplus_version="2.1"
 ## some set in config.vrfy
 # GRID-TO-GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
-export g2g1_anl_name=${g2g1_anl_name:-self}
+export g2g1_anl_name=${g2g1_anl_name:-self_anl}
+if [ $g2g1_anl_name = self ]; then
+    export g2g1_anl_name="self_anl"
+fi
 export g2g1_anl_fileformat_list=${g2g1_anl_fileformat_list:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
 export g2g1_fcyc_list=$fcyc_list
 export g2g1_vhr_list=$vhr_list
@@ -170,7 +174,7 @@ if [ -s config.machine ]; then
 fi
 
 ## Load modules and set machine specific variables
-if [ $machine != "THEIA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+if [ $machine != "THEIA" -a $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
     echo "ERROR: $machine is not supported"
     exit 1
 fi
@@ -199,6 +203,9 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 if [ $machine = "THEIA" ]; then
     export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
     export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
+elif [ $machine = "HERA" ]; then
+    export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
 elif [ $machine = "WCOSS_C" ]; then
     export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
@@ -209,7 +216,7 @@ fi
 
 ## Some operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
-export prepbufr_prod_conus_sfc_dir="/com2/nam/prod"
+export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 hostname_letter=`echo $(hostname) |cut -c 1-1 `
 if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then
     export ccpa_24hr_prod_dir="/gpfs/tp1/nco/ops/com/verf/prod"
@@ -230,11 +237,23 @@ if [ ${start_date}${cyc2run} -le $SDATE ]; then
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
+for fcyc in $fcyc_list; do
+    if [ ${start_date}${fcyc} -le $SDATE ]; then
+         RUN_GRID2GRID_STEP1=NO
+         RUN_GRID2OBS_STEP1=NO
+         RUN_PRECIP_STEP1=NO
+    fi
+done
 precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
 precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
 if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then
     RUN_PRECIP_STEP1=NO
 fi
+for fcyc in $fcyc_list; do
+    if [ ${precip_check_date}${fcyc} -le $SDATE ]; then
+         RUN_PRECIP_STEP1=NO
+    fi
+done
 
 ## Run METplus
 echo "=============== RUNNING METPLUS ==============="

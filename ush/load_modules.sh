@@ -30,6 +30,7 @@ fi
 
 ## Load
 if [ $machine = WCOSS_C ]; then
+    source /opt/modules/default/init/sh
     module use /usrx/local/prod/modulefiles
     module use /usrx/local/dev/modulefiles
     module load xt-lsfhpc/9.1.3 
@@ -62,6 +63,7 @@ if [ $machine = WCOSS_C ]; then
         exit 1
     fi
 elif [ $machine = WCOSS_DELL_P3 ]; then
+    source /usrx/local/prod/lmod/lmod/init/sh
     module load EnvVars/1.0.2
     module load lsf/10.1 
     module load ips/18.0.1.163 

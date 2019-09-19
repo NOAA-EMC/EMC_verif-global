@@ -13,7 +13,7 @@ account = os.environ['ACCOUNT']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
-web_walltime = '30' 
+web_walltime = '60' 
 walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
         .total_seconds()
 walltime = (datetime.datetime.min

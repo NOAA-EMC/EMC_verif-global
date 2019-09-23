@@ -1016,7 +1016,7 @@ elif RUN == 'precip_step1':
             prod_file = os.path.join(prod_dir,
                                      'precip.'+YYYYmmdd,
                                      'ccpa.'+YYYYmmdd+'12.24h')
-            arch_dir = '/no/online/ccpa_24hr/arch/dir'
+            arch_dir = os.environ['ccpa_24hr_arch_dir']
             arch_file = os.path.join(arch_dir,
                                      'ccpa.'+YYYYmmdd+'12.24h')
             hpss_date_dir = os.path.join(hpss_prod_base_dir,

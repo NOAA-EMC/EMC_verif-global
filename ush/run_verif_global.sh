@@ -64,8 +64,10 @@ fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ] ; then
     echo
-    echo "===== GRID-TO-OBSERVATIONS VERIFICATION PLOTTING IS NOT SUPPORTED AT THIS TIME ====="
+    echo "===== RUNNING GRID-TO-OBSERBATIONS STEP 2 VERIFICATION  ====="
+    echo "===== calculating statistics and creating plots for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step2"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exgrid2obs_step2.sh
 fi 
 
 if [ $RUN_PRECIP_STEP1 = YES ] ; then

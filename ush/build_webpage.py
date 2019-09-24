@@ -8,6 +8,7 @@ USHverif_global = os.environ['USHverif_global']
 DATA = os.environ['DATA']
 net = os.environ['NET']
 run = os.environ['RUN']
+run_type = run.split('_')[0]
 queueserv = os.environ['QUEUESERV']
 account = os.environ['ACCOUNT']
 webhost = os.environ['webhost']
@@ -40,7 +41,7 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('fi'+'\n')
         web_job_file.write('\n')
         web_job_file.write('scp -r '+os.path.join(DATA, run, 'metplus_output', 'images/*')
-                           +' '+webhostid+'@'+webhost+':'+webdir+'/grid2grid/images/.')
+                           +' '+webhostid+'@'+webhost+':'+webdir+'/'+run_type+'/images/.')
 os.chmod(web_job_filename, 0o755)
 web_job_output = web_job_filename.replace('.sh', '.out')
 web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')

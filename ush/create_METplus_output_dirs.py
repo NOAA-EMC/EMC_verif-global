@@ -59,6 +59,16 @@ elif RUN == 'grid2obs_step1':
             metplus_output_subdir_list.append(
                 'gather_by_'+gather_by+'/stat_analysis/'+type+'/'+model
             )
+elif RUN == 'grid2obs_step2':
+       metplus_output_subdir_list.append(
+           'plot_by_'+plot_by+'/stat_analysis'
+       )
+       metplus_output_subdir_list.append(
+          'plot_by_'+plot_by+'/make_plots'
+       )
+       metplus_output_subdir_list.append(
+          'images'
+       )
 elif RUN == 'precip_step1':
     gather_by = os.environ['precip1_gather_by'] 
     for type in os.environ['precip1_type_list'].split(' '):

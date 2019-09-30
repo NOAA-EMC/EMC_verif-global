@@ -10,6 +10,7 @@
 import sys
 import os
 import datetime
+import glob 
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -83,8 +84,22 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                             obtype = 'gfs_anl'
                         elif os.environ['g2g1_anl_name'] == 'gfs_f00':
                             obtype = 'gfs_f00'
-                        else:
-                            obtype = os.environ['g2g1_anl_name']+'_anl'
+                        anl_file_list = glob.glob(
+                            os.path.join(os.environ['DATA'], 
+                                         'grid2grid_step1', 'data', model,
+                                         'anl.'+date.strftime('%Y%m%d')+'*')
+                        )
+                        link_anl_type = []
+                        if len(anl_file_list) > 0:
+                            for anl_file in anl_file_list:
+                                if os.path.islink(anl_file):
+                                    if (os.readlink(anl_file) ==
+                                            anl_file.replace('anl', 'f00')):
+                                        link_anl_type.append('f00')
+                                    else:
+                                        link_anl_type.append('anl')
+                        if all(anl == 'f00' for anl in link_anl_type):
+                            obtype = obtype.replace('anl', 'f00')
                     extra_env_info['verif_grid'] = os.environ['g2g1_grid']
                 elif case == 'grid2obs':
                     gather_by = os.environ['g2o1_gather_by']

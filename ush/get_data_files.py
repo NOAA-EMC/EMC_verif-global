@@ -284,7 +284,7 @@ if RUN == 'grid2grid_step1':
     for name in model_list:
         index = model_list.index(name)
         dir = model_dir_list[index]
-        if anl_name == 'gfs_ops' or len(anl_file_format_list) == 1:
+        if 'gfs' in anl_name or len(anl_file_format_list) == 1:
             anl_file_format = anl_file_format_list[0]
         else:
             anl_file_format = anl_file_format_list[index]
@@ -312,6 +312,7 @@ if RUN == 'grid2grid_step1':
                     exit(1)
                 anl_file = os.path.join(anl_dir, anl_filename)
                 if os.path.exists(anl_file):
+                    anl_found = True
                     if "grib2" in anl_file:
                             convert_grib2_grib1(anl_file,
                                                 link_anl_file) 
@@ -321,9 +322,9 @@ if RUN == 'grid2grid_step1':
                     if model_data_run_hpss == 'YES':
                         print("Did not find "+anl_file+" "
                               "online...going to try to get file from HPSS")
-                        if anl_name == 'self':
+                        if 'self' in anl_name:
                             hpss_dir = hpss_dir
-                        elif anl_name == 'gfs_ops':
+                        elif 'gfs' in anl_name:
                             hpss_dir = '/NCEPPROD/hpssprod/runhistory'
                         hpss_tar, hpss_file, hpss_job_filename = (
                                 set_up_gfs_hpss_info(init_time, hpss_dir, 
@@ -333,6 +334,8 @@ if RUN == 'grid2grid_step1':
                         get_hpss_data(hpss_job_filename,
                                       link_model_data_dir, link_anl_file,
                                       hpss_tar, hpss_file)
+                    else:
+                        anl_found = False 
                 if not os.path.exists(link_anl_file):
                      if model_data_run_hpss == 'YES':
                          error_msg = ('WARNING: '+anl_file+' does not exist '
@@ -342,6 +345,7 @@ if RUN == 'grid2grid_step1':
                      else:
                          error_msg = 'WARNING: '+anl_file+' does not exist'
                      print(error_msg)
+                     anl_found = False
                      error_dir = os.path.join(link_model_data_dir)
                      error_file = os.path.join(
                          error_dir,
@@ -350,6 +354,50 @@ if RUN == 'grid2grid_step1':
                      if not os.path.exists(error_file):
                          with open(error_file, 'a') as file:
                              file.write(error_msg)
+                else:
+                     anl_found = True
+                if anl_found == False:
+                     print("Analysis file not found..."
+                           +"will try to link f00 instead")
+                     link_f00_file = os.path.join(
+                         link_model_data_dir,
+                         'f00.'+valid_time.strftime('%Y%m%d%H')
+                     )
+                     if os.path.exists(link_f00_file):
+                         os.system('ln -sf '+link_f00_file+' '+link_anl_file)
+                     else:
+                         f00_filename = format_filler(file_format,
+                                                      valid_time, valid_time,
+                                                      '00')
+                         f00_file = os.path.join(dir, name,
+                                                 f00_filename)
+                         if os.path.exists(f00_file):
+                             if "grib2" in f00_file:
+                                 convert_grib2_grib1(f00_file,
+                                                     link_anl_file)
+                                 convert_grib2_grib1(f00_file,
+                                                     link_f00_file)
+                             else:
+                                 os.system('ln -sf '+f00_file
+                                           +' '+link_anl_file)
+                                 os.system('ln -sf '+f00_file
+                                           +' '+link_f00_file)
+                         else:
+                             if model_data_run_hpss == 'YES':
+                                 hpss_tar, hpss_file, hpss_job_filename = (
+                                     set_up_gfs_hpss_info(init_time, hpss_dir,
+                                                          'f000',
+                                                           link_model_data_dir)
+                                 )
+                                 get_hpss_data(hpss_job_filename,
+                                               link_model_data_dir,
+                                               link_anl_file,
+                                               hpss_tar, hpss_file)
+                                 if os.path.exists(link_anl_file):
+                                     os.system('ln -sf '+link_anl_file
+                                               +' '+link_f00_file)
+                         if not os.path.exists(link_anl_file):
+                             print("Unable to link f00 file as analysis")
 
             if 'sfc' in type_list:
                 link_f00_file = os.path.join(

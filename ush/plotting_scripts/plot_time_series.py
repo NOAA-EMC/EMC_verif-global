@@ -222,7 +222,11 @@ for stat in plot_stats_list:
                                                                               stat)
     if event_equalization == "True":
         logger.debug("Doing event equalization")
-        stat_values_array = np.ma.mask_cols(stat_values_array)
+        if stat == "fbar_obar":
+            stat_values_array[0,:,:] = np.ma.mask_cols(stat_values_array[0,:,:])
+            stat_values_array[1,:,:] = np.ma.mask_cols(stat_values_array[1,:,:])
+        else:
+            stat_values_array = np.ma.mask_cols(stat_values_array)
     for model in model_info:
         model_num = model_info.index(model) + 1
         model_index = model_info.index(model)

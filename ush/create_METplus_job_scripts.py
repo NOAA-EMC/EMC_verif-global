@@ -10,6 +10,7 @@
 import sys
 import os
 import datetime
+import glob 
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -26,6 +27,9 @@ if RUN == 'grid2grid_step2':
     case = 'grid2grid'
 elif RUN == 'grid2obs_step1':
     type_list = os.environ['g2o1_type_list'].split(' ')
+    case = 'grid2obs'
+elif RUN == 'grid2obs_step2':
+    type_list = os.environ['g2o2_type_list'].split(' ')
     case = 'grid2obs'
 elif RUN == 'precip_step1':
     type_list = os.environ['precip1_type_list'].split(' ')
@@ -80,8 +84,22 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                             obtype = 'gfs_anl'
                         elif os.environ['g2g1_anl_name'] == 'gfs_f00':
                             obtype = 'gfs_f00'
-                        else:
-                            obtype = os.environ['g2g1_anl_name']+'_anl'
+                        anl_file_list = glob.glob(
+                            os.path.join(os.environ['DATA'], 
+                                         'grid2grid_step1', 'data', model,
+                                         'anl.'+date.strftime('%Y%m%d')+'*')
+                        )
+                        link_anl_type = []
+                        if len(anl_file_list) > 0:
+                            for anl_file in anl_file_list:
+                                if os.path.islink(anl_file):
+                                    if (os.readlink(anl_file) ==
+                                            anl_file.replace('anl', 'f00')):
+                                        link_anl_type.append('f00')
+                                    else:
+                                        link_anl_type.append('anl')
+                        if all(anl == 'f00' for anl in link_anl_type):
+                            obtype = obtype.replace('anl', 'f00')
                     extra_env_info['verif_grid'] = os.environ['g2g1_grid']
                 elif case == 'grid2obs':
                     gather_by = os.environ['g2o1_gather_by']
@@ -303,7 +321,107 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     elif anl_name == 'gfs_f00':
                         obtype = 'gfs_f00'
                 model_info['model'+str(model_num)+'_obtype'] = obtype
-                    
+        elif case == 'grid2obs':
+            model_plot_name_list = (
+                os.environ['g2o2_model_plot_name_list'].split(' ')
+            )
+            if len(model_plot_name_list) != len(model_list):
+                print(
+                    "model_list and g2o2_model_plot_name_list "
+                    +"are not of equal length"
+                )
+                exit(1)
+            init_hr_beg = os.environ['g2o2_init_hr_beg']
+            init_hr_end = os.environ['g2o2_init_hr_end']
+            init_hr_inc = os.environ['g2o2_init_hr_inc']
+            event_equalization = os.environ['g2o2_event_eq']
+            interp = 'BILIN'
+            line_type = 'SL1L2, VL1L2'
+            plot_stats_list = 'bias, rmse, fbar_obar'
+            extra_env_info = {}
+            if type == 'upper_air':
+                fhr_list = os.environ['g2o2_fhr_list_upper_air']
+                obtype = os.environ['g2o2_obtype_upper_air']
+                valid_hr_beg = (
+                    os.environ['g2o2_valid_hr_beg_upper_air']
+                )
+                valid_hr_end = (
+                    os.environ['g2o2_valid_hr_end_upper_air']
+                )
+                valid_hr_inc = (
+                    os.environ['g2o2_valid_hr_inc_upper_air']
+                )
+                extra_env_info['verif_grid'] = (
+                    os.environ['g2o2_grid_upper_air']
+                )
+                vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236']
+                vars_and_levels_dict = {
+                    'TMP': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
+                            'P300', 'P250', 'P200', 'P150', 'P100', 'P50'],
+                    'RH': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
+                           'P300'],
+                    'UGRD_VGRD': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
+                            'P300', 'P250', 'P200', 'P150', 'P100', 'P50']
+                }
+            elif type == 'conus_sfc':
+                fhr_list = os.environ['g2o2_fhr_list_conus_sfc']
+                obtype = os.environ['g2o2_obtype_conus_sfc']
+                valid_hr_beg = (
+                    os.environ['g2o2_valid_hr_beg_conus_sfc']
+                )
+                valid_hr_end = (
+                    os.environ['g2o2_valid_hr_end_conus_sfc']
+                )
+                valid_hr_inc = (
+                    os.environ['g2o2_valid_hr_inc_conus_sfc']
+                )
+                extra_env_info['verif_grid'] = (
+                    os.environ['g2o2_grid_conus_sfc']
+                )
+                vx_mask_list = ['G104', 'WEST', 'EAST', 'MDW', 'NPL', 'SPL',
+                                'NEC', 'SEC', 'NWC', 'SWC', 'NMT', 'SMT',
+                                'SWD', 'GRB', 'LMV', 'GMC', 'APL', 'NAK',
+                                'SAK']
+                vars_and_levels_dict = {
+                    'TMP': ['Z2'],
+                    'RH': ['Z2'],
+                    'DPT': ['Z2'],
+                    'UGRD_VGRD': ['Z10'],
+                    'TCDC': ['L0'],
+                    'PRMSL': ['Z0']
+                }
+            model_info = {}
+            nmodels = int(len(model_list))
+            if nmodels > 8:
+                print(
+                    "Too many models listed in model_list. " \
+                    "Current maximum is 8."
+                )
+                exit(1)
+            for model in model_list:
+                index = model_list.index(model)
+                model_num = index + 1
+                model_info['model'+str(model_num)] = model
+                model_info['model'+str(model_num)+'_plot_name'] = (
+                         model_plot_name_list[index]
+                )
+                if (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) > 1):
+                    print(
+                        "model_arch_dir_list and model_list not of equal length"
+                    )
+                    exit(1)
+                elif (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) == 1):
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[0]
+                    )
+                else:
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[index]
+                    )
+                model_info['model'+str(model_num)+'_obtype'] = obtype
+
         for var_name, var_levels in vars_and_levels_dict.items():
             for vx_mask in vx_mask_list:
                 njob+=1

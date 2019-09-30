@@ -425,7 +425,7 @@ def calculate_stat(logger, model_data, stat):
         if line_type == "SL1L2":
             stat_values = fbar - obar
         elif line_type == "VL1L2":
-            stat_values = np.sqrt(uvffbar - uvoobar)
+            stat_values = np.sqrt(uvffbar) - np.sqrt(uvoobar)
         elif line_type == "VCNT":
             stat_values = fbar - obar
         else:

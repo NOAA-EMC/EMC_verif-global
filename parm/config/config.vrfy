@@ -168,7 +168,30 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
 fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ]; then
-    echo "Hold for RUN_GRID2OBS_STEP2 setting"
+    #g2o2_model_plot_name_list: list of models reference name on plots
+    #g2o2_gather_by_list:       list of how model data was gathered in step 1
+    #g2o2_type_list:            list type of verifications to run for grid-to-obs, upper_air, conus_sfc
+    #g2o2_fyc_list:             all forecst cycles to be included in verification: HH
+    #g2o2_vhr_list_upper_air:   all valid hours to be included in upper_air verification: HH
+    #g2o2_vhr_list_conus_sfc:   all valid hours to be included in conus_sfc verification: HH
+    #g2o2_fhr_min:              forecast hour to start verification HH[H]
+    #g2o2_fhr_max:              forecast hour to end verification HH[H]
+    #g2o2_event_eq:             do event equalization (True) or not (False)
+    #g2o2_grid_upper_air:       grid to do upper_air verification on
+    #g2o2_grid_conus_sfc:       grid to do conus_sfc verification on
+    export g2o2_model_plot_name_list="ops_gfs"
+    export g2o2_gather_by_list="VSDB"
+    export g2o2_type_list="upper_air conus_sfc"
+    export g2o2_fcyc_list="00 06 12 18"
+    export g2o2_vhr_list_upper_air="00 06 12 18"
+    export g2o2_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
+    export g2o2_fhr_min="00"
+    export g2o2_fhr_max="168"
+    export g2o2_obtype_upper_air="ADPUPA"
+    export g2o2_obtype_conus_sfc="ONLYSF"
+    export g2o2_event_eq="True"
+    export g2o2_grid_upper_air="G003"
+    export g2o2_grid_conus_sfc="G104"
 fi
 
 if [ $RUN_PRECIP_STEP1 = YES ]; then

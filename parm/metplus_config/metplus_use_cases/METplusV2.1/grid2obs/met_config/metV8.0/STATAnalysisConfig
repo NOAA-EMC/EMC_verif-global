@@ -10,7 +10,7 @@
 // Filtering input STAT lines by the contents of each column
 //
 model = [${MODEL}];
-desc  = [${DESC}];
+desc  = [];
 
 
 fcst_lead = [${FCST_LEAD}];
@@ -44,11 +44,11 @@ vx_mask = [${REGION}];
 
 interp_mthd = [${INTERP}];
 
-interp_pnts = [${INTERP_PTS}];
+interp_pnts = [];
 
 fcst_thresh = [${FCST_THRESH}];
 obs_thresh  = [];
-cov_thresh  = [${COV_THRESH}];
+cov_thresh  = [];
 
 alpha = [];
 

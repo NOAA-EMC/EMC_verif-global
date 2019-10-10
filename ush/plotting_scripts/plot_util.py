@@ -54,6 +54,8 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
                                                    + init_hour_seconds
                                                    + init_min_seconds)
              totsec = lead_init_offset.total_seconds()
+             if totsec >= 86400:
+                 totsec = totsec - 86400
              valid_hour = int(totsec//3600)
              valid_min = int((totsec%3600) // 60)
              valid_sec = int((totsec%3600)%60)
@@ -102,6 +104,10 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
                                                  - valid_hour_seconds
                                                  - valid_min_seconds)
            totsec = lead_init_offset.total_seconds()
+           if totsec >= 86400:
+               totsec = totsec - 86400
+           if totsec < 0:
+               totsec = np.absolute(totsec)
            init_hour = int(totsec//3600)
            init_min = int((totsec%3600) // 60)
            init_sec = int((totsec%3600)%60)

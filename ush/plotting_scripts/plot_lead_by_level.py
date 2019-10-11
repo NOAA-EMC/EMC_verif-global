@@ -134,9 +134,6 @@ xx, yy = np.meshgrid(leads, fcst_var_levels)
 
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    if stat == "fbar_obar":
-        logger.warning(stat+" is not currently supported for this type of plot")
-        continue
     stat_plot_name = plot_util.get_stat_plot_name(logger, stat)
     logger.info("Reading in model data")
     for model in model_info:
@@ -146,6 +143,10 @@ for stat in plot_stats_list:
         model_plot_name = model[1]
         model_level_mean_data = np.empty([len(fcst_var_level_list),len(lead_list)])
         model_level_mean_data.fill(np.nan)
+        if stat == 'fbar_obar':
+            obs_level_mean_data = np.empty([len(obs_var_level_list),len(lead_list)])
+            obs_level_mean_data.fill(np.nan)
+            mean_file_cols = [ "LEADS", "VALS", "OVALS" ]
         for vl in range(len(fcst_var_level_list)):
             fcst_var_level = fcst_var_level_list[vl]
             obs_var_level = obs_var_level_list[vl]
@@ -180,6 +181,8 @@ for stat in plot_stats_list:
                                                        dtype=str)
                     model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
+                    if stat == 'fbar_obar':
+                        obs_mean_file_data_vals = model_mean_file_data.loc[:]['OVALS'].tolist()
                     for lead in lead_list:
                         lead_index = lead_list.index(lead)
                         if lead in model_mean_file_data_leads:
@@ -187,39 +190,90 @@ for stat in plot_stats_list:
                             if model_mean_file_data_vals[model_mean_file_data_lead_index] == "--":
                                 model_level_mean_data[vl,lead_index] = np.nan
                             else:
-                                model_level_mean_data[vl,lead_index] = float(model_mean_file_data_vals[model_mean_file_data_lead_index])
+                                model_level_mean_data[vl,lead_index] = float(
+                                    model_mean_file_data_vals[model_mean_file_data_lead_index]
+                                )
+                            if stat == 'fbar_obar':
+                                if obs_mean_file_data_vals[model_mean_file_data_lead_index] == "--":
+                                    obs_level_mean_data[vl,lead_index] = np.nan
+                                else:
+                                    obs_level_mean_data[vl,lead_index] = float(
+                                        obs_mean_file_data_vals[model_mean_file_data_lead_index]
+                                    ) 
             else:
                 logger.warning("Model "+str(model_num)+" "
                                +model_name+" with plot name "
                                +model_plot_name+" file: "
                                +model_mean_file+" does not exist")
+        if nmodels > 8:
+            logger.error("Too many models selected, max. is 8")
+            exit(1)
         if model_num == 1:
-            if nmodels == 1:
+            if stat == 'fbar_obar':
+                nsubplots = nmodels + 1
+            else:
+                nsubplots = nmodels
+            if nsubplots == 1:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(1,1)
-            elif nmodels == 2:
+            elif nsubplots == 2:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(2,1)
                 gs.update(hspace=0.35)
-            elif nmodels > 2 and nmodels <= 4:
+            elif nsubplots > 2 and nsubplots <= 4:
                 fig = plt.figure(figsize=(20,12))
                 gs = gridspec.GridSpec(2,2)
                 gs.update(wspace=0.4, hspace=0.35)
-            elif nmodels > 4 and nmodels <= 6:
+            elif nsubplots > 4 and nsubplots <= 6:
                 fig = plt.figure(figsize=(30,12))
                 gs = gridspec.GridSpec(2,3)
                 gs.update(wspace=0.4, hspace=0.35)
-            elif nmodels > 6 and nmodels <= 9:
+            elif nsubplots > 6 and nsubplots <= 9:
                 fig = plt.figure(figsize=(30,18))
                 gs = gridspec.GridSpec(3,3)
                 gs.update(wspace=0.4, hspace=0.35)
-            else:
-                logger.error("Too many models selected, max. is 9")
-                exit(1)
-        ax = plt.subplot(gs[model_index])
+            if stat == 'fbar_obar':
+                logger.debug("Plotting observations")
+                ax = plt.subplot(gs[0])
+                ax.grid(True)
+                ax.tick_params(axis='x', pad=15)
+                if verif_case == 'grid2obs':
+                    ax.set_xticks(leads[::2])
+                else:
+                    ax.set_xticks(leads)
+                ax.set_xlim([leads[0], leads[-1]])
+                ax.set_xlabel("Forecast Hour", labelpad=20)
+                ax.tick_params(axis='y', pad=15)
+                ax.set_ylabel("Pressure Level", labelpad=20)
+                ax.set_yscale("log")
+                ax.invert_yaxis()
+                ax.minorticks_off()
+                ax.set_yticks(fcst_var_levels)
+                ax.set_yticklabels(fcst_var_levels)
+                ax.set_ylim([fcst_var_levels[0],fcst_var_levels[-1]])
+                ax.set_title('obs', loc='left')
+                CF0 = ax.contourf(xx, yy, obs_level_mean_data,
+                                  cmap=cmap,
+                                  extend='both')
+                C0 = ax.contour(xx, yy, obs_level_mean_data,
+                                levels=CF0.levels,
+                                colors='k',
+                                linewidths=1.0)
+                ax.clabel(C0,
+                          C0.levels,
+                          fmt='%1.2f',
+                          inline=True,
+                          fontsize=12.5)
+        if stat == 'fbar_obar':
+           ax = plt.subplot(gs[model_index+1])
+        else:
+           ax = plt.subplot(gs[model_index])
         ax.grid(True)
         ax.tick_params(axis='x', pad=15)
-        ax.set_xticks(leads)
+        if verif_case == 'grid2obs':
+            ax.set_xticks(leads[::2])
+        else:
+            ax.set_xticks(leads)
         ax.set_xlim([leads[0], leads[-1]])
         ax.set_xlabel("Forecast Hour", labelpad=20)
         ax.tick_params(axis='y', pad=15)
@@ -230,7 +284,45 @@ for stat in plot_stats_list:
         ax.set_yticks(fcst_var_levels)
         ax.set_yticklabels(fcst_var_levels)
         ax.set_ylim([fcst_var_levels[0],fcst_var_levels[-1]])
-        if stat == "bias":
+        if stat == "fbar_obar":
+            logger.debug("Plotting model "+str(model_num)
+                         +" "+model_name+" - obs"
+                         +" with name on plot "+model_plot_name
+                         +" - obs")
+            ax.set_title(model_plot_name+" - obs", loc='left')
+            model_obs_diff = model_level_mean_data - obs_level_mean_data
+            if model_num == 1:
+                clevels_diff = plot_util.get_clevels(model_obs_diff)
+                CF1 = ax.contourf(xx, yy, model_obs_diff,
+                                  levels=clevels_diff,
+                                  cmap=cmap_diff,
+                                  locator=matplotlib.ticker.MaxNLocator(symmetric=True),
+                                  extend='both')
+                C1 = ax.contour(xx, yy, model_obs_diff,
+                                levels=CF1.levels,
+                                colors='k',
+                                linewidths=1.0)
+                ax.clabel(C1,
+                          C1.levels,
+                          fmt='%1.2f',
+                          inline=True,
+                          fontsize=12.5)
+            else:
+                CF = ax.contourf(xx, yy, model_obs_diff,
+                                 levels=CF1.levels,
+                                 cmap=cmap_diff,
+                                 locator=matplotlib.ticker.MaxNLocator(symmetric=True),
+                                 extend='both')
+                C = ax.contour(xx, yy, model_obs_diff,
+                               levels=CF1.levels,
+                               colors='k',
+                               linewidths=1.0)
+                ax.clabel(C,
+                          C.levels,
+                          fmt='%1.2f',
+                          inline=True,
+                          fontsize=12.5)
+        elif stat == "bias":
             logger.debug("Plotting model "+str(model_num)+" "
                          +model_name+" with name on plot "
                          +model_plot_name)
@@ -323,12 +415,22 @@ for stat in plot_stats_list:
                               fmt='%1.2f', 
                               inline=True, 
                               fontsize=12.5)
-    if nmodels > 1:
-        cax = fig.add_axes([0.1, -0.05, 0.8, 0.05])
-        if stat == "bias":
-            cbar = fig.colorbar(CF1, 
-                                cax=cax, 
-                                orientation='horizontal', 
+    cax = fig.add_axes([0.1, -0.05, 0.8, 0.05])
+    if stat == "fbar_obar":
+        cbar = fig.colorbar(CF1,
+                            cax=cax, 
+                            orientation='horizontal',
+                            ticks=CF1.levels)
+    elif stat == "bias":
+        cbar = fig.colorbar(CF1, 
+                            cax=cax, 
+                            orientation='horizontal', 
+                            ticks=CF1.levels)
+    else:
+        if nsubplots == 1:
+            cbar = fig.colorbar(CF1,     
+                                cax=cax,     
+                                orientation='horizontal',     
                                 ticks=CF1.levels)
         else:
             cbar = fig.colorbar(CF2, 
@@ -344,41 +446,79 @@ for stat in plot_stats_list:
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
     if plot_time == 'valid':
-        savefig_name = os.path.join(plotting_out_dir_imgs, 
-                                    stat
-                                    +"_valid"+valid_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name
-                                    +"_all_fhrmean"
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-            +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-            +" "+valid_time_info[0][0:2]+"Z"
-            +", forecast hour means\n"
-        )
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name
+                                        +"_all_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", forecast hour means\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name
+                                        +"_all_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +" "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            )
     elif plot_time == 'init':
-        savefig_name = os.path.join(plotting_out_dir_imgs, 
-                                    stat
-                                    +"_init"+init_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name
-                                    +"_all_fhrmean"
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-            +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-            +" "+init_time_info[0][0:2]+"Z"
-            +", forecast hour means\n"
-        )
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name
+                                        +"_all_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +", valid "+valid_time_info[0][0:2]+"Z cycle"
+                +", forecast hour means\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name
+                                        +"_all_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +" "+init_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            )
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)

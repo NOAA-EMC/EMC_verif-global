@@ -327,7 +327,7 @@ if RUN == 'grid2grid_step1':
                         elif 'gfs' in anl_name:
                             hpss_dir = '/NCEPPROD/hpssprod/runhistory'
                         hpss_tar, hpss_file, hpss_job_filename = (
-                                set_up_gfs_hpss_info(init_time, hpss_dir, 
+                                set_up_gfs_hpss_info(valid_time, hpss_dir, 
                                                      'anl', 
                                                      link_model_data_dir)
                                 )

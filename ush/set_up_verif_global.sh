@@ -144,6 +144,7 @@ if [ $machine = "THEIA" ]; then
     export NOSCRUB="/scratch4/NCEPDEV/global/noscrub/$USER"
     export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
     export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
+    export ccpa_24hr_arch_dir="/scratch4/NCEPDEV/global/save/Mallory.Row/obdata/ccpa_accum24hr"
     # load utitlies on Theia because there is no module to set paths
     export NDATE="$NWROOT/util/exec/ndate"
     export NHOUR="$NWROOT/util/exec/nhour"
@@ -158,6 +159,7 @@ elif [ $machine = "HERA" ]; then
     export NOSCRUB="/scratch1/NCEPDEV/global/$USER"
     export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
+    export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
     export WGRIB="/apps/grads/2.0.2/bin/wgrib"
     export WGRIB2="/apps/wgrib2/2.0.8/intel/18.0.3.222/bin/wgrib2"
     export CNVGRIB="/apps/cnvgrib/1.4.0/bin/cnvgrib"
@@ -169,6 +171,7 @@ elif [ $machine = "WCOSS_C" ]; then
     export NOSCRUB="/gpfs/hps3/emc/global/noscrub/$USER"
     export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
+    export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
     export NWROOT=${NWROOT:-"/gpfs/dell1/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/dell2/emc/modeling/noscrub/$USER"
@@ -177,6 +180,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export NOSCRUB="/gpfs/dell2/emc/modeling/noscrub/$USER"
     export gstat="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
+    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 fi
 
 ## Some operational directories

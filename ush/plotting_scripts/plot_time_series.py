@@ -199,7 +199,23 @@ for model in model_info:
                      matching_date_index = model_now_stat_file_data_fcst_valid_dates.tolist().index(expected_date)
                      model_now_stat_file_data_indexed = model_now_stat_file_data.loc[matching_date_index][:]
                      for column in stat_file_line_type_columns:
-                         model_now_data.loc[(model_plot_name, expected_date)][column] = model_now_stat_file_data_indexed.loc[:][column]
+                         if verif_case == 'grid2obs' and verif_type == 'conus_sfc' and fcst_var_name == 'PRMSL':
+                             if column in ['FBAR', 'OBAR']:
+                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
+                                     model_now_stat_file_data_indexed.loc[:][column]/100.
+                                 )
+                             elif column in ['FFBAR', 'FOBAR', 'OOBAR']:
+                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
+                                     model_now_stat_file_data_indexed.loc[:][column]/(100.*100.)
+                                 )
+                             else:
+                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
+                                     model_now_stat_file_data_indexed.loc[:][column]
+                                 )
+                         else:
+                             model_now_data.loc[(model_plot_name, expected_date)][column] = (
+                                 model_now_stat_file_data_indexed.loc[:][column]
+                             )
     else:
         logger.warning("Model "+str(model_num)+" "
                        +model_name+" with plot name "
@@ -222,7 +238,11 @@ for stat in plot_stats_list:
                                                                               stat)
     if event_equalization == "True":
         logger.debug("Doing event equalization")
-        stat_values_array = np.ma.mask_cols(stat_values_array)
+        if stat == "fbar_obar":
+            stat_values_array[0,:,:] = np.ma.mask_cols(stat_values_array[0,:,:])
+            stat_values_array[1,:,:] = np.ma.mask_cols(stat_values_array[1,:,:])
+        else:
+            stat_values_array = np.ma.mask_cols(stat_values_array)
     for model in model_info:
         model_num = model_info.index(model) + 1
         model_index = model_info.index(model)
@@ -390,41 +410,79 @@ for stat in plot_stats_list:
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
     if plot_time == 'valid':
-        savefig_name = os.path.join(plotting_out_dir_imgs, 
-                                    stat
-                                    +"_valid"+valid_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhr"+lead
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
-            +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
-            +" "+valid_time_info[0][0:2]+"Z"
-            +", forecast hour "+lead+"\n"
-        )
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", forecast hour "+lead+"\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +" "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour "+lead+"\n"
+            )
     elif plot_time == 'init':
-        savefig_name = os.path.join(plotting_out_dir_imgs, 
-                                    stat
-                                    +"_init"+init_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhr"+lead
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
-            +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
-            +" "+init_time_info[0][0:2]+"Z"
-            +", forecast hour "+lead+"\n"
-        )
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +", valid "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour "+lead+"\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +" "+init_time_info[0][0:2]+"Z"
+                +", forecast hour "+lead+"\n"
+            )
     ax.set_title(full_title, fontsize=14, fontweight='bold')
     fig.figimage(noaa_logo_img_array, -0.2, 0, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)

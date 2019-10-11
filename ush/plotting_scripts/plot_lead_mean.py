@@ -212,7 +212,10 @@ for stat in plot_stats_list:
             fig, (ax1, ax2) = plt.subplots(2,1,figsize=(10,12), sharex=True)
             ax1.grid(True)
             ax1.tick_params(axis='x', pad=15)
-            ax1.set_xticks(leads)
+            if verif_case == 'grid2obs':
+                ax1.set_xticks(leads[::2])
+            else:
+                ax1.set_xticks(leads)
             ax1.set_xlim([leads[0], leads[-1]])
             ax1.tick_params(axis='y', pad=15)
             ax1.set_ylabel("Mean", labelpad=30)
@@ -447,41 +450,79 @@ for stat in plot_stats_list:
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
     if plot_time == 'valid':
-        savefig_name = os.path.join(plotting_out_dir_imgs, 
-                                    stat
-                                    +"_valid"+valid_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhrmean"
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-            +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-            +" "+valid_time_info[0][0:2]+"Z"
-            +", forecast hour means\n"
-        ) 
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", forecast hour means\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs, 
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +" "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            ) 
     elif plot_time == 'init':
-        savefig_name = os.path.join(plotting_out_dir_imgs,
-                                    stat
-                                    +"_init"+init_time_info[0][0:2]+"Z"
-                                    +"_"+fcst_var_name+"_"+fcst_var_level
-                                    +"_fhrmean"
-                                    +"_"+gridregion
-                                    +".png")
-        full_title = (
-            stat_plot_name+"\n"
-            +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-            +" "+gridregion_title+"\n"
-            +plot_time+": "
-            +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-            +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-            +" "+init_time_info[0][0:2]+"Z"
-            +", forecast hour means\n"
-        ) 
+        if verif_case == 'grid2obs':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +", valid "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            )
+        else:
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
+                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
+                +" "+init_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            ) 
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)

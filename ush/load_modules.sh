@@ -125,13 +125,15 @@ elif [ $machine = THEIA ]; then
     module switch anaconda/anaconda2
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
-    module use /scratch1/NCEPDEV/global/gwv/l819/lib/modulefiles
-    export NCEPLIBS=/scratch1/NCEPDEV/global/gwv/l819/lib
+    #module use /scratch1/NCEPDEV/global/gwv/l819/lib/modulefiles
+    #export NCEPLIBS=/scratch1/NCEPDEV/global/gwv/l819/lib
+    #module load prod_util/v1.1.0
+    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
     module use /contrib/modulefiles
     module load intel
     module load impi
     module load contrib
-    module load prod_util/v1.1.0
+    module load prod_util/1.1.0
     module load netcdf
     module load nco
     module load wgrib2

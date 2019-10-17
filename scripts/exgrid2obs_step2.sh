@@ -26,6 +26,9 @@ mkdir -p $RUN
 cd $RUN
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
+if [ $g2o2_fhr_max -gt 168 ]; then
+    export g2o2_fhr_max=168
+fi
 python $USHverif_global/set_init_valid_fhr_info.py
 status=$?
 [[ $status -ne 0 ]] && exit $status

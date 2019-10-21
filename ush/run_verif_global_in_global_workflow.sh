@@ -52,6 +52,7 @@ fi
 export make_met_data_by=${make_met_data_by:-VALID}
 export gather_by=${gather_by:-VSDB}
 export plot_by="VALID"
+export SENDMETVIEWER="NO"
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS

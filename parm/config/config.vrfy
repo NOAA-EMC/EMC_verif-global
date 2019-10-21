@@ -90,6 +90,7 @@ export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
+export SENDMETVIEWER="NO"
 export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"
@@ -108,6 +109,9 @@ if [ $RUN_GRID2GRID_STEP1 = YES ]; then
     #g2g1_fhr_max:             forecast hour to end verification HH[H]
     #g2g1_grid:                grid to do verification on
     #g2g1_gather_by:           how to group the verification data, VSDB, VALID, INIT
+    #g2g1_mv_database_name:    name of the METviewer database to send data to, MUST START WITH "mv"
+    #g2g1_mv_database_group:   name of the group the METviewer database belongs to
+    #g2g1_mv_database_desc:    description of database, can be blank  
     export g2g1_type_list="anom pres sfc"
     export g2g1_anl_name="self_anl"
     export g2g1_anl_fileformat_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
@@ -117,6 +121,9 @@ if [ $RUN_GRID2GRID_STEP1 = YES ]; then
     export g2g1_fhr_max="384"
     export g2g1_grid="G002"
     export g2g1_gather_by="VSDB"
+    export g2g1_mv_database_name="mv_gfs_grid2grid_metplus_TEST"
+    export g2g1_mv_database_group="NOAA NCEP"
+    export g2g1_mv_database_desc="Grid-to-grid METplus data for ops. GFS"
 fi
 
 if [ $RUN_GRID2GRID_STEP2 = YES ]; then
@@ -152,6 +159,9 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     #g2o1_grid_upper_air:     grid to do upper_air verification on
     #g2o1_grid_conus_sfc:     grid to do conus_sfc verification on
     #g2o1_gather_by:          how to group the verification data, VSDB, VALID, INIT
+    #g2o1_mv_database_name:   name of the METviewer database to send data to, MUST START WITH "mv"
+    #g2o1_mv_database_group:  name of the group the METviewer database belongs to
+    #g2o1_mv_database_desc:   description of database, can be blank  
     #prepbufr_data_runhpss:   get files from HPSS ("YES") if not online
     export g2o1_type_list="upper_air conus_sfc"
     export g2o1_fcyc_list="00 06 12 18"
@@ -164,6 +174,9 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     export g2o1_grid_upper_air="G003"
     export g2o1_grid_conus_sfc="G104"
     export g2o1_gather_by="VSDB"
+    export g2o1_mv_database_name="mv_gfs_grid2obs_metplus"
+    export g2o1_mv_database_group="NOAA NCEP"
+    export g2o1_mv_database_desc="Grid-to-obs METplus data for ops. GFS"
     export prepbufr_data_runhpss="YES"
 fi
 
@@ -206,6 +219,9 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     #precip1_grid:                 grid to do verification on
     #precip1_gather_by:            how to group the verification data, VSDB, VALID, INIT
     #precip1_obs_data_runhpss:     get files from HPSS ("YES") if not online
+    #precip1_mv_database_name:     name of the METviewer database to send data to, MUST START WITH "mv"
+    #precip1_mv_database_group:    name of the group the METviewer database belongs to
+    #precip1_mv_database_desc:     description of database, can be blank  
     export precip1_fcyc_list="00 06 12 18"
     export precip1_fhr_min="00"
     export precip1_fhr_max="180"
@@ -217,6 +233,9 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     export precip1_grid="G211"
     export precip1_gather_by="VSDB"
     export precip1_obs_data_runhpss="YES"
+    export precip1_mv_database_name="mv_gfs_precip_metplus"
+    export precip1_mv_database_group="NOAA NCEP"
+    export precip1_mv_database_desc="Precip METplus data for ops. GFS"
 fi
 
 if [ $RUN_PRECIP_STEP2 = YES ]; then

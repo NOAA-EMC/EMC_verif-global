@@ -239,7 +239,24 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
 fi
 
 if [ $RUN_PRECIP_STEP2 = YES ]; then
-    echo "Hold for RUN_PRECIP_STEP2 setting"
+    #precip2_model_plot_name_list: list of models reference name on plots
+    #precip2_gather_by_list:       list of how model data was gathered in step 1
+    #precip2_obtype:               precip observation type/name used in step 1
+    #precip2_accum_length:         verification accumulation length in hours
+    #precip2_fcyc_list:            all forecst cycles to be included in verification: HH
+    #precip2_fhr_min:              forecast hour to start verification HH[H]
+    #precip2_fhr_max:              forecast hour to end verification HH[H]
+    #precip2_event_eq:             do event equalization (True) or not (False)
+    #precip2_grid:                 grid to do verification on
+    export precip2_model_plot_name_list="ops_gfs"
+    export precip2_gather_by_list="VSDB"
+    export precip2_obtype="ccpa"
+    export precip2_accum_length="24"
+    export precip2_fcyc_list="00 06 12 18"
+    export precip2_fhr_min="00"
+    export precip2_fhr_max="180"
+    export precip2_event_eq="True"
+    export precip2_grid="G211"
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

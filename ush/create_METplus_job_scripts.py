@@ -17,6 +17,7 @@ print("BEGIN: "+os.path.basename(__file__))
 METplus_version = os.environ['METplus_version']
 PARMverif_global = os.environ['PARMverif_global']
 USHMETplus = os.environ['USHMETplus']
+USHverif_global = os.environ['USHverif_global']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 if RUN == 'grid2grid_step1':
@@ -33,6 +34,9 @@ elif RUN == 'grid2obs_step2':
     case = 'grid2obs'
 elif RUN == 'precip_step1':
     type_list = os.environ['precip1_type_list'].split(' ')
+    case = 'precip'
+elif RUN == 'precip_step2':
+    type_list = os.environ['precip2_type_list'].split(' ')
     case = 'precip'
 model_list = os.environ['model_list'].split(' ')
 model_arch_dir_list = os.environ['model_arch_dir_list'].split(' ')
@@ -424,6 +428,69 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         model_arch_dir_list[index]
                     )
                 model_info['model'+str(model_num)+'_obtype'] = obtype
+        elif case == 'precip':
+            model_plot_name_list = (
+                os.environ['precip2_model_plot_name_list'].split(' ')
+            )
+            if len(model_plot_name_list) != len(model_list):
+                print(
+                    "model_list and precip2_model_plot_name_list "
+                    +"not of equal length"
+                )
+                exit(1)
+            obtype = os.environ['precip2_obtype'] 
+            fhr_list = os.environ['precip2_fhr_list']
+            valid_hr_beg = os.environ['precip2_valid_hr_beg']
+            valid_hr_end = os.environ['precip2_valid_hr_end']
+            valid_hr_inc = os.environ['precip2_valid_hr_inc']
+            init_hr_beg = os.environ['precip2_init_hr_beg']
+            init_hr_end = os.environ['precip2_init_hr_end']
+            init_hr_inc = os.environ['precip2_init_hr_inc']
+            event_equalization = os.environ['precip2_event_eq']
+            interp = 'NEAREST'
+            line_type = 'CTC'
+            plot_stats_list = 'bias, ets'
+            vx_mask_list = ['G211']
+            extra_env_info = {}
+            extra_env_info['verif_grid'] = os.environ['precip2_grid']
+            extra_env_info['var_thresholds'] = (
+                'ge0.2, ge2, ge5, ge10, ge15, ge25, ge35, ge50, ge75'
+            )
+            if type == 'ccpa_accum24hr':
+                vars_and_levels_dict = {
+                    'APCP_24': ['A24']
+                }
+            model_info = {}
+            nmodels = int(len(model_list))
+            if nmodels > 8:
+                print(
+                    "Too many models listed in model_list. " \
+                    "Current maximum is 8."
+                )
+                exit(1)
+            for model in model_list:
+                index = model_list.index(model)
+                model_num = index + 1
+                model_info['model'+str(model_num)] = model
+                model_info['model'+str(model_num)+'_plot_name'] = (
+                         model_plot_name_list[index]
+                )
+                if (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) > 1):
+                    print(
+                        "model_arch_dir_list and model_list not of equal length"
+                    )
+                    exit(1)
+                elif (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) == 1):
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[0]
+                    )
+                else:
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[index]
+                    )
+                model_info['model'+str(model_num)+'_obtype'] = obtype
 
         for var_name, var_levels in vars_and_levels_dict.items():
             for vx_mask in vx_mask_list:
@@ -466,6 +533,14 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 else:
                     job_file.write(
                         USHMETplus+'/master_metplus.py '
+                        '-c '+PARMverif_global+'/metplus_config/machine.conf '
+                        '-c '+PARMverif_global+'/metplus_config/metplus_use_cases/'
+                        'METplusV'+METplus_version+'/'+case+'/plot_by_'
+                        +plot_by+'/'+type+'_nmodels'+str(nmodels)+'.conf\n'
+                    )
+                if case == 'precip':
+                    job_file.write(
+                        'python '+USHverif_global+'/plotting_scripts/make_plots_wrapper_precip.py '
                         '-c '+PARMverif_global+'/metplus_config/machine.conf '
                         '-c '+PARMverif_global+'/metplus_config/metplus_use_cases/'
                         'METplusV'+METplus_version+'/'+case+'/plot_by_'

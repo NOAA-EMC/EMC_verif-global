@@ -103,6 +103,10 @@ plot_stats_list = os.environ['PLOT_STATS_LIST'].split(", ")
 model_name_list = os.environ['MODEL_NAME_LIST'].split(" ")
 model_plot_name_list = os.environ['MODEL_PLOT_NAME_LIST'].split(" ")
 model_info = zip(model_name_list, model_plot_name_list)
+if verif_case == "precip":
+    average_method = "AGGREGATION"
+else:
+    average_method = "MEAN"
 ci_method = os.environ['CI_METHOD']
 grid = os.environ['VERIF_GRID']
 event_equalization = os.environ['EVENT_EQUALIZATION']
@@ -132,6 +136,19 @@ for model in model_info:
     model_num = model_info.index(model) + 1
     model_name= model[0]
     model_plot_name = model[1]
+    if ci_method == "EMC_MONTE_CARLO":
+        randx_model = np.loadtxt(
+            os.path.join(plotting_out_dir_data, 
+                         model_plot_name+"_randx.txt")
+        )
+    else:
+        ntests = 10000
+        randx_model = np.ones((ntests, total_days)) * np.nan
+    randx_model = np.array([randx_model])
+    if model_num == 1:
+        randx = randx_model
+    else:
+        randx = np.append(randx, randx_model, axis=0)
     model_data_now_index = pd.MultiIndex.from_product(
         [[model_plot_name], expected_stat_file_dates],
         names=['model_plot_name', 'dates']
@@ -199,7 +216,7 @@ for model in model_info:
                      matching_date_index = model_now_stat_file_data_fcst_valid_dates.tolist().index(expected_date)
                      model_now_stat_file_data_indexed = model_now_stat_file_data.loc[matching_date_index][:]
                      for column in stat_file_line_type_columns:
-                         if verif_case == 'grid2obs' and verif_type == 'conus_sfc' and fcst_var_name == 'PRMSL':
+                         if fcst_var_name == 'PRMSL' or (fcst_var_name == 'PRES' and fcst_var_level == 'Z0'):
                              if column in ['FBAR', 'OBAR']:
                                  model_now_data.loc[(model_plot_name, expected_date)][column] = (
                                      model_now_stat_file_data_indexed.loc[:][column]/100.
@@ -241,8 +258,15 @@ for stat in plot_stats_list:
         if stat == "fbar_obar":
             stat_values_array[0,:,:] = np.ma.mask_cols(stat_values_array[0,:,:])
             stat_values_array[1,:,:] = np.ma.mask_cols(stat_values_array[1,:,:])
+            stat_values_array4avg = stat_values_array
         else:
             stat_values_array = np.ma.mask_cols(stat_values_array)
+            stat_values_array4avg = np.ma.array([stat_values_array])
+    else:
+        if stat == "fbar_obar":
+            stat_values_array4avg = stat_values_array
+        else:
+            stat_values_array4avg = np.ma.array([stat_values_array])
     for model in model_info:
         model_num = model_info.index(model) + 1
         model_index = model_info.index(model)
@@ -269,35 +293,45 @@ for stat in plot_stats_list:
                      +model_plot_name+" lead "+lead
                      +" mean to file: "
                      +lead_mean_filename)
+        model_stat_average_array = plot_util.calculate_average(
+                logger, average_method, stat, model_data.loc[[model_plot_name]],
+                stat_values_array4avg[:,model_index,:]
+        )
         with open(lead_mean_filename, 'a') as lead_mean_file:
-            if stat == "fbar_obar":
-                lead_mean_file.write(lead
-                                     +' '+str(model_stat_values_array.mean())
-                                     +' '+str(obs_stat_values_array.mean())+'\n')
-            else:
-                lead_mean_file.write(lead
-                                     +' '+str(model_stat_values_array.mean())+'\n')
+            lead_mean_file.write(lead)
+            for l in range(len(model_stat_average_array)):
+                lead_mean_file.write(
+                    ' '+str(model_stat_average_array[l])
+                )
+            lead_mean_file.write('\n')
         if ci_method == "NONE":
             logger.debug("Not calculating confidence intervals")
         else:
+            CI_filename = os.path.join(plotting_out_dir_data,
+                                       model_plot_name
+                                       +"_"+stat
+                                       #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
+                                       #+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
+                                       #+"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z"
+                                       +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
+                                       +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
+                                       +"_interp"+interp
+                                       +"_region"+region
+                                       +"_CI_"+ci_method
+                                       +".txt")
             if stat == "fbar_obar":
-                CI_filename = os.path.join(plotting_out_dir_data, 
-                                           model_plot_name
-                                           +"_"+stat
-                                           #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                           #+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                           #+"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z"
-                                           +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
-                                           +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
-                                           +"_interp"+interp
-                                           +"_region"+region
-                                           +"_CI_"+ci_method
-                                           +".txt")
-                stat_CI = plot_util.calculate_ci(logger, 
-                                                 ci_method, 
-                                                 model_stat_values_array, 
-                                                 obs_stat_values_array, 
-                                                 total_days)
+                if ci_method == 'EMC_MONTE_CARLO':
+                    logger.warning("Monte Carlo resampling not "
+                                   +"done for fbar_obar")
+                    stat_CI = '--'
+                else:
+                    stat_CI = plot_util.calculate_ci(logger, 
+                                                     ci_method, 
+                                                     model_stat_values_array, 
+                                                     obs_stat_values_array, 
+                                                     total_days,
+                                                     stat, average_method,
+                                                     randx[model_index,:,:])
                 logger.debug("Writing "+ci_method
                              +" confidence intervals for difference between model "
                              +str(model_num)+" "+model_name+" with name on plot "
@@ -311,23 +345,22 @@ for stat in plot_stats_list:
                     model1_plot_name = model_plot_name
                     model1_name = model_name
                 elif model_num > 1:
-                    CI_filename = os.path.join(plotting_out_dir_data, 
-                                               model_plot_name
-                                               +"_"+stat
-                                               #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                               #+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                               #+"_init"+init_time_info[0]+"to"+init_time_info[-1]
-                                               +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
-                                               +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
-                                               +"_interp"+interp
-                                               +"_region"+region
-                                               +"_CI_"+ci_method
-                                               +".txt")
-                    stat_CI = plot_util.calculate_ci(logger, 
-                                                     ci_method, 
-                                                     model_stat_values_array, 
-                                                     model1_stat_values_array, 
-                                                     total_days)
+                    if ci_method == "EMC_MONTE_CARLO":
+                        stat_CI = plot_util.calculate_ci(logger,
+                                                         ci_method,
+                                                         model_data.loc[[model_plot_name]],
+                                                         model_data.loc[[model1_plot_name]],
+                                                         total_days,
+                                                         stat, average_method,
+                                                         randx[model_index,:,:])
+                    else:
+                        stat_CI = plot_util.calculate_ci(logger, 
+                                                         ci_method, 
+                                                         model_stat_values_array, 
+                                                         model1_stat_values_array, 
+                                                         total_days,
+                                                         stat, average_method, 
+                                                         randx[model_index,:,:])
                     logger.debug("Writing "+ci_method
                                  +" confidence intervals for difference between model "
                                  +str(model_num)+" "+model_name+" with name on plot "
@@ -428,6 +461,24 @@ for stat in plot_stats_list:
                 +", "+init_time_info[0][0:2]+"Z cycle"
                 +", forecast hour "+lead+"\n"
             )
+        elif verif_case == 'precip':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", forecast hour "+lead+"\n"
+            )
         else:
             savefig_name = os.path.join(plotting_out_dir_imgs, 
                                         stat
@@ -452,6 +503,24 @@ for stat in plot_stats_list:
                                         stat
                                         +"_valid"+valid_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
+                +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
+                +", valid "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour "+lead+"\n"
+            )
+        elif verif_case == 'precip':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
                                         +"_fhr"+lead
                                         +"_"+gridregion
                                         +".png")

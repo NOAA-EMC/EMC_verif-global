@@ -79,7 +79,16 @@ elif RUN == 'precip_step1':
             metplus_output_subdir_list.append(
                 'make_met_data_by_'+make_met_data_by+'/grid_stat/'+type+'/'+model
             )
-
+elif RUN == 'precip_step2':
+       metplus_output_subdir_list.append(
+           'plot_by_'+plot_by+'/stat_analysis'
+       )
+       metplus_output_subdir_list.append(
+          'plot_by_'+plot_by+'/make_plots'
+       )
+       metplus_output_subdir_list.append(
+          'images'
+       )
 for subdir in metplus_output_subdir_list:
     metplus_output_subdir = os.path.join(metplus_output_dir, subdir)
     os.makedirs(metplus_output_subdir, mode=0775)

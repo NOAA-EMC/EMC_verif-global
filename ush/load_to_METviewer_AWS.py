@@ -19,14 +19,12 @@ import shutil
 import os 
 import subprocess
 
-
 print("BEGIN: "+os.path.basename(__file__))
-
 
 # Read in environment variables
 machine = os.environ['machine']
 DATA = os.environ['DATA']
-net = os.environ['NET']
+NET = os.environ['NET']
 RUN = os.environ['RUN']
 RUN_type = RUN.split('_')[0]
 USHverif_global = os.environ['USHverif_global']
@@ -139,7 +137,7 @@ with open(load_xml_file, 'a') as xml:
 #      3 - XML file
 #      4 (opt) - sub dir
 AWS_job_filename = os.path.join(DATA, 'batch_jobs',
-                                net+'_'+RUN+'_load2METviewerAWS.sh')
+                                NET+'_'+RUN+'_load2METviewerAWS.sh')
 with open(AWS_job_filename, 'a') as AWS_job_file:
     AWS_job_file.write('#!/bin/sh'+'\n')
     if new_or_add == 'new':

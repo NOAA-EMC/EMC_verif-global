@@ -458,7 +458,7 @@ for stat in plot_stats_list:
                 +plot_time+": "
                 +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
                 +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
-                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", "+init_time_info[0][0:2]+"Z cycles"
                 +", forecast hour "+lead+"\n"
             )
         elif verif_case == 'precip':
@@ -476,7 +476,7 @@ for stat in plot_stats_list:
                 +plot_time+": "
                 +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
                 +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
-                +", "+init_time_info[0][0:2]+"Z cycle"
+                +" "+valid_time_info[0][0:2]+"Z"
                 +", forecast hour "+lead+"\n"
             )
         else:
@@ -531,7 +531,7 @@ for stat in plot_stats_list:
                 +plot_time+": "
                 +str(datetime.date.fromordinal(int(plot_time_dates[0])).strftime('%d%b%Y'))+"-"
                 +str(datetime.date.fromordinal(int(plot_time_dates[-1])).strftime('%d%b%Y'))
-                +", valid "+valid_time_info[0][0:2]+"Z"
+                +" "+init_time_info[0][0:2]+"Z"
                 +", forecast hour "+lead+"\n"
             )
         else:

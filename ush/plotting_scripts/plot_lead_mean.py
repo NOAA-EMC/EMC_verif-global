@@ -465,7 +465,25 @@ for stat in plot_stats_list:
                 +plot_time+": "
                 +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
                 +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-                +", "+init_time_info[0][0:2]+"Z cycle"
+                +", "+init_time_info[0][0:2]+"Z cycles"
+                +", forecast hour means\n"
+            )
+        elif verif_case == 'precip':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
+                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
+                +" "+valid_time_info[0][0:2]+"Z"
                 +", forecast hour means\n"
             )
         else:
@@ -503,6 +521,24 @@ for stat in plot_stats_list:
                 +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
                 +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
                 +", valid "+valid_time_info[0][0:2]+"Z"
+                +", forecast hour means\n"
+            )
+        elif verif_case == 'precip':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
+                                        +"_fhrmean"
+                                        +"_"+gridregion
+                                        +".png")
+            full_title = (
+                stat_plot_name+"\n"
+                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
+                +" "+gridregion_title+"\n"
+                +plot_time+": "
+                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
+                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
+                +" "+init_time_info[0][0:2]+"Z"
                 +", forecast hour means\n"
             )
         else:

@@ -31,7 +31,7 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('if [ $? -ne 0 ]; then'+'\n')
         web_job_file.write('    echo "Making directory '+webdir+'"'+'\n')
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                            +' " mkdir -p '+webdir+' "'+'\n')
+                            +' "mkdir -p '+webdir+' "'+'\n')
         web_job_file.write('    scp -q '+USHverif_global+'/webpage.tar  '
                             +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost

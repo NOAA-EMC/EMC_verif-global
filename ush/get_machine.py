@@ -1,11 +1,10 @@
-##---------------------------------------------------------------------------
-##---------------------------------------------------------------------------
-## NCEP EMC GLOBAL MODEL VERIFICATION
-##
-## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPGB
-## PURPOSE: Get machine that where verif_global is being run
-##---------------------------------------------------------------------------
-##---------------------------------------------------------------------------
+'''
+Program Name: get_machine.py
+Contact(s): Mallory Row
+Abstract: This script is run by set_up_verif_global.sh.
+          It gets the name of the name of the machine being
+          run on by checking environment variables.
+'''
 
 from __future__ import (print_function, division)
 import os
@@ -13,19 +12,24 @@ import re
 
 print("BEGIN: "+os.path.basename(__file__))
 
+# Read in environment variables
 hostname = os.environ['HOSTNAME']
-if "machine" in os.environ:
+
+# Get machine name
+if 'machine' in os.environ:
     machine = os.environ['machine']
 else:
-    if "MACHINE" in os.environ:
+    if 'MACHINE' in os.environ:
         machine = os.environ['MACHINE']
     else:
         theia_match = re.match(re.compile(r"^tfe[0-9]{2}$"), hostname)
         hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
         surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
         luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
-        mars_match = re.match(re.compile(r"^m[0-9]{2}[a-z]{1}[0-9]{1}$"), hostname)
-        venus_match = re.match(re.compile(r"^v[0-9]{2}[a-z]{1}[0-9]{1}$"), hostname)
+        mars_match = re.match(re.compile(r"^m[0-9]{2}[a-z]{1}[0-9]{1}$"),
+                              hostname)
+        venus_match = re.match(re.compile(r"^v[0-9]{2}[a-z]{1}[0-9]{1}$"),
+                               hostname)
         if theia_match:
             machine = 'THEIA'
         elif hera_match:

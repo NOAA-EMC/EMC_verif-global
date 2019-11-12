@@ -29,7 +29,7 @@ if not os.path.exists(batch_job_dir):
 job_card_filename = os.path.join(batch_job_dir, 
                                  NET+'_'+RUN+'.sh')
 job_output_filename = os.path.join(batch_job_dir,
-                                 NET+'_'+RUN+'.out')
+                                   NET+'_'+RUN+'.out')
 job_name = NET+'_'+RUN
 
 print("Writing job card to "+job_card_filename)

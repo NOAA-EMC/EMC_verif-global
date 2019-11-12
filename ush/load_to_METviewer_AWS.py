@@ -1,5 +1,5 @@
 '''
-Program Name: load_to_metviewer_AWS.py
+Program Name: load_to_METviewer_AWS.py
 Contact(s): Mallory Row
 Abstract: This is run at the end of all step1 scripts
           in scripts/.

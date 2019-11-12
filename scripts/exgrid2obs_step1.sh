@@ -177,5 +177,5 @@ done
 
 # Send data to METviewer AWS server
 if [ $SENDMETVIEWER = YES ]; then
-    python $USHverif_global/load_to_metviewer_AWS.py
+    python $USHverif_global/load_to_METviewer_AWS.py
 fi

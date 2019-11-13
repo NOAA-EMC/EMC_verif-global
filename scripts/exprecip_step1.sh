@@ -147,7 +147,7 @@ while [ $DATE -le ${end_date} ] ; do
                 if [ -s $verif_global_filename ]; then
                    if [ $SENDARCH = YES ]; then
                        mkdir -p $arch_dir/metplus_data/by_$gather_by/precip/$type/${gather_by_hour}Z/$model
-                       cp $verif_global_filename $arch_filename
+                       cpfs $verif_global_filename $arch_filename
                    fi
                    if [ $SENDCOM = YES ]; then
                        mkdir -p $COMOUT
@@ -157,7 +157,9 @@ while [ $DATE -le ${end_date} ] ; do
                        fi
                    fi
                 else
-                    err_exit "$verif_global_filename was not generated"
+                    echo "*************************************************************"
+                    echo "** WARNING: $verif_global_filename was not generated or zero size"
+                    echo "*************************************************************"
                 fi
             done
         done

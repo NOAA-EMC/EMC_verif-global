@@ -71,6 +71,7 @@ if mv_database in current_database_info:
     new_or_add = 'add'
 else:
     new_or_add = 'new'
+
 # Create linking file dir
 link_file_dir = os.path.join(os.getcwd(), 'metviewerAWS_files')
 os.makedirs(link_file_dir, mode=0775)
@@ -162,13 +163,15 @@ with open(AWS_job_filename, 'a') as AWS_job_file:
         +load_xml_file+'\n'
     )
     AWS_job_file.write('echo "Check METviewer AWS database list using '
-                       +os.path.join(METviewer_AWS_scripts_dir
+                       +os.path.join(METviewer_AWS_scripts_dir,
                                      'mv_db_size_on_aws.sh')
                       +'"\n')
     AWS_job_file.write(
         os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh')+' '
         +os.environ['USER'].lower()
     )
+
+# Submit job card
 os.chmod(AWS_job_filename, 0o755)
 AWS_job_output = AWS_job_filename.replace('.sh', '.out')
 AWS_job_name = AWS_job_filename.rpartition('/')[2].replace('.sh', '')
@@ -176,16 +179,16 @@ print("Submitting "+AWS_job_filename+" to "+QUEUESERV)
 print("Output sent to "+AWS_job_output)
 if machine == 'WCOSS_C':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-              '-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
-              '-J '+AWS_job_name+' -R rusage[mem=2048] '+AWS_job_filename)
+              +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
+              +'-J '+AWS_job_name+' -R rusage[mem=2048] '+AWS_job_filename)
 elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-              '-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
-              '-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
+              +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
+              +'-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
 elif machine == 'THEIA' or machine == 'HERA':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-              '--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-              '--output='+AWS_job_output+' '
-              '--job-name='+AWS_job_name+' '+AWS_job_filename)
+              +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+              +'--output='+AWS_job_output+' '
+              +'--job-name='+AWS_job_name+' '+AWS_job_filename)
 
 print("END: "+os.path.basename(__file__))

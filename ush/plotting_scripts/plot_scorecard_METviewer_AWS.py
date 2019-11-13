@@ -383,7 +383,7 @@ for modelB in model_list[1:]:
     while (sleep_counter*sleep_checker) <= walltime_seconds:
         sleep(sleep_checker)
         print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
-              "out of "+str(int(walltime_seconds))+" seconds")
+              +"out of "+str(int(walltime_seconds))+" seconds")
         check_job = subprocess.check_output(job_check_cmd, shell=True)
         if check_job[0] == '0':
             break

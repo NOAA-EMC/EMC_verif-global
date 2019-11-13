@@ -12,26 +12,30 @@ import sys
 import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
+
+# Read in script agruments
 machine = sys.argv[1]
 script = sys.argv[2]
 
+# Read in environment variables
 NET = os.environ['NET']
 RUN = os.environ['RUN']
 QUEUE = os.environ['QUEUE']
 ACCOUNT = os.environ['ACCOUNT']
 nproc = os.environ['nproc']
 
+# Create job card directory and file name
 cwd = os.getcwd()
 batch_job_dir = os.path.join(cwd, 'batch_jobs')
 if not os.path.exists(batch_job_dir):
     os.makedirs(batch_job_dir)
-
 job_card_filename = os.path.join(batch_job_dir, 
                                  NET+'_'+RUN+'.sh')
 job_output_filename = os.path.join(batch_job_dir,
                                    NET+'_'+RUN+'.out')
 job_name = NET+'_'+RUN
 
+# Create job card
 print("Writing job card to "+job_card_filename)
 with open(job_card_filename, 'a') as job_card:
     if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
@@ -65,7 +69,8 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --time=6:00:00\n')
     job_card.write('\n')
     job_card.write('/bin/sh '+script)
-    
+   
+# Submit job card 
 print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
 if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':

@@ -174,7 +174,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     #g2o1_mv_database_name:   name of the METviewer database to send data to, MUST START WITH "mv"
     #g2o1_mv_database_group:  name of the group the METviewer database belongs to
     #g2o1_mv_database_desc:   description of database, can be blank  
-    #prepbufr_data_runhpss:   get files from HPSS ("YES") if not online
+    #g2o1_prepbufr_data_runhpss:   get files from HPSS ("YES") if not online
     export g2o1_type_list="upper_air conus_sfc"
     export g2o1_fcyc_list="00 06 12 18"
     export g2o1_vhr_list_upper_air="00 06 12 18"
@@ -186,10 +186,10 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     export g2o1_grid_upper_air="G003"
     export g2o1_grid_conus_sfc="G104"
     export g2o1_gather_by="VSDB"
-    export g2o1_mv_database_name="mv_gfs_grid2obs_metplus"
+    export g2o1_mv_database_name="mv_gfs_grid2obs_metplus_TEST"
     export g2o1_mv_database_group="NOAA NCEP"
     export g2o1_mv_database_desc="Grid-to-obs METplus data for ops. GFS"
-    export prepbufr_data_runhpss="YES"
+    export g2o1_prepbufr_data_runhpss="YES"
 fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ]; then
@@ -245,7 +245,7 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     export precip1_grid="G211"
     export precip1_gather_by="VSDB"
     export precip1_obs_data_runhpss="YES"
-    export precip1_mv_database_name="mv_gfs_precip_metplus"
+    export precip1_mv_database_name="mv_gfs_precip_metplus_TEST"
     export precip1_mv_database_group="NOAA NCEP"
     export precip1_mv_database_desc="Precip METplus data for ops. GFS"
 fi

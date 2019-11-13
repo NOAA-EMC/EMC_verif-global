@@ -54,6 +54,11 @@ python $USHverif_global/create_METplus_job_scripts.py
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
+# Submit METviewer AWS scorecard job, if needed
+if [ $g2g2_make_scorecard = YES ]; then
+    python $USHverif_global/plotting_scripts/plot_scorecard_METviewer_AWS.py
+fi
+
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*
 ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
@@ -74,7 +79,7 @@ while [ $nc -lt $ncount ]; do
             echo "$DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
         fi
         if [ $iproc -eq $nproc -o $nc -eq $ncount ]; then
-                        # if at final record and have not reached the 
+            # if at final record and have not reached the 
             # final processor then write echo's to
             # poescript for remaining processors
             if [ $nc -eq $ncount ]; then

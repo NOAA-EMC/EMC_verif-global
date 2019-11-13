@@ -137,6 +137,12 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #g2g2_fhr_max:              forecast hour to end verification HH[H]
     #g2g2_event_eq:             do event equalization (True) or not (False)
     #g2g2_grid:                 grid verification was done on
+    #g2g2_make_scorecard:       create scorecard on METviewer AWS (YES) or not(NO)
+    #g2g2_sc_mv_database_list:  list of METviewer databases to use for scorecard
+    #g2g2_sc_valid_start_date:  scorecard valid start date, format YYYYMMDD
+    #g2g2_sc_valid_end_date:    scorecard valid end date, format YYYYMMDD
+    #g2g2_sc_fcyc_list:         all forecst cycles to be included in scorecard: HH
+    #g2g2_sc_vhr_list:          all valid hours to be included in scorecard: HH
     export g2g2_model_plot_name_list="ops_gfs"
     export g2g2_anl_name_list="self_anl"
     export g2g2_gather_by_list="VSDB"
@@ -147,6 +153,12 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_fhr_max="48"
     export g2g2_event_eq="True"
     export g2g2_grid="G002"
+    export g2g2_make_scorecard="NO"
+    export g2g2_sc_mv_database_list="mv_gfs_grid2grid_metplus_TEST"
+    export g2g2_sc_valid_start_date="20190101"
+    export g2g2_sc_valid_end_date="20190105"
+    export g2g2_sc_fcyc_list="00"
+    export g2g2_sc_vhr_list="00"
 fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then

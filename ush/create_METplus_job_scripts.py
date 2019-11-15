@@ -23,6 +23,10 @@ USHMETplus = os.environ['USHMETplus']
 USHverif_global = os.environ['USHverif_global']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
+machine = os.environ['machine']
+MPMD = os.environ['MPMD']
+nproc = int(os.environ['nproc'])
+
 if RUN == 'grid2grid_step1':
     type_list = os.environ['g2g1_type_list'].split(' ')
     case = 'grid2grid'
@@ -647,9 +651,61 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 job_file.close()
 
 # Run job creation function
-if RUN in [ 'grid2grid_step1', 'grid2obs_step1', 'precip_step1' ]:
+if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
-if RUN in [ 'grid2grid_step2', 'grid2obs_step2', 'precip_step2' ]:
+elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2']:
     create_job_script_step2(sdate, edate, model_list, type_list, case)
+
+# If running MPMD, create POE scripts
+if MPMD == 'YES':
+    job_files = glob.glob(
+        os.path.join(DATA, RUN, 'metplus_job_scripts', 'job*')
+    )
+    njob_files = len(job_files)
+    njob, iproc = 1, 0
+    node, rank = 1, 0
+    while njob <= njob_files:
+        job = 'job'+str(njob)
+        if machine == 'THEIA' or machine == 'HERA':
+            if iproc >= nproc:
+                poe_file.close()
+                iproc = 0
+                rank = 0
+                node+=1
+        poe_filename = os.path.join(DATA, RUN, 'metplus_job_scripts',
+                                        'poe_jobs'+str(node))
+        if iproc == 0:
+            poe_file = open(poe_filename, 'w')
+        iproc+=1
+        if machine == 'THEIA' or machine == 'HERA':
+            poe_file.write(
+                rank+' '+os.path.join(DATA, RUN, 'metplus_job_scripts', job)
+                +'\n'
+            )
+            rank+=1
+        else:
+            poe_file.write(
+                os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'
+            )
+        njob+=1
+    poe_file.close()
+# If at final record and have not reached the
+# final processor then write echo's to
+# poe script for remaining processors
+    poe_file = open(poe_filename, 'a')
+    iproc+=1
+    rank+=1
+    while iproc <= nproc:
+        if machine == 'THEIA' or machine == 'HERA':
+            poe_file.write(
+                rank+' /bin/echo '+str(iproc)+'\n'
+            )
+            rank+=1
+        else:
+            poe_file.write(
+                '/bin/echo '+str(iproc)+'\n'
+            )
+        iproc+=1
+poe_file.close()
 
 print("END: "+os.path.basename(__file__))

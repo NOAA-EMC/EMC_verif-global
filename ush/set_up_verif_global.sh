@@ -100,8 +100,11 @@ elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
 fi
 
 ## Run settings for machines
-if [ $machine = "THEIA" -o $machine = "HERA" ]; then
-    export nproc="14"
+if [ $machine = "THEIA" ]; then
+    export nproc="24"
+    export MPMD="YES"
+elif [ $machine = "HERA" ]; then
+    export nproc="40"
     export MPMD="YES"
 elif [ $machine = "WCOSS_C" ]; then
     export nproc="24"

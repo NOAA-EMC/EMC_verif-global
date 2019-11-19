@@ -60,9 +60,9 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('fi'+'\n')
         web_job_file.write('\n')
         web_job_file.write('scp -r '+os.path.join(DATA, RUN, 'metplus_output',
-                                                  'images/*')
+                                                  'images')
                            +' '+webhostid+'@'+webhost+':'
-                           +os.path.join(webdir, RUN_type, 'images/.'))
+                           +os.path.join(webdir, RUN_type, '.'))
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)

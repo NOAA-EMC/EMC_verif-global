@@ -89,9 +89,6 @@ else
     done
 fi
 
-# Move images to common directory
-ln -sf $DATA/$RUN/metplus_output/plot_by_$plot_by/make_plots/*/precip/*/imgs/* $DATA/$RUN/metplus_output/images/.
-
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py

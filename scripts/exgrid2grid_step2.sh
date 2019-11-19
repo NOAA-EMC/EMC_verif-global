@@ -73,7 +73,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = WCOSS_C ]; then
             launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
-            launcher="mpirun -n $((${nproc}*2)) cfp"
+            launcher="mpirun -n $((${nproc}*3)) cfp"
         elif [ $machine = THEIA -o $machine = HERA ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
@@ -89,9 +89,6 @@ else
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
 fi
-
-# Move images to common directory
-ln -sf $DATA/$RUN/metplus_output/plot_by_$plot_by/make_plots/*/grid2grid/*/imgs/* $DATA/$RUN/metplus_output/images/.
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then

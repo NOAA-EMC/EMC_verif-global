@@ -54,7 +54,7 @@ with open(job_card_filename, 'a') as job_card:
                            "span[ptile=24] cu[type=cabinet]}'")
         elif machine == 'WCOSS_DELL_P3':
             if RUN in ['grid2grid_step2', 'grid2obs_step2']:
-                job_card.write('#BSUB -n '+str(int(nproc)*2)+'\n')
+                job_card.write('#BSUB -n '+str(int(nproc)*3)+'\n')
             else:
                 job_card.write('#BSUB -n '+nproc+'\n')
             job_card.write('#BSUB -R "span[ptile='+nproc+']"\n')

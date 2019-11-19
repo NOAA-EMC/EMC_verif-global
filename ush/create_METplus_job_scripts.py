@@ -78,7 +78,7 @@ def set_job_common_env(job_file):
          Returns:
     """
     env_var_list = [ 'HOMEverif_global', 'USHverif_global', 'HOMEMETplus',
-                     'HOMEMET', 'DATA', 'WGRIB2', 'NCAP2', 'NCDUMP',
+                     'HOMEMET', 'DATA', 'RUN', 'WGRIB2', 'NCAP2', 'NCDUMP',
                      'CONVERT', 'METplus_verbosity', 'MET_verbosity', 
                      'log_MET_output_to_METplus', 'PARMverif_global',
                      'USHMETplus', 'FIXverif_global', 'METplus_version',
@@ -620,11 +620,15 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 job_file.write('export event_equalization="'
                                +event_equalization+'"\n')
                 job_file.write('export interp="'+interp+'"\n')
+                job_file.write('export verif_case_type="'+type+'"\n')
                 for name, value in model_info.items():
                     job_file.write('export '+name+'="'+value+'"\n')
                 for name, value in extra_env_info.items():
                     job_file.write('export '+name+'="'+value+'"\n')
                 job_file.write('\n')
+                job_file.write('python '
+                               +os.path.join(USHverif_global,
+                                             'prune_stat_files.py\n\n'))
                 if (case == 'grid2grid' and type == 'anom'
                         and var_name == 'HGT'):
                     metplus_conf = os.path.join(metplus_version_conf_dir,
@@ -647,6 +651,15 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                      'make_plots_wrapper_precip.py')+' '
                         +'-c '+metplus_machine_conf+' '
                         +'-c '+metplus_conf+'\n'
+                )
+                job_file.write(
+                    'ln -sf '
+                    +os.path.join(DATA, RUN, 'metplus_output',
+                                  'plot_by_'+plot_by, 'make_plots',
+                                  var_name+'_'+vx_mask, case, type,
+                                  'imgs', '*')+' '
+                    +os.path.join(DATA, RUN, 'metplus_output',
+                                  'images/.')
                 )
                 job_file.close()
 

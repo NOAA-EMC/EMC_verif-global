@@ -28,7 +28,7 @@ plt.rcParams['axes.formatter.useoffset'] = False
 ###cmap = cmocean.cm.haline_r
 ###cmap_diff = cmocean.cm.balance
 cmap = plt.cm.BuPu
-cmap_diff = plt.cm.coolwarm
+cmap_diff = plt.cm.coolwarm_r
 
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']

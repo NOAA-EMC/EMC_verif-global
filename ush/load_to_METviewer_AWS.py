@@ -1,5 +1,5 @@
 '''
-Program Name: load_to_metviewer_AWS.py
+Program Name: load_to_METviewer_AWS.py
 Contact(s): Mallory Row
 Abstract: This is run at the end of all step1 scripts
           in scripts/.
@@ -19,20 +19,18 @@ import shutil
 import os 
 import subprocess
 
-
 print("BEGIN: "+os.path.basename(__file__))
-
 
 # Read in environment variables
 machine = os.environ['machine']
 DATA = os.environ['DATA']
-net = os.environ['NET']
+NET = os.environ['NET']
 RUN = os.environ['RUN']
 RUN_type = RUN.split('_')[0]
 USHverif_global = os.environ['USHverif_global']
-queueserv = os.environ['QUEUESERV']
-account = os.environ['ACCOUNT']
-met_version = os.environ['MET_version']
+QUEUESERV = os.environ['QUEUESERV']
+ACCOUNT = os.environ['ACCOUNT']
+MET_version = os.environ['MET_version']
 model_list = os.environ['model_list'].split(' ')
 web_walltime = '180'
 walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
@@ -73,6 +71,7 @@ if mv_database in current_database_info:
     new_or_add = 'add'
 else:
     new_or_add = 'new'
+
 # Create linking file dir
 link_file_dir = os.path.join(os.getcwd(), 'metviewerAWS_files')
 os.makedirs(link_file_dir, mode=0775)
@@ -97,7 +96,7 @@ with open(load_xml_file, 'a') as xml:
     xml.write('    <management_system>aurora</management_system>\n')
     xml.write('  </connection>\n')
     xml.write('\n')
-    xml.write('  <met_version>V'+met_version+'</met_version>\n')
+    xml.write('  <met_version>V'+MET_version+'</met_version>\n')
     xml.write('\n')
     xml.write('  <verbose>true</verbose>\n')
     xml.write('  <insert_size>1</insert_size>\n')
@@ -139,13 +138,14 @@ with open(load_xml_file, 'a') as xml:
 #      3 - XML file
 #      4 (opt) - sub dir
 AWS_job_filename = os.path.join(DATA, 'batch_jobs',
-                                net+'_'+RUN+'_load2METviewerAWS.sh')
+                                NET+'_'+RUN+'_load2METviewerAWS.sh')
 with open(AWS_job_filename, 'a') as AWS_job_file:
     AWS_job_file.write('#!/bin/sh'+'\n')
     if new_or_add == 'new':
         AWS_job_file.write('echo "Creating database on METviewer AWS using '
-                           +METviewer_AWS_scripts_dir
-                           +'/mv_create_db_on_aws.sh "\n')
+                           +os.path.join(METviewer_AWS_scripts_dir,
+                                         'mv_create_db_on_aws.sh')
+                           +'"\n')
         AWS_job_file.write(
             os.path.join(METviewer_AWS_scripts_dir,
                          'mv_create_db_on_aws.sh')+' '
@@ -153,7 +153,9 @@ with open(AWS_job_filename, 'a') as AWS_job_file:
             +mv_database+'\n'
         )
     AWS_job_file.write('echo "Loading data to METviewer AWS using '
-                       +METviewer_AWS_scripts_dir+'/mv_load_to_aws.sh"\n')
+                       +os.path.join(METviewer_AWS_scripts_dir,
+                                     'mv_load_to_aws.sh')
+                       +'"\n')
     AWS_job_file.write(
         os.path.join(METviewer_AWS_scripts_dir, 'mv_load_to_aws.sh')+' '
         +os.environ['USER'].lower()+' '
@@ -161,28 +163,32 @@ with open(AWS_job_filename, 'a') as AWS_job_file:
         +load_xml_file+'\n'
     )
     AWS_job_file.write('echo "Check METviewer AWS database list using '
-                       +METviewer_AWS_scripts_dir+'/mv_db_size_on_aws.sh"\n')
+                       +os.path.join(METviewer_AWS_scripts_dir,
+                                     'mv_db_size_on_aws.sh')
+                      +'"\n')
     AWS_job_file.write(
         os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh')+' '
         +os.environ['USER'].lower()
     )
+
+# Submit job card
 os.chmod(AWS_job_filename, 0o755)
 AWS_job_output = AWS_job_filename.replace('.sh', '.out')
 AWS_job_name = AWS_job_filename.rpartition('/')[2].replace('.sh', '')
-print("Submitting "+AWS_job_filename+" to "+queueserv)
+print("Submitting "+AWS_job_filename+" to "+QUEUESERV)
 print("Output sent to "+AWS_job_output)
 if machine == 'WCOSS_C':
-    os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
-              '-P '+account+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
-              '-J '+AWS_job_name+' -R rusage[mem=2048] '+AWS_job_filename)
+    os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+              +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
+              +'-J '+AWS_job_name+' -R rusage[mem=2048] '+AWS_job_filename)
 elif machine == 'WCOSS_DELL_P3':
-    os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+queueserv+' '
-              '-P '+account+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
-              '-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
+    os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+              +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
+              +'-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
 elif machine == 'THEIA' or machine == 'HERA':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-              '--partition='+queueserv+' --account='+account+' '
-              '--output='+AWS_job_output+' '
-              '--job-name='+AWS_job_name+' '+AWS_job_filename)
+              +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+              +'--output='+AWS_job_output+' '
+              +'--job-name='+AWS_job_name+' '+AWS_job_filename)
 
 print("END: "+os.path.basename(__file__))

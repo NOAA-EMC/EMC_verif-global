@@ -8,35 +8,45 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-### workflow settings
-export cyc=$cyc
+##### List of previously set environment varirables in 
+##### global workflow
+##### Settings from rocoto 
+## RUN_ENVIR, HOMEgfs, EXPDIR,
+## CDATE, CDUMP, PDY, cyc, METPCASE
+##### Settings from config.base
+## KEEPDATA, SENDECF, SENDCOM, SENDDBN,
+## gfs_cyc, NET, RUN_ENVIR, envir,  machine
+## HOMEDIR, STMP, PTMP, NOSCRUB, WGRIB2
+## WGRIB2, CNVGRIB, ACCOUNT, QUEUE, QUEUESERV
+## PSLOT, FHMIN_GFS, FHMAX_GF
+##### Settings from config.metp
+## RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1
+## RUN_PRECIP_STEP1, HOMEverif_global
+## model_list, model_data_dir_list,
+## model_fileformat_list, model_hpssdir_list
+## get_data_from_hpss, hpss_walltime
+## OUTPUTROOT, model_arch_dir_list
+## make_met_data_by, gather_by
+## VFRFYBACK_HRS, METPLUS_verbosity,
+## MET_verbosity, log_MET_output_to_METplus
+## fhr_min, fhr_max, g2g1_type_list
+## g2g1_anl_name, g2g1_anl_fileformat_list
+## g2g21_grid, g2o1_type_list, g2o1_obtype_upper_air
+## g2o1_grid_upper_air, g2o1_fhr_out_upper_air
+## g2o1_obtype_conus_sfc, g2o1_grid_conus_sfc
+## g2o1_fhr_out_conus_sfc, g2o1_prepbufr_data_runhpss
+## precip1_obtype, precip1_accum_length
+## precip1_model_bucket_list, precip1_model_varname_list
+## precip1_model_fileformat_list, precip1_grid
+##### Settings from machinve env
+## npe_node_metp_gfs
 
-### config.base settings
-export KEEPDATA=$KEEPDATA
-export SENDECF="NO"
-export SENDCOM="NO"
-export SENDDBN="NO"
-export gfs_cyc=$gfs_cyc
-export NET=$NET
-export RUN_ENVIR=$RUN_ENVIR
-export envir=$envir
-export machine=$machine
-export HOMEDIR=$HOMEDIR
-export STMP=$STMP
-export PTMP=$PTMP
-export NOSCRUB=$NOSCRUB
-export WGRIB2=$WGRIB2
-export CNVGRIB=$CNVGRIB
-export ACCOUNT=$ACCOUNT
-export QUEUE=$QUEUE
-export QUEUESERV=$QUEUE_ARCH
-
-### config.vrfy settings
-export RUN_GRID2GRID_STEP1=${RUN_METPLUS_GRID2GRID_STEP1:-NO}
-export RUN_GRID2OBS_STEP1=${RUN_METPLUS_GRID2OBS_STEP1:-NO}
-export RUN_PRECIP_STEP1=${RUN_METPLUS_PRECIP_STEP1:-NO}
+##### Map the global workflow environment variables
+##### to the variables needed to run in EMC_verif-global
+export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
+export RUN_GRID2OBS_STEP1=${RUN_GRID2OBS_STEP1:-NO}
+export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
 export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
-export RUNBATCH=${RUNBATCH:-NO}
 ## INPUT DATA SETTINGS
 export model_list=${model_list:-$PSLOT}
 export model_dir_list=${model_dir_list:-${NOSCRUB}/archive}
@@ -46,13 +56,10 @@ export get_data_from_hpss=${get_data_from_hpss:-NO}
 export hpss_walltime=${hpss_walltime:-10}
 ## OUTPUT DATA SETTINGS
 export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
-if [ -d $OUTPUTROOT ]; then
-    rm -r $OUTPUTROOT
-fi
 export make_met_data_by=${make_met_data_by:-VALID}
 export gather_by=${gather_by:-VSDB}
-export plot_by="VALID"
-export SENDMETVIEWER="NO"
+export plot_by=${plot_by:-VALID}
+export SENDMETVIEWER=${SENDMETVIEW:-NO}
 ## DATE SETTINGS
 VRFYBACK_HRS=${VRFYBACK_HRS:-00}
 ## ARCHIVE SETTINGS
@@ -64,14 +71,11 @@ export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
 ## FORECAST VERIFICATION SETTINGS
 fhr_min=${FHMIN_GFS:-00}
 fhr_max=${FHMAX_GFS:-180}
-
-###for running MPMD
-export MPMD="YES"
-export nproc=$npe_node_max
-if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
-if [ $machine != WCOSS_C ]; then MPMD="NO"; fi
-
-### run_verif_global_in_global_workflow.sh settings
+## RESOURCE SETTINGS
+export nproc=${npe_node_metp_gfs:-1}
+export QUEUE=${QUEUE:-dev}
+export QUEUESERV=${QUEUESERV:-dev_transfer}
+##### Set up configuration
 ## OUTPUT DATA SETTINGS
 export DATA=$OUTPUTROOT
 ## DATE AND HOUR SETTINGS
@@ -82,11 +86,11 @@ if [ $gfs_cyc = 1 ]; then
 elif [ $gfs_cyc = 2 ]; then
     export fcyc_list="00 12"
     export vhr_list="00 12"
-    export cyc2run=12
+    export cyc2run=00
 elif [ $gfs_cyc = 4 ]; then
     export fcyc_list="00 06 12 18"
     export vhr_list="00 06 12 18"
-    export cyc2run=18
+    export cyc2run=00
 else
     echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4."                                          
     exit 1
@@ -98,6 +102,10 @@ export SENDARCH="YES"
 ## METPLUS SETTINGS
 export MET_version="8.1"
 export METplus_version="2.1"
+## RUNTIME SETTINGS
+export MPMD="YES"
+if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
+if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
 ## FORECAST VERIFICATION SETTINGS
 ## some set in config.vrfy
 # GRID-TO-GRID STEP 1
@@ -126,7 +134,7 @@ export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
 export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
 export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
 export g2o1_gather_by=$gather_by
-export prepbufr_data_runhpss="YES"
+export g2o1_prepbufr_data_runhpss=${g2o1_prepbufr_data_runhpss:-"NO"}
 if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
     export g2o1_vhr_list_upper_air="00 12"
 elif [ $g2o1_fhr_out_upper_air -eq 6 ]; then
@@ -159,7 +167,19 @@ export precip1_obs_data_runhpss="YES"
 ## Set up output location
 mkdir -p $DATA
 cd $DATA
-
+if [ $METPCASE = g2g1 ]; then
+    RUN_DIR="grid2grid_step1"
+fi
+if [ $METPCASE = g2o1 ]; then
+    RUN_DIR="grid2obs_step1"
+fi
+if [ $METPCASE = pcp1 ]; then
+    RUN_DIR="precip_step1"
+fi
+if [ -d $RUN_DIR ]; then
+    rm -r $RUN_DIR
+fi
+pwd
 ## Get machine
 python $HOMEverif_global/ush/get_machine.py
 status=$?
@@ -232,6 +252,18 @@ else
 fi
 
 ## Do checks on switches to run verification for
+if [ $METPCASE = g2g1 ]; then
+    RUN_GRID2OBS_STEP1=NO
+    RUN_PRECIP_STEP1=NO
+fi
+if [ $METPCASE = g2o1 ]; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_PRECIP_STEP1=NO
+fi
+if [ $METPCASE = pcp1 ]; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
+fi
 if [ $cyc != $cyc2run ]; then 
     RUN_GRID2GRID_STEP1=NO 
     RUN_GRID2OBS_STEP1=NO 
@@ -267,11 +299,7 @@ if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
     echo "===== RUNNING GRID-TO-GRID STEP 1 VERIFICATION  ====="
     echo "===== creating partial sum data for grid-to-grid verifcation using METplus ====="
     export RUN="grid2grid_step1"
-    if [ $RUNBATCH = YES ]; then
-        python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exgrid2grid_step1.sh
-    else
-        $HOMEverif_global/scripts/exgrid2grid_step1.sh
-    fi
+    $HOMEverif_global/scripts/exgrid2grid_step1.sh
 fi 
 
 if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
@@ -279,11 +307,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo "===== RUNNING GRID-TO-OBSERVATIONS STEP 1 VERIFICATION  ====="
     echo "===== creating partial sum data for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step1"
-    if [ $RUNBATCH = YES ]; then
-        python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exgrid2obs_step1.sh
-    else
-        $HOMEverif_global/scripts/exgrid2obs_step1.sh
-    fi
+    $HOMEverif_global/scripts/exgrid2obs_step1.sh
 fi  
 
 if [ $RUN_PRECIP_STEP1 = YES ] ; then
@@ -291,9 +315,5 @@ if [ $RUN_PRECIP_STEP1 = YES ] ; then
     echo "===== RUNNING PRECIPITATION STEP 1 VERIFICATION  ====="
     echo "===== creating partial sum data for precipitation verifcation using METplus ====="
     export RUN="precip_step1"
-    if [ $RUNBATCH = YES ]; then
-        python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exprecip_step1.sh
-    else
-        $HOMEverif_global/scripts/exprecip_step1.sh
-    fi
+    $HOMEverif_global/scripts/exprecip_step1.sh
 fi

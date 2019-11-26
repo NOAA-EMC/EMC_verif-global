@@ -59,58 +59,32 @@ python $USHverif_global/create_METplus_job_scripts.py
 
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*
-ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
-nc=0;iproc=0; node=1; rank=0
-while [ $nc -lt $ncount ]; do
-    if [ $MPMD = YES ];then
-        if [ $iproc -ge $nproc ]; then iproc=0; rank=0; node=$((node+1)); fi
-        poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs_node${node}
-        if [ $iproc -eq 0 ]; then
-            rm -f $poe_script; touch $poe_script
-        fi
+if [ $MPMD = YES ]; then
+    ncount=$(ls -l  metplus_job_scripts/poe* |wc -l)
+    nc=0
+    while [ $nc -lt $ncount ]; do
         nc=$((nc+1))
-        iproc=$((iproc+1))
-        if [ $machine = THEIA -o $machine = HERA ]; then
-            echo "$rank $DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
-            rank=$((rank+1))
-        else
-            echo "$DATA/$RUN/metplus_job_scripts/job${nc}" >>$poe_script
+        poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs${nc}
+        chmod 775 $poe_script
+        export MP_PGMMODEL=mpmd
+        export MP_CMDFILE=${poe_script}
+        if [ $machine = WCOSS_C ]; then
+            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+        elif [ $machine = WCOSS_DELL_P3 ]; then
+            launcher="mpirun -n ${nproc} cfp"
+        elif [ $machine = THEIA -o $machine = HERA ]; then
+            launcher="srun --export=ALL --multi-prog"
         fi
-        if [ $iproc -eq $nproc -o $nc -eq $ncount ]; then
-            # if at final record and have not reached the 
-            # final processor then write echo's to
-            # poescript for remaining processors
-            if [ $nc -eq $ncount ]; then
-                while [ $iproc -lt $nproc ]; do
-                    nc=$((nc+1))
-                    iproc=$((iproc+1))
-                    if [ $machine = THEIA -o $machine = HERA ]; then
-                        echo "$rank /bin/echo $iproc" >> $poe_script
-                        rank=$((rank+1))
-                    else
-                        echo "/bin/echo $iproc" >> $poe_script
-                    fi
-                done
-            fi
-            chmod 775 $poe_script
-            export MP_PGMMODEL=mpmd
-            export MP_CMDFILE=${poe_script}
-            if [ $machine = WCOSS_C ]; then
-                launcher="aprun -j 1 -n ${iproc} -N ${iproc} -d 1 cfp"
-            elif [ $machine = WCOSS_DELL_P3 ]; then
-                launcher="mpirun -n ${iproc} cfp"
-            elif [ $machine = THEIA -o $machine = HERA ]; then
-                launcher="srun --export=ALL --multi-prog"
-            fi
-            $launcher $MP_CMDFILE 
-            export err=$?
-            if [ $err -ne 0 ]; then sh +x $poe_script ; fi
-        fi
-    else
+        $launcher $MP_CMDFILE
+    done
+else
+    ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
+    nc=0
+    while [ $nc -lt $ncount ]; do
         nc=$((nc+1))
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
-    fi
-done
+    done
+fi
 
 # Copy data to user archive or to COMOUT
 gather_by=$g2o1_gather_by
@@ -156,7 +130,7 @@ while [ $DATE -le ${end_date} ] ; do
                 if [ -s $verif_global_filename ]; then
                    if [ $SENDARCH = YES ]; then
                        mkdir -p $arch_dir/metplus_data/by_$gather_by/grid2obs/$type/${gather_by_hour}Z/$model
-                       cp $verif_global_filename $arch_filename
+                       cpfs $verif_global_filename $arch_filename
                    fi
                    if [ $SENDCOM = YES ]; then
                        mkdir -p $COMOUT
@@ -166,7 +140,9 @@ while [ $DATE -le ${end_date} ] ; do
                        fi
                    fi
                 else
-                    err_exit "$verif_global_filename was not generated"
+                   echo "*************************************************************"
+                   echo "** WARNING: $verif_global_filename was not generated or zero size"
+                   echo "*************************************************************"
                 fi
             done
         done
@@ -177,5 +153,5 @@ done
 
 # Send data to METviewer AWS server
 if [ $SENDMETVIEWER = YES ]; then
-    python $USHverif_global/load_to_metviewer_AWS.py
+    python $USHverif_global/load_to_METviewer_AWS.py
 fi

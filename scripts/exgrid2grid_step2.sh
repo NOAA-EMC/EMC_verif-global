@@ -78,8 +78,6 @@ if [ $MPMD = YES ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
-        export err=$?
-        if [ $err -ne 0 ]; then sh +x $poe_script ; fi
     done
 else
     ncount=$(ls -l  metplus_job_scripts/job* |wc -l)

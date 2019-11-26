@@ -676,14 +676,13 @@ if MPMD == 'YES':
     )
     njob_files = len(job_files)
     njob, iproc = 1, 0
-    node, rank = 1, 0
+    node = 1
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine == 'THEIA' or machine == 'HERA':
             if iproc >= nproc:
                 poe_file.close()
                 iproc = 0
-                rank = 0
                 node+=1
         poe_filename = os.path.join(DATA, RUN, 'metplus_job_scripts',
                                         'poe_jobs'+str(node))
@@ -692,28 +691,25 @@ if MPMD == 'YES':
         iproc+=1
         if machine == 'THEIA' or machine == 'HERA':
             poe_file.write(
-                rank+' '+os.path.join(DATA, RUN, 'metplus_job_scripts', job)
-                +'\n'
+                str(iproc-1)+' '
+                +os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'
             )
-            rank+=1
         else:
             poe_file.write(
                 os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'
             )
         njob+=1
     poe_file.close()
-# If at final record and have not reached the
-# final processor then write echo's to
-# poe script for remaining processors
+    # If at final record and have not reached the
+    # final processor then write echo's to
+    # poe script for remaining processors
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    rank+=1
     while iproc <= nproc:
         if machine == 'THEIA' or machine == 'HERA':
             poe_file.write(
-                rank+' /bin/echo '+str(iproc)+'\n'
+                str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )
-            rank+=1
         else:
             poe_file.write(
                 '/bin/echo '+str(iproc)+'\n'

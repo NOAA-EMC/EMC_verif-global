@@ -62,7 +62,16 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('scp -r '+os.path.join(DATA, RUN, 'metplus_output',
                                                   'images')
                            +' '+webhostid+'@'+webhost+':'
-                           +os.path.join(webdir, RUN_type, '.'))
+                           +os.path.join(webdir, RUN_type, '.')+'\n')
+        if RUN == 'tropcyc':
+            for tropcyc_type in ['intensityerr', 'trackerr']:
+                web_job_file.write(
+                    'scp -r '+os.path.join(DATA, RUN,
+                                           'create_webpage_templates',
+                                           tropcyc_type, tropcyc_type+'*.php')
+                    +' '+webhostid+'@'+webhost+':'
+                    +os.path.join(webdir, RUN_type, tropcyc_type, '.\n')
+                )
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)

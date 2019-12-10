@@ -83,13 +83,15 @@ if [ $RUN_PRECIP_STEP2 = YES ] ; then
     echo "===== RUNNING PRECIPITATION STEP 2 VERIFICATION  ====="
     echo "===== calculating statistics and creating plots for precipitation verifcation using METplus ====="
     export RUN="precip_step2"
-     python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exprecip_step2.sh
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exprecip_step2.sh
 fi
 
 if [ $RUN_TROPCYC = YES ] ; then
     echo
-    echo "===== TROPICAL CYCLONE VERIFICATION IS NOT SUPPORTED AT THIS TIME ====="
+    echo "===== RUNNING TROPICAL CYCLONE VERIFICATION  ====="
+    echo "===== calculating and plotting track and intensity error using METplus ====="
     export RUN="tropcyc"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/extropcyc.sh
 fi
 
 if [ $RUN_MAPS2D = YES ] ; then

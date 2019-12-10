@@ -40,19 +40,19 @@ if RUN == 'grid2grid_step1':
                             'stat_analysis', type, model)
            ) 
 elif RUN == 'grid2grid_step2':
-       metplus_output_subdir_list.append(
-           os.path.join('plot_by_'+plot_by, 'stat_analysis')
-       )
-       metplus_output_subdir_list.append(
-          os.path.join('plot_by_'+plot_by, 'make_plots')
-       )
-       metplus_output_subdir_list.append(
-          'images'
-       )
-       if os.environ['g2g2_make_scorecard'] == 'YES':
-           metplus_output_subdir_list.append(
-               'scorecard'
-           )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'stat_analysis')
+    )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'make_plots')
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
+    if os.environ['g2g2_make_scorecard'] == 'YES':
+        metplus_output_subdir_list.append(
+           'scorecard'
+        )
 elif RUN == 'grid2obs_step1':
     gather_by = os.environ['g2o1_gather_by']
     for type in os.environ['g2o1_type_list'].split(' '):
@@ -70,15 +70,15 @@ elif RUN == 'grid2obs_step1':
                              'stat_analysis', type, model)
             )
 elif RUN == 'grid2obs_step2':
-       metplus_output_subdir_list.append(
-           os.path.join('plot_by_'+plot_by, 'stat_analysis')
-       )
-       metplus_output_subdir_list.append(
-          os.path.join('plot_by_'+plot_by, 'make_plots')
-       )
-       metplus_output_subdir_list.append(
-          'images'
-       )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'stat_analysis')
+    )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'make_plots')
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
 elif RUN == 'precip_step1':
     gather_by = os.environ['precip1_gather_by'] 
     for type in os.environ['precip1_type_list'].split(' '):
@@ -96,15 +96,60 @@ elif RUN == 'precip_step1':
                              'stat_analysis', type, model)
             )
 elif RUN == 'precip_step2':
-       metplus_output_subdir_list.append(
-           os.path.join('plot_by_'+plot_by, 'stat_analysis')
-       )
-       metplus_output_subdir_list.append(
-          os.path.join('plot_by_'+plot_by, 'make_plots')
-       )
-       metplus_output_subdir_list.append(
-          'images'
-       )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'stat_analysis')
+    )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'make_plots')
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
+elif RUN == 'tropcyc':
+    metplus_output_subdir_list.append(
+       'images'
+    )
+    import get_tc_info
+    config_storm_list = os.environ['tropcyc_storm_list'].split(' ')
+    # Check storm_list to see if all storms for basin and year
+    # requested
+    storm_list = []
+    for storm in config_storm_list:
+        basin = storm.split('_')[0]
+        year = storm.split('_')[1]
+        name = storm.split('_')[2]
+        if name == 'ALLNAMED':
+            all_storms_in_basin_year_list = (
+                get_tc_info.get_all_tc_storms_basin_year(basin, year)
+            )
+            for byn in all_storms_in_basin_year_list:
+                storm_list.append(byn)
+        else:
+            storm_list.append(storm)
+    for storm in storm_list:
+        basin = storm.split('_')[0]
+        metplus_output_subdir_list.append(
+            os.path.join('gather',
+                         'tc_stat', storm)
+        )
+        metplus_output_subdir_list.append(
+            os.path.join('plot', storm, 'imgs')
+        )
+        if (os.path.join('gather', 'tc_stat', basin)
+                not in metplus_output_subdir_list):
+            metplus_output_subdir_list.append(
+                os.path.join('gather', 'tc_stat', basin)
+            )
+        if (os.path.join('plot', basin, 'imgs')
+                not in metplus_output_subdir_list):
+            metplus_output_subdir_list.append(
+                os.path.join('plot', basin, 'imgs')
+            )
+        for model in model_list:
+            metplus_output_subdir_list.append(
+                os.path.join('make_met_data',
+                             'tc_pairs', storm, model)
+            )
 
 # Create METplus output subdirectories
 for subdir in metplus_output_subdir_list:

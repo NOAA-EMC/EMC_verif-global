@@ -165,16 +165,27 @@ def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,
     )
     walltime = (datetime.datetime.min 
                 + datetime.timedelta(minutes=int(hpss_walltime))).time()
+    if os.path.exists(hpss_job_filename):
+        os.remove(hpss_job_filename)
     # Create job card
     with open(hpss_job_filename, 'a') as hpss_job_file:
         hpss_job_file.write('#!/bin/sh'+'\n')
         hpss_job_file.write('cd '+link_data_dir+'\n')
         hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'+hpss_file+'\n')
-        if hpss_file[0:4] == 'gfs.':
+        if 'pgrb2' in hpss_file:
             cnvgrib = os.environ['CNVGRIB']
             hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
                                 +link_data_file+' > /dev/null 2>&1\n')
             hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
+        elif 'trackatcfunix' in hpss_file:
+            hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'
+                                +hpss_file.replace('avno', 'avn')+'\n')
+            hpss_job_file.write('cp '+hpss_file.split('avn')[0]+'avn* '
+                                +link_data_file+'\n')
+            hpss_job_file.write('rm -r '+hpss_file.split('/')[0]+'\n')
+            model_atcf_abbrv = (link_data_file.split('/')[-2])[0:4].upper()
+            hpss_job_file.write('sed -i s/AVNO/'+model_atcf_abbrv+'/g '
+                                +link_data_file)
         else:
             if hpss_file[0:5] != 'ccpa.':
                 hpss_job_file.write('cp '+hpss_file+' '+link_data_file+'\n')
@@ -182,6 +193,8 @@ def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,
     # Submit job card
     os.chmod(hpss_job_filename, 0o755)
     hpss_job_output = hpss_job_filename.replace('.sh', '.out')
+    if os.path.exists(hpss_job_output):
+        os.remove(hpss_job_output)
     hpss_job_name = hpss_job_filename.rpartition('/')[2].replace('.sh', '')
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
@@ -253,8 +266,9 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_suffix, link_data_dir):
     mm = init_time.strftime('%m')
     dd = init_time.strftime('%d')
     HH = init_time.strftime('%H')
-    hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
     if 'NCEPPROD' in hpss_dir:
+        # Operational GFS HPSS archive only for pgrb2 files
+        # no cyclone track files
         hpss_date_dir = os.path.join(hpss_dir, 'rh'+YYYY, YYYYmm,
                                      YYYYmmdd)
         if int(YYYYmmdd) >= 20190612:
@@ -282,7 +296,16 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_suffix, link_data_dir):
             hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
     else:
         hpss_tar = os.path.join(hpss_dir, name, YYYYmmddHH, 'gfsa.tar')
-        hpss_file = 'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
+        if hpss_file_suffix == 'cyclone.trackatcfunix':
+            hpss_file = ( 
+                'gfs.'+YYYYmmdd+'/'+HH+'/'
+                +'avno.t'+HH+'z.'+hpss_file_suffix
+            )
+        else:
+            hpss_file = (
+                'gfs.'+YYYYmmdd+'/'+HH+'/'
+                +'gfs.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
+            )
     hpss_job_filename = os.path.join(
         link_data_dir, 'HPSS_jobs', 'HPSS_'+hpss_tar.rpartition('/')[2]
         +'_'+hpss_file.replace('/', '_')+'.sh'
@@ -1443,5 +1466,343 @@ elif RUN == 'precip_step2':
                     else:
                         print("WARNING: "+stat_file+" "
                               +"does not exist")
+elif RUN == 'tropcyc':
+    import get_tc_info
+    # Read in environment variables
+    model_atcf_name_list = (
+        os.environ['tropcyc_model_atcf_name_list'].split(' ')
+    )
+    model_fileformat_list = (
+        os.environ['tropcyc_model_fileformat_list'].split(' ')
+    )
+    config_storm_list = os.environ['tropcyc_storm_list'].split(' ')
+    fhr_list = os.environ['tropcyc_fhr_list'].split(', ')
+    nhc_atcfnoaa_bdeck_dir = os.environ['nhc_atcfnoaa_bdeck_dir']
+    nhc_atcfnoaa_adeck_dir = os.environ['nhc_atcfnoaa_adeck_dir']
+    nhc_atcfnavy_bdeck_dir = os.environ['nhc_atcfnavy_bdeck_dir']
+    nhc_atcfnavy_adeck_dir = os.environ['nhc_atcfnavy_adeck_dir']
+    nhc_atcf_bdeck_ftp = os.environ['nhc_atcf_bdeck_ftp']
+    nhc_atcf_adeck_ftp = os.environ['nhc_atcf_adeck_ftp']
+    nhc_atfc_arch_ftp = os.environ['nhc_atfc_arch_ftp']
+    navy_atcf_bdeck_ftp = os.environ['navy_atcf_bdeck_ftp']
+    trak_arch_dir = os.environ['trak_arch_dir']
+    fcyc_list = os.environ['tropcyc_fcyc_list'].split(' ')
+    #if make_met_data_by == 'VALID':
+    #    start_hr = os.environ['tropcyc_valid_hr_beg']
+    #    end_hr = os.environ['tropcyc_valid_hr_end']
+    #    hr_inc = os.environ['tropcyc_valid_hr_inc']
+    #else:
+    #    start_hr = os.environ['tropcyc_init_hr_beg']
+    #    end_hr = os.environ['tropcyc_init_hr_end']
+    #    hr_inc = os.environ['tropcyc_init_hr_inc']
+    #fhr_list = os.environ['tropcyc_fhr_list'].split(', ')
+    # Check storm_list to see if all storms for basin and year
+    # requested
+    storm_list = []
+    for storm in config_storm_list:
+        basin = storm.split('_')[0]
+        year = storm.split('_')[1]
+        name = storm.split('_')[2]
+        if name == 'ALLNAMED':
+            all_storms_in_basin_year_list = (
+                get_tc_info.get_all_tc_storms_basin_year(basin, year)
+            )
+            for byn in all_storms_in_basin_year_list:
+                storm_list.append(byn)
+        else:
+            storm_list.append(storm)
+    # Create output directories
+    cwd = os.getcwd()
+    for mname in model_list:
+        index = model_list.index(mname)
+        dir = model_dir_list[index]
+        file_format = model_fileformat_list[index]
+        hpss_dir = model_hpssdir_list[index]
+        link_model_data_dir = os.path.join(cwd, 'data', mname)
+        if not os.path.exists(link_model_data_dir):
+            os.makedirs(link_model_data_dir)
+            os.makedirs(
+                os.path.join(link_model_data_dir, 'HPSS_jobs')
+            )
+    # Get bdeck/truth, adeck, and model track files
+    link_bdeck_data_dir = os.path.join(cwd, 'data', 'bdeck')
+    if not os.path.exists(link_bdeck_data_dir):
+        os.makedirs(link_bdeck_data_dir)
+    link_adeck_data_dir = os.path.join(cwd, 'data', 'adeck')
+    if not os.path.exists(link_adeck_data_dir):
+        os.makedirs(link_adeck_data_dir)
+    for storm in storm_list:
+        basin = storm.split('_')[0]
+        year = storm.split('_')[1]
+        name = storm.split('_')[2]
+        storm_id =  get_tc_info.get_tc_storm_id(storm)
+        # Get bdeck files
+        bdeck_filename = 'b'+storm_id+'.dat'
+        link_bdeck_file = os.path.join(link_bdeck_data_dir, bdeck_filename)
+        if basin in [ 'AL', 'CP', 'EP']:
+            nhc_bdeck_file = os.path.join(nhc_atcfnoaa_bdeck_dir,
+                                          bdeck_filename)
+            trak_arch_bdeck_file = os.path.join(trak_arch_dir, 'btk',
+                                                bdeck_filename)
+            if os.path.exists(nhc_bdeck_file):
+                os.system('ln -sf '+nhc_bdeck_file+' '
+                           +link_bdeck_file)
+            elif os.path.exists(trak_arch_bdeck_file):
+                os.system('ln -sf '+trak_arch_bdeck_file+' '
+                           +link_bdeck_file)
+            else:
+                print("Did not find "+nhc_bdeck_file+" or "
+                      +trak_arch_bdeck_file+" online..."
+                      +"going to try to get file from NHC ftp")
+                if year == '2019':
+                    nhc_ftp_bdeck_file = (
+                        os.path.join(nhc_atcf_bdeck_ftp, bdeck_filename)
+                    )
+                    os.system('wget -q '+nhc_ftp_bdeck_file+' -P '
+                              +link_bdeck_data_dir)
+                else:
+                    nhc_ftp_bdeck_gzfile = (
+                        os.path.join(nhc_atfc_arch_ftp, year,
+                                     bdeck_filename+'.gz')
+                    )
+                    nhc_bdeck_gzfile = os.path.join(link_bdeck_data_dir,
+                                                    bdeck_filename+'.gz')
+                    os.system('wget -q '+nhc_ftp_bdeck_gzfile+' -P '
+                              +link_bdeck_data_dir)
+                    if os.path.exists(nhc_bdeck_gzfile):
+                        os.system('gunzip -q -f '+nhc_bdeck_gzfile)
+                if not os.path.exists(link_bdeck_file):
+                    error_msg = ("WARNING: "+nhc_bdeck_file+" and "
+                                 +trak_arch_bdeck_file+"do not exist"
+                                 +"and did not find file on NHC ftp site")
+        elif basin == 'WP':
+            nhc_bdeck_file = os.path.join(nhc_atcfnavy_bdeck_dir,
+                                          bdeck_filename)
+            trak_arch_bdeck_file = os.path.join(trak_arch_dir, 'btk',
+                                                bdeck_filename) 
+            if int(year) < 2019:
+                print("Getting most up to date "+bdeck_filename+" file "
+                      +"from Navy website archive")
+                navy_ftp_bdeck_zipfile = (
+                        os.path.join(navy_atcf_bdeck_ftp, year, year+'s-bwp',
+                                     'bwp'+year+'.zip')
+                    )
+                navy_bdeck_zipfile = os.path.join(link_bdeck_data_dir,
+                                                  'bwp'+year+'.zip')
+                if not os.path.exists(navy_bdeck_zipfile):
+                    os.system('wget -q '+navy_ftp_bdeck_zipfile+' -P '
+                              +link_bdeck_data_dir)
+                if os.path.exists(navy_bdeck_zipfile):
+                    os.system('unzip -qq -o -d '+link_bdeck_data_dir+' '
+                              +navy_bdeck_zipfile+' '+bdeck_filename)
+                else:
+                    print("Could not retrieve "+bdeck_filename+" from Navy "
+                          +"website archive...going to try to find in NHC "
+                          +"and HWRF archive")
+                    if not os.path.exists(link_bdeck_file):
+                        if os.path.exists(nhc_bdeck_file):
+                            os.system('ln -sf '+nhc_bdeck_file+' '
+                                      +link_bdeck_file)
+                        elif os.path.exists(trak_bdeck_file):
+                            os.system('ln -sf '+trak_bdeck_file+' '
+                                      +link_bdeck_file)
+                        else:
+                            error_msg = ("WARNING: could not get file from "
+                                         +"Navy website archive and "
+                                         +nhc_bdeck_file+" and "
+                                         +trak_bdeck_file+" do not exist")
+            else:
+                if os.path.exists(nhc_bdeck_file):
+                    os.system('ln -sf '+nhc_bdeck_file+' '
+                               +link_bdeck_file)
+                elif os.path.exists(trak_bdeck_file):
+                    os.system('ln -sf '+trak_bdeck_file+' '
+                              +link_bdeck_file)
+                else:
+                    error_msg = ("WARNING: "+nhc_bdeck_file+" and "
+                                 +trak_bdeck_file+" do not exist")
+        else:
+            print("ERROR: "+basin+" is not currently supported "
+                  +"at this time")
+            exit(1)
+        if not os.path.exists(link_bdeck_file):
+            error_dir = os.path.join(link_bdeck_data_dir)
+            error_file = os.path.join(
+                error_dir,
+                'error_b'+storm_id+'.txt'
+            )
+            print(error_msg)
+            with open(error_file, 'a') as file:
+                file.write(error_msg)
+        # Get adeck files
+        adeck_filename = 'a'+storm_id+'.dat'
+        link_adeck_file = os.path.join(link_adeck_data_dir, adeck_filename)
+        if basin in [ 'AL', 'CP', 'EP']:
+            nhc_adeck_file = os.path.join(nhc_atcfnoaa_adeck_dir,
+                                          adeck_filename)
+            trak_arch_adeck_file = os.path.join(trak_arch_dir, 'aid_nws',
+                                                adeck_filename)
+            if os.path.exists(nhc_adeck_file):
+                os.system('ln -sf '+nhc_adeck_file+' '
+                           +link_adeck_file)
+            elif os.path.exists(trak_arch_adeck_file):
+                os.system('ln -sf '+trak_arch_adeck_file+' '
+                           +link_adeck_file)
+            else:
+                print("Did not find "+nhc_adeck_file+" or "
+                      +trak_arch_adeck_file+" online..."
+                      +"going to try to get file from NHC ftp")
+                nhc_adeck_gzfile = os.path.join(link_adeck_data_dir,
+                                                adeck_filename+'.gz')
+                if year == '2019':
+                    nhc_ftp_adeck_gzfile = (
+                        os.path.join(nhc_atcf_adeck_ftp, adeck_filename+'.gz')
+                    )
+                else:
+                    nhc_ftp_adeck_gzfile = (
+                        os.path.join(nhc_atfc_arch_ftp, year,
+                                     adeck_filename+'.gz')
+                    )
+                os.system('wget -q '+nhc_ftp_adeck_gzfile+' -P '
+                          +link_adeck_data_dir)
+                if os.path.exists(nhc_adeck_gzfile):
+                    os.system('gunzip -q '+nhc_adeck_gzfile)
+                if not os.path.exists(link_adeck_file):
+                    print("WARNING: "+nhc_adeck_file+" and "
+                          +trak_arch_adeck_file+" do not exist and "
+                          +"did not find file on NHC ftp site")
+        elif basin == 'WP':
+            nhc_adeck_file = os.path.join(nhc_atcfnavy_adeck_dir,
+                                          adeck_filename)
+            trak_arch_adeck_file = os.path.join(trak_arch_dir, 'aid',
+                                                adeck_filename)
+            if os.path.exists(nhc_adeck_file):
+                os.system('ln -sf '+nhc_adeck_file+' '
+                           +link_adeck_file)
+            elif os.path.exists(trak_arch_adeck_file):
+                os.system('ln -sf '+trak_arch_adeck_file+' '
+                           +link_adeck_file)
+            else:
+                print("WARNING: "+nhc_adeck_file+" and "
+                      +trak_arch_adeck_file+" do not exist")
+        else:
+            print("ERROR: "+basin+" is not currently supported "
+                  +"at this time")
+            exit(1)
+        # Get model track files
+        # currently set up to mimic VSDB verification
+        # which uses model track data initialized
+        # in storm dates
+        if os.path.exists(link_bdeck_file):
+            storm_start_date, storm_end_date = get_tc_info.get_tc_storm_dates(
+                link_bdeck_file
+            )
+            time_info = get_time_info(
+                storm_start_date[0:8], storm_end_date[0:8],
+                storm_start_date[-2:], storm_end_date[-2:],
+                '21600', fhr_list, 'INIT'
+            )
+            for mname in model_list:
+                index = model_list.index(mname)
+                model_atcf_abbrv = model_atcf_name_list[index]
+                if mname == 'gfs' and model_atcf_abbrv != 'GFSO':
+                    print("Using operational GFS...using ATCF name as GFSO "
+                          +"to comply with MET")
+                    model_atcf_abbrv = 'GFSO'
+                dir = model_dir_list[index]
+                file_format = model_fileformat_list[index]
+                hpss_dir = model_hpssdir_list[index]
+                link_model_data_dir = os.path.join(cwd, 'data', mname)
+                for time in time_info:
+                    valid_time = time['validtime']
+                    init_time = time['inittime']
+                    lead = time['lead']
+                    if init_time.strftime('%H') in fcyc_list:
+                        if init_time.strftime('%H') in ['03', '09',
+                                                        '15', '21']:
+                            continue
+                        else:
+                            link_model_track_file = os.path.join(
+                                link_model_data_dir,
+                                'track.'+init_time.strftime('%Y%m%d%H')+'.dat'
+                            )
+                            if not os.path.exists(link_model_track_file):
+                                model_track_filename = format_filler(
+                                    file_format, valid_time, init_time, lead
+                                )
+                                model_track_file = os.path.join(
+                                    dir, mname, model_track_filename
+                                )
+                                if os.path.exists(model_track_file):
+                                    os.system('cp '+model_track_file+' '
+                                               +link_model_track_file)
+                                else:
+                                    if mname == 'gfs':
+                                        print("Did not find "
+                                              +model_track_file+" online "
+                                              +"going to get information "
+                                              +"adeck file")
+                                        if os.path.exists(link_adeck_file):
+                                            ps = subprocess.Popen(
+                                                'grep -R "AVNO" '
+                                                +link_adeck_file+' | grep "'
+                                                +init_time.strftime('%Y%m%d%H')
+                                                +'"',
+                                                shell=True, 
+                                                stdout=subprocess.PIPE,
+                                                stderr=subprocess.STDOUT
+                                            )
+                                            output = ps.communicate()[0]
+                                            with open(link_model_track_file,
+                                                      'w') as lmtf:
+                                                lmtf.write(output)
+                                        else:
+                                            print("WARNING: "
+                                                  +model_track_file+" and "
+                                                  +link_adeck_file+" do not "
+                                                  +"exist")
+                                    else:
+                                        if model_data_run_hpss == 'YES':
+                                            print("Did not find "
+                                                  +model_track_file+" "
+                                                  +"online...going to try to "
+                                                  +"get file from HPSS")
+                                            (hpss_tar, hpss_file,
+                                                 hpss_job_filename) = (
+                                                set_up_gfs_hpss_info(
+                                                    init_time, hpss_dir,
+                                                    'cyclone.trackatcfunix',
+                                                    link_model_data_dir
+                                                )
+                                            )
+                                            get_hpss_data(
+                                                hpss_job_filename,
+                                                link_model_data_dir,
+                                                link_model_track_file,
+                                                hpss_tar, hpss_file
+                                            )
+                                        if not os.path.exists(
+                                                link_model_track_file
+                                        ):
+                                            if model_data_run_hpss == 'YES':
+                                                print("WARNING: "
+                                                      +model_track_file+" "
+                                                      +"does not exist and "
+                                                      +"did not find HPSS "
+                                                      +"file "+hpss_file+" "
+                                                      +"from "+hpss_tar+" or "
+                                                      +"walltime exceeded")
+                                            else:
+                                                print("WARNING: "
+                                                      +model_track_file+" "
+                                                      +"does not exist")
+                                if os.path.exists(link_model_track_file):
+                                    if mname == 'gfs':
+                                        abbrv_to_replace = 'AVNO'
+                                    else:
+                                        abbrv_to_replace = mname[0:4].upper()
+                                    os.system('sed -i s/'+abbrv_to_replace+'/'
+                                              +model_atcf_abbrv+'/g '
+                                              +link_model_track_file)
 
 print("END: "+os.path.basename(__file__))

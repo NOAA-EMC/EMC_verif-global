@@ -89,7 +89,7 @@ def set_job_common_env(job_file):
 
 def create_job_script_step1(sdate, edate, model_list, type_list, case):
     """! Writes out job cards based on requested verification
-        for step 1 jobs
+         for step 1 jobs
         
          Args:
              sdate      - datetime object of the verification start
@@ -652,22 +652,240 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         +'-c '+metplus_machine_conf+' '
                         +'-c '+metplus_conf+'\n'
                 )
+                job_file.write('nimgs=$(ls '
+                               +os.path.join(DATA, RUN, 'metplus_output',
+                                             'plot_by_'+plot_by, 'make_plots',
+                                              var_name+'_'+vx_mask, case, type,
+                                             'imgs', '*')
+                               +' |wc -l)\n')
+                job_file.write('if [ $nimgs -ne 0 ]; then\n')
                 job_file.write(
-                    'ln -sf '
-                    +os.path.join(DATA, RUN, 'metplus_output',
-                                  'plot_by_'+plot_by, 'make_plots',
-                                  var_name+'_'+vx_mask, case, type,
-                                  'imgs', '*')+' '
-                    +os.path.join(DATA, RUN, 'metplus_output',
-                                  'images/.')
+                        '    ln -sf '
+                        +os.path.join(DATA, RUN, 'metplus_output',
+                                      'plot_by_'+plot_by, 'make_plots',
+                                      var_name+'_'+vx_mask, case, type,
+                                      'imgs', '*')+' '
+                        +os.path.join(DATA, RUN, 'metplus_output',
+                                      'images/.')+'\n'
                 )
+                job_file.write('fi')
                 job_file.close()
+
+def create_job_script_tropcyc(model_list, storm_list):
+    """! Writes out job cards based on requested verification
+         for tropical cyclone verification
+        
+         Args:
+             model_list - list of strings of model names
+             storm_list - list of strings of the basin, year,
+                          and storm name
+ 
+         Returns:
+    """
+    METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
+    model_atcf_name_list = (
+        os.environ['tropcyc_model_atcf_name_list'].split(' ')
+    )
+    if METplus_tropcyc_process == 'tc_pairs':
+        njob = 0
+    else:
+        njob = len(glob.glob(
+            os.path.join(DATA, RUN, 'metplus_job_scripts','job*')
+        ))
+        os.environ['njob_from_tc_pairs'] = str(njob)
+        npoe = len(glob.glob(
+            os.path.join(DATA, RUN, 'metplus_job_scripts','poe*')
+        ))
+        os.environ['npoe_from_tc_pairs'] = str(npoe)
+    basin_list = []
+    for storm in storm_list:
+        basin = storm.split('_')[0]
+        year = storm.split('_')[1]
+        name = storm.split('_')[2]
+        if basin not in basin_list:
+            basin_list.append(basin)
+        if storm == 'WP_2018_HECTOR':
+            basin = 'EP'
+        storm_id =  get_tc_info.get_tc_storm_id(storm)
+        bdeck_data_dir = os.path.join(os.getcwd(), 'data', 'bdeck')
+        bdeck_filename = 'b'+storm_id+'.dat'
+        bdeck_file = os.path.join(bdeck_data_dir, bdeck_filename)
+        storm_start_date, storm_end_date = get_tc_info.get_tc_storm_dates(
+            bdeck_file
+        )
+        if METplus_tropcyc_process == 'tc_pairs':
+            for model in model_list:
+                njob+=1
+                index = model_list.index(model)
+                model_atcf_abbrv = model_atcf_name_list[index]
+                if model == 'gfs' and model_atcf_abbrv != 'GFSO':
+                    print("Using operational GFS...using ATCF name as GFSO "
+                          +"to compile with MET")
+                    model_atcf_abbrv = 'GFSO'
+                # Create job file
+                job_filename = os.path.join(DATA, RUN,
+                                            'metplus_job_scripts',
+                                            'job'+str(njob))
+                job_file = open(job_filename, 'w')
+                set_job_common_env(job_file)
+                job_file.write('export START_DATE="'+storm_start_date+'"\n')
+                job_file.write('export END_DATE="'+storm_end_date+'"\n')
+                job_file.write('export model="'+model+'"\n')
+                job_file.write('export model_atcf_abbrv="'+model_atcf_abbrv
+                               +'"\n')
+                job_file.write('export storm="'+storm+'"\n')
+                job_file.write('export basin="'+basin+'"\n')
+                job_file.write('export year="'+year+'"\n')
+                job_file.write('export name="'+name+'"\n')
+                job_file.write('export storm_id="'+storm_id.upper()+'"\n')
+                job_file.write('export storm_num="'+storm_id[2:4]+'"\n')
+                job_file.write('\n')
+                metplus_conf_list = [
+                    os.path.join(metplus_version_conf_dir, 'tropcyc',
+                                 'make_met_data',
+                                 'storm.conf')
+                ]
+                for metplus_conf in metplus_conf_list:
+                    job_file.write(
+                        master_metplus+' '
+                        +'-c '+metplus_machine_conf+' '
+                        +'-c '+metplus_conf+'\n'
+                    )
+                job_file.close()
+        else:
+            njob+=1
+            # Set up information for environment variables
+            fhr_list = os.environ['tropcyc_fhr_list'].replace(' ','')
+            init_hour_list = ','.join(
+                os.environ['tropcyc_fcyc_list'].split(' ')
+            )
+            valid_hour_list = ','.join(
+                os.environ['tropcyc_vhr_list'].split(' ')
+            )
+            # Create job file
+            job_filename = os.path.join(DATA, RUN,
+                                        'metplus_job_scripts',
+                                        'job'+str(njob))
+            job_file = open(job_filename, 'w')
+            set_job_common_env(job_file)
+            job_file.write('export START_DATE="'+storm_start_date+'"\n')
+            job_file.write('export END_DATE="'+storm_end_date+'"\n')
+            job_file.write('export storm="'+storm+'"\n')
+            job_file.write('export basin="'+basin+'"\n')
+            job_file.write('export year="'+year+'"\n')
+            job_file.write('export name="'+name+'"\n')
+            job_file.write('export storm_id="'+storm_id.upper()+'"\n')
+            job_file.write('export storm_num="'+storm_id[2:4]+'"\n')
+            job_file.write('export fhr_list="'+fhr_list+'"\n')
+            job_file.write('export init_hour_list="'+init_hour_list+'"\n')
+            job_file.write('export valid_hour_list="'+valid_hour_list+'"\n')
+            job_file.write('\n')
+            metplus_conf_list = [
+                os.path.join(metplus_version_conf_dir, 'tropcyc',
+                            'gather',
+                            'storm.conf')
+            ]
+            for metplus_conf in metplus_conf_list:
+                job_file.write(
+                    master_metplus+' '
+                    +'-c '+metplus_machine_conf+' '
+                    +'-c '+metplus_conf+'\n'
+                )
+            job_file.write('python '
+                           +os.path.join(USHverif_global, 'plotting_scripts',
+                                         'plot_tc_errors_lead_mean.py')+' '
+                           +storm+'\n')
+            job_file.write('nimgs=$(ls '
+                           +os.path.join(DATA, RUN, 'metplus_output','plot',
+                                         storm, 'imgs', '*')
+                           +' |wc -l)\n')
+            job_file.write('if [ $nimgs -ne 0 ]; then\n')
+            job_file.write(
+                '    ln -sf '
+                +os.path.join(DATA, RUN, 'metplus_output',
+                              'plot', storm, 'imgs', '*')+' '
+                +os.path.join(DATA, RUN, 'metplus_output',
+                              'images/.')+'\n'
+            )
+            job_file.write('fi')
+            job_file.close()
+    if METplus_tropcyc_process == 'tc_stat':
+        for basin in basin_list:
+            njob+=1
+            basin = basin.split('_')[0]
+            # Set up information for environment variables
+            fhr_list = os.environ['tropcyc_fhr_list'].replace(' ','')
+            init_hour_list = ','.join(
+                os.environ['tropcyc_fcyc_list'].split(' ')
+            )
+            valid_hour_list = ','.join(
+                os.environ['tropcyc_vhr_list'].split(' ')
+            )
+            # Create job file
+            job_filename = os.path.join(DATA, RUN,
+                                        'metplus_job_scripts',
+                                        'job'+str(njob))
+            job_file = open(job_filename, 'w')
+            set_job_common_env(job_file)
+            job_file.write('export basin="'+basin+'"\n')
+            job_file.write('export fhr_list="'+fhr_list+'"\n')
+            job_file.write('export init_hour_list="'+init_hour_list+'"\n')
+            job_file.write('export valid_hour_list="'+valid_hour_list+'"\n')
+            job_file.write('\n')
+            metplus_conf_list = [
+                os.path.join(metplus_version_conf_dir, 'tropcyc',
+                            'gather',
+                            'basin.conf')
+            ]
+            for metplus_conf in metplus_conf_list:
+                job_file.write(
+                    master_metplus+' '
+                    +'-c '+metplus_machine_conf+' '
+                    +'-c '+metplus_conf+'\n'
+                )
+            job_file.write('python '
+                           +os.path.join(USHverif_global, 'plotting_scripts',
+                                         'plot_tc_errors_lead_mean.py')+' '
+                           +basin+'\n')
+            job_file.write('nimgs=$(ls '
+                           +os.path.join(DATA, RUN, 'metplus_output','plot',
+                                         basin, 'imgs', '*')
+                           +' |wc -l)\n')
+            job_file.write('if [ $nimgs -ne 0 ]; then\n')
+            job_file.write(
+                '    ln -sf '
+                +os.path.join(DATA, RUN, 'metplus_output',
+                              'plot', basin, 'imgs', '*')+' '
+                +os.path.join(DATA, RUN, 'metplus_output',
+                              'images/.')+'\n'
+            )
+            job_file.write('fi')
+            job_file.close()
 
 # Run job creation function
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
 elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2']:
     create_job_script_step2(sdate, edate, model_list, type_list, case)
+elif RUN in ['tropcyc']:
+    import get_tc_info
+    config_storm_list = os.environ['tropcyc_storm_list'].split(' ')
+    # Check storm_list to see if all storms for basin and year
+    # requested
+    storm_list = []
+    for storm in config_storm_list:
+        basin = storm.split('_')[0]
+        year = storm.split('_')[1]
+        name = storm.split('_')[2]
+        if name == 'ALLNAMED':
+            all_storms_in_basin_year_list = (
+                get_tc_info.get_all_tc_storms_basin_year(basin, year)
+            )
+            for byn in all_storms_in_basin_year_list:
+                storm_list.append(byn)
+        else:
+            storm_list.append(storm)
+    create_job_script_tropcyc(model_list, storm_list)
 
 # If running MPMD, create POE scripts
 if MPMD == 'YES':
@@ -675,8 +893,20 @@ if MPMD == 'YES':
         os.path.join(DATA, RUN, 'metplus_job_scripts', 'job*')
     )
     njob_files = len(job_files)
-    njob, iproc = 1, 0
-    node = 1
+    if RUN == 'tropcyc':
+        METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
+        if METplus_tropcyc_process == 'tc_pairs':
+            njob, iproc = 1, 0
+            node = 1
+        else:
+            njob_from_tc_pairs = int(os.environ['njob_from_tc_pairs'])
+            npoe_from_tc_pairs = int(os.environ['npoe_from_tc_pairs'])
+            njob = njob_from_tc_pairs + 1
+            iproc = 0
+            node = npoe_from_tc_pairs + 1
+    else:
+        njob, iproc = 1, 0
+        node = 1
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine == 'THEIA' or machine == 'HERA':

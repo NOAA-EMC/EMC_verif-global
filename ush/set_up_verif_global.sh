@@ -148,6 +148,7 @@ if [ $machine = "THEIA" ]; then
     export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
     export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
     export ccpa_24hr_arch_dir="/scratch4/NCEPDEV/global/save/Mallory.Row/obdata/ccpa_accum24hr"
+    export trak_arch_dir="/scratch4/NCEPDEV/global/save/Mallory.Row/trak/abdeck"
     # load utitlies on Theia because there is no module to set paths
     export NDATE="$NWROOT/util/exec/ndate"
     export NHOUR="$NWROOT/util/exec/nhour"
@@ -166,6 +167,7 @@ elif [ $machine = "HERA" ]; then
     export WGRIB="/apps/grads/2.0.2/bin/wgrib"
     export WGRIB2="/apps/wgrib2/2.0.8/intel/18.0.3.222/bin/wgrib2"
     export CNVGRIB="/apps/cnvgrib/1.4.0/bin/cnvgrib"
+    export trak_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/trak/abdeck"
 elif [ $machine = "WCOSS_C" ]; then
     export NWROOT=${NWROOT:-"/gpfs/hps/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/hps3/emc/global/noscrub/$USER"
@@ -175,6 +177,7 @@ elif [ $machine = "WCOSS_C" ]; then
     export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export trak_arch_dir="/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
     export NWROOT=${NWROOT:-"/gpfs/dell1/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/dell2/emc/modeling/noscrub/$USER"
@@ -184,6 +187,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export gstat="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export trak_arch_dir="/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck"
 fi
 
 ## Some operational directories
@@ -192,10 +196,28 @@ export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 hostname_letter=`echo $(hostname) |cut -c 1-1 `
 if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then
     export ccpa_24hr_prod_dir="/gpfs/tp1/nco/ops/com/verf/prod"
+    export nhc_atcfnoaa_bdeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-noaa/btk"
+    export nhc_atcfnoaa_adeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-noaa/aid_nws"
+    export nhc_atcfnavy_bdeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-navy/btk"
+    export nhc_atcfnavy_adeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-navy/aid"
 elif [ $hostname_letter = "v" -o $hostname_letter = "s" ]; then
     export ccpa_24hr_prod_dir="/gpfs/gp1/nco/ops/com/verf/prod"
+    export nhc_atcfnoaa_bdeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-noaa/btk"
+    export nhc_atcfnoaa_adeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-noaa/aid_nws"
+    export nhc_atcfnavy_bdeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-navy/btk"
+    export nhc_atcfnavy_adeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-navy/aid"
 else
     export ccpa_24hr_prod_dir="/com/verf/prod"
+    export nhc_atcfnoaa_bdeck_dir="/nhc/noscrub/data/atcf-noaa/btk"
+    export nhc_atcfnoaa_adeck_dir="/nhc/noscrub/data/atcf-noaa/aid_nws"
+    export nhc_atcfnavy_bdeck_dir="/nhc/noscrub/data/atcf-navy/btk"
+    export nhc_atcfnavy_adeck_dir="/nhc/noscrub/data/atcf-navy/aid"
 fi
+
+## Some online sites
+export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"
+export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
+export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
+export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
 
 echo "END: set_up_verif_global.sh"

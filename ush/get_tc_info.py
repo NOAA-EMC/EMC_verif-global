@@ -39,7 +39,7 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'LINGLING', 'KAJIKI', 'FAXAI',
                                         'PEIPAH', 'TAPAH', 'MITAG', 'HAGIBIS',
                                         'NEOGURI', 'BUALOI', 'MATMO', 'HALONG',
-                                        'NAKRO', 'FENGSHEN',  'KALMAEGI',
+                                        'NAKRI', 'FENGSHEN',  'KALMAEGI',
                                         'FUNG-WONG', 'KAMMURI']
     ## 2018
     basin_year_names_dict['AL_2018'] = ['ALBERTO', 'BERYL', 'CHRIS', 'DEBBY',
@@ -65,7 +65,7 @@ def get_all_tc_storms_basin_year(basin, year):
     ## 2017
     basin_year_names_dict['AL_2017'] = ['ARLENE', 'BRET', 'CINDY', 'DON',
                                         'EMILY', 'FRANKLIN', 'GERT', 'HARVEY',
-                                        'IRMA', 'JOSE', 'JOSE', 'KATIA', 'LEE',
+                                        'IRMA', 'JOSE', 'KATIA', 'LEE',
                                         'MARIA', 'NATE', 'OPHELIA', 'PHILIPPE',
                                         'RINA']
     basin_year_names_dict['CP_2017'] = ['']
@@ -109,7 +109,7 @@ def get_tc_storm_id(storm):
     ## 2019
     storm_id_dict['AL_2019_ANDREA'] = 'al012019'
     storm_id_dict['AL_2019_BARRY'] = 'al022019'
-    storm_id_dict['AL_2019_CHANTAL'] = 'al0412019'
+    storm_id_dict['AL_2019_CHANTAL'] = 'al042019'
     storm_id_dict['AL_2019_DORIAN'] = 'al052019'
     storm_id_dict['AL_2019_ERIN'] = 'al062019'
     storm_id_dict['AL_2019_FERNAND'] = 'al072019'

@@ -1573,7 +1573,7 @@ elif RUN == 'tropcyc':
                         os.system('gunzip -q -f '+nhc_bdeck_gzfile)
                 if not os.path.exists(link_bdeck_file):
                     error_msg = ("WARNING: "+nhc_bdeck_file+" and "
-                                 +trak_arch_bdeck_file+"do not exist"
+                                 +trak_arch_bdeck_file+" do not exist "
                                  +"and did not find file on NHC ftp site")
         elif basin == 'WP':
             nhc_bdeck_file = os.path.join(nhc_atcfnavy_bdeck_dir,
@@ -1603,24 +1603,24 @@ elif RUN == 'tropcyc':
                         if os.path.exists(nhc_bdeck_file):
                             os.system('ln -sf '+nhc_bdeck_file+' '
                                       +link_bdeck_file)
-                        elif os.path.exists(trak_bdeck_file):
-                            os.system('ln -sf '+trak_bdeck_file+' '
+                        elif os.path.exists(trak_arch_bdeck_file):
+                            os.system('ln -sf '+trak_arch_bdeck_file+' '
                                       +link_bdeck_file)
                         else:
                             error_msg = ("WARNING: could not get file from "
                                          +"Navy website archive and "
                                          +nhc_bdeck_file+" and "
-                                         +trak_bdeck_file+" do not exist")
+                                         +trak_arch_bdeck_file+" do not exist")
             else:
                 if os.path.exists(nhc_bdeck_file):
                     os.system('ln -sf '+nhc_bdeck_file+' '
                                +link_bdeck_file)
-                elif os.path.exists(trak_bdeck_file):
-                    os.system('ln -sf '+trak_bdeck_file+' '
+                elif os.path.exists(trak_arch_bdeck_file):
+                    os.system('ln -sf '+trak_arch_bdeck_file+' '
                               +link_bdeck_file)
                 else:
                     error_msg = ("WARNING: "+nhc_bdeck_file+" and "
-                                 +trak_bdeck_file+" do not exist")
+                                 +trak_arch_bdeck_file+" do not exist")
         else:
             print("ERROR: "+basin+" is not currently supported "
                   +"at this time")

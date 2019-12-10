@@ -150,7 +150,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_fcyc_list="00"
     export g2g2_vhr_list="00"
     export g2g2_fhr_min="00"
-    export g2g2_fhr_max="48"
+    export g2g2_fhr_max="240"
     export g2g2_event_eq="True"
     export g2g2_grid="G002"
     export g2g2_make_scorecard="NO"
@@ -269,6 +269,23 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     export precip2_fhr_max="180"
     export precip2_event_eq="True"
     export precip2_grid="G211"
+fi
+
+if [ $RUN_TROPCYC = YES ]; then
+    #tropcyc_model_atcf_name_list:  list of models ATCF 4 letter identifier in cooresponding tropcyc_model_fileformat
+    #tropcyc_storm_list:            list of verifying storms, format BASIN_YEAR_NAME, ex. AL_2019_DORIAN, to verify all name use BASIN_YEAR_ALLNAMED
+    #tropcyc_fcyc_list:             all forecst cycles to be included in verification: HH
+    #tropcyc_vhr_list:              all valid hours to be included in verification: HH
+    #tropcyc_fhr_min:               forecast hour to start verification HH[H]
+    #tropcyc_fhr_max:               forecast hour to end verification HH[H]
+    #tropcyc_model_fileformat_list: file format of model files
+    export tropcyc_model_atcf_name_list="AVNO"
+    export tropcyc_storm_list="AL_2019_ALLNAMED EP_2019_ALLNAMED WP_2019_ALLNAMED"
+    export tropcyc_fcyc_list="00 06 12 18"
+    export tropcyc_vhr_list="00 06 12 18"
+    export tropcyc_fhr_min="00"
+    export tropcyc_fhr_max="168"
+    export tropcyc_model_fileformat_list="atcfunix.gfs.{init?fmt=%Y%m%d%H}"
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

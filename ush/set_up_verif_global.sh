@@ -93,7 +93,7 @@ if [ $machine = "THEIA" -o $machine = "HERA" ]; then
     export QUEUESHARED="batch"
     export QUEUESERV="service"
 elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
-    export ACCOUNT="FV3GFS-T2O"
+    export ACCOUNT="GFS-DEV"
     export QUEUE="dev"
     export QUEUESHARED="dev_shared"
     export QUEUESERV="dev_transfer"

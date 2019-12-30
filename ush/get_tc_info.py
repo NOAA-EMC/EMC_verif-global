@@ -32,7 +32,7 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'DALILA', 'ERICK', 'FLOSSIE', 'GIL',
                                         'HENRIETTE', 'IVO', 'JULIETTE', 'KIKO',
                                         'LORENA', 'MARIO', 'NARDA', 'OCTAVE',
-                                        'PRISCILLA']
+                                        'PRISCILLA', 'RAYMOND']
     basin_year_names_dict['WP_2019'] = ['PABUK', 'WUTIP', 'SEPAT', 'MUN',
                                         'DANAS', 'NARI', 'WIPHA', 'FRANCISCO',
                                         'LEKIMA', 'KROSA', 'BAILU', 'PODUL',
@@ -40,7 +40,7 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'PEIPAH', 'TAPAH', 'MITAG', 'HAGIBIS',
                                         'NEOGURI', 'BUALOI', 'MATMO', 'HALONG',
                                         'NAKRI', 'FENGSHEN',  'KALMAEGI',
-                                        'FUNG-WONG', 'KAMMURI']
+                                        'FUNG-WONG', 'KAMMURI', 'PHANFONE']
     ## 2018
     basin_year_names_dict['AL_2018'] = ['ALBERTO', 'BERYL', 'CHRIS', 'DEBBY',
                                         'ERNESTO', 'FLORENCE', 'GORDON',
@@ -141,6 +141,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['EP_2019_NARDA'] = 'ep162019'
     storm_id_dict['EP_2019_OCTAVE'] = 'ep182019'
     storm_id_dict['EP_2019_PRISCILLA'] = 'ep192019'
+    storm_id_dict['EP_2019_RAYMOND'] = 'ep202019'
     storm_id_dict['WP_2019_PABUK'] = 'wp362018'
     storm_id_dict['WP_2019_WUTIP'] = 'wp022019'
     storm_id_dict['WP_2019_SEPAT'] = 'wp042019'
@@ -169,6 +170,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['WP_2019_KALMAEGI'] = 'wp272019'
     storm_id_dict['WP_2019_FUNG-WONG'] = 'wp282019'
     storm_id_dict['WP_2019_KAMMURI'] = 'wp292019'
+    storm_id_dict['WP_2019_PHANFONE'] = 'wp302019'
     ## 2018
     storm_id_dict['AL_2018_ALBERTO'] = 'al012018'
     storm_id_dict['AL_2018_BERYL'] = 'al022018'

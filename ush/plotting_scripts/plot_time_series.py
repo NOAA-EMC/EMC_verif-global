@@ -382,10 +382,12 @@ for stat in plot_stats_list:
                 day_interval = 1
             elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
                 day_interval = 2
-            elif len(plot_time_dates) > 10 and len(plot_time_dates) < 31:
+            elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
                 day_interval = 5 
-            else:
+            elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
                 day_interval = 10
+            else:
+                day_interval = 30
             ax.xaxis.set_major_locator(md.DayLocator(interval=day_interval))
             ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
             ax.xaxis.set_minor_locator(md.DayLocator())

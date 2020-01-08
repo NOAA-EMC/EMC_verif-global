@@ -119,71 +119,75 @@ if os.path.exists(summary_tcst_filename):
                     print("Using operational GFS...using ATCF name as GFSO "
                          +"to find data to comply with MET")
                     AMODEL = 'GFSO'
-                summary_tcst_data_COLUMN_AMODEL = (
-                    summary_tcst_data_COLUMN_groupby_AMODEL.get_group(AMODEL)
-                )
-                summary_tcst_data_COLUMN_AMODEL_LEAD = (
-                    summary_tcst_data_COLUMN_AMODEL['LEAD'].values
-                )
-                summary_tcst_data_COLUMN_AMODEL_MEAN = np.asarray(
-                    summary_tcst_data_COLUMN_AMODEL['MEAN'].values,
-                    dtype=float
-                )
-                summary_tcst_data_COLUMN_AMODEL_TOTAL = np.asarray(
-                    summary_tcst_data_COLUMN_AMODEL['TOTAL'].values,
-                    dtype=float
-                )
-                summary_tcst_data_COLUMN_AMODEL_MEAN_NCL = np.asarray(
-                    summary_tcst_data_COLUMN_AMODEL['MEAN_NCL'].values,
-                    dtype=float
-                )
-                summary_tcst_data_COLUMN_AMODEL_MEAN_NCU = np.asarray(
-                    summary_tcst_data_COLUMN_AMODEL['MEAN_NCU'].values,
-                    dtype=float
-                )
-                summary_tcst_data_COLUMN_AMODEL_STDEV = np.asarray(
-                    summary_tcst_data_COLUMN_AMODEL['STDEV'].values,
-                    dtype=float
-                )
-                leads_list = []
-                for lead in summary_tcst_data_COLUMN_AMODEL_LEAD:
-                    if lead[0] != '0':
-                        leads_list.append(lead[0:3])
-                    else:
-                        leads_list.append(lead[1:3])
-                leads = np.asarray(leads_list, dtype=int)
                 fhrs_column_amodel_mean = np.full_like(fhrs, np.nan,
-                                                        dtype=float)
+                                                       dtype=float)
                 fhrs_column_amodel_total = np.full_like(fhrs, np.nan,
                                                         dtype=float)
                 fhrs_column_amodel_mean_ncl = np.full_like(fhrs, np.nan,
                                                            dtype=float)
                 fhrs_column_amodel_mean_ncu = np.full_like(fhrs, np.nan,
                                                            dtype=float)
-                for fhr in fhrs:
-                    fhr_idx = np.where(fhr == fhrs)[0][0]
-                    if fhr in leads:
-                        matching_lead_idx = np.where(fhr == leads)[0][0]
-                        fhrs_column_amodel_mean[fhr_idx] = (
-                            summary_tcst_data_COLUMN_AMODEL_MEAN[
-                                matching_lead_idx
-                            ]
-                        )
-                        fhrs_column_amodel_total[fhr_idx] = (
-                            summary_tcst_data_COLUMN_AMODEL_TOTAL[
-                                matching_lead_idx
-                            ]
-                        )
-                        fhrs_column_amodel_mean_ncl[fhr_idx] = (
-                            summary_tcst_data_COLUMN_AMODEL_MEAN_NCL[
-                                matching_lead_idx
-                            ]
-                        )
-                        fhrs_column_amodel_mean_ncu[fhr_idx] = (
-                            summary_tcst_data_COLUMN_AMODEL_MEAN_NCU[
-                                matching_lead_idx
-                            ]
-                        )
+                if AMODEL not in tcstat_file_AMODEL_list:
+                    print("Data for "+AMODEL+" missing...setting to NaN")
+                else:
+                    summary_tcst_data_COLUMN_AMODEL = (
+                        summary_tcst_data_COLUMN_groupby_AMODEL. \
+                        get_group(AMODEL)
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_LEAD = (
+                        summary_tcst_data_COLUMN_AMODEL['LEAD'].values
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_MEAN = np.asarray(
+                        summary_tcst_data_COLUMN_AMODEL['MEAN'].values,
+                        dtype=float
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_TOTAL = np.asarray(
+                        summary_tcst_data_COLUMN_AMODEL['TOTAL'].values,
+                        dtype=float
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_MEAN_NCL = np.asarray(
+                        summary_tcst_data_COLUMN_AMODEL['MEAN_NCL'].values,
+                        dtype=float
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_MEAN_NCU = np.asarray(
+                        summary_tcst_data_COLUMN_AMODEL['MEAN_NCU'].values,
+                        dtype=float
+                    )
+                    summary_tcst_data_COLUMN_AMODEL_STDEV = np.asarray(
+                        summary_tcst_data_COLUMN_AMODEL['STDEV'].values,
+                        dtype=float
+                    )
+                    leads_list = []
+                    for lead in summary_tcst_data_COLUMN_AMODEL_LEAD:
+                        if lead[0] != '0':
+                            leads_list.append(lead[0:3])
+                        else:
+                            leads_list.append(lead[1:3])
+                    leads = np.asarray(leads_list, dtype=int)
+                    for fhr in fhrs:
+                        fhr_idx = np.where(fhr == fhrs)[0][0]
+                        if fhr in leads:
+                            matching_lead_idx = np.where(fhr == leads)[0][0]
+                            fhrs_column_amodel_mean[fhr_idx] = (
+                                summary_tcst_data_COLUMN_AMODEL_MEAN[
+                                    matching_lead_idx
+                                ]
+                            )
+                            fhrs_column_amodel_total[fhr_idx] = (
+                                summary_tcst_data_COLUMN_AMODEL_TOTAL[
+                                    matching_lead_idx
+                                ]
+                            )
+                            fhrs_column_amodel_mean_ncl[fhr_idx] = (
+                                summary_tcst_data_COLUMN_AMODEL_MEAN_NCL[
+                                    matching_lead_idx
+                                ]
+                            )
+                            fhrs_column_amodel_mean_ncu[fhr_idx] = (
+                                summary_tcst_data_COLUMN_AMODEL_MEAN_NCU[
+                                    matching_lead_idx
+                                ]
+                            )
                 fhrs_column_amodel_mean = np.ma.masked_invalid(
                     fhrs_column_amodel_mean
                 )

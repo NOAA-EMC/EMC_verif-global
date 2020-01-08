@@ -24,8 +24,8 @@ plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 colors = [
-    '#000000', '#2F1E80', '#D55E00', '#882255', 
-    '#018C66', '#D6B616', '#036398', '#CC79A7'
+    '#000000', '#018C66', '#D55E00', '#882255', 
+    '#2F1E80', '#D6B616', '#036398', '#CC79A7'
 ]
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']

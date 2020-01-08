@@ -22,8 +22,8 @@ plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 colors = [
-    '#000000', '#2F1E80', '#D55E00', '#882255',
-    '#018C66', '#D6B616', '#036398', '#CC79A7'
+    '#000000', '#018C66', '#D55E00', '#882255',
+    '#2F1E80', '#D6B616', '#036398', '#CC79A7'
 ]
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
@@ -35,6 +35,7 @@ fhr_list = os.environ['fhr_list'].split(',')
 fhrs = np.asarray(fhr_list, dtype=int)
 init_hour_list = os.environ['init_hour_list']
 valid_hour_list = os.environ['valid_hour_list']
+model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
 
 tc_stat_file_dir = os.path.join(DATA, RUN, 'metplus_output', 'gather',
                                 'tc_stat', storm_info)
@@ -107,10 +108,17 @@ if os.path.exists(summary_tcst_filename):
             #CI_bar_intvl_widths = CI_bar_intvl_widths/3600.
             #CI_bar_max_widths = CI_bar_max_widths/3600.
             #CI_bar_min_widths = CI_bar_min_widths/3600.
-            for AMODEL in summary_tcst_data_COLUMN_groupby_AMODEL \
-                    .groups.keys():
+            tcstat_file_AMODEL_list = (
+                summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
+            )
+            for AMODEL in model_atcf_name_list:
                 print("Plotting "+AMODEL)
                 model_num+=1
+                AMODEL_plot_name = AMODEL
+                if AMODEL == 'AVNO' and 'GFSO' in tcstat_file_AMODEL_list:
+                    print("Using operational GFS...using ATCF name as GFSO "
+                         +"to find data to comply with MET")
+                    AMODEL = 'GFSO'
                 summary_tcst_data_COLUMN_AMODEL = (
                     summary_tcst_data_COLUMN_groupby_AMODEL.get_group(AMODEL)
                 )
@@ -201,7 +209,7 @@ if os.path.exists(summary_tcst_filename):
                         linewidth=2.0,
                         marker='o',
                         markersize=7,
-                        label=AMODEL,
+                        label=AMODEL_plot_name,
                         zorder=(nmodels-model_num-1)+4)
                 for fhr in fhrs:
                     fhr_idx = np.where(fhr == fhrs)[0][0]

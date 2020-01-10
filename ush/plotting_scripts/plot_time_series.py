@@ -383,7 +383,7 @@ for stat in plot_stats_list:
             elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
                 day_interval = 2
             elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
-                day_interval = 5 
+                day_interval = 7 
             elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
                 day_interval = 10
             else:

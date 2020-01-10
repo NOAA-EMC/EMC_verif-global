@@ -333,7 +333,7 @@ for stat in plot_stats_list:
                 +"  "+init_time_info[0][0:2]+"Z"
                 +", forecast hour "+lead+"\n"
             )               
-    fig.suptitle(full_title, fontsize=14, fontweight='bold')
+    fig.suptitle(full_title, fontsize=18, fontweight='bold')
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')

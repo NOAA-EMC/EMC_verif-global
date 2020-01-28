@@ -150,6 +150,20 @@ elif RUN == 'tropcyc':
                 os.path.join('make_met_data',
                              'tc_pairs', storm, model)
             )
+elif RUN == 'maps2d':
+    make_met_data_by = os.environ['maps2d_make_met_data_by']
+    plot_by = make_met_data_by
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by)
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
+    for type in os.environ['maps2d_type_list'].split(' '):
+        metplus_output_subdir_list.append(
+           os.path.join('make_met_data_by_'+make_met_data_by,
+                        'series_analysis', type)
+        )
 
 # Create METplus output subdirectories
 for subdir in metplus_output_subdir_list:

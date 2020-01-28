@@ -14,7 +14,6 @@ import os
 import numpy as np
 
 print("BEGIN: "+os.path.basename(__file__))
-
 # Get environment variables
 RUN = os.environ['RUN']
 make_met_data_by = os.environ['make_met_data_by']
@@ -348,6 +347,42 @@ elif RUN == 'tropcyc':
     env_var_dict['tropcyc_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['tropcyc_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['tropcyc_init_hr_inc'] = str(init_hr_inc)
+elif RUN == 'maps2d':
+    by = os.environ['maps2d_make_met_data_by']
+    hr_list = os.environ['maps2d_hour_list'].split(' ')
+    forecast_to_plot_list = (
+        os.environ['maps2d_forecast_to_plot_list'].split(' ')
+    )
+    if by != 'VALID' and by != 'INIT':
+        print("WARNING: config setting maps2d_make_met_data_by not an "
+              +"accepted value....using make_met_data_by setting which "
+              +"is "+make_met_data_by)
+        by = make_met_data_by
+    fhr_list = []
+    for forecast_to_plot in forecast_to_plot_list:
+        if forecast_to_plot == 'anl':
+            continue
+        elif forecast_to_plot[0] == 'f':
+            fhr_list.append(forecast_to_plot[1:])
+        elif forecast_to_plot[0] == 'd':
+            fhr4 = int(forecast_to_plot[1:]) * 24
+            fhr3 = str(fhr4 - 6).zfill(2)
+            fhr2 = str(fhr4 - 12).zfill(2)
+            fhr1 = str(fhr4 - 18).zfill(2)
+            fhr_list.extend([fhr1, fhr2, fhr3, str(fhr4).zfill(2)])
+        else:
+            print("ERROR: "+forecast_to_plot+" is not an accepted value "
+                  +"to list in config")
+            exit(1)
+    nhr = len(hr_list)
+    hr_beg = hr_list[0]
+    hr_end = hr_list[-1]
+    hr_inc = int((24/nhr)*3600)
+    env_var_dict['maps2d_make_met_data_by'] = by
+    env_var_dict['maps2d_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
+    env_var_dict['maps2d_hr_beg'] = str(hr_beg).zfill(2)
+    env_var_dict['maps2d_hr_end'] = str(hr_end).zfill(2)
+    env_var_dict['maps2d_hr_inc'] = str(hr_inc)
 
 # Create file with environment variables to source
 with open('python_gen_env_vars.sh', 'a') as file:

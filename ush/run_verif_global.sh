@@ -96,8 +96,10 @@ fi
 
 if [ $RUN_MAPS2D = YES ] ; then
     echo
-    echo "===== 2D MAP PLOTTING VERIFICATION IS NOT SUPPORTED AT THIS TIME ====="
+    echo "===== RUNNING MODEL-TO-MODEL COMPARISON AND MODEL-TO-OBSERVATION ERROR VERIFICATION  ====="
+    echo "===== calculating and plotting mean errors using METplus ====="
     export RUN="maps2d"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exmaps2d.sh
 fi
 
 if [ $RUN_MAPSGDAS = YES ] ; then

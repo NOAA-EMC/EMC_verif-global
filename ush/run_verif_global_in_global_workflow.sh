@@ -17,7 +17,7 @@
 ## KEEPDATA, SENDECF, SENDCOM, SENDDBN,
 ## gfs_cyc, NET, RUN_ENVIR, envir,  machine
 ## HOMEDIR, STMP, PTMP, NOSCRUB, WGRIB2
-## WGRIB2, CNVGRIB, ACCOUNT, QUEUE, QUEUESERV
+## WGRIB2, CNVGRIB, ACCOUNT, QUEUE, QUEUE_ARCH
 ## PSLOT, FHMIN_GFS, FHMAX_GF
 ##### Settings from config.metp
 ## RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1
@@ -74,7 +74,7 @@ fhr_max=${FHMAX_GFS:-180}
 ## RESOURCE SETTINGS
 export nproc=${npe_node_metp_gfs:-1}
 export QUEUE=${QUEUE:-dev}
-export QUEUESERV=${QUEUESERV:-dev_transfer}
+export QUEUESERV=${QUEUE_ARCH:-dev_transfer}
 ##### Set up configuration
 ## OUTPUT DATA SETTINGS
 export DATA=$OUTPUTROOT

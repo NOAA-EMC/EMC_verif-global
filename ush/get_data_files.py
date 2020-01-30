@@ -72,7 +72,10 @@ def get_time_info(start_date, end_date,
         elif make_met_data_by == 'INIT':
             inittime = date
         for fhr in fhr_list:
-            lead = fhr
+            if fhr == 'anl':
+                lead = '00'
+            else:
+                lead = fhr
             if make_met_data_by == 'VALID':
                 inittime = validtime - datetime.timedelta(hours=int(lead))
             elif make_met_data_by == 'INIT':
@@ -1839,6 +1842,8 @@ elif RUN == 'maps2d':
             lead = time['lead']
             if init_time.strftime('%H') in ['03', '09', '15', '21']:
                 continue
+            elif lead == '00' and fhr_list == ['anl']:
+                break
             else:
                 link_model_forecast_file = os.path.join(
                     link_model_data_dir,

@@ -361,7 +361,7 @@ elif RUN == 'maps2d':
     fhr_list = []
     for forecast_to_plot in forecast_to_plot_list:
         if forecast_to_plot == 'anl':
-            continue
+            fhr_list.append(forecast_to_plot)
         elif forecast_to_plot[0] == 'f':
             fhr_list.append(forecast_to_plot[1:])
         elif forecast_to_plot[0] == 'd':

@@ -5,6 +5,7 @@ from __future__ import (print_function, division)
 import os
 import numpy as np
 import plot_util as plot_util
+import plot_title as plot_title
 import pandas as pd
 import warnings
 import logging
@@ -24,8 +25,8 @@ plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 colors = [
-    '#000000', '#018C66', '#D55E00', '#882255',
-    '#2F1E80', '#D6B616', '#036398', '#CC79A7'
+    '#000000', '#036398', '#D55E00', '#882255',
+    '#2F1E80', '#D6B616', '#018C66', '#CC79A7'
 ]
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
@@ -45,10 +46,6 @@ fcst_var_extra = (
 )
 if fcst_var_extra == "None":
     fcst_var_extra = ""
-if os.environ['FCST_VAR_EXTRA'] == "None":
-    fcst_var_extra_title = ""
-else:
-    fcst_var_extra_title = " "+os.environ['FCST_VAR_EXTRA']+" "
 fcst_var_level = os.environ['FCST_VAR_LEVEL']
 fcst_var_thresh = (
     os.environ['FCST_VAR_THRESH'].replace(" ","")
@@ -58,9 +55,6 @@ fcst_var_thresh = (
 )
 if fcst_var_thresh == "None":
     fcst_var_thresh = ""
-    fcst_var_thresh_title = ""
-else:
-    fcst_var_thresh_title = " "+fcst_var_thresh
 obs_var_name = os.environ['OBS_VAR_NAME']
 obs_var_extra = (
     os.environ['OBS_VAR_EXTRA'].replace(" ", "")
@@ -70,10 +64,6 @@ obs_var_extra = (
 )
 if obs_var_extra == "None":
     obs_var_extra = ""
-if os.environ['OBS_VAR_EXTRA'] == "None":
-    obs_var_extra_title = ""
-else:
-    obs_var_extra_title = " "+os.environ['OBS_VAR_EXTRA']+" "
 obs_var_level = os.environ['OBS_VAR_LEVEL']
 obs_var_thresh = (
     os.environ['OBS_VAR_THRESH'].replace(" ","")
@@ -83,9 +73,6 @@ obs_var_thresh = (
 )
 if obs_var_thresh == "None":
     obs_var_thresh = ""
-    obs_var_thresh_title = ""
-else:
-    obs_var_thresh_title = " "+obs_var_thresh
 interp = os.environ['INTERP']
 region = os.environ['REGION']
 lead_list = os.environ['LEAD_LIST'].split(", ")
@@ -244,16 +231,16 @@ for stat in plot_stats_list:
                          color=colors[model_index], 
                          ls='-', 
                          linewidth=3.0, 
-                         marker='None', 
-                         markersize=7, 
+                         marker='o', 
+                         markersize=3, 
                          label=model_plot_name,
                          zorder=(nmodels-model_index)+4)
                 ax1.plot(leads, model_mean_data[1,:], 
                          color='dimgrey', 
                          ls='-', 
                          linewidth=2.5, 
-                         marker='None', 
-                         markersize=7, 
+                         marker='o', 
+                         markersize=3, 
                          label="Obs.",
                          zorder=4)
                 ax2.plot(leads, np.zeros_like(leads), 
@@ -266,7 +253,7 @@ for stat in plot_stats_list:
                          ls='-', 
                          linewidth=2.0, 
                          marker='o', 
-                         markersize=7,
+                         markersize=3,
                          zorder=(nmodels-model_index)+4)
                 if ci_method != "NONE":
                     model_ci_data = np.empty(len(lead_list))
@@ -329,8 +316,8 @@ for stat in plot_stats_list:
                          color=colors[model_index], 
                          ls='-', 
                          linewidth=3.0, 
-                         marker='None', 
-                         markersize=7, 
+                         marker='o', 
+                         markersize=3, 
                          label=model_plot_name,
                          zorder=(nmodels-model_index)+4)
                 ax2.plot(leads, np.zeros_like(leads), 
@@ -346,7 +333,7 @@ for stat in plot_stats_list:
                           ls='-', 
                           linewidth=2.0, 
                           marker='o', 
-                          markersize=7, 
+                          markersize=3, 
                           label=model_plot_name,
                           zorder=(nmodels-model_index)+4)
                  ax2.plot(leads, model_mean_data[0,:]-model_mean_data[1,:], 
@@ -354,7 +341,7 @@ for stat in plot_stats_list:
                           ls='-', 
                           linewidth=2.0,  
                           marker='o', 
-                          markersize=7,
+                          markersize=3,
                           zorder=(nmodels-model_index)+4)
             else:
                 ax1.plot(leads, model_mean_data, 
@@ -362,7 +349,7 @@ for stat in plot_stats_list:
                          ls='-', 
                          linewidth=2.0, 
                          marker='o', 
-                         markersize=7, 
+                         markersize=3, 
                          label=model_plot_name,
                          zorder=(nmodels-model_index)+4)
                 ax2.plot(leads, model_mean_data-model1_mean_data, 
@@ -370,7 +357,7 @@ for stat in plot_stats_list:
                          ls='-', 
                          linewidth=2.0,  
                          marker='o', 
-                         markersize=7,
+                         markersize=3,
                          zorder=(nmodels-model_index)+4)
             if ci_method != "NONE":
                 model_ci_data = np.empty(len(lead_list))
@@ -443,12 +430,31 @@ for stat in plot_stats_list:
                    borderaxespad=0.)
     if grid == region:
         gridregion = grid
-        gridregion_title = grid
     else:
         gridregion = grid+region
-        gridregion_title = grid+"-"+region
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
+    # Build formal plot title
+    start_date_formatted = datetime.datetime.strptime(
+        start_date_YYYYmmdd,"%Y%m%d"
+    ).strftime('%d%b%Y')
+    end_date_formatted = datetime.datetime.strptime(
+        end_date_YYYYmmdd, "%Y%m%d"
+    ).strftime('%d%b%Y')
+    var_info_title = plot_title.get_var_info_title(
+        fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
+    )
+    region_title = plot_title.get_region_title(region)
+    date_info_title = plot_title.get_date_info_title(
+        plot_time, valid_time_info, init_time_info,
+        start_date_formatted, end_date_formatted, verif_case
+    )
+    full_title = (
+        stat_plot_name+"\n"
+        +var_info_title+", "+region_title+"\n"
+        +date_info_title+", forecast hour means\n"
+    )
+    # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'grid2obs':
             savefig_name = os.path.join(plotting_out_dir_imgs,
@@ -458,16 +464,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-                +", "+init_time_info[0][0:2]+"Z cycles"
-                +", forecast hour means\n"
-            )
         elif verif_case == 'precip':
             savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
@@ -476,16 +472,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
-                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
-                +" "+valid_time_info[0][0:2]+"Z"
-                +", forecast hour means\n"
-            )
         else:
             savefig_name = os.path.join(plotting_out_dir_imgs, 
                                         stat
@@ -494,16 +480,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-                +" "+valid_time_info[0][0:2]+"Z"
-                +", forecast hour means\n"
-            ) 
     elif plot_time == 'init':
         if verif_case == 'grid2obs':
             savefig_name = os.path.join(plotting_out_dir_imgs,
@@ -513,16 +489,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-                +", valid "+valid_time_info[0][0:2]+"Z"
-                +", forecast hour means\n"
-            )
         elif verif_case == 'precip':
             savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
@@ -531,16 +497,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
-                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
-                +" "+init_time_info[0][0:2]+"Z"
-                +", forecast hour means\n"
-            )
         else:
             savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
@@ -549,16 +505,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+fcst_var_thresh_title
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime("%d%b%Y")+"-"
-                +end_date_YYYYmmdd_dt.strftime("%d%b%Y")
-                +" "+init_time_info[0][0:2]+"Z"
-                +", forecast hour means\n"
-            ) 
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)

@@ -2,6 +2,7 @@ from __future__ import (print_function, division)
 import os
 import numpy as np
 import plot_util as plot_util
+import plot_title as plot_title
 import pandas as pd
 import warnings
 import logging
@@ -47,10 +48,6 @@ fcst_var_extra = (
 )
 if fcst_var_extra == "None":
     fcst_var_extra = ""
-if os.environ['FCST_VAR_EXTRA'] == "None":
-    fcst_var_extra_title = ""
-else:
-    fcst_var_extra_title = " "+os.environ['FCST_VAR_EXTRA']+" "
 fcst_var_level = os.environ['FCST_VAR_LEVEL']
 fcst_var_thresh_list = os.environ['FCST_VAR_THRESH_LIST'].split(", ")
 fcst_var_thresh_format_list = []
@@ -84,10 +81,6 @@ obs_var_extra = (
 )
 if obs_var_extra == "None":
     obs_var_extra = ""
-if os.environ['OBS_VAR_EXTRA'] == "None":
-    obs_var_extra_title = ""
-else:
-    obs_var_extra_title = " "+os.environ['OBS_VAR_EXTRA']+" "
 obs_var_level = os.environ['OBS_VAR_LEVEL']
 obs_var_thresh_list = os.environ['OBS_VAR_THRESH_LIST'].split(", ")
 obs_var_thresh_format_list = []
@@ -444,12 +437,31 @@ for stat in plot_stats_list:
                                 ticks=CF2.levels)
     if grid == region:
         gridregion = grid
-        gridregion_title = grid
     else:
         gridregion = grid+region
-        gridregion_title = grid+"-"+region
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
+    # Build formal plot title
+    start_date_formatted = datetime.datetime.strptime(
+        start_date_YYYYmmdd,"%Y%m%d"
+    ).strftime('%d%b%Y')
+    end_date_formatted = datetime.datetime.strptime(
+        end_date_YYYYmmdd, "%Y%m%d"
+    ).strftime('%d%b%Y')
+    var_info_title = plot_title.get_var_info_title(
+        fcst_var_name, fcst_var_level, fcst_var_extra, 'all'
+    )
+    region_title = plot_title.get_region_title(region)
+    date_info_title = plot_title.get_date_info_title(
+        plot_time, valid_time_info, init_time_info,
+        start_date_formatted, end_date_formatted, verif_case
+    )
+    full_title = (
+        stat_plot_name+"\n"
+        +var_info_title+", "+region_title+"\n"
+        +date_info_title+", forecast hour means\n"
+    )
+    # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'precip':
             savefig_name = os.path.join(plotting_out_dir_imgs,
@@ -459,16 +471,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+" threshold mean"
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
-                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
-                +" "+valid_time_info[0][0:2]+"Z"
-                +", forecast mean"
-            )
     elif plot_time == 'init':
         if verif_case == 'precip':
             savefig_name = os.path.join(plotting_out_dir_imgs,
@@ -478,16 +480,6 @@ for stat in plot_stats_list:
                                         +"_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-            full_title = (
-                stat_plot_name+"\n"
-                +fcst_var_name+" "+fcst_var_level+fcst_var_extra_title+" threshold mean"
-                +" "+gridregion_title+"\n"
-                +plot_time+": "
-                +start_date_YYYYmmdd_dt.strftime('%d%b%Y')+"-"
-                +end_date_YYYYmmdd_dt.strftime('%d%b%Y')
-                +" "+init_time_info[0][0:2]+"Z"
-                +", forecast hour mean"
-            )
     fig.suptitle(full_title, fontsize=14, fontweight='bold')
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)

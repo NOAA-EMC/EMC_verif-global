@@ -22,8 +22,8 @@ plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 colors = [
-    '#000000', '#018C66', '#D55E00', '#882255',
-    '#2F1E80', '#D6B616', '#036398', '#CC79A7'
+    '#000000', '#036398', '#D55E00', '#882255',
+    '#2F1E80', '#D6B616', '#018C66', '#CC79A7'
 ]
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
@@ -212,7 +212,7 @@ if os.path.exists(summary_tcst_filename):
                         ls='-',
                         linewidth=2.0,
                         marker='o',
-                        markersize=7,
+                        markersize=3,
                         label=AMODEL_plot_name,
                         zorder=(nmodels-model_num-1)+4)
                 for fhr in fhrs:

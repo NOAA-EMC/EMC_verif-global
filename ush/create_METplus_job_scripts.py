@@ -835,6 +835,8 @@ def create_job_script_tropcyc(model_list, storm_list):
             job_file.write('export fhr_list="'+fhr_list+'"\n')
             job_file.write('export init_hour_list="'+init_hour_list+'"\n')
             job_file.write('export valid_hour_list="'+valid_hour_list+'"\n')
+            job_file.write('export model_atcf_name_list="'
+                           +', '.join(model_atcf_name_list)+'"\n')
             job_file.write('\n')
             metplus_conf_list = [
                 os.path.join(metplus_version_conf_dir, 'tropcyc',

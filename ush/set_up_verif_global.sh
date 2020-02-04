@@ -193,26 +193,11 @@ fi
 ## Some operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod" 
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
-hostname_letter=`echo $(hostname) |cut -c 1-1 `
-if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then
-    export ccpa_24hr_prod_dir="/gpfs/tp1/nco/ops/com/verf/prod"
-    export nhc_atcfnoaa_bdeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-noaa/btk"
-    export nhc_atcfnoaa_adeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-noaa/aid_nws"
-    export nhc_atcfnavy_bdeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-navy/btk"
-    export nhc_atcfnavy_adeck_dir="/gpfs/tp1/nhc/noscrub/data/atcf-navy/aid"
-elif [ $hostname_letter = "v" -o $hostname_letter = "s" ]; then
-    export ccpa_24hr_prod_dir="/gpfs/gp1/nco/ops/com/verf/prod"
-    export nhc_atcfnoaa_bdeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-noaa/btk"
-    export nhc_atcfnoaa_adeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-noaa/aid_nws"
-    export nhc_atcfnavy_bdeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-navy/btk"
-    export nhc_atcfnavy_adeck_dir="/gpfs/gp1/nhc/noscrub/data/atcf-navy/aid"
-else
-    export ccpa_24hr_prod_dir="/com/verf/prod"
-    export nhc_atcfnoaa_bdeck_dir="/nhc/noscrub/data/atcf-noaa/btk"
-    export nhc_atcfnoaa_adeck_dir="/nhc/noscrub/data/atcf-noaa/aid_nws"
-    export nhc_atcfnavy_bdeck_dir="/nhc/noscrub/data/atcf-navy/btk"
-    export nhc_atcfnavy_adeck_dir="/nhc/noscrub/data/atcf-navy/aid"
-fi
+export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
+export nhc_atcfnoaa_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/btk"
+export nhc_atcfnoaa_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/aid_nws"
+export nhc_atcfnavy_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/btk"
+export nhc_atcfnavy_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/aid"
 
 ## Some online sites
 export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"

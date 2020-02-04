@@ -242,14 +242,7 @@ fi
 ## Some operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
-hostname_letter=`echo $(hostname) |cut -c 1-1 `
-if [ $hostname_letter = "m" -o $hostname_letter = "l" ]; then
-    export ccpa_24hr_prod_dir="/gpfs/tp1/nco/ops/com/verf/prod"
-elif [ $hostname_letter = "v" -o $hostname_letter = "s" ]; then
-    export ccpa_24hr_prod_dir="/gpfs/gp1/nco/ops/com/verf/prod"
-else
-    export ccpa_24hr_prod_dir="/com/verf/prod"
-fi
+export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
 
 ## Do checks on switches to run verification for
 if [ $METPCASE = g2g1 ]; then

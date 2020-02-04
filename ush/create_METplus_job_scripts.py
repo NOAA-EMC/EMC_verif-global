@@ -555,6 +555,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
             extra_env_info['var_thresholds'] = (
                 'ge0.2, ge2, ge5, ge10, ge15, ge25, ge35, ge50, ge75'
             )
+            extra_env_info['PYTHONPATH'] = os.environ['PYTHONPATH']
             if type == 'ccpa_accum24hr':
                 vars_and_levels_dict = {
                     'APCP_24': ['A24']

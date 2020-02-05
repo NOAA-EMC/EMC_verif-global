@@ -78,7 +78,7 @@ export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus/TEST"
 ## METPLUS SETTINGS
-#MET_version:               MET version to use: 6.1, 7.0, 8.0, 8.1
+#MET_version:               MET version to use: 7.0, 8.0, 8.1
 #METplus_version:           METplus version to use: 2.1
 #MET_verbosity:             MET verbosity for logging, 1-5 (most verbose is 5)
 #METplus_verbosity:         DEBUG, INFO, WARN, ERROR (most verbose is DEBUG)

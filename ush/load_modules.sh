@@ -15,7 +15,7 @@ METplus_version=${3}
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global
-if [[ "$MET_version" =~ ^(6.1|7.0|8.0|8.1)$ ]]; then
+if [[ "$MET_version" =~ ^(7.0|8.0|8.1)$ ]]; then
     echo "Requested MET version: $MET_version"
 else
     echo "ERROR: $MET_version is not supported in verif_global"
@@ -44,7 +44,7 @@ if [ $machine = WCOSS_C ]; then
     module load NetCDF-intel-sandybridge/4.2 
     module load hpss 
     module load python/2.7.14 
-    if [ $MET_version = 6.1 -o $MET_version = 8.1 ]; then
+    if [ $MET_version = 8.1 ]; then
         module load met/$MET_version 
         export HOMEMET="/usrx/local/dev/met/${MET_version}"
     elif [ $MET_version = 7.0 -o $MET_version = 8.0 ]; then

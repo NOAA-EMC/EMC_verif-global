@@ -75,7 +75,7 @@ if [ -s config.machine ]; then
 fi
 
 ## Load modules and set machine specific variables
-if [ $machine != "THEIA" -a $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
     echo "ERROR: $machine is not supported"
     exit 1
 fi
@@ -87,7 +87,7 @@ status=$?
 echo
 
 ## Account and queues for machines
-if [ $machine = "THEIA" -o $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export ACCOUNT="fv3-cpu"
     export QUEUE="batch"
     export QUEUESHARED="batch"
@@ -100,10 +100,7 @@ elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
 fi
 
 ## Run settings for machines
-if [ $machine = "THEIA" ]; then
-    export nproc="24"
-    export MPMD="YES"
-elif [ $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export nproc="40"
     export MPMD="YES"
 elif [ $machine = "WCOSS_C" ]; then
@@ -115,9 +112,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
 fi
 
 ## Get fix directory
-if [ $machine = "THEIA" ]; then
-    export FIXverif_global="/scratch4/NCEPDEV/global/save/glopara/git/fv3gfs/fix/fix_verif"
-elif [ $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
 elif [ $machine = "WCOSS_C" ] ; then
     export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
@@ -139,23 +134,7 @@ export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Machine and user specific paths
-if [ $machine = "THEIA" ]; then
-    export NWROOT="/scratch4/NCEPDEV/global/save/glopara/nwpara" 
-    export HOMEDIR="/scratch4/NCEPDEV/global/save/$USER"
-    export STMP="/scratch4/NCEPDEV/stmp3/$USER"
-    export PTMP="/scratch4/NCEPDEV/stmp4/$USER"
-    export NOSCRUB="/scratch4/NCEPDEV/global/noscrub/$USER"
-    export gstat="/scratch4/NCEPDEV/global/noscrub/stat"
-    export prepbufr_arch_dir="/scratch4/NCEPDEV/global/noscrub/stat/prepbufr"
-    export ccpa_24hr_arch_dir="/scratch4/NCEPDEV/global/save/Mallory.Row/obdata/ccpa_accum24hr"
-    export trak_arch_dir="/scratch4/NCEPDEV/global/save/Mallory.Row/trak/abdeck"
-    # load utitlies on Theia because there is no module to set paths
-    export NDATE="$NWROOT/util/exec/ndate"
-    export NHOUR="$NWROOT/util/exec/nhour"
-    export WGRIB="$NWROOT/util/exec/wgrib"
-    export WGRIB2="/scratch3/NCEPDEV/nwprod/utils/wgrib2.v2.0.6c/wgrib2/wgrib2"
-    export CNVGRIB="/apps/cnvgrib/1.4.0/bin/cnvgrib"
-elif [ $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export NWROOT="/scratch1/NCEPDEV/global/glopara/nwpara"
     export HOMEDIR="/scratch1/NCEPDEV/global/$USER"
     export STMP="/scratch1/NCEPDEV/stmp2/$USER"

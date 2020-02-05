@@ -22,7 +22,6 @@ else:
     if 'MACHINE' in os.environ:
         machine = os.environ['MACHINE']
     else:
-        theia_match = re.match(re.compile(r"^tfe[0-9]{2}$"), hostname)
         hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
         surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
         luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
@@ -30,9 +29,7 @@ else:
                               hostname)
         venus_match = re.match(re.compile(r"^v[0-9]{2}[a-z]{1}[0-9]{1}$"),
                                hostname)
-        if theia_match:
-            machine = 'THEIA'
-        elif hera_match:
+        if hera_match:
             machine = 'HERA'
         elif surge_match or luna_match:
             machine = 'WCOSS_C'

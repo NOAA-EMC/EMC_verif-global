@@ -185,7 +185,7 @@ elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
               +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
               +'-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
-elif machine == 'THEIA' or machine == 'HERA':
+elif machine == 'HERA':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
               +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
               +'--output='+AWS_job_output+' '

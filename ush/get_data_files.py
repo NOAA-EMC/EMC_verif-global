@@ -218,7 +218,7 @@ def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,
         job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
                          +'-noheader -J '+hpss_job_name
                          +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'THEIA' or machine == 'HERA':
+    elif machine == 'HERA':
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+hpss_job_output+' '

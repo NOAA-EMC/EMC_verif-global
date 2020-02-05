@@ -23,7 +23,7 @@ plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 ###import cmocean
 ###cmap_diff = cmocean.cm.balance
-cmap_diff = plt.cm.coolwarm_r
+cmap_diff = plt.cm.coolwarm
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )

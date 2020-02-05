@@ -29,7 +29,7 @@ plt.rcParams['axes.formatter.useoffset'] = False
 ###cmap = cmocean.cm.haline_r
 ###cmap_diff = cmocean.cm.balance
 cmap = plt.cm.BuPu
-cmap_diff = plt.cm.coolwarm_r
+cmap_diff = plt.cm.coolwarm
 
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
@@ -226,24 +226,44 @@ for stat in plot_stats_list:
     if nmodels == 1:
         fig = plt.figure(figsize=(10,12))
         gs = gridspec.GridSpec(1,1)
+        suptitle_y = 1.0
     elif nmodels == 2:
         fig = plt.figure(figsize=(10,12))
         gs = gridspec.GridSpec(2,1)
         gs.update(hspace=0.35)
+        suptitle_y = 1.0
+        colorbar_y = -0.05
+        colorbar_height = 0.05
     elif nmodels > 2 and nmodels <= 4:
         fig = plt.figure(figsize=(20,12))
         gs = gridspec.GridSpec(2,2)
         gs.update(wspace=0.4, hspace=0.35)
+        suptitle_y = 1.0
+        colorbar_y = -0.05
+        colorbar_height = 0.05
     elif nmodels > 4 and nmodels <= 6:
-        fig = plt.figure(figsize=(30,12))
-        gs = gridspec.GridSpec(2,3)
+        fig = plt.figure(figsize=(20,18))
+        gs = gridspec.GridSpec(3,2)
         gs.update(wspace=0.4, hspace=0.35)
-    elif nmodels > 6 and nmodels <= 9:
-        fig = plt.figure(figsize=(30,18))
-        gs = gridspec.GridSpec(3,3)
+        suptitle_y = 0.95
+        colorbar_y = 0.01
+        colorbar_height = 0.03
+    elif nmodels > 6 and nmodels <= 8:
+        fig = plt.figure(figsize=(20,24))
+        gs = gridspec.GridSpec(4,2)
         gs.update(wspace=0.4, hspace=0.35)
+        suptitle_y = 0.93
+        colorbar_y = 0.025
+        colorbar_height = 0.025
+    elif nmodels > 8 and nmodels <= 10:
+        fig = plt.figure(figsize=(20,30))
+        gs = gridspec.GridSpec(5,2)
+        gs.update(wspace=0.4, hspace=0.35)
+        suptitle_y = 0.92
+        colorbar_y = 0.05
+        colorbar_height = 0.025
     else:
-        logger.error("Too many models selected, max. is 9")
+        logger.error("Too many models selected, max. is 10")
         exit(1)
     for model in model_info:
         model_num = model_info.index(model) + 1
@@ -264,10 +284,12 @@ for stat in plot_stats_list:
             day_interval = 1
         elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
             day_interval = 2
-        elif len(plot_time_dates) > 10 and len(plot_time_dates) < 31:
-            day_interval = 5
+        elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
+            day_interval = 7
+        elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
+            day_interval = 10
         else:
-            day_interval = 10 
+            day_interval = 30
         ax.yaxis.set_major_locator(md.DayLocator(interval=day_interval))
         ax.yaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
         ax.yaxis.set_minor_locator(md.DayLocator())
@@ -340,32 +362,32 @@ for stat in plot_stats_list:
                                       cmap=cmap_diff, 
                                       locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                       extend='both')
-                    C2 = ax.contour(xx, yy, model_model1_diff, 
-                                    levels=CF2.levels, 
-                                    colors='k', 
-                                    linewidths=1.0)
-                    ax.clabel(C2, 
-                              C2.levels, 
-                              fmt='%1.2f', 
-                              inline=True, 
-                              fontsize=12.5)
+                    #C2 = ax.contour(xx, yy, model_model1_diff, 
+                    #                levels=CF2.levels, 
+                    #                colors='k', 
+                    #                linewidths=1.0)
+                    #ax.clabel(C2, 
+                    #          C2.levels, 
+                    #          fmt='%1.2f', 
+                    #          inline=True, 
+                    #          fontsize=12.5)
                 else:
                     CF = ax.contourf(xx, yy, model_model1_diff, 
                                      levels=CF2.levels, 
                                      cmap=cmap_diff, 
                                      locator=matplotlib.ticker.MaxNLocator(symmetric=True), 
                                      extend='both')
-                    C = ax.contour(xx, yy, model_model1_diff, 
-                                   levels=CF2.levels, 
-                                   colors='k', 
-                                   linewidths=1.0)
-                    ax.clabel(C, 
-                              C.levels, 
-                              fmt='%1.2f', 
-                              inline=True, 
-                              fontsize=12.5)
+                    #C = ax.contour(xx, yy, model_model1_diff, 
+                    #               levels=CF2.levels, 
+                    #               colors='k', 
+                    #               linewidths=1.0)
+                    #ax.clabel(C, 
+                    #          C.levels, 
+                    #          fmt='%1.2f', 
+                    #          inline=True, 
+                    #          fontsize=12.5)
     if nmodels > 1:
-        cax = fig.add_axes([0.1, -0.05, 0.8, 0.05])
+        cax = fig.add_axes([0.1, colorbar_y, 0.8, colorbar_height])
         if stat == "bias":
             cbar = fig.colorbar(CF1, 
                                 cax=cax, 
@@ -419,7 +441,7 @@ for stat in plot_stats_list:
                                     +"_leaddate"
                                     +"_"+gridregion
                                     +".png")
-    fig.suptitle(full_title, fontsize=18, fontweight='bold')
+    fig.suptitle(full_title, fontsize=18, fontweight='bold', y=suptitle_y)
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')

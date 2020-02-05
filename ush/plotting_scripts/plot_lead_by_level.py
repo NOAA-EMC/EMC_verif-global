@@ -31,7 +31,7 @@ plt.rcParams['axes.formatter.useoffset'] = False
 ###cmap_diff = cmocean.cm.balance
 cmap_bias = plt.cm.PiYG_r
 cmap = plt.cm.BuPu
-cmap_diff = plt.cm.coolwarm_r
+cmap_diff = plt.cm.coolwarm
 
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
@@ -192,9 +192,6 @@ for stat in plot_stats_list:
                                +model_name+" with plot name "
                                +model_plot_name+" file: "
                                +model_mean_file+" does not exist")
-        if nmodels > 8:
-            logger.error("Too many models selected, max. is 8")
-            exit(1)
         if model_num == 1:
             if stat == 'fbar_obar':
                 nsubplots = nmodels + 1
@@ -203,22 +200,45 @@ for stat in plot_stats_list:
             if nsubplots == 1:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(1,1)
+                suptitle_y = 1.0
             elif nsubplots == 2:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(2,1)
                 gs.update(hspace=0.35)
+                suptitle_y = 1.0
+                colorbar_y = -0.05
+                colorbar_height = 0.05
             elif nsubplots > 2 and nsubplots <= 4:
                 fig = plt.figure(figsize=(20,12))
                 gs = gridspec.GridSpec(2,2)
                 gs.update(wspace=0.4, hspace=0.35)
+                suptitle_y = 1.0
+                colorbar_y = -0.05
+                colorbar_height = 0.05
             elif nsubplots > 4 and nsubplots <= 6:
-                fig = plt.figure(figsize=(30,12))
-                gs = gridspec.GridSpec(2,3)
+                fig = plt.figure(figsize=(20,18))
+                gs = gridspec.GridSpec(3,2)
                 gs.update(wspace=0.4, hspace=0.35)
-            elif nsubplots > 6 and nsubplots <= 9:
-                fig = plt.figure(figsize=(30,18))
-                gs = gridspec.GridSpec(3,3)
+                suptitle_y = 0.95
+                colorbar_y = 0.01
+                colorbar_height = 0.03
+            elif nsubplots > 6 and nsubplots <= 8:
+                fig = plt.figure(figsize=(20,24))
+                gs = gridspec.GridSpec(4,2)
                 gs.update(wspace=0.4, hspace=0.35)
+                suptitle_y = 0.93
+                colorbar_y = 0.025
+                colorbar_height = 0.025
+            elif nsubplots > 8 and nsubplots <= 10:
+                fig = plt.figure(figsize=(20,30))
+                gs = gridspec.GridSpec(5,2)
+                gs.update(wspace=0.4, hspace=0.35)
+                suptitle_y = 0.92
+                colorbar_y = 0.05
+                colorbar_height = 0.025
+            else:
+                logger.error("Too many subplots needed, max. is 10")
+                exit(1)
             if stat == 'fbar_obar':
                 logger.debug("Plotting observations")
                 ax = plt.subplot(gs[0])
@@ -285,30 +305,30 @@ for stat in plot_stats_list:
                                   cmap=cmap_diff,
                                   locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                   extend='both')
-                C1 = ax.contour(xx, yy, model_obs_diff,
-                                levels=CF1.levels,
-                                colors='k',
-                                linewidths=1.0)
-                ax.clabel(C1,
-                          C1.levels,
-                          fmt='%1.2f',
-                          inline=True,
-                          fontsize=12.5)
+                #C1 = ax.contour(xx, yy, model_obs_diff,
+                #                levels=CF1.levels,
+                #                colors='k',
+                #                linewidths=1.0)
+                #ax.clabel(C1,
+                #          C1.levels,
+                #          fmt='%1.2f',
+                #          inline=True,
+                #          fontsize=12.5)
             else:
                 CF = ax.contourf(xx, yy, model_obs_diff,
                                  levels=CF1.levels,
                                  cmap=cmap_diff,
                                  locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                  extend='both')
-                C = ax.contour(xx, yy, model_obs_diff,
-                               levels=CF1.levels,
-                               colors='k',
-                               linewidths=1.0)
-                ax.clabel(C,
-                          C.levels,
-                          fmt='%1.2f',
-                          inline=True,
-                          fontsize=12.5)
+                #C = ax.contour(xx, yy, model_obs_diff,
+                #               levels=CF1.levels,
+                #               colors='k',
+                #               linewidths=1.0)
+                #ax.clabel(C,
+                #          C.levels,
+                #          fmt='%1.2f',
+                #          inline=True,
+                #          fontsize=12.5)
         elif stat == "bias":
             logger.debug("Plotting model "+str(model_num)+" "
                          +model_name+" with name on plot "
@@ -378,31 +398,31 @@ for stat in plot_stats_list:
                                       cmap=cmap_diff, 
                                       locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                       extend='both')
-                    C2 = ax.contour(xx, yy, model_model1_diff, 
-                                    levels=CF2.levels, 
-                                    colors='k', 
-                                    linewidths=1.0)
-                    ax.clabel(C2, 
-                              C2.levels, 
-                              fmt='%1.2f', 
-                              inline=True, 
-                              fontsize=12.5)
+                    #C2 = ax.contour(xx, yy, model_model1_diff, 
+                    #                levels=CF2.levels, 
+                    #                colors='k', 
+                    #                linewidths=1.0)
+                    #ax.clabel(C2, 
+                    #          C2.levels, 
+                    #          fmt='%1.2f', 
+                    #          inline=True, 
+                    #          fontsize=12.5)
                 else:
                     CF = ax.contourf(xx, yy, model_model1_diff, 
                                      levels=CF2.levels, 
                                      cmap=cmap_diff, 
                                      locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                      extend='both')
-                    C = ax.contour(xx, yy, model_model1_diff, 
-                                   levels=CF2.levels, 
-                                   colors='k', 
-                                   linewidths=1.0)
-                    ax.clabel(C, 
-                              C.levels, 
-                              fmt='%1.2f', 
-                              inline=True, 
-                              fontsize=12.5)
-    cax = fig.add_axes([0.1, -0.05, 0.8, 0.05])
+                    #C = ax.contour(xx, yy, model_model1_diff, 
+                    #               levels=CF2.levels, 
+                    #               colors='k', 
+                    #               linewidths=1.0)
+                    #ax.clabel(C, 
+                    #          C.levels, 
+                    #          fmt='%1.2f', 
+                    #          inline=True, 
+                    #          fontsize=12.5)
+    cax = fig.add_axes([0.1, colorbar_y, 0.8, colorbar_height])
     if stat == "fbar_obar":
         cbar = fig.colorbar(CF1,
                             cax=cax, 
@@ -486,7 +506,7 @@ for stat in plot_stats_list:
                                         +"_all_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-    fig.suptitle(full_title, fontsize=18, fontweight='bold')
+    fig.suptitle(full_title, fontsize=18, fontweight='bold', y=suptitle_y)
     fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name, bbox_inches='tight')

@@ -1333,9 +1333,15 @@ elif RUN == 'precip_step1':
             hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                          'rh'+YYYY, YYYYmm,
                                          YYYYmmdd)
-            hpss_tar = os.path.join(hpss_date_dir,
-                                    'com_verf_prod_precip.'
-                                    +YYYYmmdd+'.precip.tar')
+            if int(YYYYmmdd) >= 20200126:
+                hpss_tar = os.path.join(hpss_date_dir,
+                                        'gpfs_dell1_nco_ops_com_'
+                                         +'verf_prod_precip'
+                                         +YYYYmmdd+'.precip.tar')
+            else:
+                hpss_tar = os.path.join(hpss_date_dir,
+                                        'com_verf_prod_precip.'
+                                         +YYYYmmdd+'.precip.tar')
             hpss_file = 'ccpa.'+YYYYmmdd+'12.24h'
         else:
             print("ERROR: "+obtype+" for observations with "

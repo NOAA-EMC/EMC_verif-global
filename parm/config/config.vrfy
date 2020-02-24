@@ -290,25 +290,29 @@ fi
 
 if [ $RUN_MAPS2D = YES ]; then
     #maps2d_model_plot_name_list: list of models reference name on plots
-    #maps2d_make_met_data_by:     maps2d override for make_met_data above, how to treat dates, "VALID" or "INIT"
-    #maps2d_type_list:            list type of verifications to run for maps2d: model2model, model2obs
-    #maps2d_hour_list:            all hours to be included in verification: HH, hours treated according to maps2d_make_met_data_by
-    #maps2d_forecast_to_plot:     list of model forecast times to plot:
-    #                             for analysis use anl,
-    #                             for a single forecast hour use f (ex. f120),
-    #                             for a day use d (ex. d5) which will include the 4 forecast hours for that day (d5 = f120 f114 f108 and f102)
-    #maps2d_forecast_anl_diff:    for model-to-model comparisons, also plot the difference of model forecast from an analysis (YES) or don't (NO)
-    #maps2d_anl_name:             analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
-    #maps2d_anl_fileformat_list:  list of analysis file format(s), more than 1 if maps2d_anl_name is self
-    #map2d_regrid_to_grid:        NCEP grid to regrid data to (format GXXX)
-    #maps2d_latlon_area:          list of lower latitude, upper latitude, start longitude, end longitude
+    #maps2d_make_met_data_by:              maps2d override for make_met_data above, how to treat dates, "VALID" or "INIT"
+    #maps2d_type_list:                     list type of verifications to run for maps2d: model2model, model2obs
+    #maps2d_hour_list:                     all hours to be included in verification: HH, hours treated according to maps2d_make_met_data_by
+    #maps2d_forecast_to_plot:              list of model forecast times to plot:
+    #                                      for analysis use anl,
+    #                                      for a single forecast hour use f (ex. f120),
+    #                                      for a day use d (ex. d5) which will include the 4 forecast hours for that day (d5 = f120 f114 f108 and f102)
+    #maps2d_model2model_forecast_anl_diff: for model-to-model comparisons, also plot the difference of model forecast from an analysis (YES) or don't (NO)
+    #maps2d_model2obs_use_ceres:           for model-to-observations, use CERES data for cloud and radiation obs. (YES) or use ISCCP, SRB, NVAP, UWisc for cloud and radiation obs. (NO)
+    #maps2d_model2obs_use_monthly_mean:    for model-to-observations, use monthly mean from datasets, if available (YES) or use climatology generated from datasets (NO)
+    #maps2d_anl_name:                      analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
+    #maps2d_anl_fileformat_list:           list of analysis file format(s), more than 1 if maps2d_anl_name is self
+    #map2d_regrid_to_grid:                 NCEP grid to regrid data to (format GXXX)
+    #maps2d_latlon_area:                   list of lower latitude, upper latitude, start longitude, end longitude
     export maps2d_model_plot_name_list="ops_gfs"
     export maps2d_make_met_data_by="INIT"
-    export maps2d_type_list="model2model"
+    export maps2d_type_list="model2model model2obs"
     export maps2d_hour_list="00"
     export maps2d_forecast_to_plot_list="anl d1 d5 d10"
-    export maps2d_forecast_anl_diff="NO"
-    export maps2d_anl_name="self_anl"
+    export maps2d_model2model_forecast_anl_diff="NO"
+    export maps2d_model2obs_use_ceres="NO"
+    export maps2d_model2obs_use_monthly_mean="YES"
+    export maps2d_anl_name="self_anl" 
     export maps2d_anl_fileformat_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
     export map2d_regrid_to_grid="G002"
     export maps2d_latlon_area="-90 90 0 360"

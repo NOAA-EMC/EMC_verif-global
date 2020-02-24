@@ -3,6 +3,41 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
+def get_obs_subplot_title(obtype, use_monthly_mean):
+    """ Get title for observations subplot.
+            
+            Args:
+                obtype           - string of the reference
+                                   observation type used
+                use_monthly_mean - string of using monthly mean
+                                   data (YES) or monthly climo
+                                   data (NO)
+    """
+    if obtype == 'clwp':
+        obs_subplot_title = 'UWisc 1988-2007 CLWP'
+    elif obtype == 'nvap':
+        obs_subplot_title = 'NVAP 1988-1995'
+    elif obtype == 'rad_isccp':
+        obs_subplot_title = 'ISCCP 1985-1993'
+    elif obtype == 'rad_srb2':
+        obs_subplot_title = 'SRB2 1985-1993'
+    elif obtype == 'gpcp':
+        if use_monthly_mean == 'YES':
+            obs_subplot_title = 'GPCP'
+        else:
+            obs_subplot_title = 'GPCP Climo.'
+    elif obtype == 'ghcn_cams':
+        if use_monthly_mean == 'YES':
+            obs_subplot_title = 'GHCN_CAMS'
+        else:
+            obs_subplot_title = 'GHCN_CAMS Climo.'
+    elif obtype == 'ceres':
+        if use_monthly_mean == 'YES':
+            obs_subplot_title = 'CERES'
+        else:
+            obs_subplot_title = 'CERES Climo.'
+    return obs_subplot_title
+
 def calculate_area_average(var_data, lat, lon):
     """! Calculate area average of dataset,
          weighting in the latitude dimension by the difference 
@@ -565,6 +600,20 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             exit(1)
+    elif var_name == 'PRATE': #precipitation rate ([kg m-2] s-1)
+        cmap = plt.cm.terrain_r
+        if var_GRIB_lvl_typ == '1': #surface
+            var_info_title = (
+                'Surface Precipitation Rate '
+                +'(mm 'r'$\mathregular{day^{-1}}$'')'
+            )
+            levels = np.array(
+                [0.1,0.2,0.4,0.6,0.8,1,1.5,2,2.5,3]
+            )
+            levels_diff = np.array(
+                [-3-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
+            )
+            var_scale = 24*3600
     elif var_name == 'PRES': #pressure (Pa)
         cmap = plt.cm.Spectral_r
         if var_GRIB_lvl_typ == '1': #surface

@@ -44,12 +44,15 @@ latlon_area = os.environ['latlon_area'].split(' ')
 var_group_name = os.environ['var_group_name']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
-forecast_anl_diff = os.environ['forecast_anl_diff']
 verif_case_type = os.environ['verif_case_type']
+if verif_case_type == 'model2model':
+    forecast_anl_diff = os.environ['forecast_anl_diff']
+    if forecast_to_plot == 'anl':
+        forecast_anl_diff = 'NO'
+if verif_case_type == 'model2obs':
+   use_monthly_mean = os.environ['use_monthly_mean']
 
 # Set up information
-if forecast_to_plot == 'anl':
-    forecast_anl_diff = 'NO'
 py_map_pckg = os.environ['py_map_pckg']
 if py_map_pckg == 'cartopy':
     import cartopy.crs as ccrs
@@ -130,17 +133,15 @@ for var_level in var_levels:
         )
         # Set up plot
         if model_num == 1:
-            if forecast_anl_diff == 'YES':
-                nsubplots = nmodels * 2
-            else:
-                nsubplots = nmodels
-            if nmodels > 8:
+            if verif_case_type == 'model2obs':
+                nsubplots = nmodels + 1
+            elif verif_case_type == 'model2model':
                 if forecast_anl_diff == 'YES':
-                    print("Too many models listed, including analysis "
-                          +"(len(model_list)*2). Current maximum is 8.")
+                    nsubplots = nmodels * 2
                 else:
-                    print("Too many models listed in model_list. "
-                          +"Current maximum is 8.")
+                    nsubplots = nmodels
+            if nsubplots > 8:
+                print("Too many subplots requested. Current maximum is 8.")
                 exit(1)
             if nsubplots == 1:
                 fig = plt.figure(figsize=(10,12))
@@ -162,10 +163,13 @@ for var_level in var_levels:
                 gs = gridspec.GridSpec(3,3)
                 gs.update(wspace=0.2, hspace=0.2)
         # Set up model subplot map and title
-        if forecast_anl_diff == 'YES':
-            subplot_num = 2 * (model_num - 1)
-        else:
-            subplot_num =  model_num - 1
+        if verif_case_type == 'model2obs':
+            subplot_num = model_num
+        elif verif_case_type == 'model2model': 
+            if forecast_anl_diff == 'YES':
+                subplot_num = 2 * (model_num - 1)
+            else:
+                subplot_num =  model_num - 1
         if py_map_pckg == 'cartopy':
             ax = plt.subplot(gs[subplot_num], 
                              projection=ccrs.PlateCarree(
@@ -190,30 +194,6 @@ for var_level in var_levels:
             lat_formatter = LatitudeFormatter()
             ax.xaxis.set_major_formatter(lon_formatter)
             ax.yaxis.set_major_formatter(lat_formatter)
-            if forecast_anl_diff == 'YES':
-                ax_anl = plt.subplot(gs[(2 * (model_num - 1) + 1)],
-                                     projection=ccrs.PlateCarree(
-                                         central_longitude=180
-                                     ))
-                if urcrnrlon_val == 360:
-                    urcrnrlon_val_adjust = 359.9
-                else:
-                    urcrnrlon_val_adjust = urcrnrlon_val
-                ax_anl.set_extent(
-                    [llcrnrlon_val, urcrnrlon_val_adjust,
-                     llcrnrlat_val, urcrnrlat_val],
-                    ccrs.PlateCarree()
-                )
-                ax_anl.set_global()
-                ax_anl.coastlines()
-                ax_anl.set_xlabel('Longitude')
-                ax_anl.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
-                ax_anl.set_ylabel('Latitude')
-                ax_anl.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
-                lon_formatter = LongitudeFormatter(zero_direction_label=True)
-                lat_formatter = LatitudeFormatter()
-                ax_anl.xaxis.set_major_formatter(lon_formatter)
-                ax_anl.yaxis.set_major_formatter(lat_formatter)
         elif py_map_pckg == 'basemap':
             ax = plt.subplot(gs[subplot_num])
             m = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
@@ -228,20 +208,6 @@ for var_level in var_levels:
                             fontsize=15)
             m.drawparallels(lat_ticks, labels=[True,False,False,False],
                             fontsize=15)
-            if forecast_anl_diff == 'YES':
-                ax_anl = plt.subplot(gs[(2 * (model_num - 1) + 1)])
-                ma = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
-                             urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
-                             urcrnrlon=urcrnrlon_val, resolution='c',
-                             lon_0=180, ax=ax_anl)
-                ma.drawcoastlines(linewidth=1.5, color='k', zorder=6)
-                ma.drawmapboundary
-                ax_anl.set_xlabel('Longitude')
-                ax_anl.set_ylabel('Latitude')
-                ma.drawmeridians(lon_ticks, labels=[False,False,False,True],
-                                 fontsize=15)
-                ma.drawparallels(lat_ticks, labels=[True,False,False,False],
-                                 fontsize=15)
         # Read data
         if os.path.exists(model_series_analysis_netcdf_file):
             print(model_series_analysis_netcdf_file+" exists")
@@ -262,9 +228,14 @@ for var_level in var_levels:
                     (len(model_data_lat), len(model_data_lon)), np.nan
                 )
             if 'series_cnt_OBAR' in model_data_variable_names:
-                model_data_series_cnt_OBAR =  (
-                    model_data.variables['series_cnt_OBAR'][:] * var_scale
-                )
+                if model_obtype in ['clwp']:
+                    model_data_series_cnt_OBAR =  (
+                        model_data.variables['series_cnt_OBAR'][:]
+                    )
+                else:
+                    model_data_series_cnt_OBAR =  (
+                        model_data.variables['series_cnt_OBAR'][:] * var_scale
+                    )
             else:
                 print("WARNING: OBAR values for "+model+" "
                       +"not in file...setting to NaN")
@@ -293,97 +264,116 @@ for var_level in var_levels:
             )
         # Plot model data
         x, y = np.meshgrid(model_data_lon_cyc, model_data_lat)
-        if model_num == 1:
-            print("Plotting "+model)
-            ax.set_title(model, loc='left')
-            model1_area_avg = maps2d_plot_util.calculate_area_average(
-                model_data_series_cnt_FBAR, model_data_lat, model_data_lon
-            )
-            ax.set_title(round(model1_area_avg, 3), loc='right')
-            if np.all(np.isnan(levels)):
-                if np.isnan(np.nanmax(model_data_series_cnt_FBAR)):
-                    levels_max = 1
-                else:
-                    levels_max = int(
-                        np.nanmax(model_data_series_cnt_FBAR)
-                    ) + 1
-                if np.isnan(np.nanmin(model_data_series_cnt_FBAR)):
-                    levels_min = -1
-                else: 
-                    levels_min = int(
-                        np.nanmin(model_data_series_cnt_FBAR)
-                    ) - 1
-                levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
-            if np.count_nonzero(
-                    ~np.isnan(model_data_series_cnt_FBAR_cyc)) != 0:
+        if verif_case_type == 'model2obs':
+            if model_num == 1:
+                print("Plotting "+model_obtype+" observations")
                 if py_map_pckg == 'cartopy':
-                    CF1 = ax.contourf(x, y, model_data_series_cnt_FBAR_cyc,
-                                      transform=ccrs.PlateCarree(),
-                                      levels=levels, cmap=cmap,
-                                      extend='both')
-                    # matplotlib/cartopy tries to close contour when
-                    # using cylic point, so need to plot contours
-                    # set contour labels, remove contour lines, and then
-                    # replot contour lines
-                    C1 = ax.contour(x, y, model_data_series_cnt_FBAR_cyc,
-                                    transform=ccrs.PlateCarree(),
-                                    levels=levels, colors='k',
-                                    linewidths=1.0, extend='both')
-                    C1labels = ax.clabel(C1, C1.levels, fmt='%g', colors='k')
-                    for c in C1.collections:
-                       c.set_visible(False)
-                    C1 = ax.contour(x, y, model_data_series_cnt_FBAR_cyc,
-                                    transform=ccrs.PlateCarree(),
-                                    levels=levels, colors='k',
-                                    linewidths=1.0, extend='both')
+                    ax_obs = plt.subplot(gs[0],
+                                         projection=ccrs.PlateCarree(
+                                             central_longitude=180
+                                         ))
+                    if urcrnrlon_val == 360:
+                        urcrnrlon_val_adjust = 359.9
+                    else:
+                        urcrnrlon_val_adjust = urcrnrlon_val
+                    ax_obs.set_extent(
+                        [llcrnrlon_val, urcrnrlon_val_adjust,
+                         llcrnrlat_val, urcrnrlat_val],
+                        ccrs.PlateCarree()
+                    )
+                    ax_obs.set_global()
+                    ax_obs.coastlines()
+                    ax_obs.set_xlabel('Longitude')
+                    ax_obs.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+                    ax_obs.set_ylabel('Latitude')
+                    ax_obs.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+                    lon_formatter = LongitudeFormatter(
+                        zero_direction_label=True
+                    )
+                    lat_formatter = LatitudeFormatter()
+                    ax_obs.xaxis.set_major_formatter(lon_formatter)
+                    ax_obs.yaxis.set_major_formatter(lat_formatter)
                 elif py_map_pckg == 'basemap':
-                    mx, my = m(x, y)
-                    CF1 = m.contourf(mx, my, model_data_series_cnt_FBAR_cyc,
-                                     levels=levels, cmap=cmap,
-                                     extend='both')
-                    C1 = m.contour(mx, my, model_data_series_cnt_FBAR_cyc,
-                                   levels=levels, colors='k',
-                                   linewidths=1.0, extend='both')
-                    C1labels = ax.clabel(C1, C1.levels, fmt='%g', colors='k')
-            #CF1.cmap.set_over('white')
-            #CF1.cmap.set_under('white')
-            model1 = model
-            model1_data_series_cnt_FBAR = model_data_series_cnt_FBAR
-            model1_data_series_cnt_FBAR_cyc = model_data_series_cnt_FBAR_cyc
-            model1_data_series_cnt_OBAR_cyc = model_data_series_cnt_OBAR_cyc
-        else:
-            print("Plotting "+model+" - "+model1)
-            ax.set_title(model+'-'+model1, loc='left')
-            model_model1_data_series_cnt_FBAR = (
-                model_data_series_cnt_FBAR
-                - model1_data_series_cnt_FBAR
-            )
-            model_model1_area_avg = maps2d_plot_util.calculate_area_average(
-                model_model1_data_series_cnt_FBAR, model_data_lat,
-                model_data_lon
-            )
-            ax.set_title(round(model_model1_area_avg, 3), loc='right')
-            model_model1_data_series_cnt_FBAR_cyc = (
-                model_data_series_cnt_FBAR_cyc
-                - model1_data_series_cnt_FBAR_cyc
-            )
-            if np.count_nonzero(
-                    ~np.isnan(model_model1_data_series_cnt_FBAR_cyc)) != 0:
-                if py_map_pckg == 'cartopy':
-                    CF = ax.contourf(x, y,
-                                     model_model1_data_series_cnt_FBAR_cyc,
-                                     transform=ccrs.PlateCarree(),
-                                     levels=levels_diff, cmap=cmap_diff,
-                                     extend='both')
-                elif py_map_pckg == 'basemap':
-                    mx, my = m(x, y)
-                    CF = m.contourf(mx, my,
-                                    model_model1_data_series_cnt_FBAR_cyc,
-                                    levels=levels_diff, cmap=cmap_diff,
-                                    extend='both')
-        if forecast_anl_diff == 'YES':
+                    ax_obs = plt.subplot(gs[0])
+                    mo = Basemap(projection='cyl',
+                                 llcrnrlat=llcrnrlat_val,
+                                 urcrnrlat=urcrnrlat_val,
+                                 llcrnrlon=llcrnrlon_val,
+                                 urcrnrlon=urcrnrlon_val,
+                                 resolution='c', lon_0=180, ax=ax_obs)
+                    mo.drawcoastlines(linewidth=1.5, color='k', zorder=6)
+                    mo.drawmapboundary
+                    ax_obs.set_xlabel('Longitude')
+                    ax_obs.set_ylabel('Latitude')
+                    mo.drawmeridians(lon_ticks,
+                                     labels=[False,False,False,True],
+                                     fontsize=15)
+                    mo.drawparallels(lat_ticks,
+                                     labels=[True,False,False,False],
+                                     fontsize=15)
+                obtype_subtitle = maps2d_plot_util.get_obs_subplot_title(
+                    model_obtype, use_monthly_mean
+                ) 
+                ax_obs.set_title(obtype_subtitle, loc='left')
+                obs_area_avg = maps2d_plot_util.calculate_area_average(
+                    model_data_series_cnt_OBAR, model_data_lat, model_data_lon
+                )
+                ax_obs.set_title(round(obs_area_avg, 3), loc='right')
+                if np.all(np.isnan(levels)):
+                    if np.isnan(np.nanmax(model_data_series_cnt_OBAR)):
+                        levels_max = 1
+                    else:
+                        levels_max = int(
+                            np.nanmax(model_data_series_cnt_OBAR)
+                        ) + 1
+                    if np.isnan(np.nanmin(model_data_series_cnt_OBAR)):
+                        levels_min = -1
+                    else:
+                        levels_min = int(
+                            np.nanmin(model_data_series_cnt_OBAR)
+                        ) - 1
+                    levels = np.linspace(levels_min, levels_max, 11,
+                                         endpoint=True)
+                if np.count_nonzero(
+                        ~np.isnan(model_data_series_cnt_OBAR_cyc)) != 0:
+                    if py_map_pckg == 'cartopy':
+                        CF1 = ax_obs.contourf(x, y,
+                                              model_data_series_cnt_OBAR_cyc,
+                                              transform=ccrs.PlateCarree(),
+                                              levels=levels, cmap=cmap,
+                                              extend='both')
+                        # matplotlib/cartopy tries to close contour when
+                        # using cylic point, so need to plot contours
+                        # set contour labels, remove contour lines, and then
+                        # replot contour lines
+                        C1 = ax_obs.contour(x, y,
+                                            model_data_series_cnt_OBAR_cyc,
+                                            transform=ccrs.PlateCarree(),
+                                            levels=levels, colors='k',
+                                            linewidths=1.0, extend='both')
+                        C1labels = ax_obs.clabel(C1, C1.levels,
+                                                 fmt='%g', colors='k')
+                        for c in C1.collections:
+                            c.set_visible(False)
+                        C1 = ax_obs.contour(x, y,
+                                            model_data_series_cnt_OBAR_cyc,
+                                            transform=ccrs.PlateCarree(),
+                                            levels=levels, colors='k',
+                                            linewidths=1.0, extend='both')
+                    elif py_map_pckg == 'basemap':
+                        mox, moy = mo(x, y)
+                        CF1 = mo.contourf(mox, moy,
+                                          model_data_series_cnt_OBAR_cyc,
+                                          levels=levels, cmap=cmap,
+                                          extend='both')
+                        C1 = mo.contour(mox, moy,
+                                        model_data_series_cnt_OBAR_cyc,
+                                        levels=levels, colors='k',
+                                        linewidths=1.0, extend='both')
+                        C1labels = ax_obs.clabel(C1, C1.levels,
+                                                 fmt='%g', colors='k')
             print("Plotting "+model+" - "+model_obtype)
-            ax_anl.set_title(model+'-'+model_obtype, loc='left')
+            ax.set_title(model+'-'+model_obtype, loc='left')
             model_data_series_cnt_FBAR_OBAR = (
                 model_data_series_cnt_FBAR
                 - model_data_series_cnt_OBAR
@@ -392,7 +382,7 @@ for var_level in var_levels:
                 model_data_series_cnt_FBAR_OBAR, model_data_lat,
                 model_data_lon
             )
-            ax_anl.set_title(round(model_FBAR_OBAR_area_avg, 3), loc='right')
+            ax.set_title(round(model_FBAR_OBAR_area_avg, 3), loc='right')
             model_data_series_cnt_FBAR_OBAR_cyc = (
                 model_data_series_cnt_FBAR_cyc
                 - model_data_series_cnt_OBAR_cyc
@@ -400,19 +390,202 @@ for var_level in var_levels:
             if np.count_nonzero(
                     ~np.isnan(model_data_series_cnt_FBAR_OBAR_cyc)) != 0:
                 if py_map_pckg == 'cartopy':
-                    CF = ax_anl.contourf(x, y,
-                                         model_data_series_cnt_FBAR_OBAR_cyc,
-                                         transform=ccrs.PlateCarree(),
-                                         levels=levels_diff, cmap=cmap_diff,
-                                         extend='both')
+                    CF = ax.contourf(x, y,
+                                     model_data_series_cnt_FBAR_OBAR_cyc,
+                                     transform=ccrs.PlateCarree(),
+                                     levels=levels_diff, cmap=cmap_diff,
+                                     extend='both')
                 elif py_map_pckg == 'basemap':
-                    max, may = ma(x, y)
-                    CF = ma.contourf(max, may,
+                    mx, my = m(x, y)
+                    CF = ma.contourf(mx, my,
                                      model_data_series_cnt_FBAR_OBAR_cyc,
                                      levels=levels_diff, cmap=cmap_diff,
                                      extend='both')
+        elif verif_case_type == 'model2model':
+            if model_num == 1:
+                print("Plotting "+model)
+                ax.set_title(model, loc='left')
+                model1_area_avg = maps2d_plot_util.calculate_area_average(
+                    model_data_series_cnt_FBAR, model_data_lat, model_data_lon
+                )
+                ax.set_title(round(model1_area_avg, 3), loc='right')
+                if np.all(np.isnan(levels)):
+                    if np.isnan(np.nanmax(model_data_series_cnt_FBAR)):
+                        levels_max = 1
+                    else:
+                        levels_max = int(
+                            np.nanmax(model_data_series_cnt_FBAR)
+                        ) + 1
+                    if np.isnan(np.nanmin(model_data_series_cnt_FBAR)):
+                        levels_min = -1
+                    else: 
+                        levels_min = int(
+                            np.nanmin(model_data_series_cnt_FBAR)
+                        ) - 1
+                    levels = np.linspace(levels_min, levels_max, 11,
+                                         endpoint=True)
+                if np.count_nonzero(
+                        ~np.isnan(model_data_series_cnt_FBAR_cyc)) != 0:
+                    if py_map_pckg == 'cartopy':
+                        CF1 = ax.contourf(x, y,
+                                          model_data_series_cnt_FBAR_cyc,
+                                          transform=ccrs.PlateCarree(),
+                                          levels=levels, cmap=cmap,
+                                          extend='both')
+                        # matplotlib/cartopy tries to close contour when
+                        # using cylic point, so need to plot contours
+                        # set contour labels, remove contour lines, and then
+                        # replot contour lines
+                        C1 = ax.contour(x, y,
+                                        model_data_series_cnt_FBAR_cyc,
+                                        transform=ccrs.PlateCarree(),
+                                        levels=levels, colors='k',
+                                        linewidths=1.0, extend='both')
+                        C1labels = ax.clabel(C1, C1.levels,
+                                             fmt='%g', colors='k')
+                        for c in C1.collections:
+                            c.set_visible(False)
+                        C1 = ax.contour(x, y,
+                                        model_data_series_cnt_FBAR_cyc,
+                                        transform=ccrs.PlateCarree(),
+                                        levels=levels, colors='k',
+                                        linewidths=1.0, extend='both')
+                    elif py_map_pckg == 'basemap':
+                        mx, my = m(x, y)
+                        CF1 = m.contourf(mx, my,
+                                         model_data_series_cnt_FBAR_cyc,
+                                         levels=levels, cmap=cmap,
+                                         extend='both')
+                        C1 = m.contour(mx, my,
+                                       model_data_series_cnt_FBAR_cyc,
+                                       levels=levels, colors='k',
+                                       linewidths=1.0, extend='both')
+                        C1labels = ax.clabel(C1, C1.levels,
+                                             fmt='%g', colors='k')
+                #CF1.cmap.set_over('white')
+                #CF1.cmap.set_under('white')
+                model1 = model
+                model1_data_series_cnt_FBAR = model_data_series_cnt_FBAR
+                model1_data_series_cnt_FBAR_cyc = (
+                    model_data_series_cnt_FBAR_cyc
+                )
+                model1_data_series_cnt_OBAR_cyc = (
+                    model_data_series_cnt_OBAR_cyc
+                )
+            else:
+                print("Plotting "+model+" - "+model1)
+                ax.set_title(model+'-'+model1, loc='left')
+                model_model1_data_series_cnt_FBAR = (
+                    model_data_series_cnt_FBAR
+                    - model1_data_series_cnt_FBAR
+                )
+                model_model1_area_avg = (
+                    maps2d_plot_util.calculate_area_average(
+                        model_model1_data_series_cnt_FBAR, model_data_lat,
+                        model_data_lon
+                    )
+                )
+                ax.set_title(round(model_model1_area_avg, 3), loc='right')
+                model_model1_data_series_cnt_FBAR_cyc = (
+                    model_data_series_cnt_FBAR_cyc
+                    - model1_data_series_cnt_FBAR_cyc
+                )
+                if np.count_nonzero(
+                        ~np.isnan(model_model1_data_series_cnt_FBAR_cyc)) != 0:
+                    if py_map_pckg == 'cartopy':
+                        CF = ax.contourf(x, y,
+                                         model_model1_data_series_cnt_FBAR_cyc,
+                                         transform=ccrs.PlateCarree(),
+                                         levels=levels_diff, cmap=cmap_diff,
+                                         extend='both')
+                    elif py_map_pckg == 'basemap':
+                        mx, my = m(x, y)
+                        CF = m.contourf(mx, my,
+                                        model_model1_data_series_cnt_FBAR_cyc,
+                                        levels=levels_diff, cmap=cmap_diff,
+                                        extend='both')
+            if forecast_anl_diff == 'YES':
+                print("Plotting "+model+" - "+model_obtype)
+                if py_map_pckg == 'cartopy':
+                    ax_anl = plt.subplot(gs[(2 * (model_num - 1) + 1)],
+                                         projection=ccrs.PlateCarree(
+                                             central_longitude=180
+                                         ))
+                    if urcrnrlon_val == 360:
+                        urcrnrlon_val_adjust = 359.9
+                    else:
+                        urcrnrlon_val_adjust = urcrnrlon_val
+                    ax_anl.set_extent(
+                        [llcrnrlon_val, urcrnrlon_val_adjust,
+                         llcrnrlat_val, urcrnrlat_val],
+                        ccrs.PlateCarree()
+                    )
+                    ax_anl.set_global()
+                    ax_anl.coastlines()
+                    ax_anl.set_xlabel('Longitude')
+                    ax_anl.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+                    ax_anl.set_ylabel('Latitude')
+                    ax_anl.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+                    lon_formatter = LongitudeFormatter(
+                        zero_direction_label=True
+                    )
+                    lat_formatter = LatitudeFormatter()
+                    ax_anl.xaxis.set_major_formatter(lon_formatter)
+                    ax_anl.yaxis.set_major_formatter(lat_formatter)
+                elif py_map_pckg == 'basemap':
+                    ax_anl = plt.subplot(gs[(2 * (model_num - 1) + 1)])
+                    ma = Basemap(projection='cyl',
+                                 llcrnrlat=llcrnrlat_val,
+                                 urcrnrlat=urcrnrlat_val,
+                                 llcrnrlon=llcrnrlon_val,
+                                 urcrnrlon=urcrnrlon_val,
+                                 resolution='c', lon_0=180, ax=ax_anl)
+                    ma.drawcoastlines(linewidth=1.5, color='k', zorder=6)
+                    ma.drawmapboundary
+                    ax_anl.set_xlabel('Longitude')
+                    ax_anl.set_ylabel('Latitude')
+                    ma.drawmeridians(lon_ticks,
+                                     labels=[False,False,False,True],
+                                     fontsize=15)
+                    ma.drawparallels(lat_ticks,
+                                     labels=[True,False,False,False],
+                                     fontsize=15) 
+                ax_anl.set_title(model+'-'+model_obtype, loc='left')
+                model_data_series_cnt_FBAR_OBAR = (
+                    model_data_series_cnt_FBAR
+                    - model_data_series_cnt_OBAR
+                )
+                model_FBAR_OBAR_area_avg = (
+                    maps2d_plot_util.calculate_area_average(
+                        model_data_series_cnt_FBAR_OBAR, model_data_lat,
+                        model_data_lon
+                    )
+                )
+                ax_anl.set_title(round(model_FBAR_OBAR_area_avg, 3),
+                                 loc='right')
+                model_data_series_cnt_FBAR_OBAR_cyc = (
+                    model_data_series_cnt_FBAR_cyc
+                    - model_data_series_cnt_OBAR_cyc
+                )
+                if np.count_nonzero(
+                        ~np.isnan(model_data_series_cnt_FBAR_OBAR_cyc)) != 0:
+                    if py_map_pckg == 'cartopy':
+                        CF = ax_anl.contourf(
+                            x, y, model_data_series_cnt_FBAR_OBAR_cyc,
+                            transform=ccrs.PlateCarree(),
+                            levels=levels_diff, cmap=cmap_diff,
+                            extend='both'
+                        )
+                    elif py_map_pckg == 'basemap':
+                        max, may = ma(x, y)
+                        CF = ma.contourf(max, may,
+                                         model_data_series_cnt_FBAR_OBAR_cyc,
+                                         levels=levels_diff, cmap=cmap_diff,
+                                         extend='both')
     # Final touches and save plot
-    if nmodels > 1 or (nmodels == 1 and forecast_anl_diff == 'YES'):
+    if nmodels > 1 or \
+            (nmodels == 1 and forecast_anl_diff == 'YES') or \
+            (nmodels == 1 and verif_case_type == 'model2obs'):
         cax = fig.add_axes([0.1, 0.0, 0.8, 0.05])
         cbar = fig.colorbar(CF, cax=cax, orientation='horizontal',
                             ticks=levels_diff)

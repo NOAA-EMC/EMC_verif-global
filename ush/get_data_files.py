@@ -1815,6 +1815,7 @@ elif RUN == 'tropcyc':
                                               +link_model_track_file)
 elif RUN == 'maps2d':
     # Read in environment variables
+    type_list = os.environ['maps2d_type_list'].split(' ')
     make_met_data_by = os.environ['maps2d_make_met_data_by']
     anl_name = os.environ['maps2d_anl_name']
     anl_file_format_list = os.environ['maps2d_anl_fileformat_list'].split(' ')
@@ -1825,7 +1826,7 @@ elif RUN == 'maps2d':
     forecast_to_plot_list = (
         os.environ['maps2d_forecast_to_plot_list'].split(' ')
     )
-    forecast_anl_diff = os.environ['maps2d_forecast_anl_diff']
+    forecast_anl_diff = os.environ['maps2d_model2model_forecast_anl_diff']
     # Get date and time information
     time_info = get_time_info(start_date, end_date, start_hr, end_hr, hr_inc,
                               fhr_list, make_met_data_by)
@@ -1891,7 +1892,8 @@ elif RUN == 'maps2d':
                         else:
                             print("WARNING: "+model_forecast_file+" "
                                   +"does not exist")
-    # Get matching valid time analysis files for model forecasts, if needed
+    # Get matching valid time analysis files for model forecasts
+    # for model2model comparison to analysis
     if forecast_anl_diff == 'YES':
         valid_time_list = []
         for time in time_info:
@@ -1969,7 +1971,8 @@ elif RUN == 'maps2d':
                         if not os.path.exists(error_file):
                             with open(error_file, 'a') as file:
                                 file.write(error_msg)
-    # Get analysis files for dates, if needed
+    # Get analysis files 
+    # for if analysis in forecast_to_plot_list
     if 'anl' in forecast_to_plot_list:
         time_info = get_time_info(start_date, end_date,
                                   start_hr, end_hr, hr_inc,
@@ -2045,10 +2048,95 @@ elif RUN == 'maps2d':
                         if not os.path.exists(error_file):
                             with open(error_file, 'a') as file:
                                 file.write(error_msg)
+    # Get observation files
+    # for model2obs
+    if 'model2obs' in type_list:
+        obdata_dir = os.environ['obdata_dir']
+        use_ceres = os.environ['maps2d_model2obs_use_ceres']
+        use_monthly_mean = os.environ['maps2d_model2obs_use_monthly_mean']
+        obtype_list = ['gpcp', 'ghcn_cams']
+        if use_ceres == 'YES':
+            obtype_list.append('ceres')
+        else:
+            obtype_list.extend(['clwp', 'nvap', 'rad_isccp', 'rad_srb2'])
+        print("Getting observation files...")
+        link_obs_data_dir = os.path.join(cwd, 'data', 'obs')
+        if not os.path.exists(link_obs_data_dir):
+            os.makedirs(link_obs_data_dir)
+        for obtype in obtype_list:
+            os.makedirs(os.path.join(link_obs_data_dir, obtype))
+            if obtype in ['clwp', 'nvap', 'rad_isccp', 'rad_srb2']:
+                if use_monthly_mean == 'YES':
+                    obtype_use_monthly_mean = 'NO'
+                    print("Using old VSDB datasets "
+                          +obtype+", must use monthly climatology")
+                else:
+                    obtype_use_monthly_mean = use_monthly_mean
+                obtype_data_path = 'vsdb_climo_data/CF_compliant'
+            else:
+                obtype_use_monthly_mean = use_monthly_mean
+                if use_monthly_mean == 'YES':
+                    obtype_data_path = obtype+'/monthly_mean'
+                else:
+                    obtype_data_path = obtype+'/monthly_climo'
+            for forecast_to_plot in forecast_to_plot_list:
+                if forecast_to_plot == 'anl':
+                    ftp_fhr_list = ['00']
+                else:
+                    ftp_fhr_list = []
+                    if forecast_to_plot[0] == 'f':
+                        ftp_fhr_list.append(forecast_to_plot[1:])
+                    elif forecast_to_plot[0] == 'd':
+                        fhr4 = int(forecast_to_plot[1:]) * 24
+                        fhr3 = str(fhr4 - 6).zfill(2)
+                        fhr2 = str(fhr4 - 12).zfill(2)
+                        fhr1 = str(fhr4 - 18).zfill(2)
+                        ftp_fhr_list.extend([fhr1, fhr2,
+                                             fhr3, str(fhr4).zfill(2)])
+                for ftp_fhr in ftp_fhr_list:
+                    time_info = get_time_info(start_date, end_date,
+                                              start_hr, end_hr, hr_inc,
+                                              [ftp_fhr], make_met_data_by)
+                    for time in time_info:
+                        valid_time = time['validtime']
+                        if obtype_use_monthly_mean == 'YES':
+                            obtype_filename = (
+                                obtype+'_'+valid_time.strftime('%B')[0:3]
+                                +valid_time.strftime('%Y')+'.nc'
+                            )
+                        else:
+                            obtype_filename = (
+                                obtype+'_'+valid_time.strftime('%B')[0:3]
+                                +'.nc'
+                            )
+                        obtype_file = os.path.join(obdata_dir,
+                                                   obtype_data_path,
+                                                   obtype_filename)
+                        link_obtype_file = os.path.join(link_obs_data_dir,
+                                                        obtype,
+                                                        obtype_filename)
+                        if not os.path.exists(link_obtype_file):
+                            if not os.path.exists(obtype_file):
+                                if obtype_use_monthly_mean == 'YES':
+                                    print("WARNING: "+obtype_file+" "
+                                          +"does not exist...linking "
+                                          +"climatology file instead")
+                                    obtype_file = obtype_file \
+                                        .replace('monthly_mean',
+                                                 'monthly_climo') \
+                                        .replace(valid_time.strftime('%Y'),
+                                                 '')
+                            if os.path.exists(obtype_file):
+                                os.system('ln -sf '+obtype_file
+                                          +' '+link_obtype_file)
     # Create file lists for MET's series_analysis
     for forecast_to_plot in forecast_to_plot_list:
-        print("Creating model file lists for MET's series_analysis for "
-              +forecast_to_plot)
+        if 'model2obs' in type_list:
+            print("Creating model and observation file lists for MET's "
+                  +"series_analysis for "+forecast_to_plot)
+        else:
+            print("Creating model file lists for MET's "
+                  +"series_analysis for "+forecast_to_plot)
         if forecast_to_plot == 'anl':
             ftp_fhr_list = ['00']
         else:
@@ -2091,18 +2179,14 @@ elif RUN == 'maps2d':
                             forecast_filename
                         )
                         if forecast_to_plot == 'anl':
-                            #print(model_analysis_file)
                             if not os.path.exists(model_analysis_file):
                                 all_files_exist = False
                         else:
-                            #print(model_forecast_file)
                             if not os.path.exists(model_forecast_file):
                                 all_files_exist = False
                             if forecast_anl_diff == 'YES':
-                                #print(model_analysis_file)
                                 if not os.path.exists(model_analysis_file):
                                     all_files_exist = False
-                    #print(all_files_exist)
                     # If all files exist, write to file
                     if all_files_exist:
                         for name in model_list:
@@ -2122,7 +2206,6 @@ elif RUN == 'maps2d':
                             forecast_to_plot_file_list_file = open(
                                 forecast_to_plot_file_list_filename, 'a'
                             )
-                            #print(forecast_to_plot_file_list_filename)
                             if (forecast_anl_diff == 'YES'
                                     and forecast_to_plot != 'anl'):
                                 forecast_to_plot_anl_file_list_filename = (
@@ -2134,7 +2217,6 @@ elif RUN == 'maps2d':
                                     forecast_to_plot_anl_file_list_filename,
                                     'a'
                                 )
-                                #print(forecast_to_plot_anl_file_list_filename)
                             if forecast_to_plot == 'anl':
                                 forecast_to_plot_file_list_file.write(
                                     model_analysis_file+'\n'
@@ -2149,5 +2231,42 @@ elif RUN == 'maps2d':
                                     )
                                     forecast_to_plot_anl_file_list_file.close()
                             forecast_to_plot_file_list_file.close()
-                            
+                        # Check and write files for observations
+                        for obtype in obtype_list:
+                            link_obs_data_dir = os.path.join(cwd,
+                                                             'data',
+                                                             'obs')
+                            if obtype in ['clwp', 'nvap', 'rad_isccp', 
+                                          'rad_srb2']:
+                                if use_monthly_mean == 'YES':
+                                    obtype_use_monthly_mean = 'NO'
+                                else:
+                                    obtype_use_monthly_mean = use_monthly_mean
+                            else:
+                                obtype_use_monthly_mean = use_monthly_mean
+                            if obtype_use_monthly_mean == 'YES':
+                                obtype_file = os.path.join(
+                                    link_obs_data_dir, obtype,
+                                    obtype+'_'+valid_time.strftime('%B')[0:3]
+                                    +valid_time.strftime('%Y')+'.nc'
+                                )
+                            else:
+                                obtype_file = os.path.join(
+                                    link_obs_data_dir, obtype,
+                                    obtype+'_'+valid_time.strftime('%B')[0:3]
+                                    +'.nc'
+                                )
+                            obtype_forecast_to_plot_file_list_filename = (
+                                os.path.join(link_obs_data_dir, obtype,
+                                             obtype+'_'+forecast_to_plot
+                                             +'_file_list.txt')
+                            )
+                            obtype_forecast_to_plot_file_list_file = open(
+                                obtype_forecast_to_plot_file_list_filename,'a'
+                            )
+                            obtype_forecast_to_plot_file_list_file.write(
+                                obtype_file+'\n'
+                            )
+                            obtype_forecast_to_plot_file_list_file.close()
+
 print("END: "+os.path.basename(__file__))

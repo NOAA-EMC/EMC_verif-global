@@ -34,8 +34,11 @@ latlon_area = os.environ['latlon_area']
 var_group_name = os.environ['var_group_name']
 var_name = os.environ['var_name']
 var_levels_list = os.environ['var_levels'].split(', ')
-forecast_anl_diff = os.environ['forecast_anl_diff']
 verif_case_type = os.environ['verif_case_type']
+if verif_case_type == 'model2model':
+    forecast_anl_diff = os.environ['forecast_anl_diff']
+if verif_case_type == 'model2obs':
+    obtype_var_name_list = os.environ['obtype_var_name'].split(', ')
 model_regex = re.compile("model(\d+)$")
 all_model_dict = {}
 for key in list(os.environ.keys()):
@@ -65,7 +68,8 @@ if any('bucketaccum' in s for s in var_levels_list):
                                                      +METplus_version,
                                                      'maps2d', 'met_config',
                                                      'metV'+MET_version,
-                                                     'SeriesAnalysisConfig'
+                                                     'SeriesAnalysisConfig_'
+                                                     +verif_case_type
                                                      +'_time_range_accum')
 else:
     series_analysis_config = '-config '+os.path.join(PARMverif_global,
@@ -75,7 +79,8 @@ else:
                                                      +METplus_version,
                                                      'maps2d', 'met_config',
                                                      'metV'+MET_version,
-                                                     'SeriesAnalysisConfig')
+                                                     'SeriesAnalysisConfig_'
+                                                     +verif_case_type)
 
 def get_var_grib1_info(var_name, var_level):
     """! This returns special GRIB1 variable information to use
@@ -226,6 +231,20 @@ for model in model_list:
                                        model_name+'_'+forecast_to_plot
                                        +'_file_list.txt')
             )
+    elif verif_case_type == 'model2obs':
+        series_analysis_fcst_files = (
+            '-fcst '+os.path.join (DATA, RUN, 'data', model_name,
+                                   model_name+'_'+forecast_to_plot
+                                   +'_file_list.txt')
+        )
+        series_analysis_obs_files = (
+            '-obs '+os.path.join (DATA, RUN, 'data', 'obs',
+                                  model_obtype, 
+                                  model_obtype+'_'+forecast_to_plot
+                                  +'_file_list.txt')
+        )
+        series_analysis_files = (series_analysis_fcst_files
+                                 +' '+series_analysis_obs_files)
     # Set up shell script for series_analysis job
     series_analysis_job_filename = os.path.join (DATA, RUN,
                                                  'metplus_job_scripts',
@@ -246,6 +265,7 @@ for model in model_list:
     # For series_analysis to create the series of all the files,
     # it needs to be run separately for each level
     for var_level in var_levels_list:
+        var_level_idx = var_levels_list.index(var_level)
         series_analysis_out = (
             '-out '+os.path.join (DATA, RUN, 'metplus_output',
                                   'make_met_data_by_'+make_met_data_by,
@@ -262,6 +282,9 @@ for model in model_list:
                                   +var_level.replace(' ', '')+'.log')
         )
         series_analysis_job_file.write('export var_level="'+var_level+'"\n')
+        series_analysis_job_file.write('export obtype_var_name="'
+                                       +obtype_var_name_list[var_level_idx]
+                                       +'"\n')
         # extract special grib file information
         (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
             var_GRIB_lvl_val2, var_GRIB1_ptv, var_time_range_accum) = (

@@ -899,22 +899,14 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
     forecast_to_plot_list = (
         os.environ['maps2d_forecast_to_plot_list'].split(' ')
     )
-    forecast_anl_diff = os.environ['maps2d_forecast_anl_diff']
+    forecast_anl_diff = os.environ['maps2d_model2model_forecast_anl_diff']
     anl_name = os.environ['maps2d_anl_name']
+    use_ceres = os.environ['maps2d_model2obs_use_ceres']
+    use_monthly_mean = os.environ['maps2d_model2obs_use_monthly_mean']
     regrid_to_grid = os.environ['map2d_regrid_to_grid']
     latlon_area = os.environ['maps2d_latlon_area']
     model_info = {}
     nmodels = int(len(model_list))
-    if forecast_anl_diff == 'YES':
-        nmodels = nmodels * 2
-    if nmodels > 8:
-        if forecast_anl_diff == 'YES':
-            print("Too many models listed, including analysis "
-                  +"(len(model_list)*2). Current maximum is 8.")
-        else:
-            print("Too many models listed in model_list. "
-                  +"Current maximum is 8.")
-        exit(1)
     for model in model_list:
         index = model_list.index(model)
         model_num = index + 1
@@ -927,6 +919,16 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
         extra_env_info = {}
         extra_env_info['verif_case_type'] = type
         if type == 'model2model':
+            if forecast_anl_diff == 'YES':
+                nmodels = nmodels * 2
+            if nmodels > 8:
+                if forecast_anl_diff == 'YES':
+                    print("Too many models listed, including analysis "
+                          +"(len(model_list)*2). Current maximum is 8.")
+                else:
+                    print("Too many models listed in model_list. "
+                          +"Current maximum is 8.")
+                exit(1)
             extra_env_info['forecast_anl_diff'] = forecast_anl_diff
             # Save extended levels
             #['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa',
@@ -1079,21 +1081,19 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                 'highesttropfrzlev': vars_highesttropfrzlev_dict
             }
         elif type == 'model2obs':
-            extra_env_info = {}
-            extra_env_info['forecast_anl_diff'] = 'NO'
+            extra_env_info['use_monthly_mean'] = use_monthly_mean
             vars_cloudsrad_dict = {
                 'DLWRF': ['sfc'],
                 'ULWRF': ['sfc', 'toa'],
                 'DSWRF': ['sfc'],
                 'USWRF': ['sfc', 'toa'],
-                'ALBDO': ['sfc'],
                 'TCDC': ['column', 'low', 'mid', 'high'],
             }
             vars_sfc_dict = {
-                'TMP': ['2m agl']
+                'TMP': ['2mAGL']
             }
             vars_precip_dict = {
-                'APCP': ['sfc_acumm6hr']
+                'PRATE': ['sfc_bucketaccum6hr']
             }
             vars_totcol_dict = {
                 'PWAT': ['column'],
@@ -1104,6 +1104,17 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                 'sfc': vars_sfc_dict,
                 'precip': vars_precip_dict,
                 'totcol': vars_totcol_dict,
+            }
+            grib_obtype_dict = {
+                'DLWRF': ['lw_sfc_down'],
+                'ULWRF': ['lw_sfc_up', 'lw_toa_up'],
+                'DSWRF': ['sw_sfc_down'],
+                'USWRF': ['sw_sfc_up', 'sw_toa_up'],
+                'TCDC': ['cldt', 'cldl', 'cldm', 'cldh'],
+                'TMP': ['air'],
+                'PRATE': ['precip'],
+                'PWAT': ['tpw'],
+                'CWAT': ['clwp']
             }
         for vars_dict in list(all_vars_dict.keys()):
             # Set up image directories
@@ -1139,14 +1150,34 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                         else:
                             obtype = model
                     elif type == 'model2obs':
-                        if vars_dict == 'cloudsrad':
-                            obtype = 'ceres'
-                        elif vars_dict == 'sfc':
-                            obtype = 'ghcn_cams'
-                        elif vars_dict == 'precip':
-                            obtype = 'gpcp'
-                        elif vars_dict == 'totcol':
-                            obtype = 'ceres'
+                        if use_ceres == 'YES':
+                            if vars_dict == 'cloudsrad':
+                                obtype = 'ceres'
+                            elif vars_dict == 'sfc':
+                                obtype = 'ghcn_cams'
+                            elif vars_dict == 'precip':
+                                obtype = 'gpcp'
+                            elif vars_dict == 'totcol':
+                                obtype = 'ceres'
+                        else:
+                            if vars_dict == 'cloudsrad':
+                                if var_name == 'TCDC':
+                                    obtype = 'rad_isccp'
+                                else:
+                                    obtype = 'rad_srb2'
+                            elif vars_dict == 'sfc':
+                                obtype = 'ghcn_cams'
+                            elif vars_dict == 'precip':
+                                obtype = 'gpcp'
+                            elif vars_dict == 'totcol':
+                                if var_name == 'CWAT':
+                                    obtype = 'clwp'
+                                else:
+                                    obtype = 'nvap'
+                        obtype_var_name = grib_obtype_dict[var_name]
+                        extra_env_info['obtype_var_name'] = (
+                            ' '.join(obtype_var_name).replace(' ', ', ')
+                        )
                     model_info['model'+str(model_num)+'_obtype'] = obtype
                 for forecast_to_plot in forecast_to_plot_list:
                     njob+=1

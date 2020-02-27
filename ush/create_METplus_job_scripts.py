@@ -1092,9 +1092,6 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
             vars_sfc_dict = {
                 'TMP': ['2mAGL']
             }
-            vars_precip_dict = {
-                'PRATE': ['sfc_bucketaccum6hr']
-            }
             vars_totcol_dict = {
                 'PWAT': ['column'],
                 'CWAT': ['column']
@@ -1102,7 +1099,6 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
             all_vars_dict = {
                 'cloudsrad': vars_cloudsrad_dict,
                 'sfc': vars_sfc_dict,
-                'precip': vars_precip_dict,
                 'totcol': vars_totcol_dict,
             }
             grib_obtype_dict = {
@@ -1112,7 +1108,6 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                 'USWRF': ['sw_sfc_up', 'sw_toa_up'],
                 'TCDC': ['cldt', 'cldl', 'cldm', 'cldh'],
                 'TMP': ['air'],
-                'PRATE': ['precip'],
                 'PWAT': ['tpw'],
                 'CWAT': ['clwp']
             }

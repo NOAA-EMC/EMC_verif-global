@@ -316,7 +316,8 @@ for var_level in var_levels:
                 ) 
                 ax_obs.set_title(obtype_subtitle, loc='left')
                 obs_area_avg = maps2d_plot_util.calculate_area_average(
-                    model_data_series_cnt_OBAR, model_data_lat, model_data_lon
+                    model_data_series_cnt_OBAR, model_data_lat, model_data_lon,
+                    llcrnrlat_val, urcrnrlat_val, llcrnrlon_val, urcrnrlon_val
                 )
                 ax_obs.set_title(round(obs_area_avg, 3), loc='right')
                 if np.all(np.isnan(levels)):
@@ -380,7 +381,8 @@ for var_level in var_levels:
             )
             model_FBAR_OBAR_area_avg = maps2d_plot_util.calculate_area_average(
                 model_data_series_cnt_FBAR_OBAR, model_data_lat,
-                model_data_lon
+                model_data_lon, llcrnrlat_val, urcrnrlat_val,
+                llcrnrlon_val, urcrnrlon_val
             )
             ax.set_title(round(model_FBAR_OBAR_area_avg, 3), loc='right')
             model_data_series_cnt_FBAR_OBAR_cyc = (
@@ -406,7 +408,8 @@ for var_level in var_levels:
                 print("Plotting "+model)
                 ax.set_title(model, loc='left')
                 model1_area_avg = maps2d_plot_util.calculate_area_average(
-                    model_data_series_cnt_FBAR, model_data_lat, model_data_lon
+                    model_data_series_cnt_FBAR, model_data_lat, model_data_lon,
+                    llcrnrlat_val, urcrnrlat_val, llcrnrlon_val, urcrnrlon_val
                 )
                 ax.set_title(round(model1_area_avg, 3), loc='right')
                 if np.all(np.isnan(levels)):
@@ -482,7 +485,8 @@ for var_level in var_levels:
                 model_model1_area_avg = (
                     maps2d_plot_util.calculate_area_average(
                         model_model1_data_series_cnt_FBAR, model_data_lat,
-                        model_data_lon
+                        model_data_lon, llcrnrlat_val, urcrnrlat_val,
+                        llcrnrlon_val, urcrnrlon_val
                     )
                 )
                 ax.set_title(round(model_model1_area_avg, 3), loc='right')
@@ -558,7 +562,8 @@ for var_level in var_levels:
                 model_FBAR_OBAR_area_avg = (
                     maps2d_plot_util.calculate_area_average(
                         model_data_series_cnt_FBAR_OBAR, model_data_lat,
-                        model_data_lon
+                        model_data_lon, llcrnrlat_val, urcrnrlat_val,
+                        llcrnrlon_val, urcrnrlon_val
                     )
                 )
                 ax_anl.set_title(round(model_FBAR_OBAR_area_avg, 3),

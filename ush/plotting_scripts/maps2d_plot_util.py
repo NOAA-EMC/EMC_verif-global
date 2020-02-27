@@ -38,7 +38,8 @@ def get_obs_subplot_title(obtype, use_monthly_mean):
             obs_subplot_title = 'CERES Climo.'
     return obs_subplot_title
 
-def calculate_area_average(var_data, lat, lon):
+def calculate_area_average(var_data, lat, lon, lat_min, lat_max,
+                           lon_min, lon_max):
     """! Calculate area average of dataset,
          weighting in the latitude dimension by the difference 
          between the sines of the latitude at the northern and
@@ -49,37 +50,65 @@ def calculate_area_average(var_data, lat, lon):
                  var_data     - array of variable values
                  lat          - array of latitude values 
                  lon          - array of longitude values
- 
+                 lat_max      - float of maximum latitude
+                                to include in averaging
+                 lat_min      - float of minimum latitude
+                                to include in averaging
+                 lon_max      - float of maximum longitude
+                                to include in averaging
+                 lon_min      - float of minimum longitude
+                                to include in averaging
+
              Returns:
                  area_average - float of area average
     """
-    dlat = 181./len(lat)
-    latr = np.deg2rad(lat)
-    mx = np.ma.masked_invalid(var_data)
-    weights = np.empty_like(var_data)
+    dlat = np.diff(lat)[0]
+    dlon = np.diff(lon)[0]
+    mvar_data = np.ma.masked_invalid(var_data)
     weightsum = 0
     arraysum = 0
     for y in range(len(lat)):
-        if lat[y] == -90.0:
-            weights[y,:] = 0
-        elif lat[y] == 90.0:
-            weights[y,:] = 0
-        elif np.cos(latr[y]) != 0:
-            weights[y,:] = (
-                np.sin(np.deg2rad((lat[y] + lat[y+1])/2.))
-                - np.sin(np.deg2rad((lat[y] + lat[y-1])/2.))
-            ) * dlat
+        lat_mid = lat[y]
+        if lat_mid == -90 or lat_mid == 90:
+           weight1 = 0
+        elif lat_mid < lat_min or lat_mid > lat_max:
+           weight1 = 0
+        else:
+           lat_high = lat_mid + dlat
+           if lat_high < -90:
+               lat_high = -90
+           if lat_high < lat_min:
+               lat_high = lat_min
+           if lat_high > 90:
+               lat_high = 90
+           if lat_high > lat_max:
+               lat_high = lat_max
+           lat_low = lat_mid - dlat
+           if lat_low < -90:
+               lat_low = -90
+           if lat_low < lat_min:
+               lat_low = lat_min
+           if lat_low > 90:
+               lat_low = 90
+           if lat_low > lat_max:
+               lat_low = lat_max
+           lat_gridbox_top = (lat_mid + lat_high)/2.
+           lat_gridbox_bottom = (lat_mid + lat_low)/2.
+           weight1 = (
+                np.sin(np.deg2rad(lat_gridbox_top))
+                - np.sin(np.deg2rad(lat_gridbox_bottom))
+           )
         for x in range(len(lon)):
-            if mx[y,x] <= -9999.:
+            if lon[x] < lon_min or lon[x] > lon_max:
+                weight2 = 0
+            else:
+                weight2 = dlon
+            if np.ma.is_masked(mvar_data[y,x]):
                 arraysum = arraysum
                 weightsum = weightsum
             else:
-                if np.ma.is_masked(mx[y,x]) == False:
-                   arraysum = arraysum + (mx[y,x] * weights[y,x])
-                   weightsum = weightsum + weights[y,x]
-                else:
-                   arraysum = arraysum
-                   weightsum = weightsum
+                arraysum = arraysum + (mvar_data[y,x] * (weight1 * weight2))
+                weightsum = weightsum + (weight1 * weight2)
     if arraysum == 0 and weightsum == 0:
         aa_avg = np.nan
     else:

@@ -25,9 +25,9 @@ else:
         hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
         surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
         luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
-        mars_match = re.match(re.compile(r"^m[0-9]{2}[a-z]{1}[0-9]{1}$"),
+        mars_match = re.match(re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
                               hostname)
-        venus_match = re.match(re.compile(r"^v[0-9]{2}[a-z]{1}[0-9]{1}$"),
+        venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
                                hostname)
         if hera_match:
             machine = 'HERA'

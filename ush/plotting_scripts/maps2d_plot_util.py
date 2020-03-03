@@ -212,7 +212,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                   +"at "+var_GRIB_lvl_typ)
             exit(1)
     elif var_name == 'ALBDO': #albedo (%)
-        cmap = plt.cm.CMRmap
+        cmap = plt.cm.cubehelix_r
         if var_GRIB_lvl_typ == '1': #surface
             var_info_title = 'Surface Albedo (%)'
             levels = np.array([5,10,15,20,25,30,35,40,45,50])

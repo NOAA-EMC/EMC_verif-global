@@ -302,7 +302,7 @@ if [ $RUN_MAPS2D = YES ]; then
     #maps2d_model2obs_use_monthly_mean:    for model-to-observations, use monthly mean from datasets, if available (YES) or use climatology generated from datasets (NO)
     #maps2d_anl_name:                      analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
     #maps2d_anl_fileformat_list:           list of analysis file format(s), more than 1 if maps2d_anl_name is self
-    #map2d_regrid_to_grid:                 NCEP grid to regrid data to (format GXXX)
+    #maps2d_regrid_to_grid:                 NCEP grid to regrid data to (format GXXX)
     #maps2d_latlon_area:                   list of lower latitude, upper latitude, start longitude, end longitude
     export maps2d_model_plot_name_list="ops_gfs"
     export maps2d_make_met_data_by="INIT"
@@ -314,7 +314,7 @@ if [ $RUN_MAPS2D = YES ]; then
     export maps2d_model2obs_use_monthly_mean="YES"
     export maps2d_anl_name="self_anl" 
     export maps2d_anl_fileformat_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
-    export map2d_regrid_to_grid="G002"
+    export maps2d_regrid_to_grid="G002"
     export maps2d_latlon_area="-90 90 0 360"
 fi
 

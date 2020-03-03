@@ -210,6 +210,7 @@ for model in model_list:
     model_name = model_dict['name']
     model_plot_name = model_dict['plot_name']
     model_obtype = model_dict['obtype']
+    series_analysis_config_file = series_analysis_config
     # Set up input information
     if verif_case_type == 'model2model':
         if forecast_anl_diff == 'YES' and forecast_to_plot != 'anl':
@@ -282,9 +283,10 @@ for model in model_list:
                                   +var_level.replace(' ', '')+'.log')
         )
         series_analysis_job_file.write('export var_level="'+var_level+'"\n')
-        series_analysis_job_file.write('export obtype_var_name="'
-                                       +obtype_var_name_list[var_level_idx]
-                                       +'"\n')
+        if verif_case_type == 'model2obs':
+            series_analysis_job_file.write('export obtype_var_name="'
+                                           +obtype_var_name_list[var_level_idx]
+                                           +'"\n')
         # extract special grib file information
         (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
             var_GRIB_lvl_val2, var_GRIB1_ptv, var_time_range_accum) = (
@@ -298,6 +300,25 @@ for model in model_list:
                                        +var_GRIB_lvl_val2+'"\n')
         series_analysis_job_file.write('export var_GRIB1_ptv="'
                                        +var_GRIB1_ptv+'"\n')
+        # special case for DSWRF since not in model files, running
+        # obs only
+        if verif_case_type == 'model2obs':
+            if obtype_var_name_list[var_level_idx] == 'sw_toa_down':
+                series_analysis_config_file = (
+                    series_analysis_config_file+'_obsonly'
+                )
+                series_analysis_files = (
+                    '-both '+os.path.join (DATA, RUN, 'data', 'obs',
+                                           model_obtype,
+                                           model_obtype+'_'+forecast_to_plot
+                                           +'_file_list.txt')
+                )
+                series_analysis_log = series_analysis_log.replace(
+                    '.log', '_obsonly.log'
+                )
+                series_analysis_out = series_analysis_out.replace(
+                    '.nc', '_obsonly.nc'
+                )
         if var_time_range_accum != '0':
             series_analysis_job_file.write('export var_time_range_accum="'
                                            +var_time_range_accum+'"\n')
@@ -307,7 +328,7 @@ for model in model_list:
                                        +'-paired '
                                        +series_analysis_log+' '
                                        +series_analysis_out+' '
-                                       +series_analysis_config+'\n')
+                                       +series_analysis_config_file+'\n')
     series_analysis_job_file.close()
     os.chmod(series_analysis_job_filename, 0o755)
 

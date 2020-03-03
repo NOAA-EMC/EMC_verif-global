@@ -903,7 +903,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
     anl_name = os.environ['maps2d_anl_name']
     use_ceres = os.environ['maps2d_model2obs_use_ceres']
     use_monthly_mean = os.environ['maps2d_model2obs_use_monthly_mean']
-    regrid_to_grid = os.environ['map2d_regrid_to_grid']
+    regrid_to_grid = os.environ['maps2d_regrid_to_grid']
     latlon_area = os.environ['maps2d_latlon_area']
     model_info = {}
     nmodels = int(len(model_list))
@@ -1085,7 +1085,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
             vars_cloudsrad_dict = {
                 'DLWRF': ['sfc'],
                 'ULWRF': ['sfc', 'toa'],
-                'DSWRF': ['sfc'],
+                'DSWRF': ['sfc', 'toa'],
                 'USWRF': ['sfc', 'toa'],
                 'TCDC': ['column', 'low', 'mid', 'high'],
             }
@@ -1104,7 +1104,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
             grib_obtype_dict = {
                 'DLWRF': ['lw_sfc_down'],
                 'ULWRF': ['lw_sfc_up', 'lw_toa_up'],
-                'DSWRF': ['sw_sfc_down'],
+                'DSWRF': ['sw_sfc_down', 'sw_toa_down'],
                 'USWRF': ['sw_sfc_up', 'sw_toa_up'],
                 'TCDC': ['cldt', 'cldl', 'cldm', 'cldh'],
                 'TMP': ['air'],
@@ -1246,7 +1246,8 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                             'python '
                             +os.path.join(USHverif_global,
                                           'plotting_scripts',
-                                          'plot_maps2d_zonal_mean_errors'
+                                          'plot_maps2d_model2model'
+                                          +'_zonal_mean_errors'
                                           +'.py\n')
                         )
                     job_file.write('nimgs=$(ls '

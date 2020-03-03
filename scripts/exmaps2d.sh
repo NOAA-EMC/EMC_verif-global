@@ -1,10 +1,10 @@
 #!/bin/sh
-# Program Name: tropcyc
+# Program Name: maps2d
 # Author(s)/Contact(s): Mallory Row
 # Abstract: Create plots for mean error comparisons
 #           between model-to-model and model to observations
 # History Log:
-#   12/2019: Initial version of script
+#   02/2020: Initial version of script
 # 
 # Usage:
 #   Parameters: 

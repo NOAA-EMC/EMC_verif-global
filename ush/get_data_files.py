@@ -274,7 +274,15 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_suffix, link_data_dir):
         # no cyclone track files
         hpss_date_dir = os.path.join(hpss_dir, 'rh'+YYYY, YYYYmm,
                                      YYYYmmdd)
-        if int(YYYYmmdd) >= 20190612:
+        if int(YYYYmmdd) >= 20200226:
+            hpss_tar = os.path.join(hpss_date_dir,
+                                    'com_gfs_prod_gfs.'
+                                    +YYYYmmdd+'_'+HH+'.gfs_pgrb2.tar')
+            hpss_file = (
+                'gfs.'+YYYYmmdd+'/'+HH+'/gfs.t'+HH
+                +'z.pgrb2.0p25.'+hpss_file_suffix
+                )
+        elif int(YYYYmmdd) >= 20190612 and int(YYYYmmdd) < 20200226: 
             hpss_tar = os.path.join(hpss_date_dir,
                                     'gpfs_dell1_nco_ops_com_gfs_prod_gfs.'
                                     +YYYYmmdd+'_'+HH+'.gfs_pgrb2.tar')
@@ -761,7 +769,15 @@ elif RUN == 'grid2obs_step1':
                 hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                              'rh'+YYYY, YYYYmm,
                                              YYYYmmdd)
-                if int(YYYYmmdd) >= 20190612:
+                if int(YYYYmmdd) >= 20200226:
+                    hpss_tar_file = (
+                        'com_gfs_prod_gdas.'
+                        +YYYYmmdd+'_'+HH+'.gdas.tar'
+                    )
+                    hpss_file = (
+                        'gdas.'+YYYYmmdd+'/'+HH+'/gdas.t'+HH+'z.prepbufr'
+                    )
+                elif int(YYYYmmdd) >= 20190612 and int(YYYYmmdd) < 20200226:
                     hpss_tar_file = (
                         'gpfs_dell1_nco_ops_com_gfs_prod_gdas.'
                         +YYYYmmdd+'_'+HH+'.gdas.tar'
@@ -820,7 +836,14 @@ elif RUN == 'grid2obs_step1':
                                                 'rh'+offset_YYYY,
                                                 offset_YYYYmm,
                                                 offset_YYYYmmdd)
-                   if int(offset_YYYYmmdd) > 20190820:
+                   if int(offset_YYYYmmdd) >= 20200227:
+                       hpss_tar_file = (
+                           'com_nam_prod_nam.'
+                           +offset_YYYYmmddHH+'.bufr.tar'
+                       )
+                       hpss_file = 'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
+                   elif (int(offset_YYYYmmdd) >= 20190820
+                           and int(offset_YYYYmmdd) < 20200227):
                        hpss_tar_file = (
                            'gpfs_dell1_nco_ops_com_nam_prod_nam.'
                            +offset_YYYYmmddHH+'.bufr.tar'
@@ -1333,15 +1356,20 @@ elif RUN == 'precip_step1':
             hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                          'rh'+YYYY, YYYYmm,
                                          YYYYmmdd)
-            if int(YYYYmmdd) >= 20200126:
+            if int(YYYYmmdd) >= 20200226:
                 hpss_tar = os.path.join(hpss_date_dir,
-                                        'gpfs_dell1_nco_ops_com_'
+                                        'com_'
                                          +'verf_prod_precip'
                                          +YYYYmmdd+'.precip.tar')
+            elif int(YYYYmmdd) >= 20200126 and int(YYYYmmdd) < 20200226:
+                hpss_tar = os.path.join(hpss_date_dir,
+                                        'gpfs_dell1_nco_ops_com_'
+                                        +'verf_prod_precip'
+                                        +YYYYmmdd+'.precip.tar')
             else:
                 hpss_tar = os.path.join(hpss_date_dir,
                                         'com_verf_prod_precip.'
-                                         +YYYYmmdd+'.precip.tar')
+                                        +YYYYmmdd+'.precip.tar')
             hpss_file = 'ccpa.'+YYYYmmdd+'12.24h'
         else:
             print("ERROR: "+obtype+" for observations with "

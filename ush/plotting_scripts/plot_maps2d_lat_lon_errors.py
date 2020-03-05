@@ -356,8 +356,8 @@ for var_level in var_levels:
                 )
             if np.ma.is_masked(model_data_series_cnt_FBAR):
                 np.ma.set_fill_value(model_data_series_cnt_FBAR, np.nan)
-                model_data_series_cnt_OBAR = (
-                    model_data_series_cnt_OBAR.filled()
+                model_data_series_cnt_FBAR = (
+                    model_data_series_cnt_FBAR.filled()
                 )
             if np.ma.is_masked(model_data_series_cnt_OBAR):
                 np.ma.set_fill_value(model_data_series_cnt_OBAR, np.nan)

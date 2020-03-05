@@ -159,8 +159,8 @@ for env_var_model in env_var_model_list:
                 )
             if np.ma.is_masked(model_data_series_cnt_FBAR):
                 np.ma.set_fill_value(model_data_series_cnt_FBAR, np.nan)
-                model_data_series_cnt_OBAR = (
-                    model_data_series_cnt_OBAR.filled()
+                model_data_series_cnt_FBAR = (
+                    model_data_series_cnt_FBAR.filled()
                 )
             if np.ma.is_masked(model_data_series_cnt_OBAR):
                 np.ma.set_fill_value(model_data_series_cnt_OBAR, np.nan)

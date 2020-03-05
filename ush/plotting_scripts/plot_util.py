@@ -266,7 +266,7 @@ def get_clevels(data):
     else:
        cmin = round(cmin-0.1,1)
        cmax = round(cmax+0.1,1)
-    clevels = np.linspace(cmin, cmax, 11, endpoint=True)
+    clevels = np.around(np.linspace(cmin, cmax, 11, endpoint=True), decimals=3)
     return clevels
 
 def calculate_average(logger, average_method, stat, model_dataframe,

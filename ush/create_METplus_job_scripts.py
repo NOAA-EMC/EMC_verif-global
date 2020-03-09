@@ -47,6 +47,8 @@ elif RUN == 'precip_step2':
     case = 'precip'
 elif RUN == 'maps2d':
     type_list = os.environ['maps2d_type_list'].split(' ')
+elif RUN == 'mapsda':
+    type_list = os.environ['mapsda_type_list'].split(' ')
 model_list = os.environ['model_list'].split(' ')
 model_arch_dir_list = os.environ['model_arch_dir_list'].split(' ')
 start_date = os.environ['start_date']
@@ -888,7 +890,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
         os.environ['maps2d_model_plot_name_list'].split(' ')
     )
     if len(model_plot_name_list) != len(model_list):
-        print("model_list and maps2_model_plot_name_list "
+        print("model_list and maps2d_model_plot_name_list "
               +"not of equal length")
         exit(1)
     make_met_data_by = os.environ['maps2d_make_met_data_by']
@@ -1214,7 +1216,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                         'python '
                         +os.path.join(
                             USHverif_global,
-                           'create_MET_series_analysis_jobs_for_maps2d.py\n'
+                           'create_MET_series_analysis_jobs.py\n'
                         )
                     )
                     for model in model_list:
@@ -1267,6 +1269,196 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                     job_file.write('fi')
                     job_file.close()
 
+def create_job_script_mapsda(sdate, edate, model_list, type_list):
+    """! Writes out job cards based on requested verification
+         for mapsda verification
+
+         Args:
+             sdate      - datetime object of the verification start
+                          date
+             edate      - datetime object of the verification end
+                          date
+             model_list - list of strings of model names
+             type_list  - list of strings of the types of the
+                          verification use case
+
+         Returns:
+    """
+    model_plot_name_list = (
+        os.environ['mapsda_model_plot_name_list'].split(' ')
+    )
+    if len(model_plot_name_list) != len(model_list):
+        print("model_list and mapsda_model_plot_name_list "
+              +"not of equal length")
+    make_met_data_by = os.environ['mapsda_make_met_data_by']
+    plot_by = make_met_data_by
+    hr_beg = os.environ['mapsda_hr_beg']
+    hr_end = os.environ['mapsda_hr_end']
+    hr_inc = os.environ['mapsda_hr_inc']
+    regrid_to_grid = os.environ['mapsda_regrid_to_grid']
+    latlon_area = os.environ['mapsda_latlon_area']
+    model_info = {}
+    nmodels = int(len(model_list))
+    for model in model_list:
+        index = model_list.index(model)
+        model_num = index + 1
+        model_info['model'+str(model_num)] = model
+        model_info['model'+str(model_num)+'_plot_name'] = (
+            model_plot_name_list[index]
+        )
+    njob = 0
+    for type in type_list:
+        extra_env_info = {}
+        extra_env_info['verif_case_type'] = type
+        if nmodels > 8:
+            print("Too many models listed in model_list. "
+                  +"Current maximum is 8.")
+            exit(1)
+        if type == 'gdas':
+            forecast_to_plot_list = [os.environ['mapsda_gdas_guess_hour']]
+            vars_preslevs_dict = {
+                'TMP': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                        '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                        '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
+                'UGRD': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
+                'VGRD': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
+                'RH': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                       '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                       '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
+                'CLWMR': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                          '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                          '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
+                'O3MR': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
+                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
+                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa']
+            }
+            vars_sfc_dict = {
+                'MSLET': ['msl']
+            }
+            all_vars_dict = {
+                'preslevs': vars_preslevs_dict,
+                'sfc': vars_sfc_dict,
+            }
+        for vars_dict in list(all_vars_dict.keys()):
+            # Set up image directories
+            var_group_name_plot_out_dir = os.path.join(
+                DATA, RUN, 'metplus_output',
+                'plot_by_'+plot_by, type, vars_dict, 'imgs'
+            )
+            if not os.path.exists(var_group_name_plot_out_dir):
+                os.makedirs(var_group_name_plot_out_dir)
+            for var_name, var_levels in all_vars_dict[vars_dict].items():
+                # Set mapsda_type obtypes
+                for model in model_list:
+                    index = model_list.index(model)
+                    model_num = index + 1
+                    # Set up output directories
+                    var_group_name_make_met_out_dir = os.path.join(
+                        DATA, RUN, 'metplus_output',
+                        'make_met_data_by_'+make_met_data_by,
+                        'series_analysis', type, vars_dict, model
+                    )
+                    if not os.path.exists(var_group_name_make_met_out_dir):
+                        os.makedirs(var_group_name_make_met_out_dir)
+                    model_info['model'+str(model_num)+'_obtype'] = (
+                        model+'_anl'
+                    )
+                for forecast_to_plot in forecast_to_plot_list:
+                    njob+=1
+                    # Create job file
+                    job_filename = os.path.join(DATA, RUN,
+                                                'metplus_job_scripts',
+                                                'job'+str(njob))
+                    job_file = open(job_filename, 'w')
+                    set_job_common_env(job_file)
+                    job_file.write('export START_DATE="'
+                                   +sdate.strftime('%Y%m%d')+'"\n')
+                    job_file.write('export END_DATE="'
+                                   +edate.strftime('%Y%m%d')+'"\n')
+                    job_file.write('export job_num_id="'+str(njob)+'"\n')
+                    job_file.write('export make_met_data_by="'
+                                   +make_met_data_by+'"\n')
+                    job_file.write('export plot_by="'+plot_by+'"\n')
+                    job_file.write('export forecast_to_plot="'
+                                   +forecast_to_plot+'"\n')
+                    job_file.write('export hr_beg="'+hr_beg+'"\n')
+                    job_file.write('export hr_end="'+hr_end+'"\n')
+                    job_file.write('export hr_inc="'+hr_inc+'"\n')
+                    job_file.write('export regrid_to_grid="'
+                                   +regrid_to_grid+'"\n')
+                    job_file.write('export latlon_area="'
+                                   +latlon_area+'"\n')
+                    job_file.write('export var_group_name="'
+                                   +vars_dict+'"\n')
+                    job_file.write('export var_name="'+var_name+'"\n')
+                    job_file.write('export var_levels="'
+                                   +' '.join(var_levels).replace(' ', ', ')
+                                   +'"\n')
+                    for name, value in model_info.items():
+                        job_file.write('export '+name+'="'+value+'"\n')
+                    for name, value in extra_env_info.items():
+                        job_file.write('export '+name+'="'+value+'"\n')
+                    job_file.write('\n')
+                    job_file.write(
+                        'python '
+                        +os.path.join(
+                            USHverif_global,
+                           'create_MET_series_analysis_jobs.py\n'
+                        )
+                    )
+                    for model in model_list:
+                        job_file.write(os.path.join(DATA, RUN,
+                                                    'metplus_job_scripts',
+                                                    'series_analysis_'
+                                                    +'job'+str(njob)+'_'
+                                                    +model+'.sh')+'\n')
+                    # Need to switch python modules to use Basemap
+                    if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+                        job_file.write(
+                            'module switch python/3.6.3\n'
+                        )
+                        job_file.write(
+                            'export py_map_pckg="cartopy"\n'
+                        )
+                    else:
+                        job_file.write(
+                            'export py_map_pckg="basemap"\n'
+                        )
+                    job_file.write(
+                        'python '+os.path.join(USHverif_global,
+                                               'plotting_scripts',
+                                               'plot_mapsda_lat_lon_errors'
+                                               +'.py\n')
+                    )
+                    if vars_dict == 'preslevs':
+                        job_file.write(
+                            'python '
+                            +os.path.join(USHverif_global,
+                                          'plotting_scripts',
+                                          'plot_mapsda_zonal_mean_errors'
+                                          +'.py\n')
+                        )
+                    job_file.write('nimgs=$(ls '
+                           +os.path.join(DATA, RUN, 'metplus_output',
+                                         'plot_by_'+plot_by, type, vars_dict,
+                                         'imgs', '*')
+                           +' |wc -l)\n')
+                    job_file.write('if [ $nimgs -ne 0 ]; then\n')
+                    job_file.write(
+                         '    ln -sf '
+                         +os.path.join(DATA, RUN, 'metplus_output',
+                                       'plot_by_'+plot_by, type, vars_dict,
+                                       'imgs', '*')+' '
+                         +os.path.join(DATA, RUN, 'metplus_output',
+                                       'images/.')+'\n'
+                    )
+                    job_file.write('fi')
+                    job_file.close() 
+                   
 # Run job creation function
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
@@ -1293,6 +1485,8 @@ elif RUN in ['tropcyc']:
     create_job_script_tropcyc(model_list, storm_list)
 elif RUN in ['maps2d']:
     create_job_script_maps2d(sdate, edate, model_list, type_list)
+elif RUN in ['mapsda']:
+    create_job_script_mapsda(sdate, edate, model_list, type_list)
 
 # If running MPMD, create POE scripts
 if MPMD == 'YES':

@@ -102,14 +102,9 @@ if [ $RUN_MAPS2D = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exmaps2d.sh
 fi
 
-if [ $RUN_MAPSGDAS = YES ] ; then
+if [ $RUN_MAPSDA = YES ] ; then
     echo
-    echo "===== GDAS MAP PLOTTING VERIFICATION IS NOT SUPPORTED AT THIS TIME ====="
-    export RUN="mapsgdas"
-fi
-
-if [ $RUN_MAPSENKF = YES ] ; then
-    echo
-    echo "===== ENKF MAP PLOTTING VERIFICATION IS NOT SUPPORTED AT THIS TIME ====="
-    export RUN="mapsenkf"
+    echo "===== RUNNING GDAS ANALYSIS COMAPRISON VERIFICATION  ====="
+    export RUN="mapsda"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exmapsda.sh
 fi

@@ -383,6 +383,19 @@ elif RUN == 'maps2d':
     env_var_dict['maps2d_hr_beg'] = str(hr_beg).zfill(2)
     env_var_dict['maps2d_hr_end'] = str(hr_end).zfill(2)
     env_var_dict['maps2d_hr_inc'] = str(hr_inc)
+elif RUN == 'mapsda': 
+    by = os.environ['mapsda_make_met_data_by']
+    hr_list = os.environ['mapsda_hour_list'].split(' ')
+    gdas_guess_hour = os.environ['mapsda_gdas_guess_hour']
+    nhr = len(hr_list)
+    hr_beg = hr_list[0]
+    hr_end = hr_list[-1]
+    hr_inc = int((24/nhr)*3600)
+    env_var_dict['mapsda_make_met_data_by'] = by
+    env_var_dict['mapsda_hr_beg'] = str(hr_beg).zfill(2)
+    env_var_dict['mapsda_hr_end'] = str(hr_end).zfill(2)
+    env_var_dict['mapsda_hr_inc'] = str(hr_inc)
+    env_var_dict['mapsda_gdas_guess_hour'] = str(gdas_guess_hour.zfill(2))
 
 # Create file with environment variables to source
 with open('python_gen_env_vars.sh', 'a') as file:

@@ -321,8 +321,8 @@ if [ $RUN_MAPSDA = YES ]; then
     #mapsda_make_met_data_by:                   mapsda override for make_met_data above, how to treat dates, "VALID" or "INIT"
     #mapsda_type_list:                          list type of verifications to run for mapsda: gdas
     #mapsda_hour_list:                          all hours to be included in verification: HH, hours treated according to mapsda_make_met_data_by
-    #mapsda_regrid_to_grid:                     NCEP grid to regrid data to (format GXXX)
     #mapsda_latlon_area:                        list of lower latitude, upper latitude, start longitude, end longitude
+    #mapsda_gdas_regrid_to_grid:                     NCEP grid to regrid data to (format GXXX)
     #mapsda_gdas_guess_hour:                    forecast hour from last GDAS cycle used as first guess
     #mapsda_gdas_model_fileformat_list:         file format of model files for GDAS maps
     #mapsda_gdas_anl_fileformat_list:           file format of analysis files for GDAS maps
@@ -330,8 +330,8 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_make_met_data_by="VALID"
     export mapsda_type_list="gdas"
     export mapsda_hour_list="00 06 12 18"
-    export mapsda_regrid_to_grid="G002"
     export mapsda_latlon_area="-90 90 0 360"
+    export mapsda_gdas_regrid_to_grid="G002"
     export mapsda_gdas_guess_hour="06"
     export mapsda_gdas_model_fileformat_list="pgbf{lead?fmt=%H}.gdas.{init?fmt=%Y%m%d%H}"
     export mapsda_gdas_anl_fileformat_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"

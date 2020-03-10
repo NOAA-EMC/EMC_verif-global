@@ -1295,7 +1295,7 @@ def create_job_script_mapsda(sdate, edate, model_list, type_list):
     hr_beg = os.environ['mapsda_hr_beg']
     hr_end = os.environ['mapsda_hr_end']
     hr_inc = os.environ['mapsda_hr_inc']
-    regrid_to_grid = os.environ['mapsda_regrid_to_grid']
+    regrid_to_grid = os.environ['mapsda_gdas_regrid_to_grid']
     latlon_area = os.environ['mapsda_latlon_area']
     model_info = {}
     nmodels = int(len(model_list))

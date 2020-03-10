@@ -2368,7 +2368,7 @@ elif RUN == 'mapsda':
         os.environ['mapsda_gdas_model_fileformat_list'].split(' ')
     )
     gdas_anl_fileformat_list = (
-        os.environ['maps2d_gdas_anl_fileformat_list'].split(' ')
+        os.environ['mapsda_gdas_anl_fileformat_list'].split(' ')
     )
     # Go through type list
     for type in type_list:

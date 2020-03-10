@@ -334,7 +334,7 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_latlon_area="-90 90 0 360"
     export mapsda_gdas_guess_hour="06"
     export mapsda_gdas_model_fileformat_list="pgbf{lead?fmt=%H}.gdas.{init?fmt=%Y%m%d%H}"
-    export maps2d_gdas_anl_fileformat_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"
+    export mapsda_gdas_anl_fileformat_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

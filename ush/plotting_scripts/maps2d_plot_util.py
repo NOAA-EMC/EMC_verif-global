@@ -834,7 +834,17 @@ def get_maps2d_plot_settings(var_name, var_level):
             exit(1)
     elif var_name == 'SPFH': #specific humidity (kg kg-1)
         cmap = plt.cm.Greens
-        if var_GRIB_lvl_typ == '105': #height level above ground (m)
+        if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
+            var_info_title = (
+                var_level+' Specific Humidity '
+                '(g 'r'$\mathregular{kg^{-1}}$'')'
+            )
+            levels = np.array([1,2,4,6,8,10,12,14,16,18])
+            levels_diff = np.array(
+                [-3,-2,-1,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,1,2,3]
+            )
+            var_scale = 1000
+        elif var_GRIB_lvl_typ == '105': #height level above ground (m)
             var_info_title = (
                 var_level.replace('mAGL', '')
                 +'m Above Ground Specific Humidity '

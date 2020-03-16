@@ -165,19 +165,26 @@ elif RUN == 'maps2d':
                         'series_analysis', type)
         )
 elif RUN == 'mapsda':
-    make_met_data_by = os.environ['mapsda_make_met_data_by']
-    plot_by = make_met_data_by
-    metplus_output_subdir_list.append(
-       os.path.join('plot_by_'+plot_by)
-    )
     metplus_output_subdir_list.append(
        'images'
     )
     for type in os.environ['mapsda_type_list'].split(' '):
-        metplus_output_subdir_list.append(
-           os.path.join('make_met_data_by_'+make_met_data_by,
-                        'series_analysis', type)
-        )
+        if type == 'gdas':
+            make_met_data_by = os.environ['mapsda_gdas_make_met_data_by']
+            plot_by = make_met_data_by
+            metplus_output_subdir_list.append(
+                os.path.join('plot_by_'+plot_by)
+            )
+            metplus_output_subdir_list.append(
+               os.path.join('make_met_data_by_'+make_met_data_by,
+                            'series_analysis', type)
+            )
+        elif type == 'ens':
+            make_met_data_by = os.environ['mapsda_ens_make_met_data_by']
+            plot_by = make_met_data_by
+            metplus_output_subdir_list.append(
+                os.path.join('plot_by_'+plot_by)
+            )
 
 # Create METplus output subdirectories
 for subdir in metplus_output_subdir_list:

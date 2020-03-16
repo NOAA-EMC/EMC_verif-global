@@ -324,15 +324,28 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_prefix,
                 hpss_file_prefix+'.t'+HH+'z.pgrb2.0p25.'
                 +hpss_file_suffix
             )
+        if hpss_file_prefix == 'enkfgdas':
+            hpss_tar = hpss_tar.replace('_pgrb2.tar', '.tar') \
+                       .replace('.pgrb2_0p25.tar', '.tar')
+            hpss_file = hpss_file.replace('pgrb2.0p25.','') \
+                        .replace(hpss_file_prefix+'.t', 'gdas.t')
     else:
         if hpss_file_prefix == 'gfs':
             hpss_tar = os.path.join(hpss_dir, name, YYYYmmddHH, 'gfsa.tar')
         elif hpss_file_prefix == 'gdas':
             hpss_tar = os.path.join(hpss_dir, name, YYYYmmddHH, 'gdas.tar')
+        elif hpss_file_prefix == 'enkfgdas':
+            hpss_tar = os.path.join(hpss_dir, name, YYYYmmddHH,
+                                    'enkfgdas.tar')
         if hpss_file_suffix == 'cyclone.trackatcfunix':
             hpss_file = ( 
                 hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/'
                 +'avno.t'+HH+'z.'+hpss_file_suffix
+            )
+        elif hpss_file_prefix == 'enkfgdas':
+            hpss_file = (
+                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/'
+                +'gdas.t'+HH+'z.'+hpss_file_suffix
             )
         else:
             hpss_file = (
@@ -2359,10 +2372,10 @@ elif RUN == 'maps2d':
 elif RUN == 'mapsda':
     # Read in environment variables
     type_list = os.environ['mapsda_type_list'].split(' ')
-    make_met_data_by = os.environ['mapsda_make_met_data_by']
     start_hr = os.environ['mapsda_hr_beg']
     end_hr = os.environ['mapsda_hr_end']
     hr_inc = os.environ['mapsda_hr_inc']
+    gdas_make_met_data_by = os.environ['mapsda_gdas_make_met_data_by']
     gdas_guess_hour = os.environ['mapsda_gdas_guess_hour']
     gdas_model_fileformat_list = (
         os.environ['mapsda_gdas_model_fileformat_list'].split(' ')
@@ -2370,195 +2383,199 @@ elif RUN == 'mapsda':
     gdas_anl_fileformat_list = (
         os.environ['mapsda_gdas_anl_fileformat_list'].split(' ')
     )
+    ens_make_met_data_by = os.environ['mapsda_ens_make_met_data_by']
+    ens_guess_hour = os.environ['mapsda_ens_guess_hour']
+    ens_model_dir_list = os.environ['mapsda_ens_model_dir_list'].split(' ')
+    ens_netcdf_suffix_list = (
+        os.environ['mapsda_ens_netcdf_suffix_list'].split(' ')
+    )
     # Go through type list
     for type in type_list:
         if type == 'gdas':
             forecast_to_plot_list = [gdas_guess_hour]
-            model_fileformat_list = gdas_model_fileformat_list
-            anl_fileformat_list = gdas_anl_fileformat_list
+            make_met_data_by = gdas_make_met_data_by
+            model_data_run_hpss = model_data_run_hpss
+        elif type == 'ens':
+            forecast_to_plot_list = [ens_guess_hour]
+            make_met_data_by = ens_make_met_data_by
+            model_data_run_hpss = os.environ['mapsda_ens_model_data_runhpss']
         # Get date and time information
         time_info = get_time_info(start_date, end_date, start_hr, end_hr,
                                   hr_inc, forecast_to_plot_list,
                                   make_met_data_by)
-        # Get model forecast files
-        cwd = os.getcwd()
-        for name in model_list:
-            index = model_list.index(name)
-            dir = model_dir_list[index]
-            file_format = model_fileformat_list[index]
-            if 'gfs' in file_format:
-                dump = 'gfs'
-            elif 'gdas' in file_format:
-                dump = 'gdas'
-            hpss_dir = model_hpssdir_list[index]
-            link_model_data_dir = os.path.join(cwd, 'data', name)
-            if not os.path.exists(link_model_data_dir):
-                os.makedirs(link_model_data_dir)
-                os.makedirs(
-                    os.path.join(link_model_data_dir, 'HPSS_jobs')
-                )
+        if type == 'gdas':
+            model_fileformat_list = gdas_model_fileformat_list
+            anl_fileformat_list = gdas_anl_fileformat_list
+            # Get model forecast files
+            cwd = os.getcwd()
+            for name in model_list:
+                index = model_list.index(name)
+                dir = model_dir_list[index]
+                file_format = model_fileformat_list[index]
+                if 'gfs' in file_format:
+                    dump = 'gfs'
+                elif 'gdas' in file_format:
+                    dump = 'gdas'
+                hpss_dir = model_hpssdir_list[index]
+                link_model_data_dir = os.path.join(cwd, 'data', name)
+                if not os.path.exists(link_model_data_dir):
+                    os.makedirs(link_model_data_dir)
+                    os.makedirs(
+                        os.path.join(link_model_data_dir, 'HPSS_jobs')
+                    )
+                for time in time_info:
+                    valid_time = time['validtime']
+                    init_time = time['inittime']
+                    lead = time['lead']
+                    if init_time.strftime('%H') in ['03', '09', '15', '21']:
+                        continue
+                    else:
+                        link_model_forecast_file = os.path.join(
+                            link_model_data_dir,
+                            'f'+lead+'.'+init_time.strftime('%Y%m%d%H')
+                        )
+                        if not os.path.exists(link_model_forecast_file):
+                            model_forecast_filename = format_filler(
+                                file_format, valid_time, init_time, lead
+                            )
+                            model_forecast_file = os.path.join(
+                                dir, name, model_forecast_filename
+                            )
+                            if os.path.exists(model_forecast_file):
+                                if 'grib2' in model_forecast_file:
+                                    convert_grib2_grib1(
+                                        model_forecast_file,
+                                        link_model_forecast_file
+                                    )
+                                else:
+                                    os.system('ln -sf '
+                                              +model_forecast_file+' '
+                                              +link_model_forecast_file)
+                            else:
+                                if model_data_run_hpss == 'YES':
+                                    print("Did not find "
+                                          +model_forecast_file+" "
+                                          +"online...going to try "
+                                          +"to get file from HPSS")
+                                    hpss_tar, hpss_file, hpss_job_filename = (
+                                        set_up_gfs_hpss_info(
+                                            init_time, hpss_dir, dump,
+                                            'f'+lead.zfill(3),
+                                            link_model_data_dir
+                                        )
+                                    )
+                                    get_hpss_data(hpss_job_filename,
+                                                  link_model_data_dir,
+                                                  link_model_forecast_file,
+                                                  hpss_tar, hpss_file)
+                        if not os.path.exists(link_model_forecast_file):
+                            if model_data_run_hpss == 'YES':
+                                print("WARNING: "+model_forecast_file+" "
+                                      +"does not exist and did not find "
+                                      +"HPSS file "+hpss_file+" from "
+                                      +hpss_tar+" or walltime exceeded")
+                            else:
+                                print("WARNING: "+model_forecast_file+" "
+                                      +"does not exist")
+            # Get model "truth" files
+            valid_time_list = []
             for time in time_info:
                 valid_time = time['validtime']
-                init_time = time['inittime']
-                lead = time['lead']
-                print(str(lead)+' '+str(init_time)+' '+str(valid_time))
-                if init_time.strftime('%H') in ['03', '09', '15', '21']:
-                    continue
+                if valid_time not in valid_time_list:
+                    valid_time_list.append(valid_time)
+            for name in model_list:
+                index = model_list.index(name)
+                dir = model_dir_list[index]
+                if len(anl_fileformat_list) == 1:
+                    anl_file_format = anl_fileformat_list[0]
                 else:
-                    link_model_forecast_file = os.path.join(
-                        link_model_data_dir,
-                        'f'+lead+'.'+init_time.strftime('%Y%m%d%H')
+                    anl_file_format = anl_fileformat_list[index]
+                if 'gfs' in anl_file_format:
+                    anl_dump = 'gfs'
+                elif 'gdas' in anl_file_format:
+                    anl_dump = 'gdas'
+                hpss_dir = model_hpssdir_list[index]
+                link_model_data_dir = os.path.join(cwd, 'data', name)
+                if not os.path.exists(link_model_data_dir):
+                    os.makedirs(link_model_data_dir)
+                    os.makedirs(
+                        os.path.join(link_model_data_dir, 'HPSS_jobs')
                     )
-                    if not os.path.exists(link_model_forecast_file):
-                        model_forecast_filename = format_filler(file_format,
-                                                                valid_time,
-                                                                init_time,
-                                                                lead)
-                        model_forecast_file = os.path.join(
-                            dir, name, model_forecast_filename
-                        )
-                        if os.path.exists(model_forecast_file):
-                            if 'grib2' in model_forecast_file:
-                                convert_grib2_grib1(model_forecast_file,
-                                                    link_model_forecast_file)
+                for valid_time in valid_time_list:
+                    link_anl_file = os.path.join(
+                        link_model_data_dir,
+                        'anl.'+valid_time.strftime('%Y%m%d%H')
+                    )
+                    if not os.path.exists(link_anl_file):
+                        anl_filename = format_filler(anl_file_format,
+                                                     valid_time,
+                                                     init_time, lead)
+                        anl_dir = os.path.join(dir, name)
+                        anl_file = os.path.join(anl_dir, anl_filename)
+                        if os.path.exists(anl_file):
+                            if 'grib2' in anl_file:
+                                convert_grib2_grib1(anl_file,
+                                                    link_anl_file)
                             else:
-                                os.system('ln -sf '+model_forecast_file+' '
-                                          +link_model_forecast_file)
+                                os.system('ln -sf '+anl_file+' '
+                                          +link_anl_file)
                         else:
                             if model_data_run_hpss == 'YES':
-                                print("Did not find "+model_forecast_file+" "
+                                print("Did not find "+anl_file+" "
                                       +"online...going to try to get file "
                                       +"from HPSS")
+                                hpss_dir = hpss_dir
                                 hpss_tar, hpss_file, hpss_job_filename = (
-                                    set_up_gfs_hpss_info(init_time, hpss_dir,
-                                                         dump,
-                                                         'f'+lead.zfill(3),
-                                                         link_model_data_dir)
+                                    set_up_gfs_hpss_info(
+                                         valid_time, hpss_dir, anl_dump,
+                                         'anl', link_model_data_dir
+                                    )
                                 )
                                 get_hpss_data(hpss_job_filename,
                                               link_model_data_dir,
-                                              link_model_forecast_file,
+                                              link_anl_file,
                                               hpss_tar, hpss_file)
-                    if not os.path.exists(link_model_forecast_file):
+                    if not os.path.exists(link_anl_file):
                         if model_data_run_hpss == 'YES':
-                            print("WARNING: "+model_forecast_file+" "
-                                  +"does not exist and did not find "
-                                  +"HPSS file "+hpss_file+" from "
-                                  +hpss_tar+" or walltime exceeded")
+                            error_msg = ('WARNING: '+anl_file+' does not '
+                                         +'exist and did not find HPSS file '
+                                         +hpss_file+' from '+hpss_tar+' or '
+                                         +'walltime exceeded')
                         else:
-                            print("WARNING: "+model_forecast_file+" "
-                                  +"does not exist")
-        # Get model "truth" files
-        valid_time_list = []
-        for time in time_info:
-            valid_time = time['validtime']
-            if valid_time not in valid_time_list:
-                valid_time_list.append(valid_time)
-        for name in model_list:
-            index = model_list.index(name)
-            dir = model_dir_list[index]
-            if len(anl_fileformat_list) == 1:
-                anl_file_format = anl_fileformat_list[0]
-            else:
-                anl_file_format = anl_fileformat_list[index]
-            if 'gfs' in anl_file_format:
-                anl_dump = 'gfs'
-            elif 'gdas' in anl_file_format:
-                anl_dump = 'gdas'
-            hpss_dir = model_hpssdir_list[index]
-            link_model_data_dir = os.path.join(cwd, 'data', name)
-            if not os.path.exists(link_model_data_dir):
-                os.makedirs(link_model_data_dir)
-                os.makedirs(
-                    os.path.join(link_model_data_dir, 'HPSS_jobs')
-                )
-            for valid_time in valid_time_list:
-                link_anl_file = os.path.join(
-                    link_model_data_dir,
-                    'anl.'+valid_time.strftime('%Y%m%d%H')
-                )
-                if not os.path.exists(link_anl_file):
-                    anl_filename = format_filler(anl_file_format,
-                                                 valid_time,
-                                                 init_time, lead)
-                    anl_dir = os.path.join(dir, name)
-                    anl_file = os.path.join(anl_dir, anl_filename)
-                    if os.path.exists(anl_file):
-                        if 'grib2' in anl_file:
-                            convert_grib2_grib1(anl_file,
-                                                link_anl_file)
-                        else:
-                            os.system('ln -sf '+anl_file+' '+link_anl_file)
+                            error_msg = 'WARNING: '+anl_file+' does not exist'
+                        print(error_msg)
+                        error_dir = os.path.join(link_model_data_dir)
+                        error_file = os.path.join(
+                            error_dir,
+                            'error_anl_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
+                        )
+                        if not os.path.exists(error_file):
+                            with open(error_file, 'a') as file:
+                                file.write(error_msg)
+            # Create file lists for MET's series_analysis
+            for forecast_to_plot in forecast_to_plot_list:
+                print("Creating model file lists for MET's "
+                      +"series_analysis for "+forecast_to_plot+" and "
+                      +"analysis")
+                time_info = get_time_info(start_date, end_date,
+                                          start_hr, end_hr, hr_inc,
+                                          [forecast_to_plot],
+                                          make_met_data_by)
+                for time in time_info:
+                    valid_time = time['validtime']
+                    init_time = time['inittime']
+                    lead = time['lead']
+                    if init_time.strftime('%H') in ['03', '09', '15', '21']:
+                        continue
                     else:
-                        if model_data_run_hpss == 'YES':
-                            print("Did not find "+anl_file+" "
-                                  +"online...going to try to get file "
-                                  +"from HPSS")
-                            hpss_dir = hpss_dir
-                            hpss_tar, hpss_file, hpss_job_filename = (
-                                    set_up_gfs_hpss_info(valid_time, hpss_dir,
-                                                         anl_dump, 'anl',
-                                                         link_model_data_dir)
-                            )
-                            get_hpss_data(hpss_job_filename,
-                                          link_model_data_dir, link_anl_file,
-                                          hpss_tar, hpss_file)
-                if not os.path.exists(link_anl_file):
-                     if model_data_run_hpss == 'YES':
-                         error_msg = ('WARNING: '+anl_file+' does not exist '
-                                      +'and did not find HPSS file '
-                                      +hpss_file+' from '+hpss_tar+' or '
-                                      +'walltime exceeded')
-                     else:
-                         error_msg = 'WARNING: '+anl_file+' does not exist'
-                     print(error_msg)
-                     error_dir = os.path.join(link_model_data_dir)
-                     error_file = os.path.join(
-                         error_dir,
-                         'error_anl_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
-                     )
-                     if not os.path.exists(error_file):
-                         with open(error_file, 'a') as file:
-                             file.write(error_msg)
-        # Create file lists for MET's series_analysis
-        for forecast_to_plot in forecast_to_plot_list:
-            print("Creating model file lists for MET's "
-                  +"series_analysis for "+forecast_to_plot+" and "
-                  +"analysis")
-            time_info = get_time_info(start_date, end_date,
-                                      start_hr, end_hr, hr_inc,
-                                      [forecast_to_plot], make_met_data_by)
-            for time in time_info:
-                valid_time = time['validtime']
-                init_time = time['inittime']
-                lead = time['lead']
-                if init_time.strftime('%H') in ['03', '09', '15', '21']:
-                    continue
-                else:
-                    analysis_filename= (
-                        'anl.'+valid_time.strftime('%Y%m%d%H')
-                    )
-                    forecast_filename = (
-                        'f'+lead+'.'+init_time.strftime('%Y%m%d%H')
-                    )
-                    # Check all files needed for all models exist
-                    all_files_exist = True
-                    for name in model_list:
-                        model_data_dir = os.path.join(cwd, 'data', name)
-                        model_analysis_file = os.path.join(
-                            model_data_dir,
-                            analysis_filename
+                        analysis_filename= (
+                            'anl.'+valid_time.strftime('%Y%m%d%H')
                         )
-                        model_forecast_file = os.path.join(
-                            model_data_dir,
-                            forecast_filename
+                        forecast_filename = (
+                            'f'+lead+'.'+init_time.strftime('%Y%m%d%H')
                         )
-                        if not os.path.exists(model_forecast_file):
-                            all_files_exist = False
-                        if not os.path.exists(model_analysis_file):
-                             all_files_exist = False
-                    # If all files exist, write to file
-                    if all_files_exist:
+                        # Check all files needed for all models exist
+                        all_files_exist = True
                         for name in model_list:
                             model_data_dir = os.path.join(cwd, 'data', name)
                             model_analysis_file = os.path.join(
@@ -2569,31 +2586,172 @@ elif RUN == 'mapsda':
                                 model_data_dir,
                                 forecast_filename
                             )
-                            forecast_to_plot_file_list_filename = os.path.join(
-                                model_data_dir,
-                                name+'_'+forecast_to_plot+'_file_list.txt'
-                            )
-                            forecast_to_plot_file_list_file = open(
-                                forecast_to_plot_file_list_filename, 'a'
-                            )
-                            forecast_to_plot_anl_file_list_filename = (
-                                os.path.join(model_data_dir,
-                                             name+'_'+forecast_to_plot
-                                             +'_anl_file_list.txt')
-                            )
-                            forecast_to_plot_anl_file_list_file = open(
-                                forecast_to_plot_anl_file_list_filename,
-                                'a'
-                            )
-                            forecast_to_plot_file_list_file.write(
-                                model_forecast_file+'\n'
-                            )
-                            forecast_to_plot_anl_file_list_file.write(
+                            if not os.path.exists(model_forecast_file):
+                                all_files_exist = False
+                            if not os.path.exists(model_analysis_file):
+                                all_files_exist = False
+                        # If all files exist, write to file
+                        if all_files_exist:
+                            for name in model_list:
+                                model_data_dir = os.path.join(cwd, 'data',
+                                                              name)
+                                model_analysis_file = os.path.join(
+                                    model_data_dir,
+                                    analysis_filename
+                                )
+                                model_forecast_file = os.path.join(
+                                    model_data_dir,
+                                    forecast_filename
+                                )
+                                forecast_to_plot_file_list_filename = (
+                                    os.path.join(model_data_dir,
+                                                 name+'_'+
+                                                 forecast_to_plot
+                                                 +'_file_list.txt')
+                                )
+                                forecast_to_plot_file_list_file = open(
+                                    forecast_to_plot_file_list_filename, 'a'
+                                )
+                                forecast_to_plot_anl_file_list_filename = (
+                                    os.path.join(model_data_dir,
+                                                 name+'_'+forecast_to_plot
+                                                 +'_anl_file_list.txt')
+                                )
+                                forecast_to_plot_anl_file_list_file = open(
+                                    forecast_to_plot_anl_file_list_filename,
+                                    'a'
+                                )
+                                forecast_to_plot_file_list_file.write(
+                                    model_forecast_file+'\n'
+                                )
+                                forecast_to_plot_anl_file_list_file.write(
                                     model_analysis_file+'\n'
-                            )
-                            forecast_to_plot_anl_file_list_file.close()
-                            forecast_to_plot_file_list_file.close()
-
-
+                                )
+                                forecast_to_plot_anl_file_list_file.close()
+                                forecast_to_plot_file_list_file.close()
+        elif type == 'ens':
+            # Get model forecast files
+            cwd = os.getcwd()
+            for name in model_list:
+                index = model_list.index(name)
+                dir = ens_model_dir_list[index]
+                netcdf_suffix = ens_netcdf_suffix_list[index]
+                hpss_dir = model_hpssdir_list[index]
+                link_model_data_dir = os.path.join(cwd, 'data', name)
+                if not os.path.exists(link_model_data_dir):
+                    os.makedirs(link_model_data_dir)
+                    os.makedirs(
+                        os.path.join(link_model_data_dir, 'HPSS_jobs')
+                    )
+                dump = 'gdas'
+                for file_type in ['mean', 'spread']:
+                    if ens_guess_hour == 'anl':
+                        file_format = (
+                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/'
+                            +dump+'.t{cycle?fmt=%H}z.atmanl.ens'
+                            +file_type+'.'+netcdf_suffix
+                        )
+                    else:
+                        file_format = (
+                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/'
+                            +dump+'.t{cycle?fmt=%H}z.atmf0{lead?fmt=%H}.ens'
+                            +file_type+'.'+netcdf_suffix
+                        )
+                    exisiting_file_list = ''
+                    for time in time_info:
+                        valid_time = time['validtime']
+                        init_time = time['inittime']
+                        lead = time['lead']
+                        if init_time.strftime('%H') in ['03', '09', 
+                                                        '15', '21']:
+                            continue
+                        else:
+                            if ens_guess_hour == 'anl':
+                                link_model_forecast_file = os.path.join(
+                                    link_model_data_dir,
+                                    'atmanl.ens'+file_type+'.'
+                                    +init_time.strftime('%Y%m%d%H')+'.'
+                                    +netcdf_suffix
+                                )
+                            else:
+                                link_model_forecast_file = os.path.join(
+                                    link_model_data_dir,
+                                    'atmf0'+lead+'.ens'+file_type+'.'
+                                    +init_time.strftime('%Y%m%d%H')+'.'
+                                    +netcdf_suffix
+                                )
+                            if not os.path.exists(link_model_forecast_file):
+                                model_forecast_filename = format_filler(
+                                    file_format, valid_time, init_time, lead
+                                )
+                                model_forecast_file = os.path.join(
+                                    dir, model_forecast_filename
+                                )
+                                if os.path.exists(model_forecast_file):
+                                    os.system('ln -sf '
+                                              +model_forecast_file+' '
+                                              +link_model_forecast_file)
+                                else:
+                                    if model_data_run_hpss == 'YES':
+                                        print("Did not find "
+                                              +model_forecast_file+" "
+                                              +"online...going to try  "
+                                              +"to get file from HPSS")
+                                        if ens_guess_hour == 'anl':
+                                            lead_time = 'anl'
+                                        else:
+                                            lead_time = 'f0'+lead
+                                        (hpss_tar, hpss_file,
+                                             hpss_job_filename) = (
+                                            set_up_gfs_hpss_info(
+                                                init_time, hpss_dir,
+                                                'enkf'+dump,
+                                                'atm'+lead_time+'.ens'
+                                                +file_type+'.'+netcdf_suffix,
+                                                link_model_data_dir
+                                            )
+                                        )
+                                        get_hpss_data(hpss_job_filename,
+                                                      link_model_data_dir,
+                                                      link_model_forecast_file,
+                                                      hpss_tar, hpss_file)
+                            if not os.path.exists(link_model_forecast_file):
+                                if model_data_run_hpss == 'YES':
+                                    print("WARNING: "+model_forecast_file+" "
+                                          +"does not exist and did not find "
+                                          +"HPSS file "+hpss_file+" from "
+                                          +hpss_tar+" or walltime exceeded")
+                                else:
+                                    print("WARNING: "+model_forecast_file+" "
+                                          +"does not exist")
+                            else:
+                                exisiting_file_list = (
+                                  exisiting_file_list
+                                  +link_model_forecast_file+' '
+                                )
+                    if ens_guess_hour == 'anl':
+                        avg_file = os.path.join(
+                            cwd, 'data', name,
+                            'atmanl.ens'+file_type+'.nc' 
+                        )
+                    else:
+                        avg_file = os.path.join(
+                            cwd, 'data', name,
+                            'atmf0'+lead+'.ens'+file_type+'.nc'
+                        )
+                    print("Creating average files for "+name+" "
+                          +"ens"+file_type+" from available data. "
+                          +"Saving as "+avg_file)
+                    ncea_cmd = subprocess.check_output(
+                        'which ncea', shell=True
+                    ).replace('\n', '')
+                    if netcdf_suffix == 'nc4':
+                        process_vars = ''
+                    elif netcdf_suffix == 'nc':
+                        process_vars = (
+                            ' -v tmp,ugrd,vgrd,spfh,pressfc,o3mr,clwmr '
+                        )
+                    os.system(ncea_cmd+' '+exisiting_file_list
+                              +' -o '+avg_file+process_vars)
 
 print("END: "+os.path.basename(__file__))

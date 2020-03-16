@@ -216,7 +216,7 @@ for stat in plot_stats_list:
         if verif_case_type == 'gdas':
             # Set up control analysis subplot map and title and plot
             if model_num == 1:
-                print("Plotting "+model_plot+" analysis")
+                print("Plotting "+model_plot_name+" analysis")
                 model1 = model
                 model1_plot_name = model_plot_name
                 model1_var_levels_zonalmean_OBAR = (

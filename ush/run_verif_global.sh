@@ -104,7 +104,7 @@ fi
 
 if [ $RUN_MAPSDA = YES ] ; then
     echo
-    echo "===== RUNNING GDAS ANALYSIS COMAPRISON VERIFICATION  ====="
+    echo "===== RUNNING GDAS ANALYSIS AND ENSEMBLE COMAPRISON VERIFICATION  ====="
     export RUN="mapsda"
     python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exmapsda.sh
 fi

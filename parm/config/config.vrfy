@@ -160,19 +160,19 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
 fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then
-    #g2o1_type_list:          list type of verifications to run for grid-to-obs, upper_air, conus_sfc
-    #g2o1_fyc_list:           all forecst cycles to be included in verification: HH
-    #g2o1_vhr_list_upper_air: all valid hours to be included in upper_air verification: HH
-    #g2o1_vhr_list_conus_sfc: all valid hours to be included in conus_sfc verification: HH
-    #g2o1_fhr_min:            forecast hour to start verification HH[H]
-    #g2o1_fhr_max:            forecast hour to end verification HH[H]
-    #g2o1_grid_upper_air:     grid to do upper_air verification on
-    #g2o1_grid_conus_sfc:     grid to do conus_sfc verification on
-    #g2o1_gather_by:          how to group the verification data, VSDB, VALID, INIT
-    #g2o1_mv_database_name:   name of the METviewer database to send data to, MUST START WITH "mv"
-    #g2o1_mv_database_group:  name of the group the METviewer database belongs to
-    #g2o1_mv_database_desc:   description of database, can be blank  
-    #g2o1_prepbufr_data_runhpss:   get files from HPSS ("YES") if not online
+    #g2o1_type_list:             list type of verifications to run for grid-to-obs, upper_air, conus_sfc
+    #g2o1_fyc_list:              all forecst cycles to be included in verification: HH
+    #g2o1_vhr_list_upper_air:    all valid hours to be included in upper_air verification: HH
+    #g2o1_vhr_list_conus_sfc:    all valid hours to be included in conus_sfc verification: HH
+    #g2o1_fhr_min:               forecast hour to start verification HH[H]
+    #g2o1_fhr_max:               forecast hour to end verification HH[H]
+    #g2o1_grid_upper_air:        grid to do upper_air verification on
+    #g2o1_grid_conus_sfc:        grid to do conus_sfc verification on
+    #g2o1_gather_by:             how to group the verification data, VSDB, VALID, INIT
+    #g2o1_mv_database_name:      name of the METviewer database to send data to, MUST START WITH "mv"
+    #g2o1_mv_database_group:     name of the group the METviewer database belongs to
+    #g2o1_mv_database_desc:      description of database, can be blank  
+    #g2o1_prepbufr_data_runhpss: get files from HPSS ("YES") if not online
     export g2o1_type_list="upper_air conus_sfc"
     export g2o1_fcyc_list="00 06 12 18"
     export g2o1_vhr_list_upper_air="00 06 12 18"
@@ -318,23 +318,34 @@ fi
 
 if [ $RUN_MAPSDA = YES ]; then
     #mapsda_model_plot_name_list:               list of models reference name on plots
-    #mapsda_make_met_data_by:                   mapsda override for make_met_data above, how to treat dates, "VALID" or "INIT"
     #mapsda_type_list:                          list type of verifications to run for mapsda: gdas
     #mapsda_hour_list:                          all hours to be included in verification: HH, hours treated according to mapsda_make_met_data_by
     #mapsda_latlon_area:                        list of lower latitude, upper latitude, start longitude, end longitude
-    #mapsda_gdas_regrid_to_grid:                     NCEP grid to regrid data to (format GXXX)
+    #mapsda_gdas_make_met_data_by:              mapsda gdas override for make_met_data above, how to treat dates, "VALID" or "INIT"
+    #mapsda_gdas_regrid_to_grid:                NCEP grid to regrid data to (format GXXX)
     #mapsda_gdas_guess_hour:                    forecast hour from last GDAS cycle used as first guess
     #mapsda_gdas_model_fileformat_list:         file format of model files for GDAS maps
     #mapsda_gdas_anl_fileformat_list:           file format of analysis files for GDAS maps
+    #mapsda_ens_make_met_data_by:               mapsda ens override for make_met_data above, how to treat dates, "VALID" or "INIT"
+    #mapsda_ens_guess_hour:                     forecast hour from last GDAS cycle used as first guess
+    #mapsda_ens_model_dir_list:                 directory where model ens files are located (ROTDIR)
+    #mapsda_ens_netcdf_suffix_list:             file suffix for ens files; should be .nc4 or .nc
+    #mapsda_ens_model_data_runhpss:             get files from HPSS ("YES") if not online
     export mapsda_model_plot_name_list="ops_gfs"
-    export mapsda_make_met_data_by="VALID"
     export mapsda_type_list="gdas"
     export mapsda_hour_list="00 06 12 18"
     export mapsda_latlon_area="-90 90 0 360"
+    export mapsda_gdas_make_met_data_by="VALID"
     export mapsda_gdas_regrid_to_grid="G002"
     export mapsda_gdas_guess_hour="06"
     export mapsda_gdas_model_fileformat_list="pgbf{lead?fmt=%H}.gdas.{init?fmt=%Y%m%d%H}"
     export mapsda_gdas_anl_fileformat_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"
+    export mapsda_ens_make_met_data_by="VALID"
+    export mapsda_ens_guess_hour="06"
+    export mapsda_ens_model_dir_list="/gpfs/dell1/nco/ops/com/gfs/prod"
+    export mapsda_ens_netcdf_suffix_list="nc4"
+    export mapsda_ens_model_data_runhpss="YES"
+
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

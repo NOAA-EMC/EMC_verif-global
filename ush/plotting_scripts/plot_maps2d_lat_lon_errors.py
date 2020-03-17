@@ -643,7 +643,6 @@ for var_level in var_levels:
         cax = fig.add_axes([0.1, 0.0, 0.8, 0.05])
         cbar = fig.colorbar(CF, cax=cax, orientation='horizontal',
                             ticks=levels_diff)
-        cbar.set_ticklabels(levels_diff)
         cbar.ax.set_xlabel('Difference')
     full_title = (
         var_info_title+' Mean Error\n'

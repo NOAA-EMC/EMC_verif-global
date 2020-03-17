@@ -597,7 +597,6 @@ for stat in plot_stats_list:
         cax = fig.add_axes([0.1, 0.0, 0.8, 0.05])
         cbar = fig.colorbar(CF, cax=cax, orientation='horizontal',
                             ticks=levels_plot)
-        #cbar.set_ticklabels(levels_plot)
         if verif_case_type == 'gdas':
             cbar.ax.set_xlabel('Difference')
         elif verif_case_type == 'ens':

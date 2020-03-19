@@ -342,21 +342,27 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 vars_and_levels_dict = {
                     'HGT': ['P1000', 'P850', 'P700', 
                             'P500', 'P200', 'P100', 
-                             'P50', 'P20', 'P10'],
+                            'P50', 'P20', 'P10',
+                            'P5', 'P1'],
                     'TMP': ['P1000', 'P850', 'P700',
                             'P500', 'P200', 'P100',
-                            'P50', 'P20', 'P10'],
+                            'P50', 'P20', 'P10',
+                            'P5', 'P1'],
                     'UGRD': ['P1000', 'P850', 'P700',
                              'P500', 'P200', 'P100',
-                             'P50', 'P20', 'P10'],
+                             'P50', 'P20', 'P10',
+                             'P5', 'P1'],
                     'VGRD': ['P1000', 'P850', 'P700',
                              'P500', 'P200', 'P100',
-                             'P50', 'P20', 'P10'],
+                             'P50', 'P20', 'P10',
+                             'P5', 'P1'],
                     'UGRD_VGRD': ['P1000', 'P850', 'P700',
                                   'P500', 'P200', 'P100',
-                                  'P50', 'P20', 'P10'],
+                                  'P50', 'P20', 'P10',
+                                  'P5', 'P1'],
                     'O3MR': ['P100', 'P70', 'P50', 
-                             'P30', 'P20', 'P10']
+                             'P30', 'P20', 'P10',
+                             'P5', 'P1']
                 }
             elif type == 'sfc':
                 line_type = 'SL1L2, VL1L2'
@@ -463,12 +469,14 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236']
                 vars_and_levels_dict = {
                     'TMP': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
-                            'P300', 'P250', 'P200', 'P150', 'P100', 'P50'],
+                            'P300', 'P250', 'P200', 'P150', 'P100', 'P50',
+                            'P10', 'P5', 'P1'],
                     'RH': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
-                           'P300'],
+                           'P300', 'P250', 'P200', 'P150', 'P100', 'P50',
+                           'P10', 'P5', 'P1'],
                     'UGRD_VGRD': ['P1000', 'P925', 'P850', 'P700', 'P500',
                                   'P400', 'P300', 'P250', 'P200', 'P150',
-                                   'P100', 'P50']
+                                  'P100', 'P50', 'P10', 'P5', 'P1']
                 }
             elif type == 'conus_sfc':
                 fhr_list = os.environ['g2o2_fhr_list_conus_sfc']
@@ -934,10 +942,6 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                           +"Current maximum is 8.")
                 exit(1)
             extra_env_info['forecast_anl_diff'] = forecast_anl_diff
-            # Save extended levels
-            #['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa',
-            # '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa',
-            # '0.5hPa', '0.1hPa', '0.05hPa', '0.01hPa']
             vars_preslevs_dict = {
                 'TMP': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa',
                         '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],

@@ -201,6 +201,8 @@ for stat in plot_stats_list:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(1,1)
                 suptitle_y = 1.0
+                colorbar_y = -0.05
+                colorbar_height = 0.05
             elif nsubplots == 2:
                 fig = plt.figure(figsize=(10,12))
                 gs = gridspec.GridSpec(2,1)

@@ -26,6 +26,7 @@ USHverif_global = os.environ['USHverif_global']
 model_list = os.environ['model_list'].split(' ')
 QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
+PARTITION_BATCH = os.environ['PARTITION_BATCH']
 SEND2WEB = os.environ['SEND2WEB']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
@@ -372,7 +373,7 @@ for modelB in model_list[1:]:
         job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
                          +'-noheader -J '+AWS_job_name
                          +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'HERA':
+    elif machine in ['HERA', 'ORION']:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+AWS_job_output+' '
@@ -438,7 +439,7 @@ if SEND2WEB == 'YES':
                   +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
                   +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '
                   +web_job_filename)
-    elif machine == 'HERA':
+    elif machine in ['HERA', 'ORION']:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '

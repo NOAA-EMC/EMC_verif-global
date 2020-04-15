@@ -27,6 +27,10 @@ make_met_data_by = os.environ['make_met_data_by']
 plot_by = os.environ['plot_by']
 model_hpssdir_list = os.environ['model_hpssdir_list'].split(' ')
 
+# No HPSS access from Orion
+if os.environ['machine'] == 'ORION':
+    model_data_run_hpss = 'NO'
+
 # Set HPSS location for production data
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 
@@ -225,15 +229,18 @@ def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    sleep_counter, sleep_checker = 1, 10
-    while (sleep_counter*sleep_checker) <= walltime_seconds:
-        sleep(sleep_checker)
-        print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
-              +"out of "+str(int(walltime_seconds))+" seconds")
-        check_job = subprocess.check_output(job_check_cmd, shell=True)
-        if check_job[0] == '0':
-            break
-        sleep_counter+=1
+    elif machine == 'ORION':
+        print("ERROR: No HPSS access from Orion.")
+    if machine != 'ORION':
+        sleep_counter, sleep_checker = 1, 10
+        while (sleep_counter*sleep_checker) <= walltime_seconds:
+            sleep(sleep_checker)
+            print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
+                  +"out of "+str(int(walltime_seconds))+" seconds")
+            check_job = subprocess.check_output(job_check_cmd, shell=True)
+            if check_job[0] == '0':
+                break
+            sleep_counter+=1
 
 def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_prefix,
                          hpss_file_suffix, link_data_dir):

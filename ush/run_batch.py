@@ -22,6 +22,7 @@ NET = os.environ['NET']
 RUN = os.environ['RUN']
 QUEUE = os.environ['QUEUE']
 ACCOUNT = os.environ['ACCOUNT']
+PARTITION_BATCH = os.environ['PARTITION_BATCH']
 nproc = os.environ['nproc']
 
 # Create job card directory and file name
@@ -38,7 +39,7 @@ job_name = NET+'_'+RUN
 # Create job card
 print("Writing job card to "+job_card_filename)
 with open(job_card_filename, 'a') as job_card:
-    if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+    if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
         job_card.write('#!/bin/sh\n')
         job_card.write('#BSUB -q '+QUEUE+'\n')
         job_card.write('#BSUB -P '+ACCOUNT+'\n')
@@ -62,7 +63,19 @@ with open(job_card_filename, 'a') as job_card:
             job_card.write('#BSUB -R "span[ptile='+nproc+']"\n')
             job_card.write('#BSUB -R affinity[core(1):distribute=balance]\n')
     elif machine == 'HERA':
-        job_card.write('#!/bin/sh --login\n')
+        job_card.write('#!/bin/sh\n')
+        job_card.write('#SBATCH --qos='+QUEUE+'\n')
+        job_card.write('#SBATCH --account='+ACCOUNT+'\n')
+        job_card.write('#SBATCH --job-name='+job_name+'\n')
+        job_card.write('#SBATCH --output='+job_output_filename+'\n')
+        job_card.write('#SBATCH --mem=3g\n')
+        job_card.write('#SBATCH --nodes=1\n')
+        job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
+        #job_card.write('#SBATCH --ntasks=1\n')
+        job_card.write('#SBATCH --time=6:00:00\n')
+    elif machine == 'ORION':
+        job_card.write('#!/bin/sh\n')
+        job_card.write('#SBATCH --partition='+PARTITION_BATCH+'\n')
         job_card.write('#SBATCH --qos='+QUEUE+'\n')
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')
         job_card.write('#SBATCH --job-name='+job_name+'\n')
@@ -74,13 +87,13 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --time=6:00:00\n')
     job_card.write('\n')
     job_card.write('/bin/sh '+script)
-   
+
 # Submit job card 
 print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
-if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
     os.system('bsub < '+job_card_filename)
-elif machine == 'HERA':
+elif machine in ['HERA', 'ORION']:
     os.system('sbatch '+job_card_filename)
 
 print("END: "+os.path.basename(__file__))

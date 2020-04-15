@@ -75,7 +75,7 @@ if [ -s config.machine ]; then
 fi
 
 ## Load modules and set machine specific variables
-if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+if [ $machine != "HERA" -a $machine != "ORION" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
     echo "ERROR: $machine is not supported"
     exit 1
 fi
@@ -92,15 +92,26 @@ if [ $machine = "HERA" ]; then
     export QUEUE="batch"
     export QUEUESHARED="batch"
     export QUEUESERV="service"
+    export PARTITION_BATCH=""
+elif [ $machine = "ORION" ]; then
+    export ACCOUNT="fv3-cpu"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="service"
+    export PARTITION_BATCH="orion"
 elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
     export ACCOUNT="GFS-DEV"
     export QUEUE="dev"
     export QUEUESHARED="dev_shared"
     export QUEUESERV="dev_transfer"
+    export PARTITION_BATCH=""
 fi
 
 ## Run settings for machines
 if [ $machine = "HERA" ]; then
+    export nproc="40"
+    export MPMD="YES"
+elif [ $machine = "ORION" ]; then
     export nproc="40"
     export MPMD="YES"
 elif [ $machine = "WCOSS_C" ]; then
@@ -114,6 +125,8 @@ fi
 ## Get fix directory
 if [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
+elif [ $machine = "ORION" ]; then
+    export FIXverif_global="/work/noaa/nems/kfriedma/glopara/fix/fix_verif"
 elif [ $machine = "WCOSS_C" ] ; then
     export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
@@ -140,14 +153,22 @@ if [ $machine = "HERA" ]; then
     export STMP="/scratch1/NCEPDEV/stmp2/$USER"
     export PTMP="/scratch1/NCEPDEV/stmp4/$USER"
     export NOSCRUB="/scratch1/NCEPDEV/global/$USER"
-    export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
-    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
+    export gstat="/scratch1/NCEPDEV/global/Mallory.Row/archive"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export obdata_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
-    export WGRIB="/apps/grads/2.0.2/bin/wgrib"
-    export WGRIB2="/apps/wgrib2/2.0.8/intel/18.0.3.222/bin/wgrib2"
-    export CNVGRIB="/apps/cnvgrib/1.4.0/bin/cnvgrib"
     export trak_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/trak/abdeck"
+elif [ $machine = "ORION" ]; then
+    export NWROOT=${NWROOT:-"/work/noaa/nems/kfriedma/glopara/nwpara"}
+    export HOMEDIR="/work/noaa/nems/$USER"
+    export STMP="/work/noaa/stmp/$USER"
+    export PTMP="/work/noaa/stmp/$USER"
+    export NOSCRUB="/work/noaa/nems/$USER"
+    export gstat="/work/noaa/ovp/mrow/archive"
+    export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
+    export obdata_dir="/work/noaa/ovp/mrow/obdata"
+    export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
+    export trak_arch_dir="/work/noaa/ovp/mrow/trak/abdeck"
 elif [ $machine = "WCOSS_C" ]; then
     export NWROOT=${NWROOT:-"/gpfs/hps/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/hps3/emc/global/noscrub/$USER"

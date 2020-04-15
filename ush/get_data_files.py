@@ -721,6 +721,9 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
+    # No HPSS access from Orion
+    if os.environ['machine'] == 'ORION':
+        prepbufr_run_hpss = 'NO'
     for type in type_list:
         # Get date and time information
         fhr_list_type = os.environ['g2o1_fhr_list_'+type].split(', ')

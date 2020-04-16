@@ -26,9 +26,10 @@ end_date = os.environ['end_date']
 make_met_data_by = os.environ['make_met_data_by']
 plot_by = os.environ['plot_by']
 model_hpssdir_list = os.environ['model_hpssdir_list'].split(' ')
+machine = os.environ['machine']
 
 # No HPSS access from Orion
-if os.environ['machine'] == 'ORION':
+if machine == 'ORION':
     model_data_run_hpss = 'NO'
 
 # Set HPSS location for production data
@@ -722,7 +723,7 @@ elif RUN == 'grid2obs_step1':
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
     # No HPSS access from Orion
-    if os.environ['machine'] == 'ORION':
+    if machine == 'ORION':
         prepbufr_run_hpss = 'NO'
     for type in type_list:
         # Get date and time information
@@ -1258,6 +1259,8 @@ elif RUN == 'precip_step1':
     model_bucket_list = os.environ['precip1_model_bucket_list'].split(' ')
     model_var_name_list = os.environ['precip1_model_varname_list'].split(' ')
     obs_run_hpss = os.environ['precip1_obs_data_runhpss']
+    if machine == 'ORION':
+        obs_run_hpss = 'NO'
     if make_met_data_by == 'VALID':
         start_hr = os.environ['precip1_valid_hr_beg']
         end_hr = os.environ['precip1_valid_hr_end']

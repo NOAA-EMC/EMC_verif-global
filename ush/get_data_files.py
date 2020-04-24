@@ -30,6 +30,8 @@ machine = os.environ['machine']
 
 # No HPSS access from Orion
 if machine == 'ORION':
+    print("WARNING: Orion does not currently have access to HPSS..."
+          +"setting model_data_runhpss to NO")
     model_data_run_hpss = 'NO'
 
 # Set HPSS location for production data
@@ -724,6 +726,8 @@ elif RUN == 'grid2obs_step1':
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
     # No HPSS access from Orion
     if machine == 'ORION':
+        print("WARNING: Orion does not currently have access to HPSS..."
+              +"setting g2o1_prepbufr_data_runhpss to NO")
         prepbufr_run_hpss = 'NO'
     for type in type_list:
         # Get date and time information
@@ -1289,6 +1293,8 @@ elif RUN == 'precip_step1':
     model_var_name_list = os.environ['precip1_model_varname_list'].split(' ')
     obs_run_hpss = os.environ['precip1_obs_data_runhpss']
     if machine == 'ORION':
+        print("WARNING: Orion does not currently have access to HPSS..."
+              +"setting precip1_obs_data_runhpss to NO")
         obs_run_hpss = 'NO'
     if make_met_data_by == 'VALID':
         start_hr = os.environ['precip1_valid_hr_beg']

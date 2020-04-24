@@ -863,6 +863,11 @@ elif RUN == 'grid2obs_step1':
                     hpss_tar_file = 'com_gfs_prod_gdas.'+YYYYmmddHH+'.tar'
                     hpss_file = 'gdas1.t'+HH+'z.prepbufr'
                 hpss_tar = os.path.join(hpss_date_dir, hpss_tar_file)
+                # Make sure using non restricted data for Orion
+                if machine == 'ORION':
+                    prod_file = prod_file+'.nr'
+                    arch_file = arch_file+'.nr'
+                    hpss_file = hpss_file+'.nr'
                 pbo = {}
                 pbo['prodfile'] = prod_file
                 pbo['archfile'] = arch_file
@@ -925,6 +930,11 @@ elif RUN == 'grid2obs_step1':
                        )
                        hpss_file = 'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
                    hpss_tar = os.path.join(hpss_date_dir, hpss_tar_file)
+                   # Make sure using non restricted data for Orion
+                   if machine == 'ORION':
+                       prod_file = prod_file+'.nr'
+                       arch_file = arch_file+'.nr'
+                       hpss_file = hpss_file+'.nr'
                    pbo = {}
                    pbo['prodfile'] = prod_file
                    pbo['archfile'] = arch_file
@@ -1025,6 +1035,17 @@ elif RUN == 'grid2obs_step1':
                            'nam.t'+ndas_prepbufr_dict['HH00']
                            +'z.prepbufr.tm00'
                        )
+                       # Make sure using non restricted data for Orion
+                       if machine == 'ORION':
+                           prod_file1 = prod_file1+'.nr'
+                           arch_file1 = arch_file1+'.nr'
+                           hpss_file1 = hpss_file1+'.nr'
+                           prod_file2 = prod_file2+'.nr'
+                           arch_file2 = arch_file2+'.nr'
+                           hpss_file2 = hpss_file2+'.nr'
+                           prod_file3 = prod_file3+'.nr'
+                           arch_file3 = arch_file3+'.nr'
+                           hpss_file3 = hpss_file3+'.nr'
                        pbo1 = {}
                        pbo1['prodfile'] = prod_file1
                        pbo1['archfile'] = arch_file1
@@ -1097,6 +1118,14 @@ elif RUN == 'grid2obs_step1':
                            'ndas.t'+ndas_prepbufr_dict['HH03']
                            +'z.prepbufr.tm03'
                        )
+                       # Make sure using non restricted data for Orion
+                       if machine == 'ORION':
+                           prod_file1 = prod_file1+'.nr'
+                           arch_file1 = arch_file1+'.nr'
+                           hpss_file1 = hpss_file1+'.nr'
+                           prod_file2 = prod_file2+'.nr'
+                           arch_file2 = arch_file2+'.nr'
+                           hpss_file2 = hpss_file2+'.nr'
                        pbo1 = {}
                        pbo1['prodfile'] = prod_file1
                        pbo1['archfile'] = arch_file1

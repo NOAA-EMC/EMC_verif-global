@@ -71,7 +71,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA ]; then
+        elif [ $machine = HERA -o $machine = ORION ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -86,7 +86,7 @@ else
 fi
 ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
 ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
- 
+
 # Create job scripts to run METplus for tc_stat
 # and plotting scripts for individual
 # storms and all storms in a given basin
@@ -112,7 +112,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA ]; then
+        elif [ $machine = HERA -o $machine = ORION ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

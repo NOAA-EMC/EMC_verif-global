@@ -72,7 +72,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA ]; then
+        elif [ $machine = HERA -o $machine = ORION ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

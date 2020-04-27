@@ -15,34 +15,44 @@ print("BEGIN: "+os.path.basename(__file__))
 # Read in environment variables
 hostname = os.environ['HOSTNAME']
 
+EMC_verif_global_machine_list = [
+    'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3'
+]
 # Get machine name
-if 'machine' in os.environ:
-    machine = os.environ['machine']
-else:
-    if 'MACHINE' in os.environ:
-        machine = os.environ['MACHINE']
+for env_var in ['machine', 'MACHINE']:
+    if env_var in os.environ:
+        if os.environ[env_var] in EMC_verif_global_machine_list:
+            print("Found environment variable "+env_var+"="+os.environ[env_var])
+            machine = os.environ[env_var]
+            break
+if 'machine' not in vars():
+    hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
+    orion_match = re.match(
+        re.compile(r"^Orion-login-[0-9]{1}.HPC.MsState.Edu$"), hostname
+    )
+    surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
+    luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
+    mars_match = re.match(re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
+                          hostname)
+    venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
+                           hostname)
+    if hera_match:
+        machine = 'HERA'
+    elif orion_match:
+        machine = 'ORION'
+    elif surge_match or luna_match:
+        machine = 'WCOSS_C'
+    elif mars_match or venus_match:
+        machine = 'WCOSS_DELL_P3'
     else:
-        hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
-        surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
-        luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
-        mars_match = re.match(re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
-                              hostname)
-        venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
-                               hostname)
-        if hera_match:
-            machine = 'HERA'
-        elif surge_match or luna_match:
-            machine = 'WCOSS_C'
-        elif mars_match or venus_match:
-            machine = 'WCOSS_DELL_P3'
-        else:
-            print("Cannot find match for "+hostname)
-            exit(1)
-    with open('config.machine', 'a') as file:
-        file.write('#!/bin/sh\n')
-        file.write('echo "BEGIN: config.machine"\n')
-        file.write('export machine='+'"'+machine+'"\n')
-        file.write('echo "END: config.machine"')
+        print("Cannot find match for "+hostname)
+        exit(1)
+with open('config.machine', 'a') as file:
+    file.write('#!/bin/sh\n')
+    file.write('echo "BEGIN: config.machine"\n')
+    file.write('export machine='+'"'+machine+'"\n')
+    file.write('echo "END: config.machine"')
+
 print("Working "+hostname+" on "+machine)
 
 print("END: "+os.path.basename(__file__))

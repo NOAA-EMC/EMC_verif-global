@@ -1232,48 +1232,55 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                                                     +'job'+str(njob)+'_'
                                                     +model+'.sh')+'\n')
                     # Need to switch python modules to use Basemap
-                    if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+                    if machine != 'ORION':
+                        if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
+                            job_file.write(
+                                'module switch python/3.6.3\n'
+                            )
+                            job_file.write(
+                                'export py_map_pckg="cartopy"\n'
+                            )
+                        else:
+                            job_file.write(
+                                'export py_map_pckg="basemap"\n'
+                            )
                         job_file.write(
-                            'module switch python/3.6.3\n'
+                            'python '+os.path.join(USHverif_global,
+                                                   'plotting_scripts',
+                                                   'plot_maps2d_lat_lon_errors'
+                                                   +'.py\n')
                         )
+                        if vars_dict == 'preslevs':
+                            job_file.write(
+                                'python '
+                                +os.path.join(USHverif_global,
+                                              'plotting_scripts',
+                                              'plot_maps2d_model2model'
+                                              +'_zonal_mean_errors'
+                                              +'.py\n')
+                            )
+                        job_file.write('nimgs=$(ls '
+                               +os.path.join(DATA, RUN, 'metplus_output',
+                                             'plot_by_'+plot_by,
+                                             type, vars_dict,
+                                             'imgs', '*')
+                               +' |wc -l)\n')
+                        job_file.write('if [ $nimgs -ne 0 ]; then\n')
                         job_file.write(
-                            'export py_map_pckg="cartopy"\n'
+                             '    ln -sf '
+                             +os.path.join(DATA, RUN, 'metplus_output',
+                                           'plot_by_'+plot_by, type, vars_dict,
+                                           'imgs', '*')+' '
+                             +os.path.join(DATA, RUN, 'metplus_output',
+                                           'images/.')+'\n'
                         )
+                        job_file.write('fi')
+                        job_file.close()
                     else:
-                        job_file.write(
-                            'export py_map_pckg="basemap"\n'
-                        )
-                    job_file.write(
-                        'python '+os.path.join(USHverif_global,
-                                               'plotting_scripts',
-                                               'plot_maps2d_lat_lon_errors'
-                                               +'.py\n')
-                    )
-                    if vars_dict == 'preslevs':
-                        job_file.write(
-                            'python '
-                            +os.path.join(USHverif_global,
-                                          'plotting_scripts',
-                                          'plot_maps2d_model2model'
-                                          +'_zonal_mean_errors'
-                                          +'.py\n')
-                        )
-                    job_file.write('nimgs=$(ls '
-                           +os.path.join(DATA, RUN, 'metplus_output',
-                                         'plot_by_'+plot_by, type, vars_dict,
-                                         'imgs', '*')
-                           +' |wc -l)\n')
-                    job_file.write('if [ $nimgs -ne 0 ]; then\n')
-                    job_file.write(
-                         '    ln -sf '
-                         +os.path.join(DATA, RUN, 'metplus_output',
-                                       'plot_by_'+plot_by, type, vars_dict,
-                                       'imgs', '*')+' '
-                         +os.path.join(DATA, RUN, 'metplus_output',
-                                       'images/.')+'\n'
-                    )
-                    job_file.write('fi')
-                    job_file.close()
+                        job_file.write('# Cannot run plotting scripts due '
+                                       +'to no python versions on Orion '
+                                       +'having netCDF4')
+                        job_file.close()
 
 def create_job_script_mapsda(sdate, edate, model_list, type_list):
     """! Writes out job cards based on requested verification
@@ -1454,54 +1461,55 @@ def create_job_script_mapsda(sdate, edate, model_list, type_list):
                                                         +'job'+str(njob)+'_'
                                                         +model+'.sh')+'\n')
                     # Need to switch python modules to use Basemap
-                    if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
+                    if machine != 'ORION':
+                        if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
+                            job_file.write(
+                                'module switch python/3.6.3\n'
+                            )
+                            job_file.write(
+                                'export py_map_pckg="cartopy"\n'
+                            )
+                        else:
+                            job_file.write(
+                                'export py_map_pckg="basemap"\n'
+                            )
                         job_file.write(
-                            'module switch python/3.6.3\n'
+                            'python '+os.path.join(USHverif_global,
+                                                   'plotting_scripts',
+                                                   'plot_mapsda_lat_lon_errors'
+                                                   +'.py\n')
                         )
+                        if vars_dict in ['preslevs']:
+                            job_file.write(
+                                'python '
+                                +os.path.join(USHverif_global,
+                                              'plotting_scripts',
+                                              'plot_mapsda_zonal_mean_errors'
+                                              +'.py\n')
+                            )
+                        job_file.write('nimgs=$(ls '
+                               +os.path.join(DATA, RUN, 'metplus_output',
+                                             'plot_by_'+plot_by,
+                                             type, vars_dict,
+                                             'imgs', '*')
+                               +' |wc -l)\n')
+                        job_file.write('if [ $nimgs -ne 0 ]; then\n')
                         job_file.write(
-                            'export py_map_pckg="cartopy"\n'
+                             '    ln -sf '
+                             +os.path.join(DATA, RUN, 'metplus_output',
+                                           'plot_by_'+plot_by, type, vars_dict,
+                                           'imgs', '*')+' '
+                             +os.path.join(DATA, RUN, 'metplus_output',
+                                           'images/.')+'\n'
                         )
+                        job_file.write('fi')
+                        job_file.close() 
                     else:
-                        job_file.write(
-                            'export py_map_pckg="basemap"\n'
-                        )
-                    job_file.write(
-                        'python '+os.path.join(USHverif_global,
-                                               'plotting_scripts',
-                                               'plot_mapsda_lat_lon_errors'
-                                               +'.py\n')
-                    )
-                    job_file.write(
-                        'python '+os.path.join(USHverif_global,
-                                               'plotting_scripts',
-                                               'plot_mapsda_lat_lon_errors'
-                                               +'_new.py\n')
-                    )
-                    if vars_dict in ['preslevs']:
-                        job_file.write(
-                            'python '
-                            +os.path.join(USHverif_global,
-                                          'plotting_scripts',
-                                          'plot_mapsda_zonal_mean_errors'
-                                          +'.py\n')
-                        )
-                    job_file.write('nimgs=$(ls '
-                           +os.path.join(DATA, RUN, 'metplus_output',
-                                         'plot_by_'+plot_by, type, vars_dict,
-                                         'imgs', '*')
-                           +' |wc -l)\n')
-                    job_file.write('if [ $nimgs -ne 0 ]; then\n')
-                    job_file.write(
-                         '    ln -sf '
-                         +os.path.join(DATA, RUN, 'metplus_output',
-                                       'plot_by_'+plot_by, type, vars_dict,
-                                       'imgs', '*')+' '
-                         +os.path.join(DATA, RUN, 'metplus_output',
-                                       'images/.')+'\n'
-                    )
-                    job_file.write('fi')
-                    job_file.close() 
-                   
+                        job_file.write('# Cannot run plotting scripts due '
+                                       +'to no python versions on Orion '
+                                       +'having netCDF4')
+                        job_file.close()
+ 
 # Run job creation function
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
@@ -1553,7 +1561,7 @@ if MPMD == 'YES':
         node = 1
     while njob <= njob_files:
         job = 'job'+str(njob)
-        if machine == 'HERA':
+        if machine in ['HERA', 'ORION']:
             if iproc >= nproc:
                 poe_file.close()
                 iproc = 0
@@ -1563,7 +1571,7 @@ if MPMD == 'YES':
         if iproc == 0:
             poe_file = open(poe_filename, 'w')
         iproc+=1
-        if machine == 'HERA':
+        if machine in ['HERA', 'ORION']:
             poe_file.write(
                 str(iproc-1)+' '
                 +os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'
@@ -1580,7 +1588,7 @@ if MPMD == 'YES':
     poe_file = open(poe_filename, 'a')
     iproc+=1
     while iproc <= nproc:
-        if machine == 'HERA':
+        if machine in ['HERA', 'ORION']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )

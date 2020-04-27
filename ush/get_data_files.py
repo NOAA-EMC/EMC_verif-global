@@ -26,6 +26,13 @@ end_date = os.environ['end_date']
 make_met_data_by = os.environ['make_met_data_by']
 plot_by = os.environ['plot_by']
 model_hpssdir_list = os.environ['model_hpssdir_list'].split(' ')
+machine = os.environ['machine']
+
+# No HPSS access from Orion
+if machine == 'ORION':
+    print("WARNING: Orion does not currently have access to HPSS..."
+          +"setting model_data_runhpss to NO")
+    model_data_run_hpss = 'NO'
 
 # Set HPSS location for production data
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
@@ -225,15 +232,18 @@ def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    sleep_counter, sleep_checker = 1, 10
-    while (sleep_counter*sleep_checker) <= walltime_seconds:
-        sleep(sleep_checker)
-        print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
-              +"out of "+str(int(walltime_seconds))+" seconds")
-        check_job = subprocess.check_output(job_check_cmd, shell=True)
-        if check_job[0] == '0':
-            break
-        sleep_counter+=1
+    elif machine == 'ORION':
+        print("ERROR: No HPSS access from Orion.")
+    if machine != 'ORION':
+        sleep_counter, sleep_checker = 1, 10
+        while (sleep_counter*sleep_checker) <= walltime_seconds:
+            sleep(sleep_checker)
+            print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
+                  +"out of "+str(int(walltime_seconds))+" seconds")
+            check_job = subprocess.check_output(job_check_cmd, shell=True)
+            if check_job[0] == '0':
+                break
+            sleep_counter+=1
 
 def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_prefix,
                          hpss_file_suffix, link_data_dir):
@@ -714,6 +724,11 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
+    # No HPSS access from Orion
+    if machine == 'ORION':
+        print("WARNING: Orion does not currently have access to HPSS..."
+              +"setting g2o1_prepbufr_data_runhpss to NO")
+        prepbufr_run_hpss = 'NO'
     for type in type_list:
         # Get date and time information
         fhr_list_type = os.environ['g2o1_fhr_list_'+type].split(', ')
@@ -852,6 +867,11 @@ elif RUN == 'grid2obs_step1':
                     hpss_tar_file = 'com_gfs_prod_gdas.'+YYYYmmddHH+'.tar'
                     hpss_file = 'gdas1.t'+HH+'z.prepbufr'
                 hpss_tar = os.path.join(hpss_date_dir, hpss_tar_file)
+                # Make sure using non restricted data for Orion
+                if machine == 'ORION':
+                    prod_file = prod_file+'.nr'
+                    arch_file = arch_file+'.nr'
+                    hpss_file = hpss_file+'.nr'
                 pbo = {}
                 pbo['prodfile'] = prod_file
                 pbo['archfile'] = arch_file
@@ -914,6 +934,11 @@ elif RUN == 'grid2obs_step1':
                        )
                        hpss_file = 'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
                    hpss_tar = os.path.join(hpss_date_dir, hpss_tar_file)
+                   # Make sure using non restricted data for Orion
+                   if machine == 'ORION':
+                       prod_file = prod_file+'.nr'
+                       arch_file = arch_file+'.nr'
+                       hpss_file = hpss_file+'.nr'
                    pbo = {}
                    pbo['prodfile'] = prod_file
                    pbo['archfile'] = arch_file
@@ -1014,6 +1039,17 @@ elif RUN == 'grid2obs_step1':
                            'nam.t'+ndas_prepbufr_dict['HH00']
                            +'z.prepbufr.tm00'
                        )
+                       # Make sure using non restricted data for Orion
+                       if machine == 'ORION':
+                           prod_file1 = prod_file1+'.nr'
+                           arch_file1 = arch_file1+'.nr'
+                           hpss_file1 = hpss_file1+'.nr'
+                           prod_file2 = prod_file2+'.nr'
+                           arch_file2 = arch_file2+'.nr'
+                           hpss_file2 = hpss_file2+'.nr'
+                           prod_file3 = prod_file3+'.nr'
+                           arch_file3 = arch_file3+'.nr'
+                           hpss_file3 = hpss_file3+'.nr'
                        pbo1 = {}
                        pbo1['prodfile'] = prod_file1
                        pbo1['archfile'] = arch_file1
@@ -1086,6 +1122,14 @@ elif RUN == 'grid2obs_step1':
                            'ndas.t'+ndas_prepbufr_dict['HH03']
                            +'z.prepbufr.tm03'
                        )
+                       # Make sure using non restricted data for Orion
+                       if machine == 'ORION':
+                           prod_file1 = prod_file1+'.nr'
+                           arch_file1 = arch_file1+'.nr'
+                           hpss_file1 = hpss_file1+'.nr'
+                           prod_file2 = prod_file2+'.nr'
+                           arch_file2 = arch_file2+'.nr'
+                           hpss_file2 = hpss_file2+'.nr'
                        pbo1 = {}
                        pbo1['prodfile'] = prod_file1
                        pbo1['archfile'] = arch_file1
@@ -1248,6 +1292,10 @@ elif RUN == 'precip_step1':
     model_bucket_list = os.environ['precip1_model_bucket_list'].split(' ')
     model_var_name_list = os.environ['precip1_model_varname_list'].split(' ')
     obs_run_hpss = os.environ['precip1_obs_data_runhpss']
+    if machine == 'ORION':
+        print("WARNING: Orion does not currently have access to HPSS..."
+              +"setting precip1_obs_data_runhpss to NO")
+        obs_run_hpss = 'NO'
     if make_met_data_by == 'VALID':
         start_hr = os.environ['precip1_valid_hr_beg']
         end_hr = os.environ['precip1_valid_hr_end']

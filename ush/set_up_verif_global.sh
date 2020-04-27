@@ -126,7 +126,7 @@ fi
 if [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
 elif [ $machine = "ORION" ]; then
-    export FIXverif_global="/work/noaa/nems/kfriedma/glopara/fix/fix_verif"
+    export FIXverif_global="/work/noaa/global/kfriedma/glopara/fix/fix_verif"
 elif [ $machine = "WCOSS_C" ] ; then
     export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
@@ -159,7 +159,7 @@ if [ $machine = "HERA" ]; then
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
     export trak_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/trak/abdeck"
 elif [ $machine = "ORION" ]; then
-    export NWROOT=${NWROOT:-"/work/noaa/nems/kfriedma/glopara/nwpara"}
+    export NWROOT=${NWROOT:-"/work/noaa/global/kfriedma/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
     export STMP="/work/noaa/stmp/$USER"
     export PTMP="/work/noaa/stmp/$USER"

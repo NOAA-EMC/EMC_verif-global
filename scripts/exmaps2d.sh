@@ -69,7 +69,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA ]; then
+        elif [ $machine = HERA -o $machine = ORION ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -87,7 +87,9 @@ fi
 if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
     module switch python/3.6.3
 fi
-python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
+if [ $machine != "ORION" ]; then
+    python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
+fi
 
 # Send images to web
 if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then

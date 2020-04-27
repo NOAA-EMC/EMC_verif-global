@@ -25,6 +25,7 @@ RUN = os.environ['RUN']
 RUN_type = RUN.split('_')[0]
 QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
+PARTITION_BATCH = os.environ['PARTITION_BATCH']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
@@ -92,5 +93,13 @@ elif machine == 'HERA':
               +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
               +'--output='+web_job_output+' '
               +'--job-name='+web_job_name+' '+web_job_filename)
+elif machine == 'ORION':
+    if webhost == 'emcrzdm.ncep.noaa.gov':
+        print("ERROR: Currently Orion cannot connect to "+webhost)
+    else:
+        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
+                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+                  +'--output='+web_job_output+' '
+                  +'--job-name='+web_job_name+' '+web_job_filename)
 
 print("END: "+os.path.basename(__file__))

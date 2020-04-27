@@ -615,7 +615,7 @@ for stat in plot_stats_list:
         savefig_name = os.path.join(plotting_out_dir_imgs,
                                     verif_case_type+'_'+stat+'_'+var_group_name
                                     +'_'+var_name+'_'+var_level.replace(' ', '')
-                                    +'_new.png')
+                                    +'.png')
         print("Saving image as "+savefig_name)
         plt.savefig(savefig_name, bbox_inches='tight')
         plt.close()

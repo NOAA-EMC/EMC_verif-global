@@ -30,6 +30,7 @@ RUN_type = RUN.split('_')[0]
 USHverif_global = os.environ['USHverif_global']
 QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
+PARTITION_BATCH = os.environ['PARTITION_BATCH']
 MET_version = os.environ['MET_version']
 model_list = os.environ['model_list'].split(' ')
 web_walltime = '180'
@@ -102,8 +103,8 @@ with open(load_xml_file, 'a') as xml:
     xml.write('  <insert_size>1</insert_size>\n')
     xml.write('  <mode_header_db_check>true</mode_header_db_check>\n')
     xml.write('  <stat_header_db_check>true</stat_header_db_check>\n')
-    xml.write('  <drop_indexes>'+drop_index+'</drop_indexes>\n')
-    xml.write('  <apply_indexes>true</apply_indexes>\n')
+    xml.write('  <drop_indexes>false</drop_indexes>\n')
+    xml.write('  <apply_indexes>false</apply_indexes>\n')
     xml.write('  <load_stat>true</load_stat>\n')
     xml.write('  <load_mode>true</load_mode>\n')
     xml.write('  <load_mpr>true</load_mpr>\n')
@@ -185,7 +186,7 @@ elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
               +'-P '+ACCOUNT+' -o '+AWS_job_output+' -e '+AWS_job_output+' '
               +'-J '+AWS_job_name+' -M 2048 -R "affinity[core(1)]" '+AWS_job_filename)
-elif machine == 'HERA':
+elif machine in ['HERA', 'ORION']:
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
               +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
               +'--output='+AWS_job_output+' '

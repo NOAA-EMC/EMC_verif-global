@@ -107,9 +107,9 @@ elif [ $machine = HERA ]; then
     module load impi
     module load contrib
     module load prod_util/1.1.0
+    module load grib_util/1.1.1
     module load netcdf
     module load nco
-    module load wgrib2
     module load hpss/hpss
     module load anaconda/anaconda2-4.4.0
     if [ $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
@@ -126,13 +126,41 @@ elif [ $machine = HERA ]; then
         exit 1
     fi
     module switch anaconda/anaconda2
+elif [ $machine = ORION ]; then
+    source /apps/lmod/init/sh
+    module load contrib
+    module use /apps/contrib/NCEPLIBS/orion/modulefiles
+    module use /apps/contrib/NCEPLIBS/lib/modulefiles
+    module load intel/2020
+    module load impi/2020
+    module load grib_util/1.2.0
+    module load prod_util/1.2.0
+    module load nco/4.8.1
+    module load netcdf/4.7.2
+    module load intelpython2/2019.5
+    if [ $MET_version = 8.1 ]; then
+        module use /work/noaa/ovp/jprestop/MET/modulefiles
+        module load met/$MET_version
+        export HOMEMET="/work/noaa/ovp/jprestop/MET/${MET_version}"
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 2.1 ]; then
+        export HOMEMETplus="/work/noaa/ovp/jprestop/METplus/METplus-$METplus_version"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
 else
     echo "ERROR: $machine is not supported"
     exit 1
 fi
 export NCAP2=`which ncap2`
 export NCDUMP=`which ncdump`
-export HTAR=`which htar`
+if [ $machine != "ORION" ]; then
+    export HTAR=`which htar`
+fi
 export CONVERT=`which convert`
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"

@@ -104,8 +104,6 @@ export MET_version="8.1"
 export METplus_version="2.1"
 ## RUNTIME SETTINGS
 export MPMD="YES"
-if [ $QUEUE = dev_shared ]; then  MPMD="NO"; fi
-if [ $machine != WCOSS_C -a $machine != WCOSS_DELL_P3 ]; then MPMD="NO"; fi
 ## FORECAST VERIFICATION SETTINGS
 ## some set in config.vrfy
 # GRID-TO-GRID STEP 1

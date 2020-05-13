@@ -50,13 +50,12 @@ if 'machine' not in vars():
         exit(1)
 
 # Write to machine config file
-if 'machine' in os.environ:
-    if not os.path.exists('config.machine'):
-        with open('config.machine', 'a') as file:
-            file.write('#!/bin/sh\n')
-            file.write('echo "BEGIN: config.machine"\n')
-            file.write('export machine='+'"'+machine+'"\n')
-            file.write('echo "END: config.machine"')
+if not os.path.exists('config.machine'):
+    with open('config.machine', 'a') as file:
+        file.write('#!/bin/sh\n')
+        file.write('echo "BEGIN: config.machine"\n')
+        file.write('export machine='+'"'+machine+'"\n')
+        file.write('echo "END: config.machine"')
 
 print("Working "+hostname+" on "+machine)
 

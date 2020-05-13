@@ -162,6 +162,7 @@ export precip1_grid=${precip1_grid:-G211}
 export precip1_gather_by=$gather_by
 export precip1_obs_data_runhpss="YES"
 
+echo
 ## Set up output location
 mkdir -p $DATA
 cd $DATA

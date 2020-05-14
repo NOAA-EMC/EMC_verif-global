@@ -162,6 +162,7 @@ export precip1_grid=${precip1_grid:-G211}
 export precip1_gather_by=$gather_by
 export precip1_obs_data_runhpss="YES"
 
+echo
 ## Set up output location
 mkdir -p $DATA
 cd $DATA
@@ -177,7 +178,7 @@ fi
 if [ -d $RUN_DIR ]; then
     rm -r $RUN_DIR
 fi
-pwd
+
 ## Get machine
 python $HOMEverif_global/ush/get_machine.py
 status=$?
@@ -185,7 +186,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
 echo
 if [ -s config.machine ]; then
-    . config.machine
+    . $DATA/config.machine
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"

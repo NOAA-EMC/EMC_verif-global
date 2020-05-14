@@ -18,6 +18,7 @@ hostname = os.environ['HOSTNAME']
 EMC_verif_global_machine_list = [
     'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3'
 ]
+
 # Get machine name
 for env_var in ['machine', 'MACHINE']:
     if env_var in os.environ:
@@ -47,11 +48,14 @@ if 'machine' not in vars():
     else:
         print("Cannot find match for "+hostname)
         exit(1)
-with open('config.machine', 'a') as file:
-    file.write('#!/bin/sh\n')
-    file.write('echo "BEGIN: config.machine"\n')
-    file.write('export machine='+'"'+machine+'"\n')
-    file.write('echo "END: config.machine"')
+
+# Write to machine config file
+if not os.path.exists('config.machine'):
+    with open('config.machine', 'a') as file:
+        file.write('#!/bin/sh\n')
+        file.write('echo "BEGIN: config.machine"\n')
+        file.write('export machine='+'"'+machine+'"\n')
+        file.write('echo "END: config.machine"')
 
 print("Working "+hostname+" on "+machine)
 

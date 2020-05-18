@@ -35,6 +35,7 @@ plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
+nticks = 4
 title_loc = 'center'
 cmap = plt.cm.BuPu_r
 cmap_diff = plt.cm.coolwarm
@@ -241,10 +242,12 @@ for stat in plot_stats_list:
         x_figsize, y_figsize = 14, 7
         row, col = 1, 1
         hspace, wspace = 0, 0
-        bottom, top = 0.15, 0.8
+        bottom, top = 0.175, 0.825
         suptitle_y_loc = 0.92125
         noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
         nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+        cbar_bottom = 0.06
+        cbar_height = 0.02
     elif nmodels == 2:
         x_figsize, y_figsize = 14, 7
         row, col = 1, 2
@@ -333,19 +336,13 @@ for stat in plot_stats_list:
         else:
             plt.setp(ax.get_xticklabels(), visible=False)
         ax.set_ylim([plot_time_dates[0],plot_time_dates[-1]])
-        if len(plot_time_dates) <= 3:
-            day_interval = 1
-        elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
-            day_interval = 2
-        elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
-            day_interval = 7
-        elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
-            day_interval = 10
-        else:
-            day_interval = 30
-        ax.yaxis.set_major_locator(md.DayLocator(interval=day_interval))
+        day_interval = int(len(plot_time_dates)/nticks)
+        ax.set_yticks(plot_time_dates[::day_interval])
         ax.yaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
-        ax.yaxis.set_minor_locator(md.DayLocator())
+        if len(plot_time_dates) > 60:
+            ax.yaxis.set_minor_locator(md.MonthLocator())
+        else:
+            ax.yaxis.set_minor_locator(md.DayLocator())
         if ax.is_first_col():
             ax.set_ylabel(plot_time.title()+" Date")
         else:
@@ -394,12 +391,10 @@ for stat in plot_stats_list:
                 model1_stat_values_array = model_stat_values_array
                 ax.set_title(model_plot_name, loc='left')
                 if stat in ['acc']:
-                    levels = np.arange(
-                        round(np.nanmin(model_stat_values_array), 1) - 0.1,
-                        1.1,
-                        0.1
+                    levels = np.array(
+                        [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+                         0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1]
                     )
-                    levels = np.insert(np.insert(levels, -1, 0.95), -1, 0.99)
                     CF1 = ax.contourf(xx, yy, model_stat_values_array, 
                                       levels=levels, cmap=cmap, 
                                       extend='both')
@@ -500,18 +495,22 @@ for stat in plot_stats_list:
         nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
         - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
     )
-    if nmodels > 1:
+    if stat == "bias":
+        make_colorbar = True
+        colorbar_CF = CF1
+        colorbar_CF_ticks = CF1.levels
+        colorbar_label = 'Bias'
+    elif stat!= "bias" and nmodels > 1:
+        make_colorbar = True
+        colorbar_CF = CF2
+        colorbar_CF_ticks = CF2.levels
+        colorbar_label = 'Difference'
+    else:
+        make_colorbar = False
+    if make_colorbar:
         cax = fig.add_axes(
             [cbar_left, cbar_bottom, cbar_width, cbar_height]
         )
-        if stat == "bias":
-            colorbar_CF = CF1
-            colorbar_CF_ticks = CF1.levels
-            colorbar_label = 'Bias'
-        else:
-            colorbar_CF = CF2
-            colorbar_CF_ticks = CF2.levels
-            colorbar_label = 'Difference'
         cbar = fig.colorbar(colorbar_CF,
                             cax = cax,
                             orientation = 'horizontal',

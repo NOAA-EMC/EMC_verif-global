@@ -17,22 +17,38 @@ import matplotlib.dates as md
 import matplotlib.gridspec as gridspec
 
 warnings.filterwarnings('ignore')
+
+# Plot Settings
 plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 15
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 15
-plt.rcParams['ytick.labelsize'] = 15
-plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.titlesize'] = 16
+plt.rcParams['axes.titlepad'] = 5
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 14
+plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
-###import cmocean
-###cmap_bias = cmocean.cm.curl
-###cmap = cmocean.cm.tempo
-###cmap_diff = cmocean.cm.balance
+plt.rcParams['xtick.labelsize'] = 14
+plt.rcParams['xtick.major.pad'] = 5
+plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['ytick.labelsize'] = 14
+plt.rcParams['figure.subplot.left'] = 0.1
+plt.rcParams['figure.subplot.right'] = 0.95
+plt.rcParams['figure.titleweight'] = 'bold'
+plt.rcParams['figure.titlesize'] = 16
+title_loc = 'center'
 cmap_bias = plt.cm.PiYG_r
 cmap = plt.cm.BuPu
 cmap_diff = plt.cm.coolwarm
+noaa_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
+)
+noaa_logo_alpha = 0.5
+nws_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'nws.png')
+)
+nws_logo_alpha = 0.5
 
+# Environment variables set by METplus
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
 plot_time = os.environ['PLOT_TIME']
@@ -110,15 +126,12 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-noaa_logo_img_array = matplotlib.image.imread(os.path.join(os.environ['USHverif_global'],
-                                                           'plotting_scripts',
-                                                           'noaa.png'))
-
 fcst_var_levels = np.empty(len(fcst_var_level_list), dtype=int)
 for vl in range(len(fcst_var_level_list)):
     fcst_var_levels[vl] = fcst_var_level_list[vl][1:]
 xx, yy = np.meshgrid(leads, fcst_var_levels)
 
+# Read and plot data
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
     stat_plot_name = plot_util.get_stat_plot_name(logger, stat)
@@ -198,69 +211,112 @@ for stat in plot_stats_list:
             else:
                 nsubplots = nmodels
             if nsubplots == 1:
-                fig = plt.figure(figsize=(10,12))
-                gs = gridspec.GridSpec(1,1)
-                suptitle_y = 1.0
-                colorbar_y = -0.05
-                colorbar_height = 0.05
+                x_figsize, y_figsize = 14, 7
+                row, col = 1, 1
+                hspace, wspace = 0, 0
+                bottom, top = 0.175, 0.825
+                suptitle_y_loc = 0.92125
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+                cbar_bottom = 0.06
+                cbar_height = 0.02
             elif nsubplots == 2:
-                fig = plt.figure(figsize=(10,12))
-                gs = gridspec.GridSpec(2,1)
-                gs.update(hspace=0.35)
-                suptitle_y = 1.0
-                colorbar_y = -0.05
-                colorbar_height = 0.05
+                x_figsize, y_figsize = 14, 7
+                row, col = 1, 2
+                hspace, wspace = 0, 0.1
+                bottom, top = 0.175, 0.825
+                suptitle_y_loc = 0.92125
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+                cbar_bottom = 0.06
+                cbar_height = 0.02
             elif nsubplots > 2 and nsubplots <= 4:
-                fig = plt.figure(figsize=(20,12))
-                gs = gridspec.GridSpec(2,2)
-                gs.update(wspace=0.4, hspace=0.35)
-                suptitle_y = 1.0
-                colorbar_y = -0.05
-                colorbar_height = 0.05
+                x_figsize, y_figsize = 14, 14
+                row, col = 2, 2
+                hspace, wspace = 0.15, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             elif nsubplots > 4 and nsubplots <= 6:
-                fig = plt.figure(figsize=(20,18))
-                gs = gridspec.GridSpec(3,2)
-                gs.update(wspace=0.4, hspace=0.35)
-                suptitle_y = 0.95
-                colorbar_y = 0.01
-                colorbar_height = 0.03
+                x_figsize, y_figsize = 14, 14
+                row, col = 3, 2
+                hspace, wspace = 0.15, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             elif nsubplots > 6 and nsubplots <= 8:
-                fig = plt.figure(figsize=(20,24))
-                gs = gridspec.GridSpec(4,2)
-                gs.update(wspace=0.4, hspace=0.35)
-                suptitle_y = 0.93
-                colorbar_y = 0.025
-                colorbar_height = 0.025
+                x_figsize, y_figsize = 14, 14
+                row, col = 4, 2
+                hspace, wspace = 0.175, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             elif nsubplots > 8 and nsubplots <= 10:
-                fig = plt.figure(figsize=(20,30))
-                gs = gridspec.GridSpec(5,2)
-                gs.update(wspace=0.4, hspace=0.35)
-                suptitle_y = 0.92
-                colorbar_y = 0.05
-                colorbar_height = 0.025
+                x_figsize, y_figsize = 14, 14
+                row, col = 5, 2
+                hspace, wspace = 0.225, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             else:
-                logger.error("Too many subplots needed, max. is 10")
+                logger.error("Too many subplots selected, max. is 10")
                 exit(1)
+            suptitle_x_loc = (plt.rcParams['figure.subplot.left']
+                      +plt.rcParams['figure.subplot.right'])/2.
+            fig = plt.figure(figsize=(x_figsize, y_figsize))
+            gs = gridspec.GridSpec(
+                row, col,
+                bottom = bottom, top = top,
+                hspace = hspace, wspace = wspace,
+            )
+            noaa_logo_xpixel_loc = (
+                x_figsize * plt.rcParams['figure.dpi'] * noaa_logo_x_scale
+            )
+            noaa_logo_ypixel_loc = (
+                y_figsize * plt.rcParams['figure.dpi'] * noaa_logo_y_scale
+            )
+            nws_logo_xpixel_loc = (
+                x_figsize * plt.rcParams['figure.dpi'] * nws_logo_x_scale
+            )
+            nws_logo_ypixel_loc = (
+                y_figsize * plt.rcParams['figure.dpi'] * nws_logo_y_scale
+            )
             if stat == 'fbar_obar':
                 logger.debug("Plotting observations")
                 ax = plt.subplot(gs[0])
                 ax.grid(True)
-                ax.tick_params(axis='x', pad=15)
                 if verif_case == 'grid2obs':
                     ax.set_xticks(leads[::2])
                 else:
                     ax.set_xticks(leads)
                 ax.set_xlim([leads[0], leads[-1]])
-                ax.set_xlabel("Forecast Hour", labelpad=20)
-                ax.tick_params(axis='y', pad=15)
-                ax.set_ylabel("Pressure Level", labelpad=20)
+                if ax.is_last_row():
+                    ax.set_xlabel("Forecast Hour")
+                else:
+                    plt.setp(ax.get_xticklabels(), visible=False)
                 ax.set_yscale("log")
                 ax.invert_yaxis()
                 ax.minorticks_off()
                 ax.set_yticks(fcst_var_levels)
                 ax.set_yticklabels(fcst_var_levels)
                 ax.set_ylim([fcst_var_levels[0],fcst_var_levels[-1]])
-                ax.set_title('obs', loc='left')
+                if ax.is_first_col():
+                    ax.set_ylabel("Pressure Level (hPa)")
+                else:
+                    plt.setp(ax.get_yticklabels(), visible=False)
+                ax.set_title('obs.', loc='left')
                 CF0 = ax.contourf(xx, yy, obs_level_mean_data,
                                   cmap=cmap,
                                   extend='both')
@@ -278,27 +334,31 @@ for stat in plot_stats_list:
         else:
            ax = plt.subplot(gs[model_index])
         ax.grid(True)
-        ax.tick_params(axis='x', pad=15)
         if verif_case == 'grid2obs':
             ax.set_xticks(leads[::2])
         else:
             ax.set_xticks(leads)
         ax.set_xlim([leads[0], leads[-1]])
-        ax.set_xlabel("Forecast Hour", labelpad=20)
-        ax.tick_params(axis='y', pad=15)
-        ax.set_ylabel("Pressure Level", labelpad=20)
+        if ax.is_last_row() or (nmodels % 2 != 0 and model_num == nmodels -1):
+            ax.set_xlabel("Forecast Hour")
+        else:
+            plt.setp(ax.get_xticklabels(), visible=False)
         ax.set_yscale("log")
         ax.invert_yaxis()
         ax.minorticks_off()
         ax.set_yticks(fcst_var_levels)
         ax.set_yticklabels(fcst_var_levels)
         ax.set_ylim([fcst_var_levels[0],fcst_var_levels[-1]])
+        if ax.is_first_col():
+            ax.set_ylabel("Pressure Level (hPa)")
+        else:
+            plt.setp(ax.get_yticklabels(), visible=False)
         if stat == "fbar_obar":
             logger.debug("Plotting model "+str(model_num)
-                         +" "+model_name+" - obs"
+                         +" "+model_name+" - obs."
                          +" with name on plot "+model_plot_name
-                         +" - obs")
-            ax.set_title(model_plot_name+" - obs", loc='left')
+                         +" - obs.")
+            ax.set_title(model_plot_name+" - obs.", loc='left')
             model_obs_diff = model_level_mean_data - obs_level_mean_data
             if model_num == 1:
                 clevels_diff = plot_util.get_clevels(model_obs_diff)
@@ -424,35 +484,13 @@ for stat in plot_stats_list:
                     #          fmt='%1.2f', 
                     #          inline=True, 
                     #          fontsize=12.5)
-    cax = fig.add_axes([0.1, colorbar_y, 0.8, colorbar_height])
-    if stat == "fbar_obar":
-        cbar = fig.colorbar(CF1,
-                            cax=cax, 
-                            orientation='horizontal',
-                            ticks=CF1.levels)
-    elif stat == "bias":
-        cbar = fig.colorbar(CF1, 
-                            cax=cax, 
-                            orientation='horizontal', 
-                            ticks=CF1.levels)
-    else:
-        if nsubplots == 1:
-            cbar = fig.colorbar(CF1,     
-                                cax=cax,     
-                                orientation='horizontal',     
-                                ticks=CF1.levels)
-        else:
-            cbar = fig.colorbar(CF2, 
-                                cax=cax, 
-                                orientation='horizontal', 
-                                ticks=CF2.levels) 
+    # Build formal plot title
     if grid == region:
         gridregion = grid
     else:
         gridregion = grid+region
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
-    # Build formal plot title
     start_date_formatted = datetime.datetime.strptime(
         start_date_YYYYmmdd,"%Y%m%d"
     ).strftime('%d%b%Y')
@@ -471,8 +509,54 @@ for stat in plot_stats_list:
     full_title = (
         stat_plot_name+"\n"
         +var_info_title+", "+region_title+"\n"
-        +date_info_title+"\n"
+        +date_info_title
     )
+    fig.suptitle(full_title,
+                 x = suptitle_x_loc, y = suptitle_y_loc,
+                 horizontalalignment = title_loc,
+                 verticalalignment = title_loc)
+    noaa_img = fig.figimage(noaa_logo_img_array,
+                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                 zorder=1, alpha=noaa_logo_alpha)
+    nws_img = fig.figimage(nws_logo_img_array,
+                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                 zorder=1, alpha=nws_logo_alpha)
+    plt.subplots_adjust(
+        left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
+        right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
+    )
+    # Add colorbar
+    cbar_left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+    cbar_width = (
+        nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
+        - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+    )
+    if stat == "bias":
+        make_colorbar = True
+        colorbar_CF = CF1
+        colorbar_CF_ticks = CF1.levels
+        colorbar_label = 'Bias'
+    elif stat!= "bias" and nmodels > 1:
+        make_colorbar = True
+        colorbar_label = 'Difference'
+        if stat == "fbar_obar":
+            colorbar_CF = CF1
+            colorbar_ticks = CF1.levels
+        else:
+            colorbar_CF = CF2
+            colorbar_CF_ticks = CF2.levels
+    else:
+        make_colorbar = False
+    if make_colorbar:
+        cax = fig.add_axes(
+            [cbar_left, cbar_bottom, cbar_width, cbar_height]
+        )
+        cbar = fig.colorbar(colorbar_CF,
+                            cax = cax,
+                            orientation = 'horizontal',
+                            ticks = colorbar_CF_ticks)
+        cbar.ax.set_xlabel(colorbar_label, labelpad = 0)
+        cbar.ax.xaxis.set_tick_params(pad=0)
     # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'grid2obs':
@@ -508,8 +592,6 @@ for stat in plot_stats_list:
                                         +"_all_fhrmean"
                                         +"_"+gridregion
                                         +".png")
-    fig.suptitle(full_title, fontsize=18, fontweight='bold', y=suptitle_y)
-    fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
-    plt.savefig(savefig_name, bbox_inches='tight')
+    plt.savefig(savefig_name)
     plt.close()

@@ -40,6 +40,7 @@ plt.rcParams['legend.borderaxespad'] = 0
 plt.rcParams['legend.columnspacing'] = 1.0
 plt.rcParams['legend.frameon'] = False
 x_figsize, y_figsize = 14, 7
+nticks = 4
 legend_bbox_x, legend_bbox_y = 0.5, 0.05
 legend_fontsize = 13
 legend_loc = 'center'
@@ -432,19 +433,13 @@ for stat in plot_stats_list:
             ax.grid(True)
             ax.set_xlabel(plot_time.title()+" Date")
             ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
-            if len(plot_time_dates) <= 3:
-                day_interval = 1
-            elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
-                day_interval = 2
-            elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
-                day_interval = 7 
-            elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
-                day_interval = 10
-            else:
-                day_interval = 30
-            ax.xaxis.set_major_locator(md.DayLocator(interval=day_interval))
+            day_interval = int(len(plot_time_dates)/nticks)
+            ax.set_xticks(plot_time_dates[::day_interval])
             ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
-            ax.xaxis.set_minor_locator(md.DayLocator())
+            if len(plot_time_dates) > 60:
+                ax.xaxis.set_minor_locator(md.MonthLocator())
+            else:
+                ax.xaxis.set_minor_locator(md.DayLocator())
             ax.set_ylabel(stat_plot_name)
             if stat == "fbar_obar":
                 obs_plot_settings_dict = (

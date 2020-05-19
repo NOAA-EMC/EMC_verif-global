@@ -297,10 +297,14 @@ for stat in plot_stats_list:
             ax1.grid(True)
             ax1.set_xticks(fcst_var_thresh_counts)
             ax1.set_xlim([fcst_var_thresh_counts[0], fcst_var_thresh_counts[-1]])
-            ax1.set_xticklabels(fcst_var_thresh_list)
+            #ax1.set_xticklabels(fcst_var_thresh_val_list)
+            #ax1.set_xticklabels(fcst_var_thresh_list)
             ax1.set_ylabel("Mean")
             ax2.grid(True)
             ax2.set_xlabel("Forecast Threshold")
+            ax2.set_xticks(fcst_var_thresh_counts)
+            ax2.set_xlim([fcst_var_thresh_counts[0], fcst_var_thresh_counts[-1]])
+            ax2.set_xticklabels(fcst_var_thresh_val_list)
             ax2.set_ylabel("Difference")
             props = {
                 'boxstyle': 'square',

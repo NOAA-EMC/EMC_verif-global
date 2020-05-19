@@ -324,7 +324,8 @@ for stat in plot_stats_list:
                 ax.grid(True)
                 ax.set_xticks(fcst_var_thresh_counts)
                 ax.set_xlim([fcst_var_thresh_counts[0], fcst_var_thresh_counts[-1]])
-                ax.set_xticklabels(fcst_var_thresh_list)
+                #ax.set_xticklabels(fcst_var_thresh_list)
+                ax.set_xticklabels(fcst_var_thresh_val_list)
                 if ax.is_last_row():
                     ax.set_xlabel("Forecast Threshold (mm)")
                 else:
@@ -355,7 +356,8 @@ for stat in plot_stats_list:
         ax.grid(True)
         ax.set_xticks(fcst_var_thresh_counts)
         ax.set_xlim([fcst_var_thresh_counts[0], fcst_var_thresh_counts[-1]])
-        ax.set_xticklabels(fcst_var_thresh_list)
+        ax.set_xticklabels(fcst_var_thresh_val_list)
+        #ax.set_xticklabels(fcst_var_thresh_list)
         if ax.is_last_row() or (nmodels % 2 != 0 and model_num == nmodels -1):
             ax.set_xlabel("Forecast Threshold (mm)")
         else:

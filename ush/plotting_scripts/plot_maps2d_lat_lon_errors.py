@@ -44,6 +44,28 @@ nws_logo_alpha = 0.5
 # Functions
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                      py_map_pckg, latlon_area):
+    """ Draw map for subplot.
+            
+            Args:
+                subplot_num   - integer of the subplot
+                                location number
+                subplot_title - string of the title for
+                                subplot
+                nsubplots     - integer of the number
+                                of total subplots in
+                                image
+                py_map_pckg   - string of the python
+                                map plotting package
+                                to use; either cartopy
+                                or basemap
+                latlon_area   - list of the bounding
+                                latitudes and longitudes
+                                for the map
+
+           Returns:
+                ax_tmp     -    subplot axis object
+                map_ax_tmp -    subplot map information
+    """
     llcrnrlat_val = float(latlon_area[0])
     urcrnrlat_val = float(latlon_area[1])
     llcrnrlon_val = float(latlon_area[2])
@@ -99,6 +121,27 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
 def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                       plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
                       latlon_area):
+        """ Plot data for subplot.
+            
+            Args:
+                ax_tmp        - subplot axis object
+                map_ax_tmp    - subplot map information
+                plot_data     - array of the data to plot  
+                plot_data_lat - array of the data latitudes
+                plot_data_lon - array of the data longitudes
+                plot_levels   - array of the contour levels
+                plot_cmap     - string of the colormap to use
+                py_map_pckg   - string of the python
+                                map plotting package
+                                to use; either cartopy
+                                or basemap
+                latlon_area   - list of the bounding
+                                latitudes and longitudes
+                                for the map
+
+           Returns:
+                CF_tmp     -    subplot contour fill object
+    """
     llcrnrlat_val = float(latlon_area[0])
     urcrnrlat_val = float(latlon_area[1])
     llcrnrlon_val = float(latlon_area[2])
@@ -570,7 +613,6 @@ for var_level in var_levels:
         cax00.yaxis.set_ticks_position('left')
         cax00.yaxis.set_label_position('left')
         cbar00.ax.yaxis.set_tick_params(pad=0)
-        cbar00.ax.set_ylabel(var_info_title, labelpad = 5)
     if len(list(subplot_CF_dict.keys())) > 1:
         cbar_subplot = None
         for subplot_loc in list(subplot_CF_dict.keys()):

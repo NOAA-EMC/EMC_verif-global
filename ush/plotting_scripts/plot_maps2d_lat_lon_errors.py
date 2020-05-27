@@ -42,6 +42,50 @@ nws_logo_img_array = matplotlib.image.imread(
 nws_logo_alpha = 0.5
 
 # Functions
+def read_series_analysis_file(series_analysis_file, var_scale):
+    print(series_analysis_file+" exists")
+    series_analysis_data = netcdf.Dataset(series_analysis_file)
+    series_analysis_data_lat = series_analysis_data.variables['lat'][:]
+    series_analysis_data_lon = series_analysis_data.variables['lon'][:]
+    series_analysis_data_variable_names = []
+    for var in series_analysis_data.variables:
+        series_analysis_data_variable_names.append(str(var))
+    if 'series_cnt_FBAR' in series_analysis_data_variable_names:
+        series_analysis_data_series_cnt_FBAR =  (
+            series_analysis_data.variables['series_cnt_FBAR'][:] * var_scale
+        )
+    else:
+        print("WARNING: FBAR values not in file "+series_analysis_file
+              +"...setting to NaN")
+        series_analysis_data_series_cnt_FBAR = np.full(
+            (len(series_analysis_data_lat), len(series_analysis_data_lon)),
+            np.nan
+        )
+    if np.ma.is_masked(series_analysis_data_series_cnt_FBAR):
+        np.ma.set_fill_value(series_analysis_data_series_cnt_FBAR, np.nan)
+        series_analysis_data_series_cnt_FBAR = (
+            series_analysis_data_series_cnt_FBAR.filled()
+        )
+    if 'series_cnt_OBAR' in series_analysis_data_variable_names:
+        series_analysis_data_series_cnt_OBAR =  (
+            series_analysis_data.variables['series_cnt_OBAR'][:] * var_scale
+        )
+    else:
+        print("WARNING: OBAR values not in file "+series_analysis_file
+              +"...setting to NaN")
+        series_analysis_data_series_cnt_OBAR = np.full(
+            (len(series_analysis_data_lat), len(series_analysis_data_lon)),
+            np.nan
+        )
+    if np.ma.is_masked(series_analysis_data_series_cnt_OBAR):
+        np.ma.set_fill_value(series_analysis_data_series_cnt_OBAR, np.nan)
+        series_analysis_data_series_cnt_OBAR = (
+            series_analysis_data_series_cnt_OBAR.filled()
+        )
+    return (series_analysis_data_series_cnt_FBAR,
+            series_analysis_data_series_cnt_OBAR,
+            series_analysis_data_lat, series_analysis_data_lon)
+
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                      py_map_pckg, latlon_area):
     """ Draw map for subplot.
@@ -121,7 +165,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
 def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                       plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
                       latlon_area):
-        """ Plot data for subplot.
+    """ Plot data for subplot.
             
             Args:
                 ax_tmp        - subplot axis object
@@ -459,45 +503,11 @@ for var_level in var_levels:
                 ax_anl.set_title('--', loc='right')
             ax.set_title('--', loc='right')
         else:
-            print(model_series_analysis_netcdf_file+" exists")
-            model_data = netcdf.Dataset(model_series_analysis_netcdf_file)
-            model_data_lat = model_data.variables['lat'][:]
-            model_data_lon = model_data.variables['lon'][:]
-            model_data_variable_names = []
-            for var in model_data.variables:
-                model_data_variable_names.append(str(var))
-            if 'series_cnt_FBAR' in model_data_variable_names:
-                model_data_series_cnt_FBAR =  (
-                    model_data.variables['series_cnt_FBAR'][:] * var_scale
-                )
-            else:
-                print("WARNING: FBAR values for "+model+" "
-                      +"not in file "+model_series_analysis_netcdf_file
-                      +"...setting to NaN")
-                model_data_series_cnt_FBAR = np.full(
-                    (len(model_data_lat), len(model_data_lon)), np.nan
-                )
-            if np.ma.is_masked(model_data_series_cnt_FBAR):
-                np.ma.set_fill_value(model_data_series_cnt_FBAR, np.nan)
-                model_data_series_cnt_FBAR = (
-                    model_data_series_cnt_FBAR.filled()
-                )
-            if 'series_cnt_OBAR' in model_data_variable_names:
-                model_data_series_cnt_OBAR =  (
-                    model_data.variables['series_cnt_OBAR'][:] * var_scale
-                )
-            else:
-                print("WARNING: OBAR values for "+model+" "
-                      +"not in file "+model_series_analysis_netcdf_file
-                      +"...setting to NaN")
-                model_data_series_cnt_OBAR = np.full(
-                    (len(model_data_lat), len(model_data_lon)), np.nan
-                )
-            if np.ma.is_masked(model_data_series_cnt_OBAR):
-                np.ma.set_fill_value(model_data_series_cnt_OBAR, np.nan)
-                model_data_series_cnt_OBAR = (
-                    model_data_series_cnt_OBAR.filled()
-                )
+            (model_data_series_cnt_FBAR, model_data_series_cnt_OBAR,
+             model_data_lat, model_data_lon) = (
+                read_series_analysis_file(model_series_analysis_netcdf_file,
+                                          var_scale)
+            )
             if verif_case_type == 'model2obs':
                 if model_num == 1:
                     print("Plotting "+model_obtype+" observations")

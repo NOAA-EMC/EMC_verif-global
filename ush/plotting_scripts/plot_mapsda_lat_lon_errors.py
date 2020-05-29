@@ -265,7 +265,7 @@ var_levels = os.environ['var_levels'].split(', ')
 verif_case_type = os.environ['verif_case_type']
 if verif_case_type == 'gdas':
     regrid_to_grid = os.environ['regrid_to_grid']
-    plot_stats_list = ['bias', 'rmse']
+    plot_stats_list = ['inc', 'rmse']
 elif verif_case_type == 'ens':
     plot_stats_list = ['mean', 'spread']
 
@@ -338,8 +338,8 @@ levsn64p = np.array(
 # Loop of variables levels to create
 # indivdual level lat-lon plots
 for stat in plot_stats_list:
-    if stat == 'bias':
-        stat_title = 'Bias of GDAS Analysis Increments'
+    if stat == 'inc':
+        stat_title = 'GDAS Analysis Increments'
     elif stat == 'rmse':
         stat_title = 'Root Mean Square Error of GDAS Analysis Increments'
     elif stat == 'mean':
@@ -494,7 +494,7 @@ for stat in plot_stats_list:
                 subplot_num =  model_num - 1
             else:
                 subplot_num =  model_num
-            if stat == 'bias':
+            if stat == 'inc':
                 subplot_title = '(A-B) '+model_plot_name
             elif stat == 'rmse':
                 if model_num == 1:
@@ -524,7 +524,7 @@ for stat in plot_stats_list:
                      model_data_lat, model_data_lon) = (
                         read_series_analysis_file(input_file, var_scale)
                     )
-                    if stat == 'bias':
+                    if stat == 'inc':
                         stat_data = (model_data_series_cnt_OBAR
                                      - model_data_series_cnt_FBAR)
                     elif stat == 'rmse':
@@ -640,8 +640,8 @@ for stat in plot_stats_list:
                         )
                         subplot_CF_dict[ax_cntrl_subplot_loc] = CF_ax_cntrl
                 if verif_case_type == 'gdas':
-                    if stat == 'bias':
-                        print("Plotting "+model+" increment bias")
+                    if stat == 'inc':
+                        print("Plotting "+model+" increments")
                         if model_num == 1:
                             levels_plot = plot_util.get_clevels(stat_data)
                             cmap_plot = plt.cm.PiYG_r
@@ -724,11 +724,11 @@ for stat in plot_stats_list:
             cax00.yaxis.set_label_position('left')
             cbar00.ax.yaxis.set_tick_params(pad=0)
         if verif_case_type == 'ens' or \
-                (verif_case_type == 'gdas' and stat == 'bias'):
+                (verif_case_type == 'gdas' and stat == 'inc'):
             if verif_case_type == 'ens':
                 cbar_title = 'Difference'
-            elif (verif_case_type == 'gdas' and stat == 'bias'):
-                cbar_title = 'Bias'
+            elif (verif_case_type == 'gdas' and stat == 'inc'):
+                cbar_title = 'Increments'
             if len(list(subplot_CF_dict.keys())) > 1:
                 cbar_subplot = None
                 for subplot_loc in list(subplot_CF_dict.keys()):

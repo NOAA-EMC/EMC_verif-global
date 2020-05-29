@@ -695,7 +695,8 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
     cbar00_left = subplot00_pos.x0 - cbar00_left_adjust
     cbar00_bottom = subplot00_pos.y0
     cbar00_height = subplot00_pos.y1 - subplot00_pos.y0
-    if subplot_CF_dict['0,0'] != None:
+    if ('0,0' in list(subplot_CF_dict.keys()) \
+            and subplot_CF_dict['0,0'] != None):
         cax00 = fig.add_axes(
             [cbar00_left, cbar00_bottom, cbar00_width, cbar00_height]
         )
@@ -713,36 +714,40 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 cbar_subplot = subplot_CF_dict[subplot_loc]
                 cbar_subplot_loc = subplot_loc
                 break
-    if cbar_subplot != None:
-        if nsubplots == 2:
-            subplot_pos = ax.get_position()
-            cbar_left = subplot_pos.x1 + 0.01
-            cbar_bottom = subplot_pos.y0
-            cbar_width = cbar00_width
-            cbar_height = subplot_pos.y1 - subplot_pos.y0
-            cbar_orientation = 'vertical'
-        else:
-            cbar_left = (
-                noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        if cbar_subplot != None:
+            if nsubplots == 2:
+                subplot_pos = ax.get_position()
+                cbar_left = subplot_pos.x1 + 0.01
+                cbar_bottom = subplot_pos.y0
+                cbar_width = cbar00_width
+                cbar_height = subplot_pos.y1 - subplot_pos.y0
+                cbar_orientation = 'vertical'
+            else:
+                cbar_left = (
+                    noaa_img.get_extent()[1]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                )
+                cbar_width = (
+                    nws_img.get_extent()[0]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                    - noaa_img.get_extent()[1]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                )
+                cbar_orientation = 'horizontal'
+            cax = fig.add_axes(
+                [cbar_left, cbar_bottom, cbar_width, cbar_height]
             )
-            cbar_width = (
-                nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
-                - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
-            )
-            cbar_orientation = 'horizontal'
-        cax = fig.add_axes(
-            [cbar_left, cbar_bottom, cbar_width, cbar_height]
-        )
-        cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
-                            cax = cax,
-                            orientation = cbar_orientation,
-                            ticks = subplot_CF_dict[cbar_subplot_loc].levels)
-        if nsubplots == 2:
-            cbar.ax.set_ylabel('Difference', labelpad = 5)
-            cbar.ax.yaxis.set_tick_params(pad=0) 
-        else:
-            cbar.ax.set_xlabel('Difference', labelpad = 0)
-            cbar.ax.xaxis.set_tick_params(pad=0) 
+            cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
+                                cax = cax,
+                                orientation = cbar_orientation,
+                                ticks = subplot_CF_dict[cbar_subplot_loc] \
+                                    .levels)
+            if nsubplots == 2:
+                cbar.ax.set_ylabel('Difference', labelpad = 5)
+                cbar.ax.yaxis.set_tick_params(pad=0) 
+            else:
+                cbar.ax.set_xlabel('Difference', labelpad = 0)
+                cbar.ax.xaxis.set_tick_params(pad=0) 
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 verif_case_type+'_'+var_group_name

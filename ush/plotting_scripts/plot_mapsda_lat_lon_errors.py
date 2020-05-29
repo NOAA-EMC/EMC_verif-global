@@ -226,6 +226,8 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                 - np.abs((0.01 * np.nanmin(plot_data)))
             )
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
+    if not all(i < j for i, j in zip(plot_levels, plot_levels[1:])):
+        plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
     if np.count_nonzero(~np.isnan(plot_data_cyc)) != 0:
@@ -514,8 +516,8 @@ for stat in plot_stats_list:
                 print("WARNING: "+input_file+" "
                       +"does not exist")
                 if verif_case_type == 'gdas' and model_num == 1:
-                    ax_cntrl.set_title('--', loc='left') 
-                ax.set_title('--', loc='left')
+                    ax_cntrl.set_title('--', loc='right') 
+                ax.set_title('--', loc='right')
             else:
                 if verif_case_type == 'gdas':
                     (model_data_series_cnt_FBAR, model_data_series_cnt_OBAR,
@@ -613,10 +615,7 @@ for stat in plot_stats_list:
                         model_data_var = (
                             model_data_var.filled()
                         )
-                    if stat == 'mean':
-                        model_data_var = model_data_var * var_scale
-                    else:
-                        model_data_var = model_data_var
+                    model_data_var = model_data_var * var_scale
                     if model_num == 1:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
@@ -664,22 +663,15 @@ for stat in plot_stats_list:
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
                         model1 = model
+                        levels_plot = np.nan
                         if stat == 'mean':
-                            levels_plot = levels
                             cmap_plot = cmap
                         elif stat == 'spread':
-                            levels_plot = np.arange(
-                               0, round(np.nanmax(stat_data),0) + 1, 5
-                            )
                             cmap_plot = plt.cm.afmhot_r
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                        if stat == 'mean':
-                               levels_plot = levels_diff
-                               cmap_plot = cmap_diff 
-                        elif stat == 'spread':
-                               levels_plot = plot_util.get_clevels(stat_data)
-                               cmap_plot = cmap_diff
+                        levels_plot = plot_util.get_clevels(stat_data)
+                        cmap_plot = cmap_diff
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
                 ax_plot_data_lat = model_data_lat
@@ -719,7 +711,8 @@ for stat in plot_stats_list:
         cbar00_left = subplot00_pos.x0 - cbar00_left_adjust
         cbar00_bottom = subplot00_pos.y0
         cbar00_height = subplot00_pos.y1 - subplot00_pos.y0
-        if subplot_CF_dict['0,0'] != None:
+        if ('0,0' in list(subplot_CF_dict.keys()) \
+                and subplot_CF_dict['0,0'] != None):
             cax00 = fig.add_axes(
                 [cbar00_left, cbar00_bottom, cbar00_width, cbar00_height]
             )
@@ -744,47 +737,48 @@ for stat in plot_stats_list:
                         cbar_subplot = subplot_CF_dict[subplot_loc]
                         cbar_subplot_loc = subplot_loc
                         break
-            if cbar_subplot != None:
-                if nsubplots == 2:
-                    subplot_pos = ax.get_position()
-                    cbar_left = subplot_pos.x1 + 0.01
-                    cbar_bottom = subplot_pos.y0
-                    cbar_width = cbar00_width
-                    cbar_height = subplot_pos.y1 - subplot_pos.y0
-                    cbar_orientation = 'vertical'
-                else:
-                    cbar_left = (
-                        noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
+                if cbar_subplot != None:
+                    if nsubplots == 2:
+                        subplot_pos = ax.get_position()
+                        cbar_left = subplot_pos.x1 + 0.01
+                        cbar_bottom = subplot_pos.y0
+                        cbar_width = cbar00_width
+                        cbar_height = subplot_pos.y1 - subplot_pos.y0
+                        cbar_orientation = 'vertical'
+                    else:
+                        cbar_left = (
+                            noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_width = (
+                            nws_img.get_extent()[0]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                            - noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_orientation = 'horizontal'
+                    cax = fig.add_axes(
+                        [cbar_left, cbar_bottom, cbar_width, cbar_height]
                     )
-                    cbar_width = (
-                        nws_img.get_extent()[0]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
-                        - noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
-                    )
-                    cbar_orientation = 'horizontal'
-                cax = fig.add_axes(
-                    [cbar_left, cbar_bottom, cbar_width, cbar_height]
-                )
-                cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
-                                    cax = cax,
-                                    orientation = cbar_orientation,
-                                    ticks = subplot_CF_dict \
-                                        [cbar_subplot_loc].levels)
-                if nsubplots == 2:
-                    cbar.ax.set_ylabel(cbar_title, labelpad = 5)
-                    cbar.ax.yaxis.set_tick_params(pad=0) 
-                else:
-                    cbar.ax.set_xlabel(cbar_title, labelpad = 0)
-                    cbar.ax.xaxis.set_tick_params(pad=0)
+                    cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
+                                        cax = cax,
+                                        orientation = cbar_orientation,
+                                        ticks = subplot_CF_dict \
+                                            [cbar_subplot_loc].levels)
+                    if nsubplots == 2:
+                        cbar.ax.set_ylabel(cbar_title, labelpad = 5)
+                        cbar.ax.yaxis.set_tick_params(pad=0) 
+                    else:
+                        cbar.ax.set_xlabel(cbar_title, labelpad = 0)
+                        cbar.ax.xaxis.set_tick_params(pad=0)
         elif (verif_case_type == 'gdas' and stat == 'rmse'):
             subplot01_pos = ax_model1.get_position()
             cbar01_left = subplot01_pos.x1 + 0.01
             cbar01_bottom = subplot01_pos.y0
             cbar01_width = cbar00_width
             cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
-            if subplot_CF_dict['0,1'] != None:
+            if ('0,1' in list(subplot_CF_dict.keys()) \
+                    and subplot_CF_dict['0,1'] != None):
                 cax01 = fig.add_axes(
                     [cbar01_left, cbar01_bottom, cbar01_width, cbar01_height]
                 )
@@ -807,11 +801,9 @@ for stat in plot_stats_list:
                     if nsubplots == 3:
                         subplot_pos = ax.get_position()
                         cbar_left = cbar00_left
-                        #cbar_left = subplot_pos.x1 + 0.01
                         cbar_bottom = subplot_pos.y0
                         cbar_width = cbar00_width
                         cbar_height = cbar00_height
-                        #cbar_height = subplot_pos.y1 - subplot_pos.y0
                         cbar_orientation = 'vertical'
                     else:
                         cbar_left = (

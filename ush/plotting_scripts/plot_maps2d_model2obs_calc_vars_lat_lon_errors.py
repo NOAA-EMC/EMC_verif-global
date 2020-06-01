@@ -233,6 +233,18 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                 np.nanmin(plot_data)
                 - np.abs((0.01 * np.nanmin(plot_data)))
             )
+        if np.abs(levels_max) > 1 and np.abs(levels_max) < 100:
+            levels_max = round(levels_max, 0)
+        elif np.abs(levels_max) > 100:
+            levels_max = round(levels_max, -1)
+        else:
+            levels_max = round(levels_max, 2)
+        if np.abs(levels_min) > 1 and np.abs(levels_min) < 100:
+            levels_min = round(levels_min, 0)
+        elif np.abs(levels_min) > 100:
+            levels_min = round(levels_min, -1)
+        else:
+            levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
@@ -347,6 +359,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         levels_diff = np.array([-60,-40,-30,-20,-10,0,10,20,30,40,60])
         cmap = plt.cm.Wistia
         var_scale = 1
+        cbar00_title = 'Atmospheric Absorbed Shortwave'
         files_needed_list = [
            forecast_to_plot+'_DSWRF_toa_obsonly.nc',
            forecast_to_plot+'_DSWRF_sfc.nc', 
@@ -361,6 +374,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         levels_diff = np.array([-60,-40,-30,-20,-10,0,10,20,30,40,60])
         cmap = plt.cm.cool
         var_scale = 1
+        cbar00_title = 'Atmospheric Emitted Longwave'
         files_needed_list = [
            forecast_to_plot+'_DLWRF_sfc.nc',        
            forecast_to_plot+'_ULWRF_toa.nc',
@@ -374,6 +388,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         )
         cmap = plt.cm.cubehelix_r
         var_scale = 1
+        cbar00_title = 'Albedo'
         files_needed_list = [
            forecast_to_plot+'_DSWRF_sfc.nc',        
            forecast_to_plot+'_USWRF_sfc.nc',
@@ -706,6 +721,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                               ticks = subplot_CF_dict['0,0'].levels)
         cax00.yaxis.set_ticks_position('left')
         cax00.yaxis.set_label_position('left')
+        cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
         cbar00.ax.yaxis.set_tick_params(pad=0)
     if len(list(subplot_CF_dict.keys())) > 1:
         cbar_subplot = None

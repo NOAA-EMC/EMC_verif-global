@@ -225,6 +225,18 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                 np.nanmin(plot_data)
                 - np.abs((0.01 * np.nanmin(plot_data)))
             )
+        if np.abs(levels_max) > 1 and np.abs(levels_max) < 100:
+            levels_max = round(levels_max, 0)
+        elif np.abs(levels_max) > 100:
+            levels_max = round(levels_max, -1)
+        else:
+            levels_max = round(levels_max, 2)
+        if np.abs(levels_min) > 1 and np.abs(levels_min) < 100:
+            levels_min = round(levels_min, 0)
+        elif np.abs(levels_min) > 100:
+            levels_min = round(levels_min, -1)
+        else:
+            levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
     if not all(i < j for i, j in zip(plot_levels, plot_levels[1:])):
         plot_levels = np.linspace(0, 1, 11, endpoint=True)
@@ -347,7 +359,7 @@ for stat in plot_stats_list:
     elif stat == 'spread':
         stat_title = 'Ensemble Spread'
     for var_level in var_levels:
-        var_info_title, levels, levels_diff, cmap, var_scale = (
+        var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
             maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
         )
         model_num = 0
@@ -722,6 +734,7 @@ for stat in plot_stats_list:
                                   ticks = subplot_CF_dict['0,0'].levels)
             cax00.yaxis.set_ticks_position('left')
             cax00.yaxis.set_label_position('left')
+            cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
             cbar00.ax.yaxis.set_tick_params(pad=0)
         if verif_case_type == 'ens' or \
                 (verif_case_type == 'gdas' and stat == 'inc'):

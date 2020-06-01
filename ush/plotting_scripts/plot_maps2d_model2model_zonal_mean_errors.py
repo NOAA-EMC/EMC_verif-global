@@ -121,7 +121,7 @@ for env_var_model in env_var_model_list:
     var_level_num = 0 
     for var_level in var_levels:
         var_level_num+=1
-        var_info_title, levels, levels_diff, cmap, var_scale = (
+        var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
             maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
         )
         model_series_analysis_netcdf_file = os.path.join(

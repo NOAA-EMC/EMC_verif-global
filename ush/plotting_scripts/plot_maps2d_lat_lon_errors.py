@@ -119,7 +119,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     if py_map_pckg == 'cartopy':
         ax_tmp = plt.subplot(
             gs[subplot_num],
-            projection=ccrs.PlateCarree(central_longitude=179.99)
+            projection=ccrs.PlateCarree(central_longitude=180)
         )
         map_ax_tmp = ax_tmp
         if urcrnrlon_val == 360:
@@ -199,6 +199,10 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
         plot_data_cyc, plot_data_lon_cyc = addcyclic(
             plot_data, plot_data_lon
         )
+    # NOTE: using cartopy 0.16, using cyclic data sometimes
+    #       breaks geometries so not using
+    plot_data_cyc = plot_data
+    plot_data_lon_cyc = plot_data_lon
     # Get area average
     plot_data_area_avg = maps2d_plot_util.calculate_area_average(
         plot_data, plot_data_lat, plot_data_lon,

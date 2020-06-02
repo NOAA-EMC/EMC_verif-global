@@ -665,8 +665,9 @@ for stat in plot_stats_list:
                         else:
                             print("Plotting "+model+" - "+model1+" "
                                   +"increment RMSE")
-                            levels_plot = plot_util.get_clevels(stat_data)
-                            cmap_plot = cmap_diff
+                            if model_num == 2:
+                                levels_plot = plot_util.get_clevels(stat_data)
+                                cmap_plot = cmap_diff
                 elif verif_case_type == 'ens':
                     if var_name != 'PRES':
                         ax.set_title('idx='
@@ -682,8 +683,9 @@ for stat in plot_stats_list:
                             cmap_plot = plt.cm.afmhot_r
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                        levels_plot = plot_util.get_clevels(stat_data)
-                        cmap_plot = cmap_diff
+                        if model_num == 2:
+                            levels_plot = plot_util.get_clevels(stat_data)
+                            cmap_plot = cmap_diff
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
                 ax_plot_data_lat = model_data_lat

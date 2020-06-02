@@ -120,7 +120,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     if py_map_pckg == 'cartopy':
         ax_tmp = plt.subplot(
             gs[subplot_num],
-            projection=ccrs.PlateCarree(central_longitude=180)
+            projection=ccrs.PlateCarree(central_longitude=179.99)
         )
         map_ax_tmp = ax_tmp
         if urcrnrlon_val == 360:

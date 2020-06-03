@@ -298,7 +298,7 @@ for stat in plot_stats_list:
                 ax = plt.subplot(gs[0])
                 ax.grid(True)
                 if verif_case == 'grid2obs':
-                    ax.set_xticks(leads[::2])
+                    ax.set_xticks(leads[::4])
                 else:
                     ax.set_xticks(leads)
                 ax.set_xlim([leads[0], leads[-1]])
@@ -335,7 +335,7 @@ for stat in plot_stats_list:
            ax = plt.subplot(gs[model_index])
         ax.grid(True)
         if verif_case == 'grid2obs':
-            ax.set_xticks(leads[::2])
+            ax.set_xticks(leads[::4])
         else:
             ax.set_xticks(leads)
         ax.set_xlim([leads[0], leads[-1]])

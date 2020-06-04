@@ -1255,8 +1255,7 @@ def create_job_script_maps2d(sdate, edate, model_list, type_list):
                                 'python '
                                 +os.path.join(USHverif_global,
                                               'plotting_scripts',
-                                              'plot_maps2d_model2model'
-                                              +'_zonal_mean_errors'
+                                              'plot_maps2d_zonal_mean_errors'
                                               +'.py\n')
                             )
                         job_file.write('nimgs=$(ls '

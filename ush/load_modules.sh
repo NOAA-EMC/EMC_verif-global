@@ -37,7 +37,6 @@ if [ $machine = WCOSS_C ]; then
     module load alps 
     module load cfp-intel-sandybridge/1.1.0 
     module load prod_util 
-    #module load prod_envir 
     module load grib_util/1.1.0 
     module load util_shared/1.0.7 
     module load nco-gnu-sandybridge/4.4.4 
@@ -69,7 +68,6 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load ips/18.0.1.163 
     module load impi/18.0.1 
     module load prod_util/1.1.0 
-    #module load prod_envir/1.0.2 
     module load grib_util/1.0.6 
     module load NCO/4.7.0 
     module load NetCDF/4.5.0
@@ -98,21 +96,18 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     fi
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
-    #module use /scratch1/NCEPDEV/global/gwv/l819/lib/modulefiles
-    #export NCEPLIBS=/scratch1/NCEPDEV/global/gwv/l819/lib
-    #module load prod_util/v1.1.0
-    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-    module use /contrib/modulefiles
     module load intel
     module load impi
-    module load contrib
-    module load prod_util/1.1.0
-    module load grib_util/1.1.1
+    module load hpss/hpss
     module load netcdf
     module load nco
-    module load hpss/hpss
+    module use -a /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+    module load prod_util/1.1.0
+    module load grib_util/1.1.1
+    module use -a /contrib/anaconda/modulefiles
     module load anaconda/anaconda2-4.4.0
     if [ $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
+        module use -a /contrib/met/modulefiles
         module load met/$MET_version
         export HOMEMET="/contrib/met/${MET_version}"
     else

@@ -16,18 +16,85 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as md
 
 warnings.filterwarnings('ignore')
+
+# Plot Settings
 plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 15
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 15
-plt.rcParams['ytick.labelsize'] = 15
-plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.titlesize'] = 16
+plt.rcParams['axes.titlepad'] = 15
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 16
+plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
-colors = [
-    '#000000', '#036398', '#D55E00', '#882255',
-    '#2F1E80', '#D6B616', '#018C66', '#CC79A7'
-]
+plt.rcParams['xtick.labelsize'] = 16
+plt.rcParams['xtick.major.pad'] = 10
+plt.rcParams['ytick.labelsize'] = 16
+plt.rcParams['ytick.major.pad'] = 10
+plt.rcParams['figure.subplot.left'] = 0.1
+plt.rcParams['figure.subplot.right'] = 0.95
+plt.rcParams['figure.subplot.top'] = 0.85
+plt.rcParams['figure.subplot.bottom'] = 0.15
+plt.rcParams['legend.handletextpad'] = 0.25
+plt.rcParams['legend.handlelength'] = 1.25
+plt.rcParams['legend.borderaxespad'] = 0
+plt.rcParams['legend.columnspacing'] = 1.0
+plt.rcParams['legend.frameon'] = False
+x_figsize, y_figsize = 14, 7
+nticks = 4
+legend_bbox_x, legend_bbox_y = 0.5, 0.05
+legend_fontsize = 13
+legend_loc = 'center'
+legend_ncol = 5
+title_loc = 'center'
+model_obs_plot_settings_dict = {
+    'model1': {'color': '#000000',
+               'marker': 'None', 'markersize': 0,
+               'linestyle': 'solid', 'linewidth': 3},
+    'model2': {'color': '#FB2020',
+               'marker': '^', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model3': {'color': '#00DC00',
+               'marker': 'x', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model4': {'color': '#1E3CFF',
+               'marker': '+', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model5': {'color': '#E69F00',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model6': {'color': '#56B4E9',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model7': {'color': '#696969',
+               'marker': 's', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model8': {'color': '#332288',
+               'marker': 'D', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model9': {'color': '#AA4499',
+               'marker': 's', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model10': {'color': '#F0E492',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'obs': {'color': '#AAAAAA',
+            'marker': 'None', 'markersize': 0,
+            'linestyle': 'solid', 'linewidth': 2}
+}
+noaa_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
+)
+noaa_logo_xpixel_loc = x_figsize*plt.rcParams['figure.dpi']*0.1
+noaa_logo_ypixel_loc = y_figsize*plt.rcParams['figure.dpi']*0.865
+noaa_logo_alpha = 0.5
+nws_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'nws.png')
+)
+nws_logo_xpixel_loc = x_figsize*plt.rcParams['figure.dpi']*0.9
+nws_logo_ypixel_loc = y_figsize*plt.rcParams['figure.dpi']*0.865
+nws_logo_alpha = 0.5
+
+# Environment variables set by METplus
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
 plot_time = os.environ['PLOT_TIME']
@@ -105,10 +172,6 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-noaa_logo_img_array = matplotlib.image.imread(os.path.join(os.environ['USHverif_global'],
-                                                           'plotting_scripts',
-                                                           'noaa.png'))
-
 plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time, 
                                                                       start_date_YYYYmmdd, 
                                                                       end_date_YYYYmmdd, 
@@ -118,6 +181,7 @@ plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time,
 total_days = len(plot_time_dates)
 stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
 
+# Read and plot data
 logger.info("Reading in model data")
 for model in model_info:
     model_num = model_info.index(model) + 1
@@ -254,11 +318,16 @@ for stat in plot_stats_list:
             stat_values_array4avg = stat_values_array
         else:
             stat_values_array4avg = np.ma.array([stat_values_array])
+    stat_min = np.ma.masked_invalid(np.nan)
+    stat_max = np.ma.masked_invalid(np.nan)
     for model in model_info:
         model_num = model_info.index(model) + 1
         model_index = model_info.index(model)
         model_name = model[0]
         model_plot_name = model[1]
+        model_plot_settings_dict = (
+            model_obs_plot_settings_dict['model'+str(model_num)]
+        )
         if stat == "fbar_obar":
             model_stat_values_array = stat_values_array[0,model_index,:]
             obs_stat_values_array = stat_values_array[1,model_index,:]
@@ -360,76 +429,164 @@ for stat in plot_stats_list:
                      +model_name+" with name on plot "
                      +model_plot_name)
         if model_num == 1:
-            fig, ax = plt.subplots(1,1,figsize=(10,6))
+            fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
             ax.grid(True)
-            ax.tick_params(axis='x', pad=15)
-            ax.set_xlabel(plot_time.title()+" Date", labelpad=30)
+            ax.set_xlabel(plot_time.title()+" Date")
             ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
-            if len(plot_time_dates) <= 3:
-                day_interval = 1
-            elif len(plot_time_dates) > 3 and len(plot_time_dates) <= 10:
-                day_interval = 2
-            elif len(plot_time_dates) > 10 and len(plot_time_dates) <= 31:
-                day_interval = 7 
-            elif len(plot_time_dates) > 31 and len(plot_time_dates) < 60:
-                day_interval = 10
-            else:
-                day_interval = 30
-            ax.xaxis.set_major_locator(md.DayLocator(interval=day_interval))
+            day_interval = int(len(plot_time_dates)/nticks)
+            ax.set_xticks(plot_time_dates[::day_interval])
             ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
-            ax.xaxis.set_minor_locator(md.DayLocator())
-            ax.tick_params(axis='y', pad=15)
-            ax.set_ylabel(stat_plot_name, labelpad=30)
-            count = (
-                len(model_stat_values_array)
-                - np.ma.count_masked(model_stat_values_array)
-            )
-            ax.plot_date(plot_time_dates, model_stat_values_array,
-                     color=colors[model_index],
-                     ls='-',
-                     linewidth=3,
-                     marker='o',
-                     markersize=3,
-                     label=(model_plot_name
-                            +' '+str(round(model_stat_values_array.mean(),3))
-                            +' '+str(count)+' days'),
-                     zorder=(nmodels-model_index)+4)
+            if len(plot_time_dates) > 60:
+                ax.xaxis.set_minor_locator(md.MonthLocator())
+            else:
+                ax.xaxis.set_minor_locator(md.DayLocator())
+            ax.set_ylabel(stat_plot_name)
             if stat == "fbar_obar":
-                obs_count = len(obs_stat_values_array) - np.ma.count_masked(obs_stat_values_array)
-                ax.plot_date(plot_time_dates, obs_stat_values_array,
-                             color='dimgrey', 
-                             ls='-', 
-                             linewidth=2.5, 
-                             marker='o', 
-                             markersize=3, 
-                             label=('obs '
-                                     +str(round(obs_stat_values_array.mean(),3))
-                                     +' '+str(obs_count)+' days'),
-                             zorder=4)
-        else:
-            count = (
-                len(model_stat_values_array)
-                - np.ma.count_masked(model_stat_values_array)
-            )
-            ax.plot_date(plot_time_dates, model_stat_values_array, 
-                         color=colors[model_index], 
-                         ls='-', 
-                         linewidth=2.0, 
-                         marker='o', 
-                         markersize=3, 
+                obs_plot_settings_dict = (
+                    model_obs_plot_settings_dict['obs']
+                )
+                obs_count = (len(obs_stat_values_array) 
+                             - np.ma.count_masked(obs_stat_values_array))
+                mplot_time_dates = np.ma.array(
+                    plot_time_dates,
+                    mask=np.ma.getmaskarray(obs_stat_values_array)
+                )
+                if obs_count != 0:
+                    if np.abs(obs_stat_values_array.mean()) >= 10:
+                        obs_mean_for_label = round(obs_stat_values_array.mean(), 2)
+                        obs_mean_for_label = format(obs_mean_for_label, '.2f')
+                    else:
+                        obs_mean_for_label = round(obs_stat_values_array.mean(), 3)
+                        obs_mean_for_label = format(obs_mean_for_label, '.3f')
+                    ax.plot_date(mplot_time_dates.compressed(),
+                                 obs_stat_values_array.compressed(),
+                                 color = obs_plot_settings_dict['color'],
+                                 linestyle = obs_plot_settings_dict['linestyle'],
+                                 linewidth = obs_plot_settings_dict['linewidth'],
+                                 marker = obs_plot_settings_dict['marker'], 
+                                 markersize = obs_plot_settings_dict['markersize'],
+                                 label=('obs. '
+                                        +str(obs_mean_for_label)
+                                        +' '+str(obs_count)+' days'),
+                                 zorder=4)
+                    if obs_stat_values_array.min() < stat_min or np.ma.is_masked(stat_min):
+                        stat_min = obs_stat_values_array.min()
+                    if obs_stat_values_array.max() > stat_max or np.ma.is_masked(stat_max):
+                        stat_max = obs_stat_values_array.max()
+        count = (
+            len(model_stat_values_array)
+            - np.ma.count_masked(model_stat_values_array)
+        )
+        mplot_time_dates = np.ma.array(
+            plot_time_dates, mask=np.ma.getmaskarray(model_stat_values_array)
+        )
+        if count != 0:
+            if np.abs(model_stat_values_array.mean()) >= 10:
+                mean_for_label = round(model_stat_values_array.mean(), 2)
+                mean_for_label = format(mean_for_label, '.2f')
+            else:
+                mean_for_label = round(model_stat_values_array.mean(), 3)
+                mean_for_label = format(mean_for_label, '.3f')
+            ax.plot_date(mplot_time_dates.compressed(),
+                         model_stat_values_array.compressed(),
+                         color = model_plot_settings_dict['color'], 
+                         linestyle = model_plot_settings_dict['linestyle'], 
+                         linewidth = model_plot_settings_dict['linewidth'], 
+                         marker = model_plot_settings_dict['marker'], 
+                         markersize = model_plot_settings_dict['markersize'], 
                          label=(model_plot_name
-                                +' '+str(round(model_stat_values_array.mean(),3))
+                                +' '+str(mean_for_label)
                                 +' '+str(count)+' days'),
                          zorder=(nmodels-model_index)+4)
-    ax.legend(bbox_to_anchor=(1.025, 1.0, 0.375, 0.0), loc='upper right', 
-              ncol=1, fontsize='13', mode="expand", borderaxespad=0.)
+            if model_stat_values_array.min() < stat_min or np.ma.is_masked(stat_min):
+                stat_min = model_stat_values_array.min()
+            if model_stat_values_array.max() > stat_max or np.ma.is_masked(stat_max):
+                stat_max = model_stat_values_array.max()
+    # Adjust y axis limits and ticks
+    preset_y_axis_tick_min = ax.get_yticks()[0]
+    preset_y_axis_tick_max = ax.get_yticks()[-1]
+    preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
+    if stat in ['acc', 'msess', 'ets', 'rsd']:
+        y_axis_tick_inc = 0.1
+    else:
+        y_axis_tick_inc = preset_y_axis_tick_inc
+    if np.ma.is_masked(stat_min):
+        y_axis_min = preset_y_axis_tick_min
+    else:
+        if stat in ['acc', 'msess', 'ets', 'rsd']:
+            y_axis_min = round(stat_min,1) - y_axis_tick_inc
+        else:
+            y_axis_min = preset_y_axis_tick_min
+            while y_axis_min > stat_min:
+                y_axis_min = y_axis_min - y_axis_tick_inc
+    if np.ma.is_masked(stat_max):
+        y_axis_max = preset_y_axis_tick_max
+    else:
+        if stat in ['acc', 'msess', 'ets']:
+            y_axis_max = 1
+        elif stat in ['rsd']:
+             y_axis_max = round(stat_max,1) + y_axis_tick_inc
+        else:
+            y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
+            while y_axis_max < stat_max:
+                y_axis_max = y_axis_max + y_axis_tick_inc
+    ax.set_yticks(
+        np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
+    )
+    ax.set_ylim([y_axis_min, y_axis_max])
+    # Check y axis limits
+    if stat_max >= ax.get_ylim()[1]:
+        while stat_max >= ax.get_ylim()[1]:
+            y_axis_max = y_axis_max + y_axis_tick_inc
+            ax.set_yticks(
+                np.arange(y_axis_min,
+                          y_axis_max +  y_axis_tick_inc,
+                          y_axis_tick_inc)
+            )
+            ax.set_ylim([y_axis_min, y_axis_max])
+    if stat_min <= ax.get_ylim()[0]:
+        while stat_min <= ax.get_ylim()[0]:
+            y_axis_min = y_axis_min - y_axis_tick_inc
+            ax.set_yticks(
+                np.arange(y_axis_min,
+                          y_axis_max +  y_axis_tick_inc,
+                          y_axis_tick_inc)
+            )
+            ax.set_ylim([y_axis_min, y_axis_max])
+    # Add legend, adjust if points in legend
+    if len(ax.lines) != 0:
+        legend = ax.legend(bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
+                           loc=legend_loc, ncol=legend_ncol,
+                           fontsize=legend_fontsize)
+        plt.draw()
+        legend_box = legend.get_window_extent() \
+            .inverse_transformed(ax.transData)
+        if stat_min < legend_box.y1:
+            while stat_min < legend_box.y1:
+                y_axis_min = y_axis_min - y_axis_tick_inc
+                ax.set_yticks(
+                    np.arange(y_axis_min,
+                              y_axis_max + y_axis_tick_inc,
+                              y_axis_tick_inc)
+                )
+                ax.set_ylim([y_axis_min, y_axis_max])
+                legend = ax.legend(
+                    bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
+                    loc=legend_loc, ncol=legend_ncol,
+                    fontsize=legend_fontsize
+                )
+                plt.draw()
+                legend_box = (
+                    legend.get_window_extent() \
+                    .inverse_transformed(ax.transData)
+                )
+    # Build formal plot title
     if grid == region:
         gridregion = grid
     else:
         gridregion = grid+region
     if interp[0:2] == 'WV':
         fcst_var_name = fcst_var_name+"_"+interp
-    # Build formal plot title
     var_info_title = plot_title.get_var_info_title(
         fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
     )
@@ -448,8 +605,15 @@ for stat in plot_stats_list:
     full_title = (
         stat_plot_name+"\n"
         +var_info_title+", "+region_title+"\n"
-        +date_info_title+", "+forecast_lead_title+"\n"
+        +date_info_title+", "+forecast_lead_title
     )
+    ax.set_title(full_title, loc=title_loc)
+    fig.figimage(noaa_logo_img_array,
+                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                 zorder=1, alpha=noaa_logo_alpha)
+    fig.figimage(nws_logo_img_array,
+                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                 zorder=1, alpha=nws_logo_alpha)
     # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'grid2obs':
@@ -501,8 +665,6 @@ for stat in plot_stats_list:
                                         +"_fhr"+lead
                                         +"_"+gridregion
                                         +".png")
-    ax.set_title(full_title, fontsize=14, fontweight='bold')
-    fig.figimage(noaa_logo_img_array, -0.2, 0, zorder=1, alpha=0.5)
     logger.info("Saving image as "+savefig_name)
-    plt.savefig(savefig_name, bbox_inches='tight')
+    plt.savefig(savefig_name)
     plt.close()

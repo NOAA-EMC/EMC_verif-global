@@ -9,32 +9,96 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
+warnings.filterwarnings('ignore')
+
 # Read in script agruments
 storm_info = sys.argv[1]
 
-warnings.filterwarnings('ignore')
+# Plot Settings
 plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 15
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 15
-plt.rcParams['ytick.labelsize'] = 15
-plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.titlesize'] = 16
+plt.rcParams['axes.titlepad'] = 15
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 16
+plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
-colors = [
-    '#000000', '#036398', '#D55E00', '#882255',
-    '#2F1E80', '#D6B616', '#018C66', '#CC79A7'
-]
+plt.rcParams['xtick.labelsize'] = 16
+plt.rcParams['xtick.major.pad'] = 10
+plt.rcParams['ytick.labelsize'] = 16
+plt.rcParams['ytick.major.pad'] = 10
+plt.rcParams['figure.subplot.left'] = 0.1
+plt.rcParams['figure.subplot.right'] = 0.95
+plt.rcParams['figure.subplot.top'] = 0.85
+plt.rcParams['figure.subplot.bottom'] = 0.15
+plt.rcParams['legend.handletextpad'] = 0.25
+plt.rcParams['legend.handlelength'] = 1.25
+plt.rcParams['legend.borderaxespad'] = 0
+plt.rcParams['legend.columnspacing'] = 1.0
+plt.rcParams['legend.frameon'] = False
+x_figsize, y_figsize = 14, 7
+legend_bbox_x, legend_bbox_y = 0, 1
+legend_fontsize = 13
+legend_loc = 'upper left'
+legend_ncol = 1
+title_loc = 'center'
+model_obs_plot_settings_dict = {
+    'model1': {'color': '#000000',
+               'marker': 'None', 'markersize': 0,
+               'linestyle': 'solid', 'linewidth': 3},
+    'model2': {'color': '#FB2020',
+               'marker': '^', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model3': {'color': '#00DC00',
+               'marker': 'x', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model4': {'color': '#1E3CFF',
+               'marker': '+', 'markersize': 7,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model5': {'color': '#E69F00',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model6': {'color': '#56B4E9',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model7': {'color': '#696969',
+               'marker': 's', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model8': {'color': '#332288',
+               'marker': 'D', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model9': {'color': '#AA4499',
+               'marker': 's', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'model10': {'color': '#F0E492',
+               'marker': 'o', 'markersize': 6,
+               'linestyle': 'solid', 'linewidth': 1.5},
+    'obs': {'color': '#AAAAAA',
+            'marker': 'None', 'markersize': 0,
+            'linestyle': 'solid', 'linewidth': 2}
+}
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
+noaa_logo_xpixel_loc = x_figsize*plt.rcParams['figure.dpi']*0.1
+noaa_logo_ypixel_loc = y_figsize*plt.rcParams['figure.dpi']*0.865
+noaa_logo_alpha = 0.5
+nws_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'nws.png')
+)
+nws_logo_xpixel_loc = x_figsize*plt.rcParams['figure.dpi']*0.9
+nws_logo_ypixel_loc = y_figsize*plt.rcParams['figure.dpi']*0.865
+nws_logo_alpha = 0.5
+case_num_label_x_loc, case_num_label_y_loc = 1.015, -0.215
+case_num_tick_y_loc = case_num_label_y_loc + 0.015
 
+# Read in environment variables
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 fhr_list = os.environ['fhr_list'].split(',')
 fhrs = np.asarray(fhr_list, dtype=int)
-init_hour_list = os.environ['init_hour_list']
-valid_hour_list = os.environ['valid_hour_list']
+init_hour_list = ', '.join(os.environ['init_hour_list'].split(','))
+valid_hour_list = ', '.join(os.environ['valid_hour_list'].split(','))
 model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
 
 tc_stat_file_dir = os.path.join(DATA, RUN, 'metplus_output', 'gather',
@@ -43,7 +107,23 @@ plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output', 'plot',
                                      storm_info, 'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
+if len(storm_info) == 2:
+    basin = storm_info
+else:
+    storm_info_split = storm_info.split('_')
+    basin = storm_info_split[0]
+    year = storm_info_split[1]
+    storm = storm_info_split[2]
+if basin == 'AL':
+    formal_basin = 'Atlantic'
+elif basin == 'CP':
+    formal_basin = 'Central Pacific'
+elif basin == 'EP':
+    formal_basin = 'Eastern Pacific'
+elif basin == 'WP':
+    formal_basin = 'Western Pacific'
 
+# Read and plot stats
 print("Working on track and intensity error plots for "+storm_info)
 print("Reading in data")
 summary_tcst_filename = os.path.join(tc_stat_file_dir, 'summary.tcst')
@@ -73,27 +153,28 @@ if os.path.exists(summary_tcst_filename):
         for COLUMN_group in summary_tcst_data_groupby_COLUMN.groups.keys():
             print("Creating plot for "+COLUMN_group)
             if COLUMN_group == 'ABS(AMAX_WIND-BMAX_WIND)':
-                units = 'knots'
+                formal_stat_name = 'Absolute Intensity Error (knots)'
             elif COLUMN_group == 'ABS(TK_ERR)': 
-                units = 'nm'
+                formal_stat_name =  'Absolute Track Error (nm)'
+            else:
+                formal_stat_name = COLUMN_group
             summary_tcst_data_COLUMN = (
                 summary_tcst_data_groupby_COLUMN.get_group(COLUMN_group)
             )
             summary_tcst_data_COLUMN_groupby_AMODEL = (
                 summary_tcst_data_COLUMN.groupby(['AMODEL'])
             )
-            fig, ax = plt.subplots(1,1,figsize=(10,6))
+            stat_max = np.ma.masked_invalid(np.nan)
+            fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
             ax.grid(True)
-            ax.tick_params(axis='x', pad=10)
-            ax.set_xlabel('Forecast Hour', labelpad=30)
+            ax.set_xlabel('Forecast Hour')
             if len(fhrs) > 15:
                 ax.set_xticks(fhrs[::2])
                 ax.set_xticks(fhrs, minor=True)
             else: 
                 ax.set_xticks(fhrs)
             ax.set_xlim([fhrs[0], fhrs[-1]])
-            ax.tick_params(axis='y', pad=15)
-            ax.set_ylabel(COLUMN_group+' ('+units+')', labelpad=30)
+            ax.set_ylabel(formal_stat_name)
             model_num = 0
             nmodels = len(
                 summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
@@ -105,15 +186,15 @@ if os.path.exists(summary_tcst_filename):
             CI_bar_intvl_widths = (
                 (CI_bar_max_widths-CI_bar_min_widths)/nmodels
             )
-            #CI_bar_intvl_widths = CI_bar_intvl_widths/3600.
-            #CI_bar_max_widths = CI_bar_max_widths/3600.
-            #CI_bar_min_widths = CI_bar_min_widths/3600.
             tcstat_file_AMODEL_list = (
                 summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
             )
             for AMODEL in model_atcf_name_list:
                 print("Plotting "+AMODEL)
                 model_num+=1
+                model_plot_settings_dict = (
+                    model_obs_plot_settings_dict['model'+str(model_num)]
+                )
                 AMODEL_plot_name = AMODEL
                 if AMODEL == 'AVNO' and 'GFSO' in tcstat_file_AMODEL_list:
                     print("Using operational GFS...using ATCF name as GFSO "
@@ -207,14 +288,26 @@ if os.path.exists(summary_tcst_filename):
                         (all_amodel_total, fhrs_column_amodel_total)
                     )
                 all_amodel_total = np.ma.masked_invalid(all_amodel_total)
-                ax.plot(fhrs, fhrs_column_amodel_mean,
-                        color=colors[model_num-1],
-                        ls='-',
-                        linewidth=2.0,
-                        marker='o',
-                        markersize=3,
-                        label=AMODEL_plot_name,
-                        zorder=(nmodels-model_num-1)+4)
+                count = (
+                    len(fhrs_column_amodel_mean)
+                     - np.ma.count_masked(fhrs_column_amodel_mean)
+                )
+                mfhrs =  np.ma.array(
+                    fhrs, mask=np.ma.getmaskarray(fhrs_column_amodel_mean)
+                )
+                if count != 0:
+                    ax.plot(mfhrs.compressed(),
+                            fhrs_column_amodel_mean.compressed(),
+                            color = model_plot_settings_dict['color'],
+                            linestyle = model_plot_settings_dict['linestyle'],
+                            linewidth = model_plot_settings_dict['linewidth'],
+                            marker = model_plot_settings_dict['marker'],
+                            markersize = model_plot_settings_dict['markersize'],
+                            label=AMODEL_plot_name,
+                            zorder=(nmodels-model_num-1)+4)
+                    if fhrs_column_amodel_mean.max() > stat_max \
+                            or np.ma.is_masked(stat_max):
+                        stat_max = fhrs_column_amodel_mean.max()
                 for fhr in fhrs:
                     fhr_idx = np.where(fhr == fhrs)[0][0]
                     ax.bar(fhrs[fhr_idx], 
@@ -223,11 +316,73 @@ if os.path.exists(summary_tcst_filename):
                            bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
                            color='None',
                            width=CI_bar_max_widths-(CI_bar_intvl_widths*(model_num-1)),
-                           edgecolor=colors[model_num-1],
+                           edgecolor= model_plot_settings_dict['color'],
                            linewidth='1')
-            ax.set_ylim(ymin=0)
-            xticks_axes_fraction = np.linspace(0, 1,len(fhrs), endpoint=True)
-            ax.annotate('Num. Cases', xy=(-0.2,-0.125),
+                    if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
+                            or np.ma.is_masked(stat_max):
+                        if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):    
+                            stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
+            # Adjust y axis limits and ticks
+            preset_y_axis_tick_min = ax.get_yticks()[0]
+            preset_y_axis_tick_max = ax.get_yticks()[-1]
+            preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
+            y_axis_min = 0
+            y_axis_tick_inc = preset_y_axis_tick_inc
+            if np.ma.is_masked(stat_max):
+                y_axis_max = preset_y_axis_tick_max
+            else:
+                y_axis_max = preset_y_axis_tick_max
+                while y_axis_max < stat_max:
+                    y_axis_max = y_axis_max + y_axis_tick_inc
+            ax.set_yticks(
+                np.arange(y_axis_min,
+                          y_axis_max+y_axis_tick_inc,
+                          y_axis_tick_inc)
+            )
+            ax.set_ylim([y_axis_min, y_axis_max])
+            # Check y axis limit
+            if stat_max >= ax.get_ylim()[1]:
+                while stat_max >= ax.get_ylim()[1]:
+                    print("WE ARE OFF THE PLOT")
+                    y_axis_max = y_axis_max + y_axis_tick_inc
+                    ax.set_yticks(
+                        np.arange(y_axis_min,
+                                  y_axis_max +  y_axis_tick_inc,
+                                  y_axis_tick_inc)
+                    )
+                    ax.set_ylim([y_axis_min, y_axis_max])
+            # Add legend, adjust if points in legend
+            if len(ax.lines) != 0:
+                legend = ax.legend(bbox_to_anchor=(legend_bbox_x,
+                                                   legend_bbox_y),
+                                   loc=legend_loc, ncol=legend_ncol,
+                                   fontsize=legend_fontsize)
+                plt.draw()
+                legend_box = legend.get_window_extent() \
+                    .inverse_transformed(ax.transData)
+                if stat_max > legend_box.y1:
+                    while stat_max > legend_box.y1:
+                        y_axis_max = y_axis_max + y_axis_tick_inc
+                        ax.set_yticks(
+                        np.arange(y_axis_min,
+                                  y_axis_max + y_axis_tick_inc,
+                                  y_axis_tick_inc)
+                        )
+                        ax.set_ylim([y_axis_min, y_axis_max])
+                        legend = ax.legend(
+                            bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
+                            loc=legend_loc, ncol=legend_ncol,
+                            fontsize=legend_fontsize
+                        )
+                        plt.draw()
+                        legend_box = (
+                            legend.get_window_extent() \
+                            .inverse_transformed(ax.transData)
+                        )
+            # Add number of cases
+            x_axis_ticks_fraction = np.linspace(0, 1,len(fhrs), endpoint=True)
+            ax.annotate('# of\nCases', xy=(case_num_label_x_loc,
+                                        case_num_label_y_loc),
                         xycoords='axes fraction')
             for fhr in fhrs:
                 fhr_idx = np.where(fhr == fhrs)[0][0]
@@ -241,59 +396,58 @@ if os.path.exists(summary_tcst_filename):
                         else:
                             rot = 45
                         ax.annotate(num_cases_str,
-                                    xy=(xticks_axes_fraction[fhr_idx],-0.125),
-                                    xycoords='axes fraction', ha='center', rotation=rot)
+                                    xy=(x_axis_ticks_fraction[fhr_idx],
+                                        case_num_tick_y_loc),
+                                    xycoords='axes fraction', ha='center',
+                                    rotation=rot)
                     else:
                         print("Working with nonhomogeneous sample for fhr "
                               +str(fhr)+"...not printing number of cases")
-            boxstyle = matplotlib.patches.BoxStyle("Square", pad=0.25)
-            props = {'boxstyle': boxstyle, 'facecolor': 'white',
-                     'linestyle': 'solid', 'linewidth': 1,
-                     'edgecolor': 'black'}
-            ax.annotate("Note: where two model CIs do not intersect are \n"
-                        +"statistically significant at the 95% confidence \n"
-                        +"interval", xy=(-0.2,-0.2),
-                        xycoords='axes fraction',
-                        va='top',
-                        bbox=dict(boxstyle='square', fc='w', ec='black'))
-            ax.legend(bbox_to_anchor=(1.025, 1.0, 0.2, 0.0),
-                      loc='upper right', ncol=1, fontsize='13',
-                      mode='expand', borderaxespad=0., edgecolor='black')
-            if COLUMN_group == 'ABS(TK_ERR)':
-                full_title = "Absolute Track Error\n"
-            elif COLUMN_group == 'ABS(AMAX_WIND-BMAX_WIND)':
-                full_title = "Absolute Intensity Error\n"
-            else:
-                full_title = COLUMN_group+'\n'
+            props = {
+                'boxstyle': 'square',
+                'pad': 0.35,
+                'facecolor': 'white',
+                'linestyle': 'solid',
+                'linewidth': 1,
+                'edgecolor': 'black'
+            }
+            x_axis_tick_inc = fhrs[1] - fhrs[0]
+            ax.text(legend_box.x1 + (x_axis_tick_inc * 0.75),
+                    ax.get_ylim()[1] - (0.15 * y_axis_tick_inc),
+                    "Note: statistical significance at the 95% confidence "
+                    "level where confidence intervals do not intersect",
+                    ha='left',
+                    va='top',
+                    fontsize=10,
+                    bbox=props,
+                    transform=ax.transData)
+            # Build formal plot title
+            full_title = formal_stat_name+'\n'
             if len(storm_info) == 2:
-                full_title = full_title+'Basin: '+storm_info+'\n'
+                full_title = full_title+' '+formal_basin+' Mean\n'
             else:
                 storm_info_split = storm_info.split('_')
-                full_title = (full_title+'Basin: '+storm_info_split[0]+' '
-                              +'Year: '+storm_info_split[1]+' '
-                              +'Storm: '+storm_info_split[2]+'\n')
-            full_title = (full_title+'Cycles: '+init_hour_list
-                          +', Valid Hours: '+valid_hour_list+'\n')
+                full_title = (
+                    full_title+storm_info_split[2].title()+' '
+                    +'('+formal_basin+' '+storm_info_split[1]+')\n'
+                )
+            full_title = (full_title+'Cycles: '+init_hour_list+', '
+                          +' Valid Hours: '+valid_hour_list)
+            ax.set_title(full_title)
+            fig.figimage(noaa_logo_img_array,
+                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                 zorder=1, alpha=noaa_logo_alpha)
+            fig.figimage(nws_logo_img_array,
+                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                 zorder=1, alpha=nws_logo_alpha)
+            # Build savefig name
             savefig_name = os.path.join(
                 plotting_out_dir_imgs,
                 COLUMN_group.replace('(', '').replace(')', '')
                 +'_fhrmean_'+storm_info+'.png'
             )
-            ax.set_title(full_title, fontsize=14, fontweight='bold')
-            xtickslocs = ax.get_xticks()
-            ymin, _ = ax.get_ylim()
-            xaxisticks_pixel_list = ax.transData.transform(
-                [(xtick, ymin) for xtick in xtickslocs]
-            )
-            noaa_img_offset = (
-                1.75 * (xaxisticks_pixel_list[-1][0]
-                       - xaxisticks_pixel_list[-2][0])
-            )
-            noaa_img_xpixels = xaxisticks_pixel_list[-1][0] + noaa_img_offset
-            fig.figimage(noaa_logo_img_array, noaa_img_xpixels, 1,
-                         zorder=1, alpha=0.5)
             print("Saving image as "+savefig_name)
-            plt.savefig(savefig_name, bbox_inches='tight')
+            plt.savefig(savefig_name)
             plt.close()
 else:
     print("ERROR: "+summary_tcst_filename+" does not exist")

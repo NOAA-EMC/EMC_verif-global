@@ -14,20 +14,33 @@ import matplotlib.gridspec as gridspec
 import itertools
 
 warnings.filterwarnings('ignore')
+
 plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 15
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 15
-plt.rcParams['ytick.labelsize'] = 15
-plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.titlesize'] = 16
+plt.rcParams['axes.titlepad'] = 5
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 14
+plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
-###import cmocean
-###cmap_diff = cmocean.cm.balance
+plt.rcParams['xtick.labelsize'] = 14
+plt.rcParams['xtick.major.pad'] = 5
+plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['ytick.labelsize'] = 14
+plt.rcParams['figure.subplot.left'] = 0.1
+plt.rcParams['figure.subplot.right'] = 0.95
+plt.rcParams['figure.titleweight'] = 'bold'
+plt.rcParams['figure.titlesize'] = 16
+title_loc = 'center'
 cmap_diff = plt.cm.coolwarm
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
+noaa_logo_alpha = 0.5
+nws_logo_img_array = matplotlib.image.imread(
+    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'nws.png')
+)
+nws_logo_alpha = 0.5
 
 # Exit early if we don't need to run this
 # aka not running model2obs
@@ -37,7 +50,221 @@ if 'model2obs' not in type_list:
           +"no need to calculate special variables")
     exit()
 
+# Functions
+def read_series_analysis_file(series_analysis_file, var_scale):
+    print(series_analysis_file+" exists")
+    series_analysis_data = netcdf.Dataset(series_analysis_file)
+    series_analysis_data_lat = series_analysis_data.variables['lat'][:]
+    series_analysis_data_lon = series_analysis_data.variables['lon'][:]
+    series_analysis_data_variable_names = []
+    for var in series_analysis_data.variables:
+        series_analysis_data_variable_names.append(str(var))
+    if 'series_cnt_FBAR' in series_analysis_data_variable_names:
+        series_analysis_data_series_cnt_FBAR =  (
+            series_analysis_data.variables['series_cnt_FBAR'][:] * var_scale
+        )
+    else:
+        print("WARNING: FBAR values not in file "+series_analysis_file
+              +"...setting to NaN")
+        series_analysis_data_series_cnt_FBAR = np.full(
+            (len(series_analysis_data_lat), len(series_analysis_data_lon)),
+            np.nan
+        )
+    if np.ma.is_masked(series_analysis_data_series_cnt_FBAR):
+        np.ma.set_fill_value(series_analysis_data_series_cnt_FBAR, np.nan)
+        series_analysis_data_series_cnt_FBAR = (
+            series_analysis_data_series_cnt_FBAR.filled()
+        )
+    if 'series_cnt_OBAR' in series_analysis_data_variable_names:
+        series_analysis_data_series_cnt_OBAR =  (
+            series_analysis_data.variables['series_cnt_OBAR'][:] * var_scale
+        )
+    else:
+        print("WARNING: OBAR values not in file "+series_analysis_file
+              +"...setting to NaN")
+        series_analysis_data_series_cnt_OBAR = np.full(
+            (len(series_analysis_data_lat), len(series_analysis_data_lon)),
+            np.nan
+        )
+    if np.ma.is_masked(series_analysis_data_series_cnt_OBAR):
+        np.ma.set_fill_value(series_analysis_data_series_cnt_OBAR, np.nan)
+        series_analysis_data_series_cnt_OBAR = (
+            series_analysis_data_series_cnt_OBAR.filled()
+        )
+    return (series_analysis_data_series_cnt_FBAR,
+            series_analysis_data_series_cnt_OBAR,
+            series_analysis_data_lat, series_analysis_data_lon)
+            
+def draw_subplot_map(subplot_num, subplot_title, nsubplots,
+                     py_map_pckg, latlon_area):
+    """ Draw map for subplot.
+            
+            Args:
+                subplot_num   - integer of the subplot
+                                location number
+                subplot_title - string of the title for
+                                subplot
+                nsubplots     - integer of the number
+                                of total subplots in
+                                image
+                py_map_pckg   - string of the python
+                                map plotting package
+                                to use; either cartopy
+                                or basemap
+                latlon_area   - list of the bounding
+                                latitudes and longitudes
+                                for the map
 
+           Returns:
+                ax_tmp     -    subplot axis object
+                map_ax_tmp -    subplot map information
+    """
+    llcrnrlat_val = float(latlon_area[0])
+    urcrnrlat_val = float(latlon_area[1])
+    llcrnrlon_val = float(latlon_area[2])
+    urcrnrlon_val = float(latlon_area[3])
+    lat_ticks = np.linspace(llcrnrlat_val, urcrnrlat_val, 7, endpoint=True)
+    lon_ticks = np.linspace(llcrnrlon_val, urcrnrlon_val, 7, endpoint=True)
+    if py_map_pckg == 'cartopy':
+        ax_tmp = plt.subplot(
+            gs[subplot_num],
+            projection=ccrs.PlateCarree(central_longitude=180)
+        )
+        map_ax_tmp = ax_tmp
+        if urcrnrlon_val == 360:
+            urcrnrlon_val_adjust = 359.9
+        else:
+            urcrnrlon_val_adjust = urcrnrlon_val
+        ax_tmp.set_extent(
+            [llcrnrlon_val, urcrnrlon_val_adjust,
+             llcrnrlat_val, urcrnrlat_val],
+            ccrs.PlateCarree()
+        )
+        ax_tmp.set_global()
+        ax_tmp.coastlines()
+        ax_tmp.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+        ax_tmp.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+        lon_formatter = LongitudeFormatter(zero_direction_label=True)
+        lat_formatter = LatitudeFormatter()
+        ax_tmp.xaxis.set_major_formatter(lon_formatter)
+        ax_tmp.yaxis.set_major_formatter(lat_formatter)
+    elif py_map_pckg == 'basemap':
+        ax_tmp = plt.subplot(gs[subplot_num])
+        map_ax_tmp = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
+                             urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
+                             urcrnrlon=urcrnrlon_val, resolution='c',
+                             lon_0=180, ax=ax_tmp)
+        map_ax_tmp.drawcoastlines(linewidth=1.5, color='k', zorder=6)
+        map_ax_tmp.drawmapboundary
+        map_ax_tmp.drawmeridians(lon_ticks, labels=[False,False,False,True])
+        map_ax_tmp.drawparallels(lat_ticks, labels=[True,False,False,False])
+    if ax_tmp.is_last_row() or \
+            (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
+       ax_tmp.set_xlabel('Longitude')
+    else:
+        plt.setp(ax_tmp.get_xticklabels(), visible=False)
+    if ax_tmp.is_first_col():
+        ax_tmp.set_ylabel('Latitude')
+    else:
+        plt.setp(ax_tmp.get_yticklabels(), visible=False)
+    ax_tmp.set_aspect('auto')
+    ax_tmp.set_title(subplot_title, loc='left')
+    return ax_tmp, map_ax_tmp
+
+def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
+                      plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
+                      latlon_area):
+    """ Plot data for subplot.
+            
+            Args:
+                ax_tmp        - subplot axis object
+                map_ax_tmp    - subplot map information
+                plot_data     - array of the data to plot  
+                plot_data_lat - array of the data latitudes
+                plot_data_lon - array of the data longitudes
+                plot_levels   - array of the contour levels
+                plot_cmap     - string of the colormap to use
+                py_map_pckg   - string of the python
+                                map plotting package
+                                to use; either cartopy
+                                or basemap
+                latlon_area   - list of the bounding
+                                latitudes and longitudes
+                                for the map
+
+           Returns:
+                CF_tmp     -    subplot contour fill object
+    """
+    llcrnrlat_val = float(latlon_area[0])
+    urcrnrlat_val = float(latlon_area[1])
+    llcrnrlon_val = float(latlon_area[2])
+    urcrnrlon_val = float(latlon_area[3])
+    # Add cyclic point for model data
+    if py_map_pckg == 'cartopy':
+        plot_data_cyc, plot_data_lon_cyc = add_cyclic_point(
+            plot_data, coord = plot_data_lon
+        )
+    elif py_map_pckg == 'basemap':
+        plot_data_cyc, plot_data_lon_cyc = addcyclic(
+            plot_data, plot_data_lon
+        )
+    # Get area average
+    plot_data_area_avg = maps2d_plot_util.calculate_area_average(
+        plot_data, plot_data_lat, plot_data_lon,
+        llcrnrlat_val, urcrnrlat_val, llcrnrlon_val, urcrnrlon_val
+    )
+    if str(plot_data_area_avg) == 'nan':
+        ax_tmp.set_title('--', loc='right')
+    else:
+        ax_tmp.set_title(round(plot_data_area_avg, 3), loc='right')
+    # Get plotting levels, if needed
+    if np.all(np.isnan(plot_levels)):
+        if np.isnan(np.nanmax(plot_data)):
+            levels_max = 1
+        else:
+            levels_max = (
+                np.nanmax(plot_data)
+                + np.abs((0.01 * np.nanmax(plot_data)))
+            )
+        if np.isnan(np.nanmin(plot_data)):
+            levels_min = -1
+        else:
+            levels_min = (
+                np.nanmin(plot_data)
+                - np.abs((0.01 * np.nanmin(plot_data)))
+            )
+        if np.abs(levels_max) > 1 and np.abs(levels_max) < 100:
+            levels_max = round(levels_max, 0)
+        elif np.abs(levels_max) > 100:
+            levels_max = round(levels_max, -1)
+        else:
+            levels_max = round(levels_max, 2)
+        if np.abs(levels_min) > 1 and np.abs(levels_min) < 100:
+            levels_min = round(levels_min, 0)
+        elif np.abs(levels_min) > 100:
+            levels_min = round(levels_min, -1)
+        else:
+            levels_min = round(levels_min, 2)
+        plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
+    # Plot model data
+    x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
+    if np.count_nonzero(~np.isnan(plot_data_cyc)) != 0:
+        if py_map_pckg == 'cartopy':
+            CF_tmp = ax_tmp.contourf(
+                x, y, plot_data_cyc,
+                transform=ccrs.PlateCarree(),
+                levels=plot_levels, cmap=plot_cmap, extend='both'
+            )
+        elif py_map_pckg == 'basemap':
+            map_ax_tmp_x, map_ax_tmp_y = map_ax_tmp(x, y)
+            CF_tmp = map_ax_tmp.contourf(
+                map_ax_tmp_x, map_ax_tmp_y, plot_data_cyc,
+                levels=plot_levels, cmap=plot_cmap, extend='both'
+            )
+    else:
+        CF_tmp = None
+    return CF_tmp
+    
 # Read in environment variables
 machine = os.environ['machine']
 DATA = os.environ['DATA']
@@ -71,12 +298,6 @@ if py_map_pckg == 'cartopy':
     from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 elif py_map_pckg == 'basemap':
     from mpl_toolkits.basemap import Basemap, addcyclic
-llcrnrlat_val = float(latlon_area[0])
-urcrnrlat_val = float(latlon_area[1])
-llcrnrlon_val = float(latlon_area[2])
-urcrnrlon_val = float(latlon_area[3])
-lat_ticks = np.linspace(llcrnrlat_val, urcrnrlat_val, 7, endpoint=True)
-lon_ticks = np.linspace(llcrnrlon_val, urcrnrlon_val, 7, endpoint=True)
 nmodels = int(len(model_list))
 
 # Plot title information
@@ -92,12 +313,12 @@ while hr <= int(hr_end)*3600:
     hr+=int(hr_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 forecase_to_plot_title_list = []
-    
+
 # Get input and output directories
 series_analysis_file_dir = os.path.join(DATA, RUN, 'metplus_output',
                                         'make_met_data_by_'+make_met_data_by,
                                         'series_analysis', verif_case_type,
-                                        var_group_name)
+                                         var_group_name)
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'plot_by_'+plot_by,
                                      verif_case_type, var_group_name,
@@ -105,7 +326,7 @@ plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
 
-# Loop of variables lat-lon plots
+# Loop of variables levels to create lat-lon plots
 var_info_forcast_to_plot_list = itertools.product(
     ['SWABSORB_atm', 'LWEMIT_atm', 'SWALBDO_sfc'], forecast_to_plot_list
 )
@@ -138,6 +359,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         levels_diff = np.array([-60,-40,-30,-20,-10,0,10,20,30,40,60])
         cmap = plt.cm.Wistia
         var_scale = 1
+        cbar00_title = 'Atmospheric Absorbed Shortwave'
         files_needed_list = [
            forecast_to_plot+'_DSWRF_toa_obsonly.nc',
            forecast_to_plot+'_DSWRF_sfc.nc', 
@@ -152,6 +374,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         levels_diff = np.array([-60,-40,-30,-20,-10,0,10,20,30,40,60])
         cmap = plt.cm.cool
         var_scale = 1
+        cbar00_title = 'Atmospheric Emitted Longwave'
         files_needed_list = [
            forecast_to_plot+'_DLWRF_sfc.nc',        
            forecast_to_plot+'_ULWRF_toa.nc',
@@ -165,10 +388,12 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         )
         cmap = plt.cm.cubehelix_r
         var_scale = 1
+        cbar00_title = 'Albedo'
         files_needed_list = [
            forecast_to_plot+'_DSWRF_sfc.nc',        
            forecast_to_plot+'_USWRF_sfc.nc',
         ]
+    subplot_CF_dict = {}
     for model in model_list:
         index = model_list.index(model)
         model_num = index + 1
@@ -181,112 +406,117 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         # Set up plot
         if model_num == 1:
             nsubplots = nmodels + 1
-            if nsubplots > 8:
-                print("Too many subplots requested. Current maximum is 8.")
-                exit(1)
             if nsubplots == 1:
-                fig = plt.figure(figsize=(10,12))
-                gs = gridspec.GridSpec(1,1)
+                x_figsize, y_figsize = 14, 7
+                row, col = 1, 1
+                hspace, wspace = 0, 0
+                bottom, top = 0.175, 0.825
+                suptitle_y_loc = 0.92125
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.05 
+                cbar_bottom = 0.06
+                cbar_height = 0.02
             elif nsubplots == 2:
-                fig = plt.figure(figsize=(10,12))
-                gs = gridspec.GridSpec(2,1)
-                gs.update(hspace=0.2)
+                x_figsize, y_figsize = 14, 7
+                row, col = 1, 2
+                hspace, wspace = 0, 0.1
+                bottom, top = 0.175, 0.825
+                suptitle_y_loc = 0.92125
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.09
+                cbar_bottom = 0.06
+                cbar_height = 0.02
             elif nsubplots > 2 and nsubplots <= 4:
-                fig = plt.figure(figsize=(20,12))
-                gs = gridspec.GridSpec(2,2)
-                gs.update(wspace=0.2, hspace=0.2)
+                x_figsize, y_figsize = 14, 14
+                row, col = 2, 2
+                hspace, wspace = 0.15, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.09
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             elif nsubplots > 4 and nsubplots <= 6:
-                fig = plt.figure(figsize=(30,12))
-                gs = gridspec.GridSpec(2,3)
-                gs.update(wspace=0.2, hspace=0.2)
-            elif nsubplots > 6 and nsubplots <= 9:
-                fig = plt.figure(figsize=(30,18))
-                gs = gridspec.GridSpec(3,3)
-                gs.update(wspace=0.2, hspace=0.2)
-            # Set up observation subplot map and title
-            if py_map_pckg == 'cartopy':
-                ax_obs = plt.subplot(gs[0],
-                                 projection=ccrs.PlateCarree(
-                                     central_longitude=180
-                                 ))
-                if urcrnrlon_val == 360:
-                    urcrnrlon_val_adjust = 359.9
-                else:
-                    urcrnrlon_val_adjust = urcrnrlon_val
-                ax_obs.set_extent(
-                    [llcrnrlon_val, urcrnrlon_val_adjust,
-                     llcrnrlat_val, urcrnrlat_val],
-                    ccrs.PlateCarree()
-                )
-                ax_obs.set_global()
-                ax_obs.coastlines()
-                ax_obs.set_xlabel('Longitude')
-                ax_obs.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
-                ax_obs.set_ylabel('Latitude')
-                ax_obs.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
-                lon_formatter = LongitudeFormatter(zero_direction_label=True)
-                lat_formatter = LatitudeFormatter()
-                ax_obs.xaxis.set_major_formatter(lon_formatter)
-                ax_obs.yaxis.set_major_formatter(lat_formatter)
-            elif py_map_pckg == 'basemap':
-                ax_obs = plt.subplot(gs[subplot_num])
-                mo = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
-                             urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
-                             urcrnrlon=urcrnrlon_val, resolution='c', lon_0=180,
-                             ax=ax_obs)
-                mo.drawcoastlines(linewidth=1.5, color='k', zorder=6)
-                mo.drawmapboundary
-                ax_obs.set_xlabel('Longitude')
-                ax_obs.set_ylabel('Latitude')
-                mo.drawmeridians(lon_ticks, labels=[False,False,False,True],
-                                 fontsize=15)
-                mo.drawparallels(lat_ticks, labels=[True,False,False,False],
-                                 fontsize=15)
-            obtype_subtitle = maps2d_plot_util.get_obs_subplot_title(
-                model_obtype, use_monthly_mean
-            )
-            ax_obs.set_title(obtype_subtitle, loc='left')
-        # Set up model subplot map
-        subplot_num = model_num
-        if py_map_pckg == 'cartopy':
-            ax = plt.subplot(gs[subplot_num], 
-                             projection=ccrs.PlateCarree(
-                                 central_longitude=180
-                             ))
-            if urcrnrlon_val == 360:
-                urcrnrlon_val_adjust = 359.9
+                x_figsize, y_figsize = 14, 14
+                row, col = 3, 2
+                hspace, wspace = 0.15, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.09
+                cbar_bottom = 0.03
+                cbar_height = 0.02
+            elif nsubplots > 6 and nsubplots <= 8:
+                x_figsize, y_figsize = 14, 14
+                row, col = 4, 2
+                hspace, wspace = 0.175, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.09
+                cbar_bottom = 0.03
+                cbar_height = 0.02
+            elif nsubplots > 8 and nsubplots <= 10:
+                x_figsize, y_figsize = 14, 14
+                row, col = 5, 2
+                hspace, wspace = 0.225, 0.1
+                bottom, top = 0.125, 0.9
+                suptitle_y_loc = 0.9605
+                noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+                nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+                cbar00_width = 0.01
+                cbar00_left_adjust = 0.09
+                cbar_bottom = 0.03
+                cbar_height = 0.02
             else:
-                urcrnrlon_val_adjust = urcrnrlon_val
-            ax.set_extent(
-                [llcrnrlon_val, urcrnrlon_val_adjust,
-                 llcrnrlat_val, urcrnrlat_val],
-                ccrs.PlateCarree()
+                logger.error("Too many subplots selected, max. is 10")
+                exit(1)
+            suptitle_x_loc = (
+                plt.rcParams['figure.subplot.left'] 
+                +plt.rcParams['figure.subplot.right']
+            )/2.
+            fig = plt.figure(figsize=(x_figsize, y_figsize))
+            gs = gridspec.GridSpec(
+                row, col,
+                bottom = bottom, top = top,
+                hspace = hspace, wspace = wspace,
             )
-            ax.set_global()
-            ax.coastlines()
-            ax.set_xlabel('Longitude')
-            ax.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
-            ax.set_ylabel('Latitude')
-            ax.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
-            lon_formatter = LongitudeFormatter(zero_direction_label=True)
-            lat_formatter = LatitudeFormatter()
-            ax.xaxis.set_major_formatter(lon_formatter)
-            ax.yaxis.set_major_formatter(lat_formatter)
-        elif py_map_pckg == 'basemap':
-            ax = plt.subplot(gs[subplot_num])
-            m = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
-                        urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
-                        urcrnrlon=urcrnrlon_val, resolution='c', lon_0=180,
-                        ax=ax)
-            m.drawcoastlines(linewidth=1.5, color='k', zorder=6)
-            m.drawmapboundary
-            ax.set_xlabel('Longitude')
-            ax.set_ylabel('Latitude')
-            m.drawmeridians(lon_ticks, labels=[False,False,False,True],
-                            fontsize=15)
-            m.drawparallels(lat_ticks, labels=[True,False,False,False],
-                            fontsize=15)
-        ax.set_title(model_plot_name+'-'+model_obtype, loc='left')
+            noaa_logo_xpixel_loc = (
+                x_figsize * plt.rcParams['figure.dpi'] * noaa_logo_x_scale
+            )
+            noaa_logo_ypixel_loc = (
+                y_figsize * plt.rcParams['figure.dpi'] * noaa_logo_y_scale
+            )
+            nws_logo_xpixel_loc = (
+                x_figsize * plt.rcParams['figure.dpi'] * nws_logo_x_scale
+            )
+            nws_logo_ypixel_loc = (
+                y_figsize * plt.rcParams['figure.dpi'] * nws_logo_y_scale
+            )
+            # Set up observation subplot map and title
+            obs_subplot_num = 0
+            obs_subplot_title = maps2d_plot_util.get_obs_subplot_title(
+                model_obtype, use_monthly_mean
+            ) 
+            ax_obs, map_ax_obs = draw_subplot_map(
+                obs_subplot_num, obs_subplot_title, nsubplots,
+                py_map_pckg, latlon_area
+            )
+        subplot_num = model_num
+        subplot_title = model_plot_name+'-'+model_obtype
+        ax, map_ax = draw_subplot_map(
+            subplot_num, subplot_title, nsubplots, py_map_pckg, latlon_area
+        )
         # Read data
         all_model_files_exist = True
         missing_file_list = []
@@ -300,184 +530,47 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         if not all_model_files_exist:
             print("Missing files for "+model+" "+', '.join(missing_file_list))
             if nmodel == 1:
-                ax_obs.set_title(str(np.nan), loc='right')
-            ax.set_title(str(np.nan), loc='right')    
+                ax_obs.set_title('--', loc='right')
+            ax.set_title('--', loc='right')
         else:
             if var_name == 'SWABSORB': #shortwave absorption
-                # DWSRF toa
                 DSWRF_toa_obsonly_file  = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_DSWRF_toa_obsonly.nc'
                 )
-                DSWRF_toa_obsonly_data = netcdf.Dataset(
-                    DSWRF_toa_obsonly_file
+                (DSWRF_toa_obsonly_data_series_cnt_FBAR,
+                 DSWRF_toa_obsonly_data_series_cnt_OBAR,
+                 DSWRF_toa_obsonly_data_lat, DSWRF_toa_obsonly_data_lon) = (
+                    read_series_analysis_file(DSWRF_toa_obsonly_file,
+                                              var_scale)
                 )
-                DSWRF_toa_obsonly_data_lat = (
-                    DSWRF_toa_obsonly_data.variables['lat'][:]
-                )
-                DSWRF_toa_obsonly_data_lon = (
-                    DSWRF_toa_obsonly_data.variables['lon'][:]
-                )
-                lat = DSWRF_toa_obsonly_data_lat
-                lon = DSWRF_toa_obsonly_data_lon
-                DSWRF_toa_obsonly_data_variable_names = []
-                for var in DSWRF_toa_obsonly_data.variables:
-                    DSWRF_toa_obsonly_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in DSWRF_toa_obsonly_data_variable_names:
-                    DSWRF_toa_obsonly_data_series_cnt_FBAR =  (
-                        DSWRF_toa_obsonly_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+DSWRF_toa_obsonly_file
-                          +"...setting to NaN")
-                    DSWRF_toa_obsonly_data_series_cnt_FBAR = np.full(
-                        (len(DSWRF_toa_obsonly_data_lat),
-                         len(DSWRF_toa_obsonly_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in DSWRF_toa_obsonly_data_variable_names:
-                    DSWRF_toa_obsonly_data_series_cnt_OBAR =  (
-                        DSWRF_toa_obsonly_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+DSWRF_toa_obsonly_file
-                          +"...setting to NaN")
-                    DSWRF_toa_obsonly_data_series_cnt_OBAR = np.full(
-                        (len(DSWRF_toa_obsonly_data_lat),
-                         len(DSWRF_toa_obsonly_data_lon)), np.nan
-                    )
-                # DSWRF sfc
                 DSWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_DSWRF_sfc.nc'
                 )
-                DSWRF_sfc_data = netcdf.Dataset(
-                    DSWRF_sfc_file
+                (DSWRF_sfc_data_series_cnt_FBAR,
+                 DSWRF_sfc_data_series_cnt_OBAR,
+                 DSWRF_sfc_data_lat, DSWRF_sfc_data_lon) = (
+                    read_series_analysis_file(DSWRF_sfc_file, var_scale)
                 )
-                DSWRF_sfc_data_lat = (
-                    DSWRF_sfc_data.variables['lat'][:]
-                )
-                DSWRF_sfc_data_lon = (
-                    DSWRF_sfc_data.variables['lon'][:]
-                )
-                DSWRF_sfc_data_variable_names = []
-                for var in DSWRF_sfc_data.variables:
-                    DSWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in DSWRF_sfc_data_variable_names:
-                    DSWRF_sfc_data_series_cnt_FBAR =  (
-                        DSWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+DSWRF_sfc_file
-                          +"...setting to NaN")
-                    DSWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(DSWRF_sfc_data_lat),
-                         len(DSWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in DSWRF_sfc_data_variable_names:
-                    DSWRF_sfc_data_series_cnt_OBAR =  (
-                        DSWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+DSWRF_sfc_file
-                          +"...setting to NaN")
-                    DSWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(DSWRF_sfc_data_lat),
-                         len(DSWRF_sfc_data_lon)), np.nan
-                    )
-                # USWRF toa
                 USWRF_toa_file  = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_USWRF_toa.nc'
                 )
-                USWRF_toa_data = netcdf.Dataset(
-                    USWRF_toa_file
+                (USWRF_toa_data_series_cnt_FBAR,
+                 USWRF_toa_data_series_cnt_OBAR,
+                 USWRF_toa_data_lat, USWRF_toa_data_lon) = (
+                    read_series_analysis_file(USWRF_toa_file, var_scale)
                 )
-                USWRF_toa_data_lat = (
-                    USWRF_toa_data.variables['lat'][:]
-                )
-                USWRF_toa_data_lon = (
-                    USWRF_toa_data.variables['lon'][:]
-                )
-                USWRF_toa_data_variable_names = []
-                for var in USWRF_toa_data.variables:
-                    USWRF_toa_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in USWRF_toa_data_variable_names:
-                    USWRF_toa_data_series_cnt_FBAR =  (
-                        USWRF_toa_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+USWRF_toa_file
-                          +"...setting to NaN")
-                    USWRF_toa_data_series_cnt_FBAR = np.full(
-                        (len(USWRF_toa_data_lat),
-                         len(USWRF_toa_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in USWRF_toa_data_variable_names:
-                    USWRF_toa_data_series_cnt_OBAR =  (
-                        USWRF_toa_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+USWRF_toa_file
-                          +"...setting to NaN")
-                    USWRF_toa_data_series_cnt_OBAR = np.full(
-                        (len(USWRF_toa_data_lat),
-                         len(USWRF_toa_data_lon)), np.nan
-                    )
-                # USWRF sfc
                 USWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_USWRF_sfc.nc'
                 )
-                USWRF_sfc_data = netcdf.Dataset(
-                    USWRF_sfc_file
+                (USWRF_sfc_data_series_cnt_FBAR,
+                 USWRF_sfc_data_series_cnt_OBAR,
+                 USWRF_sfc_data_lat, USWRF_sfc_data_lon) = (
+                    read_series_analysis_file(USWRF_sfc_file, var_scale)
                 )
-                USWRF_sfc_data_lat = (
-                    USWRF_sfc_data.variables['lat'][:]
-                )
-                USWRF_sfc_data_lon = (
-                    USWRF_sfc_data.variables['lon'][:]
-                )
-                USWRF_sfc_data_variable_names = []
-                for var in USWRF_sfc_data.variables:
-                    USWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in USWRF_sfc_data_variable_names:
-                    USWRF_sfc_data_series_cnt_FBAR =  (
-                        USWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+USWRF_sfc_file
-                          +"...setting to NaN")
-                    USWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(USWRF_sfc_data_lat),
-                         len(USWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in USWRF_sfc_data_variable_names:
-                    USWRF_sfc_data_series_cnt_OBAR =  (
-                        USWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+USWRF_sfc_file
-                          +"...setting to NaN")
-                    USWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(USWRF_sfc_data_lat),
-                         len(USWRF_sfc_data_lon)), np.nan
-                    )
                 obs_calc_var = (
                     DSWRF_toa_obsonly_data_series_cnt_OBAR
                     - DSWRF_sfc_data_series_cnt_OBAR
@@ -490,138 +583,36 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     - USWRF_toa_data_series_cnt_FBAR
                     + USWRF_sfc_data_series_cnt_FBAR
                 )
+                model_data_lat = USWRF_sfc_data_lat
+                model_data_lon = USWRF_sfc_data_lon
             elif var_name == 'LWEMIT': #longwave emitted
-                # DLWRF sfc
                 DLWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_DLWRF_sfc.nc'
                 )
-                DLWRF_sfc_data = netcdf.Dataset(
-                    DLWRF_sfc_file
+                (DLWRF_sfc_data_series_cnt_FBAR,
+                 DLWRF_sfc_data_series_cnt_OBAR,
+                 DLWRF_sfc_data_lat, DLWRF_sfc_data_lon) = (
+                    read_series_analysis_file(DLWRF_sfc_file, var_scale)
                 )
-                DLWRF_sfc_data_lat = (
-                    DLWRF_sfc_data.variables['lat'][:]
-                )
-                DLWRF_sfc_data_lon = (
-                    DLWRF_sfc_data.variables['lon'][:]
-                )
-                lat = DLWRF_sfc_data_lat
-                lon = DLWRF_sfc_data_lon
-                DLWRF_sfc_data_variable_names = []
-                for var in DLWRF_sfc_data.variables:
-                    DLWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in DLWRF_sfc_data_variable_names:
-                    DLWRF_sfc_data_series_cnt_FBAR =  (
-                        DLWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+DLWRF_sfc_file
-                          +"...setting to NaN")
-                    DLWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(DLWRF_sfc_data_lat),
-                         len(DLWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in DLWRF_sfc_data_variable_names:
-                    DLWRF_sfc_data_series_cnt_OBAR =  (
-                        DLWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+DLWRF_sfc_file
-                          +"...setting to NaN")
-                    DLWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(DLWRF_sfc_data_lat),
-                         len(DLWRF_sfc_data_lon)), np.nan
-                    )
-                # ULWRF toa
                 ULWRF_toa_file  = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_ULWRF_toa.nc'
                 )
-                ULWRF_toa_data = netcdf.Dataset(
-                    ULWRF_toa_file
+                (ULWRF_toa_data_series_cnt_FBAR,
+                 ULWRF_toa_data_series_cnt_OBAR,
+                 ULWRF_toa_data_lat, ULWRF_toa_data_lon) = (
+                    read_series_analysis_file(ULWRF_toa_file, var_scale)
                 )
-                ULWRF_toa_data_lat = (
-                    ULWRF_toa_data.variables['lat'][:]
-                )   
-                ULWRF_toa_data_lon = (
-                    ULWRF_toa_data.variables['lon'][:]
-                )
-                ULWRF_toa_data_variable_names = []
-                for var in ULWRF_toa_data.variables:
-                    ULWRF_toa_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in ULWRF_toa_data_variable_names:
-                    ULWRF_toa_data_series_cnt_FBAR =  (
-                        ULWRF_toa_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+ULWRF_toa_file
-                          +"...setting to NaN")
-                    ULWRF_toa_data_series_cnt_FBAR = np.full(
-                        (len(ULWRF_toa_data_lat),
-                         len(ULWRF_toa_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in ULWRF_toa_data_variable_names:
-                    ULWRF_toa_data_series_cnt_OBAR =  (
-                        ULWRF_toa_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+ULWRF_toa_file
-                          +"...setting to NaN")
-                    ULWRF_toa_data_series_cnt_OBAR = np.full(
-                        (len(ULWRF_toa_data_lat),
-                         len(ULWRF_toa_data_lon)), np.nan
-                    )
-                # ULWRF sfc
                 ULWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_ULWRF_sfc.nc'
                 )
-                ULWRF_sfc_data = netcdf.Dataset(
-                    ULWRF_sfc_file
+                (ULWRF_sfc_data_series_cnt_FBAR,
+                 ULWRF_sfc_data_series_cnt_OBAR,
+                 ULWRF_sfc_data_lat, ULWRF_sfc_data_lon) = (
+                    read_series_analysis_file(ULWRF_sfc_file, var_scale)
                 )
-                ULWRF_sfc_data_lat = (
-                    ULWRF_sfc_data.variables['lat'][:]
-                )
-                ULWRF_sfc_data_lon = (
-                    ULWRF_sfc_data.variables['lon'][:]
-                )
-                ULWRF_sfc_data_variable_names = []
-                for var in ULWRF_sfc_data.variables:
-                    ULWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in ULWRF_sfc_data_variable_names:
-                    ULWRF_sfc_data_series_cnt_FBAR =  (
-                        ULWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+ULWRF_sfc_file
-                          +"...setting to NaN")
-                    ULWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(ULWRF_sfc_data_lat),
-                         len(ULWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in ULWRF_sfc_data_variable_names:
-                    ULWRF_sfc_data_series_cnt_OBAR =  (
-                        ULWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+ULWRF_sfc_file
-                          +"...setting to NaN")
-                    ULWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(ULWRF_sfc_data_lat),
-                         len(ULWRF_sfc_data_lon)), np.nan
-                    )
                 obs_calc_var = (
                     DLWRF_sfc_data_series_cnt_OBAR
                     + ULWRF_toa_data_series_cnt_OBAR
@@ -632,95 +623,27 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     + ULWRF_toa_data_series_cnt_FBAR
                     - ULWRF_sfc_data_series_cnt_FBAR
                 )
+                model_data_lat = ULWRF_sfc_data_lat
+                model_data_lon = ULWRF_sfc_data_lon
             elif var_name == 'SWALBDO': #shortwave surface albedo
-                # DSWRF sfc
                 DSWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_DSWRF_sfc.nc'
                 )
-                DSWRF_sfc_data = netcdf.Dataset(
-                    DSWRF_sfc_file
+                (DSWRF_sfc_data_series_cnt_FBAR,
+                 DSWRF_sfc_data_series_cnt_OBAR,
+                 DSWRF_sfc_data_series_lat, DSWRF_sfc_data_series_lon) = (
+                    read_series_analysis_file(DSWRF_sfc_file, var_scale)
                 )
-                DSWRF_sfc_data_lat = (
-                    DSWRF_sfc_data.variables['lat'][:]
-                )
-                DSWRF_sfc_data_lon = (
-                    DSWRF_sfc_data.variables['lon'][:]
-                )
-                lat = DSWRF_sfc_data_lat
-                lon = DSWRF_sfc_data_lon
-                DSWRF_sfc_data_variable_names = []
-                for var in DSWRF_sfc_data.variables:
-                    DSWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in DSWRF_sfc_data_variable_names:
-                    DSWRF_sfc_data_series_cnt_FBAR =  (
-                        DSWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+DSWRF_sfc_file
-                          +"...setting to NaN")
-                    DSWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(DSWRF_sfc_data_lat),
-                         len(DSWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in DSWRF_sfc_data_variable_names:
-                    DSWRF_sfc_data_series_cnt_OBAR =  (
-                        DSWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+DSWRF_sfc_file
-                          +"...setting to NaN")
-                    DSWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(DSWRF_sfc_data_lat),
-                         len(DSWRF_sfc_data_lon)), np.nan
-                    )
-                # USWRF sfc
                 USWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
                     forecast_to_plot+'_USWRF_sfc.nc'
                 )
-                USWRF_sfc_data = netcdf.Dataset(
-                    USWRF_sfc_file
+                (USWRF_sfc_data_series_cnt_FBAR,
+                 USWRF_sfc_data_series_cnt_OBAR,
+                 USWRF_sfc_data_lat, USWRF_sfc_data_lon) = (
+                    read_series_analysis_file(USWRF_sfc_file, var_scale)
                 )
-                USWRF_sfc_data_lat = (
-                    USWRF_sfc_data.variables['lat'][:]
-                )
-                USWRF_sfc_data_lon = (
-                    USWRF_sfc_data.variables['lon'][:]
-                )
-                USWRF_sfc_data_variable_names = []
-                for var in USWRF_sfc_data.variables:
-                    USWRF_sfc_data_variable_names.append(str(var))
-                if 'series_cnt_FBAR' in USWRF_sfc_data_variable_names:
-                    USWRF_sfc_data_series_cnt_FBAR =  (
-                        USWRF_sfc_data.variables['series_cnt_FBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: FBAR values for "+model+" "
-                          +"not in file "+USWRF_sfc_file
-                          +"...setting to NaN")
-                    USWRF_sfc_data_series_cnt_FBAR = np.full(
-                        (len(USWRF_sfc_data_lat),
-                         len(USWRF_sfc_data_lon)), np.nan
-                    )
-                if 'series_cnt_OBAR' in USWRF_sfc_data_variable_names:
-                    USWRF_sfc_data_series_cnt_OBAR =  (
-                        USWRF_sfc_data.variables['series_cnt_OBAR'][:]
-                        * var_scale
-                    )
-                else:
-                    print("WARNING: OBAR values for "+model+" "
-                          +"not in file "+USWRF_sfc_file
-                          +"...setting to NaN")
-                    USWRF_sfc_data_series_cnt_OBAR = np.full(
-                        (len(USWRF_sfc_data_lat),
-                         len(USWRF_sfc_data_lon)), np.nan
-                    )
                 obs_calc_var = (
                     USWRF_sfc_data_series_cnt_OBAR 
                     / DSWRF_sfc_data_series_cnt_OBAR
@@ -729,142 +652,129 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     USWRF_sfc_data_series_cnt_FBAR
                     / DSWRF_sfc_data_series_cnt_FBAR
                 )
-            if np.ma.is_masked(obs_calc_var):
-                np.ma.set_fill_value(obs_calc_var, np.nan)
-                obs_calc_var = obs_calc_var.filled()
-            if np.ma.is_masked(model_calc_var):
-                np.ma.set_fill_value(model_calc_var, np.nan)
-                model_calc_var = model_calc_var.filled()
-            # Plot observations
+                model_data_lat = USWRF_sfc_data_lat
+                model_data_lon = USWRF_sfc_data_lon
             if model_num == 1:
                 print("Plotting "+model_obtype+" observations")
-                # Add cyclic point for obs data 
-                if py_map_pckg == 'cartopy':
-                    obs_calc_var_cyc, lon_cyc = (
-                        add_cyclic_point(obs_calc_var,
-                                         coord=lon)
-                    )
-                elif py_map_pckg == 'basemap':
-                    obs_calc_var_cyc, lon_cyc = addcyclic(
-                        obs_calc_var, lon
-                    )
-                xo, yo = np.meshgrid(lon_cyc, lat)
-                obs_area_avg = maps2d_plot_util.calculate_area_average(
-                    obs_calc_var, lat, lon,
-                    llcrnrlat_val, urcrnrlat_val, llcrnrlon_val, urcrnrlon_val
+                ax_obs_subplot_loc = str(ax_obs.rowNum)+','+str(ax_obs.colNum)
+                ax_obs_plot_data = obs_calc_var
+                ax_obs_plot_data_lat = model_data_lat
+                ax_obs_plot_data_lon = model_data_lon
+                ax_obs_plot_levels = levels
+                ax_obs_plot_cmap = cmap
+                CF_ax_obs = plot_subplot_data(
+                    ax_obs, map_ax_obs, ax_obs_plot_data,
+                    ax_obs_plot_data_lat, ax_obs_plot_data_lon,
+                    ax_obs_plot_levels, ax_obs_plot_cmap,
+                    py_map_pckg, latlon_area
                 )
-                ax_obs.set_title(round(obs_area_avg, 3), loc='right')
-                if np.all(np.isnan(levels)):
-                    if np.isnan(np.nanmax(obs_calc_var)):
-                        levels_max = 1
-                    else:
-                        levels_max = int(
-                            np.nanmax(obs_calc_var)
-                        ) + 1
-                    if np.isnan(np.nanmin(obs_calc_var)):
-                        levels_min = -1
-                    else:
-                        levels_min = int(
-                            np.nanmin(obs_calc_var)
-                        ) - 1
-                    levels = np.linspace(levels_min, levels_max, 11,
-                                         endpoint=True)
-                if np.count_nonzero(
-                        ~np.isnan(obs_calc_var)) != 0:
-                    if py_map_pckg == 'cartopy':
-                        CF1 = ax_obs.contourf(xo, yo,
-                                              obs_calc_var_cyc,
-                                              transform=ccrs.PlateCarree(),
-                                              levels=levels, cmap=cmap,
-                                              extend='both')
-                        # matplotlib/cartopy tries to close contour when
-                        # using cylic point, so need to plot contours
-                        # set contour labels, remove contour lines, and then
-                        # replot contour lines
-                        C1 = ax_obs.contour(xo, yo,
-                                            obs_calc_var_cyc,
-                                            transform=ccrs.PlateCarree(),
-                                            levels=levels, colors='k',
-                                            linewidths=1.0, extend='both')
-                        C1labels = ax_obs.clabel(C1, C1.levels,
-                                                 fmt='%g', colors='k')
-                        for c in C1.collections:
-                            c.set_visible(False)
-                        C1 = ax_obs.contour(xo, yo,
-                                            obs_calc_var_cyc,
-                                            transform=ccrs.PlateCarree(),
-                                            levels=levels, colors='k',
-                                            linewidths=1.0, extend='both')
-                    elif py_map_pckg == 'basemap':
-                        mox, moy = mo(xo, yo)
-                        CF1 = mo.contourf(mox, moy,
-                                          obs_calc_var_cyc,
-                                          levels=levels, cmap=cmap,
-                                          extend='both')
-                        C1 = mo.contour(mox, moy,
-                                        obs_calc_var_cyc,
-                                        levels=levels, colors='k',
-                                        linewidths=1.0, extend='both')
-                        C1labels = ax_obs.clabel(C1, C1.levels,
-                                                 fmt='%g', colors='k')
-            # Plot model - obs
+                subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
             print("Plotting "+model+" - "+model_obtype)
-            # Add cyclic point for model data
-            if py_map_pckg == 'cartopy':
-                model_calc_var_cyc, lon_cyc = (
-                    add_cyclic_point(model_calc_var,
-                                     coord=lon)
-                )
-            elif py_map_pckg == 'basemap':
-                model_calc_var_cyc, lon_cyc = addcyclic(
-                    model_calc_var, lon
-                )
-            model_obs_diff_calc_var = (
+            ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+            ax_plot_data = (
                 model_calc_var - obs_calc_var
             )
-            model_obs_diff_calc_var_cyc = (
-                model_calc_var_cyc - obs_calc_var_cyc
+            ax_plot_data_lat = model_data_lat
+            ax_plot_data_lon = model_data_lon
+            ax_plot_levels = levels_diff
+            ax_plot_cmap = cmap_diff
+            CF_ax = plot_subplot_data(
+                ax, map_ax, ax_plot_data,
+                ax_plot_data_lat, ax_plot_data_lon,
+                ax_plot_levels, ax_plot_cmap,
+                py_map_pckg, latlon_area
             )
-            x, y = np.meshgrid(lon_cyc, lat)
-            model_obs_diff_area_avg = maps2d_plot_util.calculate_area_average(
-                model_calc_var - obs_calc_var, lat, lon,
-                llcrnrlat_val, urcrnrlat_val, llcrnrlon_val, urcrnrlon_val
-            )
-            ax.set_title(round(model_obs_diff_area_avg, 3), loc='right')
-            if np.count_nonzero(
-                        ~np.isnan(model_calc_var - obs_calc_var)) != 0:
-                    if py_map_pckg == 'cartopy':
-                        CF = ax.contourf(x, y,
-                                         model_obs_diff_calc_var_cyc,
-                                         transform=ccrs.PlateCarree(),
-                                         levels=levels_diff, cmap=cmap_diff,
-                                         extend='both')
-                    elif py_map_pckg == 'basemap':
-                        mx, my = m(x, y)
-                        CF = m.contourf(mx, my,
-                                        model_obs_diff_calc_var_cyc,
-                                        levels=levels_diff, cmap=cmap_diff,
-                                        extend='both')
+            subplot_CF_dict[ax_subplot_loc] = CF_ax
+    # Build formal plot title
     full_title = (
-        var_info_title+' Mean Error\n'
-        +dates_title+' '+make_met_data_by_hrs_title+', '
+        var_info_title+'\n'
+        +dates_title+' '+make_met_data_by_hrs_title+'\n'
         +forecast_to_plot_title
     )
-    fig.suptitle(full_title, fontsize=18, fontweight='bold')
-    noaa_img_axes = fig.add_axes([-0.01, 0.0, 0.01, 0.01])
-    noaa_img_axes.axes.get_xaxis().set_visible(False)
-    noaa_img_axes.axes.get_yaxis().set_visible(False)
-    noaa_img_axes.axis('off')
-    fig.figimage(noaa_logo_img_array, 1, 1, zorder=1, alpha=0.5)
+    fig.suptitle(full_title,
+                 x = suptitle_x_loc, y = suptitle_y_loc,
+                 horizontalalignment = title_loc,
+                 verticalalignment = title_loc)
+    noaa_img = fig.figimage(noaa_logo_img_array,
+                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                 zorder=1, alpha=noaa_logo_alpha)
+    nws_img = fig.figimage(nws_logo_img_array,
+                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                 zorder=1, alpha=nws_logo_alpha)
+    plt.subplots_adjust(
+        left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
+        right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
+    )
+    # Add colorbars
+    subplot00_pos = ax_obs.get_position()
+    cbar00_left = subplot00_pos.x0 - cbar00_left_adjust
+    cbar00_bottom = subplot00_pos.y0
+    cbar00_height = subplot00_pos.y1 - subplot00_pos.y0
+    if ('0,0' in list(subplot_CF_dict.keys()) \
+            and subplot_CF_dict['0,0'] != None):
+        cax00 = fig.add_axes(
+            [cbar00_left, cbar00_bottom, cbar00_width, cbar00_height]
+        )
+        cbar00 = fig.colorbar(subplot_CF_dict['0,0'],
+                              cax = cax00,
+                              orientation = 'vertical',
+                              ticks = subplot_CF_dict['0,0'].levels)
+        cax00.yaxis.set_ticks_position('left')
+        cax00.yaxis.set_label_position('left')
+        cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
+        cbar00.ax.yaxis.set_tick_params(pad=0)
+    if len(list(subplot_CF_dict.keys())) > 1:
+        cbar_subplot = None
+        for subplot_loc in list(subplot_CF_dict.keys()):
+            if subplot_loc != '0,0' and subplot_CF_dict[subplot_loc] != None:
+                cbar_subplot = subplot_CF_dict[subplot_loc]
+                cbar_subplot_loc = subplot_loc
+                break
+        if cbar_subplot != None:
+            if nsubplots == 2:
+                subplot_pos = ax.get_position()
+                cbar_left = subplot_pos.x1 + 0.01
+                cbar_bottom = subplot_pos.y0
+                cbar_width = cbar00_width
+                cbar_height = subplot_pos.y1 - subplot_pos.y0
+                cbar_orientation = 'vertical'
+            else:
+                cbar_left = (
+                    noaa_img.get_extent()[1]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                )
+                cbar_width = (
+                    nws_img.get_extent()[0]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                    - noaa_img.get_extent()[1]
+                    /(plt.rcParams['figure.dpi']*x_figsize)
+                )
+                cbar_orientation = 'horizontal'
+            cax = fig.add_axes(
+                [cbar_left, cbar_bottom, cbar_width, cbar_height]
+            )
+            cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
+                                cax = cax,
+                                orientation = cbar_orientation,
+                                ticks = subplot_CF_dict[cbar_subplot_loc] \
+                                    .levels)
+            if nsubplots == 2:
+                cbar.ax.set_ylabel('Difference', labelpad = 5)
+                cbar.ax.yaxis.set_tick_params(pad=0) 
+            else:
+                cbar.ax.set_xlabel('Difference', labelpad = 0)
+                cbar.ax.xaxis.set_tick_params(pad=0) 
+    # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 verif_case_type+'_'+var_group_name
-                                +'_'+var_name+'_'+var_level
+                                +'_'+var_name+'_'+var_level.replace(' ', '')
                                 +'_'+forecast_to_plot+'.png')
     print("Saving image as "+savefig_name)
-    plt.savefig(savefig_name, bbox_inches='tight')
+    plt.savefig(savefig_name)
     link_image_dir = os.path.join(
         DATA, RUN, 'metplus_output', 'images/.'
     )
     print("Linking image to "+link_image_dir)
     os.system('ln -sf '+savefig_name+' '+link_image_dir)
+    plt.close()
     plt.close()

@@ -161,41 +161,23 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     init_hr_end = os.environ['g2o1_init_hr_end']
                     init_hr_inc = os.environ['g2o1_init_hr_inc']
                     extra_env_info = {}
+                    fhr_list = os.environ['g2o1_fhr_list_'+type]
+                    obtype = ', '.join(
+                        os.environ['g2o1_obtype_'+type].split(' ')
+                    )
+                    valid_hr_beg = os.environ['g2o1_valid_hr_beg_'+type]
+                    valid_hr_end = os.environ['g2o1_valid_hr_end_'+type]
+                    valid_hr_inc = os.environ['g2o1_valid_hr_inc_'+type]
+                    extra_env_info['verif_grid'] = (
+                        os.environ['g2o1_grid_'+type]
+                    )
                     if type == 'upper_air':
-                        fhr_list = os.environ['g2o1_fhr_list_upper_air']
-                        obtype = os.environ['g2o1_obtype_upper_air']
-                        valid_hr_beg = (
-                            os.environ['g2o1_valid_hr_beg_upper_air']
-                        )
-                        valid_hr_end = (
-                            os.environ['g2o1_valid_hr_end_upper_air']
-                        )
-                        valid_hr_inc = (
-                            os.environ['g2o1_valid_hr_inc_upper_air']
-                        )
                         extra_env_info['prepbufr'] = 'gdas'
-                        extra_env_info['verif_grid'] = (
-                            os.environ['g2o1_grid_upper_air']
-                        )
                     elif type == 'conus_sfc':
-                        fhr_list = os.environ['g2o1_fhr_list_conus_sfc']
-                        obtype = os.environ['g2o1_obtype_conus_sfc']
-                        valid_hr_beg = (
-                            os.environ['g2o1_valid_hr_beg_conus_sfc']
-                        )
-                        valid_hr_end = (
-                            os.environ['g2o1_valid_hr_end_conus_sfc']
-                        )
-                        valid_hr_inc = (
-                            os.environ['g2o1_valid_hr_inc_conus_sfc']
-                        )
                         if int(date.strftime('%Y%m%d')) > 20170319:
                             extra_env_info['prepbufr'] = 'nam'
                         else:
                             extra_env_info['prepbufr'] = 'ndas'
-                        extra_env_info['verif_grid'] = (
-                            os.environ['g2o1_grid_conus_sfc']
-                        )
                 elif case == 'precip':
                     gather_by = os.environ['precip1_gather_by']
                     fhr_list = os.environ['precip1_fhr_list']
@@ -259,6 +241,59 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                                      'make_met_data_by_'+make_met_data_by,
                                      type+'_height.conf')
                     )
+                if case == 'grid2obs':
+                    stat_analysis_obtype_list = []
+                    for ob in os.environ['g2o1_obtype_'+type].split(' '):
+                        stat_analysis_obtype_list.append('"'+ob+'"')
+                    job_file.write(
+                        "export stat_analysis_obtype='"
+                        +', '.join(stat_analysis_obtype_list)+"'\n"
+                    )
+                if case == 'grid2obs' and type == 'conus_sfc':
+                    if machine == 'HERA':
+                        run_pb2nc90 = False
+                    elif machine == 'ORION':
+                        run_pb2nc90 = False
+                    elif machine == 'WCOSS_C':
+                        run_pb2nc90 = False
+                    elif machine == 'WCOSS_DELL_P3':
+                        run_pb2nc90 = False
+                        MET_90_pb2nc = (
+                            '/gpfs/dell2/emc/verification/noscrub'
+                            +'/Julie.Prestopnik/met/9.0.1/bin/pb2nc'
+                        )
+                    else:
+                        run_pb2nc90 = False
+                    if run_pb2nc90:
+                        nam_prepbufr_file_list = glob.glob(
+                            os.path.join(DATA, RUN, 'data', 'prepbufr',
+                                         'prepbufr.nam.'
+                                          +date.strftime('%Y%m%d')+'*')
+                        )
+                        nam_pb2nc_dir = os.path.join(
+                            DATA, RUN, 'metplus_output',
+                            'make_met_data_by_'+make_met_data_by,
+                            'pb2nc', type, 'prepbufr'
+                        )
+                        pb2nc_90_config = os.path.join(
+                            metplus_version_conf_dir, case, 'met_config',
+                            'metV'+os.environ['MET_version'],
+                            'PB2NCConfig_'+type+'_v9.0'
+                        )
+                        for nam_prepbufr_file in nam_prepbufr_file_list:
+                            nam_pb2nc_file_name = (
+                                nam_prepbufr_file.rpartition('/')[2]+'.nc'
+                            )
+                            nam_pb2nc_file = os.path.join(
+                                nam_pb2nc_dir, nam_pb2nc_file_name
+                            )
+                            job_file.write(
+                                MET_90_pb2nc+' '
+                                +nam_prepbufr_file+' '
+                                +nam_pb2nc_file+' '
+                                +pb2nc_90_config+'\n'
+                            )
+                            #+' -dump '+nam_pb2nc_dir+'\n')
                 metplus_conf_list.append(
                     os.path.join(metplus_version_conf_dir, case,
                                  'gather_by_'+gather_by,

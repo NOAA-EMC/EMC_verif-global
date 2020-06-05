@@ -257,7 +257,7 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     elif machine == 'WCOSS_C':
                         run_pb2nc90 = False
                     elif machine == 'WCOSS_DELL_P3':
-                        run_pb2nc90 = False
+                        run_pb2nc90 = True
                         MET_90_pb2nc = (
                             '/gpfs/dell2/emc/verification/noscrub'
                             +'/Julie.Prestopnik/met/9.0.1/bin/pb2nc'

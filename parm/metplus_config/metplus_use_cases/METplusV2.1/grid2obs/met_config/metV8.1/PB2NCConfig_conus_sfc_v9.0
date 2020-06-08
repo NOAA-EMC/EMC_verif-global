@@ -92,7 +92,7 @@ level_category = [0, 1, 4, 5, 6];
 // Use obs_bufr_map to rename variables in the output.
 // If empty, process all available variables.
 //
-obs_bufr_var = ["TOB", "UOB", "VOB", "TOCC", "D_RH", "TDO", "PMO", "HOVI", "CEILING", "D_CAPE"];
+obs_bufr_var = ["TOB", "UOB", "VOB", "TOCC", "D_RH", "TDO", "PMO", "HOVI", "CEILING", "MXGS", "D_CAPE", "D_PBL"];
 ////////////////////////////////////////////////////////////////////////////////
 
 //
@@ -117,13 +117,15 @@ obs_prefbufr_map = [
    { key = "D_WIND";  val = "WIND";  },
    { key = "D_RH";    val = "RH";    },
    { key = "D_MIXR";  val = "MIXR";  },
+   { key = "D_PBL";   val = "HPBL";  },
    { key = "D_PRMSL"; val = "PRMSL"; },
    { key = "D_CAPE";  val = "CAPE";  },
    { key = "TDO";     val = "DPT";   },
    { key = "PMO";     val = "PRMSL"; },
    { key = "TOCC";    val = "TCDC";  },
    { key = "HOVI";    val = "VIS";   },
-   { key = "CEILING"; val = "HGT";   }
+   { key = "CEILING"; val = "HGT";   },
+   { key = "MXGS";    val = "GUST";  }
 ];
 
 ////////////////////////////////////////////////////////////////////////////////

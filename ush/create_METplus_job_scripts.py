@@ -293,7 +293,6 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                                 +nam_pb2nc_file+' '
                                 +pb2nc_90_config+'\n'
                             )
-                            #+' -dump '+nam_pb2nc_dir+'\n')
                 metplus_conf_list.append(
                     os.path.join(metplus_version_conf_dir, case,
                                  'gather_by_'+gather_by,
@@ -478,6 +477,11 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     +"are not of equal length"
                 )
                 exit(1)
+            obtype = ', '.join(os.environ['g2o2_obtype_'+type].split(' '))
+            fhr_list = os.environ['g2o2_fhr_list_'+type]
+            valid_hr_beg = os.environ['g2o2_valid_hr_beg_'+type]
+            valid_hr_end = os.environ['g2o2_valid_hr_end_'+type]
+            valid_hr_inc = os.environ['g2o2_valid_hr_inc_'+type]
             init_hr_beg = os.environ['g2o2_init_hr_beg']
             init_hr_end = os.environ['g2o2_init_hr_end']
             init_hr_inc = os.environ['g2o2_init_hr_inc']
@@ -486,21 +490,9 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
             line_type = 'SL1L2, VL1L2'
             plot_stats_list = 'bias, rmse, fbar_obar'
             extra_env_info = {}
+            extra_env_info['verif_grid'] = os.environ['g2o2_grid_'+type]
             if type == 'upper_air':
-                fhr_list = os.environ['g2o2_fhr_list_upper_air']
                 obtype = os.environ['g2o2_obtype_upper_air']
-                valid_hr_beg = (
-                    os.environ['g2o2_valid_hr_beg_upper_air']
-                )
-                valid_hr_end = (
-                    os.environ['g2o2_valid_hr_end_upper_air']
-                )
-                valid_hr_inc = (
-                    os.environ['g2o2_valid_hr_inc_upper_air']
-                )
-                extra_env_info['verif_grid'] = (
-                    os.environ['g2o2_grid_upper_air']
-                )
                 vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236']
                 vars_and_levels_dict = {
                     'TMP': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
@@ -514,20 +506,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                   'P100', 'P50', 'P10', 'P5', 'P1']
                 }
             elif type == 'conus_sfc':
-                fhr_list = os.environ['g2o2_fhr_list_conus_sfc']
                 obtype = os.environ['g2o2_obtype_conus_sfc']
-                valid_hr_beg = (
-                    os.environ['g2o2_valid_hr_beg_conus_sfc']
-                )
-                valid_hr_end = (
-                    os.environ['g2o2_valid_hr_end_conus_sfc']
-                )
-                valid_hr_inc = (
-                    os.environ['g2o2_valid_hr_inc_conus_sfc']
-                )
-                extra_env_info['verif_grid'] = (
-                    os.environ['g2o2_grid_conus_sfc']
-                )
                 vx_mask_list = ['G104', 'WEST', 'EAST', 'MDW', 'NPL', 'SPL',
                                 'NEC', 'SEC', 'NWC', 'SWC', 'NMT', 'SMT',
                                 'SWD', 'GRB', 'LMV', 'GMC', 'APL', 'NAK',
@@ -538,7 +517,12 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     'DPT': ['Z2'],
                     'UGRD_VGRD': ['Z10'],
                     'TCDC': ['L0'],
-                    'PRMSL': ['Z0']
+                    'PRMSL': ['Z0'],
+                    'VIS': ['Z0'],
+                    'HGT': ['L0'],
+                    'CAPE': ['Z0'],
+                    'GUST': ['Z0'],
+                    'HPBL': ['L0']
                 }
             model_info = {}
             nmodels = int(len(model_list))
@@ -673,6 +657,20 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     job_file.write('export '+name+'="'+value+'"\n')
                 for name, value in extra_env_info.items():
                     job_file.write('export '+name+'="'+value+'"\n')
+                if case == 'grid2obs':
+                    stat_analysis_obtype_list = []
+                    for ob in os.environ['g2o2_obtype_'+type].split(' '):
+                        stat_analysis_obtype_list.append('"'+ob+'"')
+                    job_file.write(
+                        "export stat_analysis_obtype='"
+                        +', '.join(stat_analysis_obtype_list)+"'\n"
+                    )
+                    if var_name == 'CAPE':
+                        job_file.write('export obs_var_levels="L100000-0"\n')
+                    else:
+                        job_file.write('export obs_var_levels="'
+                                       +' '.join(var_levels).replace(' ', ', ')
+                                       +'"\n')
                 job_file.write('\n')
                 job_file.write('python '
                                +os.path.join(USHverif_global,

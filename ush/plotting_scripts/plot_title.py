@@ -173,6 +173,8 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'TOZNE': 'Total Ozone',
         'DPT': 'Dewpoint Temperature',
         'TCDC': 'Total Cloud Cover',
+        'VIS': 'Visibility',
+        'GUST': 'Wind Gust',
         'APCP_24': '24 hour Accumulated Precipitation'
     }
     if var_name in list(var_name_title_dict.keys()):

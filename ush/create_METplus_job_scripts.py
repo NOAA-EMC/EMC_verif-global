@@ -358,13 +358,51 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 plot_stats_list = 'acc'
                 vx_mask_list = ['G002', 'NHX', 'SHX', 
                                 'PNA', 'TRO']
-                vars_and_levels_dict = {
-                    'HGT': ['P1000', 'P700', 'P500', 'P250'],
-                    'TMP': ['P850', 'P500', 'P250'],
-                    'UGRD': ['P850', 'P500', 'P250'],
-                    'VGRD': ['P850', 'P500', 'P250'],
-                    'UGRD_VGRD': ['P850', 'P500', 'P250'],
-                    'PRMSL': ['Z0']
+                var_dict = {
+                    'HGT': {'fcst_var_name': 'HGT',
+                            'fcst_var_levels': ['P1000', 'P700', 'P500',
+                                                'P250'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'HGT',
+                            'obs_var_levels': ['P1000', 'P700', 'P500',
+                                               'P250'],
+                            'obs_var_options': ''
+                    },
+                    'TMP': {'fcst_var_name': 'TMP',
+                            'fcst_var_levels': ['P850', 'P500', 'P250'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'TMP',
+                            'obs_var_levels': ['P850', 'P500', 'P250'],
+                            'obs_var_options': ''
+                    },
+                    'UGRD': {'fcst_var_name': 'UGRD',
+                             'fcst_var_levels': ['P850', 'P500', 'P250'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'UGRD',
+                             'obs_var_levels': ['P850', 'P500', 'P250'],
+                             'obs_var_options': ''
+                    },
+                    'VGRD': {'fcst_var_name': 'VGRD',
+                             'fcst_var_levels': ['P850', 'P500', 'P250'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'VGRD',
+                             'obs_var_levels': ['P850', 'P500', 'P250'],
+                             'obs_var_options': ''
+                    },
+                    'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
+                                  'fcst_var_levels': ['P850', 'P500', 'P250'],
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'UGRD_VGRD',
+                                  'obs_var_levels': ['P850', 'P500', 'P250'],
+                                  'obs_var_options': ''
+                    },
+                    'PRMSL': {'fcst_var_name': 'PRMSL',
+                              'fcst_var_levels': ['Z0'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'PRMSL',
+                              'obs_var_levels': ['Z0'],
+                              'obs_var_options': ''
+                    }
                 }
             elif type == 'pres':
                 line_type = 'SL1L2, VL1L2'
@@ -373,30 +411,83 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 )
                 vx_mask_list = ['G002', 'NHX', 'SHX',
                                 'PNA', 'TRO']
-                vars_and_levels_dict = {
-                    'HGT': ['P1000', 'P850', 'P700', 
-                            'P500', 'P200', 'P100', 
-                            'P50', 'P20', 'P10',
-                            'P5', 'P1'],
-                    'TMP': ['P1000', 'P850', 'P700',
-                            'P500', 'P200', 'P100',
-                            'P50', 'P20', 'P10',
-                            'P5', 'P1'],
-                    'UGRD': ['P1000', 'P850', 'P700',
-                             'P500', 'P200', 'P100',
-                             'P50', 'P20', 'P10',
-                             'P5', 'P1'],
-                    'VGRD': ['P1000', 'P850', 'P700',
-                             'P500', 'P200', 'P100',
-                             'P50', 'P20', 'P10',
-                             'P5', 'P1'],
-                    'UGRD_VGRD': ['P1000', 'P850', 'P700',
-                                  'P500', 'P200', 'P100',
-                                  'P50', 'P20', 'P10',
-                                  'P5', 'P1'],
-                    'O3MR': ['P100', 'P70', 'P50', 
-                             'P30', 'P20', 'P10',
-                             'P5', 'P1']
+                var_dict = {
+                    'HGT': {'fcst_var_name': 'HGT',
+                            'fcst_var_levels': ['P1000', 'P850', 'P700',
+                                                'P500', 'P200', 'P100',
+                                                'P50', 'P20', 'P10',
+                                                'P5', 'P1'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'HGT',
+                            'obs_var_levels': ['P1000', 'P850', 'P700',
+                                               'P500', 'P200', 'P100',
+                                               'P50', 'P20', 'P10',
+                                               'P5', 'P1'],
+                            'obs_var_options': ''
+                    },
+                    'TMP': {'fcst_var_name': 'TMP',
+                            'fcst_var_levels': ['P1000', 'P850', 'P700',
+                                                'P500', 'P200', 'P100',
+                                                'P50', 'P20', 'P10',
+                                                'P5', 'P1'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'TMP',
+                            'obs_var_levels': ['P1000', 'P850', 'P700',
+                                               'P500', 'P200', 'P100',
+                                               'P50', 'P20', 'P10',
+                                               'P5', 'P1'],
+                            'obs_var_options': ''
+                    },
+                    'UGRD': {'fcst_var_name': 'UGRD',
+                             'fcst_var_levels': ['P1000', 'P850', 'P700',
+                                                 'P500', 'P200', 'P100',
+                                                 'P50', 'P20', 'P10',
+                                                 'P5', 'P1'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'UGRD',
+                             'obs_var_levels': ['P1000', 'P850', 'P700',
+                                                'P500', 'P200', 'P100',
+                                                'P50', 'P20', 'P10',
+                                                'P5', 'P1'],
+                             'obs_var_options': ''
+                    },
+                    'VGRD': {'fcst_var_name': 'VGRD',
+                             'fcst_var_levels': ['P1000', 'P850', 'P700',
+                                                 'P500', 'P200', 'P100',
+                                                 'P50', 'P20', 'P10',
+                                                 'P5', 'P1'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'VGRD',
+                             'obs_var_levels': ['P1000', 'P850', 'P700',
+                                                'P500', 'P200', 'P100',
+                                                'P50', 'P20', 'P10',
+                                                'P5', 'P1'],
+                             'obs_var_options': ''
+                    },
+                    'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
+                                  'fcst_var_levels': ['P1000', 'P850', 'P700',
+                                                      'P500', 'P200', 'P100',
+                                                      'P50', 'P20', 'P10',
+                                                      'P5', 'P1'],
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'UGRD_VGRD',
+                                  'obs_var_levels': ['P1000', 'P850', 'P700',
+                                                     'P500', 'P200', 'P100',
+                                                     'P50', 'P20', 'P10',
+                                                     'P5', 'P1'],
+                                  'obs_var_options': ''
+                    },
+                    'O3MR': {'fcst_var_name': 'O3MR',
+                             'fcst_var_levels': ['P100', 'P70', 'P50',
+                                                 'P30', 'P20', 'P10',
+                                                 'P5', 'P1'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'O3MR',
+                             'obs_var_levels': ['P100', 'P70', 'P50',
+                                                'P30', 'P20', 'P10',
+                                                'P5', 'P1'],
+                             'obs_var_options': ''
+                    }
                 }
             elif type == 'sfc':
                 line_type = 'SL1L2, VL1L2'
@@ -405,23 +496,140 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                 'N60', 'S60', 'TRO',
                                 'NPO', 'SPO', 'NAO',
                                 'SAO', 'CONUS']
-                vars_and_levels_dict = {
-                    'TMP': ['Z2', 'Z0', 'L0'],
-                    'RH': ['Z2'],
-                    'SPFH': ['Z2'],
-                    'HPBL': ['L0'],
-                    'PRES': ['Z0', 'L0'],
-                    'PRMSL': ['Z0'],
-                    'UGRD': ['Z10'],
-                    'VGRD': ['Z10'],
-                    'TSOIL': ['Z10-0'],
-                    'SOILW': ['Z10-0'],
-                    'WEASD': ['Z0'],
-                    'CAPE': ['Z0'],
-                    'PWAT': ['L0'],
-                    'CWAT': ['L0'],
-                    'HGT': ['L0'],
-                    'TOZNE': ['L0']
+                var_dict = {
+                    'TMP2m': {'fcst_var_name': 'TMP',
+                              'fcst_var_levels': ['Z2'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'TMP',
+                              'obs_var_levels': ['Z2'],
+                              'obs_var_options': ''
+                    },
+                    'TMPsfc': {'fcst_var_name': 'TMP',
+                               'fcst_var_levels': ['Z0'],
+                               'fcst_var_options': '',
+                               'obs_var_name': 'TMP',
+                               'obs_var_levels': ['Z0'],
+                               'obs_var_options': ''
+                    },
+                    'TMPtrops': {'fcst_var_name': 'TMP',
+                                 'fcst_var_levels': ['L0'],
+                                 'fcst_var_options': 'GRIB_lvl_typ = 7;',
+                                 'obs_var_name': 'TMP',
+                                 'obs_var_levels': ['L0'],
+                                 'obs_var_options': 'GRIB_lvl_typ = 7;'
+                    },
+                    'RH2m': {'fcst_var_name': 'RH',
+                             'fcst_var_levels': ['Z2'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'RH',
+                             'obs_var_levels': ['Z2'],
+                             'obs_var_options': ''
+                    },
+                    'SPFH2m': {'fcst_var_name': 'SPFH',
+                              'fcst_var_levels': ['Z2'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'SPFH',
+                              'obs_var_levels': ['Z2'],
+                              'obs_var_options': ''
+                    },
+                    'HPBL': {'fcst_var_name': 'HPBL',
+                             'fcst_var_levels': ['L0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'HPBL',
+                             'obs_var_levels': ['L0'],
+                             'obs_var_options': ''
+                    },
+                    'PRESsfc': {'fcst_var_name': 'PRES',
+                                'fcst_var_levels': ['Z0'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'PRES',
+                                'obs_var_levels': ['Z0'],
+                                'obs_var_options': ''
+                    },
+                    'PREStrops': {'fcst_var_name': 'PRES',
+                                  'fcst_var_levels': ['L0'],
+                                  'fcst_var_options': 'GRIB_lvl_typ = 7;',
+                                  'obs_var_name': 'PRES',
+                                  'obs_var_levels': ['L0'],
+                                  'obs_var_options': 'GRIB_lvl_typ = 7;'
+                    },
+                    'PRMSL': {'fcst_var_name': 'PRMSL',
+                               'fcst_var_levels': ['Z0'],
+                               'fcst_var_options': '',
+                               'obs_var_name': 'PRMSL',
+                               'obs_var_levels': ['Z0'],
+                               'obs_var_options': ''
+                    },
+                    'UGRD10m': {'fcst_var_name': 'UGRD',
+                                'fcst_var_levels': ['Z10'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'UGRD',
+                                'obs_var_levels': ['Z10'],
+                                'obs_var_options': ''
+                    },
+                    'VGRD10m': {'fcst_var_name': 'VGRD',
+                                'fcst_var_levels': ['Z10'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'VGRD',
+                                'obs_var_levels': ['Z10'],
+                                'obs_var_options': ''
+                    },
+                    'TSOILtop': {'fcst_var_name': 'TSOIL',
+                                 'fcst_var_levels': ['Z10-0'],
+                                 'fcst_var_options': '',
+                                 'obs_var_name': 'TSOIL',
+                                 'obs_var_levels': ['Z10-0'],
+                                 'obs_var_options': ''
+                    },
+                    'SOILWtop': {'fcst_var_name': 'SOILW',
+                                 'fcst_var_levels': ['Z10-0'],
+                                 'fcst_var_options': '',
+                                 'obs_var_name': 'SOILW',
+                                 'obs_var_levels': ['Z10-0'],
+                                 'obs_var_options': ''
+                    },
+                    'WEASD': {'fcst_var_name': 'WEASD',
+                              'fcst_var_levels': ['Z0'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'WEASD',
+                              'obs_var_levels': ['Z0'],
+                              'obs_var_options': ''
+                    },
+                    'CAPE': {'fcst_var_name': 'CAPE',
+                             'fcst_var_levels': ['Z0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'CAPE',
+                             'obs_var_levels': ['Z0'],
+                             'obs_var_options': ''
+                    },
+                    'PWAT': {'fcst_var_name': 'PWAT',
+                             'fcst_var_levels': ['L0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'PWAT',
+                             'obs_var_levels': ['L0'],
+                             'obs_var_options': ''
+                    },
+                    'CWAT': {'fcst_var_name': 'CWAT',
+                             'fcst_var_levels': ['L0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'CWAT',
+                             'obs_var_levels': ['L0'],
+                             'obs_var_options': ''
+                    },
+                    'HGTtrops': {'fcst_var_name': 'HGT',
+                                 'fcst_var_levels': ['L0'],
+                                 'fcst_var_options': 'GRIB_lvl_typ = 7;',
+                                 'obs_var_name': 'HGT',
+                                 'obs_var_levels': ['L0'],
+                                 'obs_var_options': 'GRIB_lvl_typ = 7;'
+                    },
+                    'TOZNEclm': {'fcst_var_name': 'TOZNE',
+                                 'fcst_var_levels': ['L0'],
+                                 'fcst_var_options': '',
+                                 'obs_var_name': 'TOZNE',
+                                 'obs_var_levels': ['L0'],
+                                 'obs_var_options': ''
+                    }
                 }
             model_info = {}
             nmodels = int(len(model_list))
@@ -492,37 +700,137 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
             extra_env_info = {}
             extra_env_info['verif_grid'] = os.environ['g2o2_grid_'+type]
             if type == 'upper_air':
-                obtype = os.environ['g2o2_obtype_upper_air']
                 vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236']
-                vars_and_levels_dict = {
-                    'TMP': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
-                            'P300', 'P250', 'P200', 'P150', 'P100', 'P50',
-                            'P10', 'P5', 'P1'],
-                    'RH': ['P1000', 'P925', 'P850', 'P700', 'P500', 'P400',
-                           'P300', 'P250', 'P200', 'P150', 'P100', 'P50',
-                           'P10', 'P5', 'P1'],
-                    'UGRD_VGRD': ['P1000', 'P925', 'P850', 'P700', 'P500',
-                                  'P400', 'P300', 'P250', 'P200', 'P150',
-                                  'P100', 'P50', 'P10', 'P5', 'P1']
+                var_dict = {
+                    'TMP': {'fcst_var_name': 'TMP',
+                            'fcst_var_levels': ['P1000', 'P925', 'P850',
+                                                'P700', 'P500', 'P400',
+                                                'P300', 'P250', 'P200',
+                                                'P150', 'P100', 'P50',
+                                                'P10', 'P5', 'P1'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'TMP',
+                            'obs_var_levels': ['P1000', 'P925', 'P850',
+                                                'P700', 'P500', 'P400',
+                                                'P300', 'P250', 'P200',
+                                                'P150', 'P100', 'P50',
+                                                'P10', 'P5', 'P1'],
+                            'obs_var_options': ''
+                    },
+                    'RH': {'fcst_var_name': 'RH',
+                           'fcst_var_levels': ['P1000', 'P925', 'P850',
+                                               'P700', 'P500', 'P400',
+                                               'P300', 'P250', 'P200',
+                                               'P150', 'P100', 'P50',
+                                               'P10', 'P5', 'P1'],
+                           'fcst_var_options': '',
+                           'obs_var_name': 'RH',
+                           'obs_var_levels': ['P1000', 'P925', 'P850',
+                                               'P700', 'P500', 'P400',
+                                               'P300', 'P250', 'P200',
+                                               'P150', 'P100', 'P50',
+                                               'P10', 'P5', 'P1'],
+                           'obs_var_options': ''
+                    },
+                    'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
+                                  'fcst_var_levels': ['P1000', 'P925', 'P850',
+                                                      'P700', 'P500', 'P400',
+                                                      'P300', 'P250', 'P200',
+                                                      'P150', 'P100', 'P50',
+                                                      'P10', 'P5', 'P1'],
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'UGRD_VGRD',
+                                  'obs_var_levels': ['P1000', 'P925', 'P850',
+                                                     'P700', 'P500', 'P400',
+                                                     'P300', 'P250', 'P200',
+                                                     'P150', 'P100', 'P50',
+                                                     'P10', 'P5', 'P1'],
+                                  'obs_var_options': ''
+                    }
                 }
             elif type == 'conus_sfc':
-                obtype = os.environ['g2o2_obtype_conus_sfc']
                 vx_mask_list = ['G104', 'WEST', 'EAST', 'MDW', 'NPL', 'SPL',
                                 'NEC', 'SEC', 'NWC', 'SWC', 'NMT', 'SMT',
                                 'SWD', 'GRB', 'LMV', 'GMC', 'APL', 'NAK',
                                 'SAK']
-                vars_and_levels_dict = {
-                    'TMP': ['Z2'],
-                    'RH': ['Z2'],
-                    'DPT': ['Z2'],
-                    'UGRD_VGRD': ['Z10'],
-                    'TCDC': ['L0'],
-                    'PRMSL': ['Z0'],
-                    'VIS': ['Z0'],
-                    'HGT': ['L0'],
-                    'CAPE': ['Z0'],
-                    'GUST': ['Z0'],
-                    'HPBL': ['L0']
+                var_dict = {
+                    'TMP2m': {'fcst_var_name': 'TMP',
+                              'fcst_var_levels': ['Z2'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'TMP',
+                              'obs_var_levels': ['Z2'],
+                              'obs_var_options': ''
+                    },
+                    'RH2m': {'fcst_var_name': 'RH',
+                             'fcst_var_levels': ['Z2'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'RH',
+                             'obs_var_levels': ['Z2'],
+                             'obs_var_options': ''
+                    },
+                    'DPT2m': {'fcst_var_name': 'DPT',
+                              'fcst_var_levels': ['Z2'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'DPT',
+                              'obs_var_levels': ['Z2'],
+                              'obs_var_options': ''
+                    },
+                    'UGRD_VGRD10m': {'fcst_var_name': 'UGRD_VGRD',
+                                     'fcst_var_levels': ['Z10'],
+                                     'fcst_var_options': '',
+                                     'obs_var_name': 'UGRD_VGRD',
+                                     'obs_var_levels': ['Z10'],
+                                     'obs_var_options': ''
+                    },
+                    'TCDC': {'fcst_var_name': 'TCDC',
+                             'fcst_var_levels': ['L0'],
+                             'fcst_var_options': 'GRIB_lvl_typ = 200;',
+                             'obs_var_name': 'TCDC',
+                             'obs_var_levels': ['L0'],
+                             'obs_var_options': ''
+                    },
+                    'PRMSL': {'fcst_var_name': 'PRMSL',
+                              'fcst_var_levels': ['Z0'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'PRMSL',
+                              'obs_var_levels': ['Z0'],
+                              'obs_var_options': ''
+                    },
+                    'VISsfc': {'fcst_var_name': 'VIS',
+                               'fcst_var_levels': ['Z0'],
+                               'fcst_var_options': '',
+                               'obs_var_name': 'VIS',
+                               'obs_var_levels': ['Z0'],
+                               'obs_var_options': ''
+                    },
+                    'HGTcldceil': {'fcst_var_name': 'HGT',
+                                   'fcst_var_levels': ['L0'],
+                                   'fcst_var_options': 'GRIB_lvl_typ = 215;',
+                                   'obs_var_name': 'HGT',
+                                   'obs_var_levels': ['L0'],
+                                   'obs_var_options': ''
+                    },
+                    'CAPEsfc': {'fcst_var_name': 'CAPE',
+                                'fcst_var_levels': ['Z0'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'CAPE',
+                                'obs_var_levels': ['L100000-0'],
+                                'obs_var_options': ''
+                    },
+                    'GUSTsfc': {'fcst_var_name': 'GUST',
+                                'fcst_var_levels': ['Z0'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'GUST',
+                                'obs_var_levels': ['Z0'],
+                                'obs_var_options': ''
+                    },
+                    'HPBL': {'fcst_var_name': 'HPBL',
+                             'fcst_var_levels': ['L0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'HPBL',
+                             'obs_var_levels': ['L0'],
+                             'obs_var_options': ''
+                    }
                 }
             model_info = {}
             nmodels = int(len(model_list))
@@ -581,13 +889,22 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
             vx_mask_list = ['G211']
             extra_env_info = {}
             extra_env_info['verif_grid'] = os.environ['precip2_grid']
-            extra_env_info['var_thresholds'] = (
-                'ge0.2, ge2, ge5, ge10, ge15, ge25, ge35, ge50, ge75'
-            )
             extra_env_info['PYTHONPATH'] = os.environ['PYTHONPATH']
             if type == 'ccpa_accum24hr':
-                vars_and_levels_dict = {
-                    'APCP_24': ['A24']
+                var_dict = {
+                    'APCP_24': {'fcst_var_name': 'APCP_24',
+                                'fcst_var_levels': ['A24'],
+                                'fcst_var_options': '',
+                                'fcst_var_thresholds': ('ge0.2, ge2, ge5, '
+                                                        +'ge10, ge15, ge25, '
+                                                        +'ge35, ge50, ge75'),
+                                'obs_var_name': 'APCP_24',
+                                'obs_var_levels': ['A24'],
+                                'obs_var_options': '',
+                                'obs_var_thresholds': ('ge0.2, ge2, ge5, '
+                                                       +'ge10, ge15, ge25, '
+                                                       +'ge35, ge50, ge75')
+                    }
                 }
             model_info = {}
             nmodels = int(len(model_list))
@@ -621,7 +938,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         model_arch_dir_list[index]
                     )
                 model_info['model'+str(model_num)+'_obtype'] = obtype
-        for var_name, var_levels in vars_and_levels_dict.items():
+        for var_name, fcst_obs_var_info in var_dict.items():
             for vx_mask in vx_mask_list:
                 njob+=1
                 # Create job file
@@ -643,8 +960,16 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                 job_file.write('export init_hr_end="'+init_hr_end+'"\n')
                 job_file.write('export init_hr_inc="'+init_hr_inc+'"\n')
                 job_file.write('export var_name="'+var_name+'"\n')
-                job_file.write('export var_levels="'
-                               +' '.join(var_levels).replace(' ', ', ')+'"\n')
+                for var_info, var_info_val in fcst_obs_var_info.items():
+                    if 'levels' in var_info:
+                        job_file.write(
+                             'export '+var_info+'="'
+                             +' '.join(var_info_val).replace(' ', ', ')+'"\n'
+                        )
+                    else:
+                        job_file.write(
+                            'export '+var_info+'="'+var_info_val+'"\n'
+                        )
                 job_file.write('export vx_mask="'+vx_mask+'"\n')
                 job_file.write('export line_type="'+line_type+'"\n')
                 job_file.write('export plot_stats_list="'
@@ -665,12 +990,6 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         "export stat_analysis_obtype='"
                         +', '.join(stat_analysis_obtype_list)+"'\n"
                     )
-                    if var_name == 'CAPE':
-                        job_file.write('export obs_var_levels="L100000-0"\n')
-                    else:
-                        job_file.write('export obs_var_levels="'
-                                       +' '.join(var_levels).replace(' ', ', ')
-                                       +'"\n')
                 job_file.write('\n')
                 job_file.write('python '
                                +os.path.join(USHverif_global,

@@ -41,7 +41,8 @@ obs_units  = [];
 fcst_lev = [${FCST_VAR_LEVEL}];
 obs_lev  = [${OBS_VAR_LEVEL}];
 
-obtype = [${OBS_NAME}];
+//obtype = [${OBS_NAME}];
+obtype = [${stat_analysis_obtype}];
 
 vx_mask = [${REGION}];
 

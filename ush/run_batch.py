@@ -54,9 +54,9 @@ with open(job_card_filename, 'a') as job_card:
                            +nproc+"*{select[craylinux && vnode]"
                            "span[ptile=24] cu[type=cabinet]}'")
         elif machine == 'WCOSS_DELL_P3':
-            if RUN in ['grid2grid_step2', 'grid2obs_step2']:
+            if RUN in ['grid2grid_step2']:
                 job_card.write('#BSUB -n '+str(int(nproc)*3)+'\n')
-            elif RUN == 'maps2d':
+            elif RUN in ['grid2obs_step2', 'maps2d']:
                 job_card.write('#BSUB -n '+str(int(nproc)*4)+'\n')
             else:
                 job_card.write('#BSUB -n '+nproc+'\n')

@@ -20,6 +20,7 @@ DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 verif_case_type = os.environ['verif_case_type']
 var_name = os.environ['var_name']
+fcst_var_name = os.environ['fcst_var_name']
 vx_mask = os.environ['vx_mask']
 
 # Get list of models and loop through
@@ -39,14 +40,14 @@ for env_var_model in env_var_model_list:
                                    var_name+'_'+vx_mask)
     if not os.path.exists(pruned_data_dir):
        os.makedirs(pruned_data_dir)
-    print("Pruning "+data_dir+" for "+var_name+" and "+vx_mask)
+    print("Pruning "+data_dir+" for "+fcst_var_name+" and "+vx_mask)
     # Prune the MET .stat files and write to new file
     for met_stat_file in met_stat_files:
         met_stat_filename = met_stat_file.rpartition('/')[2]
         with open(met_stat_file) as msf:
             first_line = msf.readline()
         filter_cmd = (
-            ' | grep "'+vx_mask+'" | grep "'+var_name+'"'
+            ' | grep "'+vx_mask+'" | grep "'+fcst_var_name+'"'
         )
         ps = subprocess.Popen('grep -R "'+model+'" '+met_stat_file+filter_cmd,
                               shell=True, stdout=subprocess.PIPE,

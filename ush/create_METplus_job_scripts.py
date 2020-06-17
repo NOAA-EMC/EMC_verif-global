@@ -700,7 +700,8 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
             extra_env_info = {}
             extra_env_info['verif_grid'] = os.environ['g2o2_grid_'+type]
             if type == 'upper_air':
-                vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236']
+                vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236', 'POLAR',
+                                'ARCTIC']
                 var_dict = {
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P1000', 'P925', 'P850',

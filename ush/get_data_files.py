@@ -115,27 +115,49 @@ def format_filler(file_format, valid_time, init_time, lead):
                                   filled in with verifying
                                   time information
     """
-    filled_file_format = file_format
-    if '{lead?fmt=' in file_format:
-        lead_fmt = file_format.partition('{lead?fmt=')[2].partition('}')[0]
-        filled_file_format = filled_file_format.replace(
-            '{lead?fmt='+lead_fmt+'}',lead
+    filled_file_format = ''
+    file_format_opt_list = ['lead', 'valid', 'init', 'cycle']
+    for file_format_chunk in file_format.split('/'):
+        filled_file_format_chunk = file_format_chunk
+        for file_format_opt in file_format_opt_list:
+            nfile_format_opt = (
+                filled_file_format_chunk.count('{'+file_format_opt+'?fmt=')
             )
-    if '{valid?fmt=' in file_format:
-         valid_fmt = file_format.partition('{valid?fmt=')[2].partition('}')[0]
-         filled_file_format = filled_file_format.replace(
-             '{valid?fmt='+valid_fmt+'}', valid_time.strftime(valid_fmt)
-             )
-    if '{init?fmt=' in file_format:
-         init_fmt = file_format.partition('{init?fmt=')[2].partition('}')[0]
-         filled_file_format = filled_file_format.replace(
-             '{init?fmt='+init_fmt+'}', init_time.strftime(init_fmt)
-             )
-    if '{cycle?fmt=' in file_format:
-         cycle_fmt = file_format.partition('{cycle?fmt=')[2].partition('}')[0]
-         filled_file_format = filled_file_format.replace(
-             '{cycle?fmt='+cycle_fmt+'}', init_time.strftime(cycle_fmt)
-             )
+            if nfile_format_opt > 0:
+               file_format_opt_count = 1
+               while file_format_opt_count <= nfile_format_opt:
+                   file_format_opt_count_fmt = (
+                       filled_file_format_chunk \
+                       .partition('{'+file_format_opt+'?fmt=')[2] \
+                       .partition('}')[0]
+                   )
+                   if file_format_opt == 'valid':
+                       replace_file_format_opt_count = valid_time.strftime(
+                           file_format_opt_count_fmt
+                       )
+                   elif file_format_opt == 'lead':
+                       if file_format_opt_count_fmt == '%1H':
+                           if int(lead) < 10:
+                               replace_file_format_opt_count = lead[1]
+                           else:
+                               replace_file_format_opt_count = lead
+                       elif file_format_opt_count_fmt == '%2H':
+                           replace_file_format_opt_count = lead.zfill(2)
+                       elif file_format_opt_count_fmt == '%3H':
+                           replace_file_format_opt_count = lead.zfill(3)
+                       else:
+                           replace_file_format_opt_count = lead
+                   elif file_format_opt in ['init', 'cycle']:
+                       replace_file_format_opt_count = valid_time.strftime(
+                           file_format_opt_count_fmt
+                       )
+                   filled_file_format_chunk = filled_file_format_chunk.replace(
+                       '{'+file_format_opt+'?fmt='
+                       +file_format_opt_count_fmt+'}',
+                       replace_file_format_opt_count
+                   )
+                   file_format_opt_count+=1
+        filled_file_format = os.path.join(filled_file_format, filled_file_format_chunk)
     return filled_file_format
 
 def get_hpss_data(hpss_job_filename, link_data_dir, link_data_file,

@@ -148,7 +148,7 @@ def format_filler(file_format, valid_time, init_time, lead):
                        else:
                            replace_file_format_opt_count = lead
                    elif file_format_opt in ['init', 'cycle']:
-                       replace_file_format_opt_count = valid_time.strftime(
+                       replace_file_format_opt_count = init_time.strftime(
                            file_format_opt_count_fmt
                        )
                    filled_file_format_chunk = filled_file_format_chunk.replace(

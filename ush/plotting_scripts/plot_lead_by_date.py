@@ -38,7 +38,7 @@ plt.rcParams['figure.titlesize'] = 16
 nticks = 4
 title_loc = 'center'
 cmap = plt.cm.BuPu_r
-cmap_diff = plt.cm.coolwarm_r_r
+cmap_diff = plt.cm.coolwarm_r
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )

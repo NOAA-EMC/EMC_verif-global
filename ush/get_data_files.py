@@ -409,6 +409,7 @@ def convert_grib2_grib1(grib2_file, grib1_file):
     os.system(cnvgrib+' -g21 '+grib2_file+' '
               +grib1_file+' > /dev/null 2>&1')
 
+grib2_file_names = ['grib2', 'grb2']
 if RUN == 'grid2grid_step1':
     # Read in environment variables
     anl_name = os.environ['g2g1_anl_name']
@@ -461,7 +462,9 @@ if RUN == 'grid2grid_step1':
                     model_forecast_file = os.path.join(dir, name,
                                                        model_forecast_filename)
                     if os.path.exists(model_forecast_file):
-                        if 'grib2' in model_forecast_file:
+                        if any(
+                            g in model_forecast_file for g in grib2_file_names
+                        ):
                             convert_grib2_grib1(model_forecast_file, 
                                                 link_model_forecast_file)
                         else:
@@ -540,7 +543,7 @@ if RUN == 'grid2grid_step1':
                 anl_file = os.path.join(anl_dir, anl_filename)
                 if os.path.exists(anl_file):
                     anl_found = True
-                    if 'grib2' in anl_file:
+                    if any(g in anl_file for g in grib2_file_names):
                         convert_grib2_grib1(anl_file,
                                             link_anl_file) 
                     else:
@@ -599,7 +602,9 @@ if RUN == 'grid2grid_step1':
                          f00_file = os.path.join(dir, name,
                                                  f00_filename)
                          if os.path.exists(f00_file):
-                             if 'grib2' in f00_file:
+                             if any(
+                                 g in f00_file for g in grib2_file_names
+                             ):
                                  convert_grib2_grib1(f00_file,
                                                      link_anl_file)
                                  convert_grib2_grib1(f00_file,
@@ -636,7 +641,9 @@ if RUN == 'grid2grid_step1':
                     f00_file = os.path.join(dir, name,
                                             f00_filename)
                     if os.path.exists(f00_file):
-                        if 'grib2' in f00_file:
+                        if any(
+                            g in f00_file for g in grib2_file_names
+                        ):
                             convert_grib2_grib1(f00_file,
                                                 link_f00_file)
                         else:  
@@ -802,7 +809,10 @@ elif RUN == 'grid2obs_step1':
                             dir, name, model_forecast_filename
                         )
                         if os.path.exists(model_forecast_file):
-                            if 'grib2' in model_forecast_file:
+                            if any(
+                                g in model_forecast_file \
+                                for g in grib2_file_names
+                            ):
                                 convert_grib2_grib1(model_forecast_file,
                                                     link_model_forecast_file)
                             else:
@@ -1387,7 +1397,10 @@ elif RUN == 'precip_step1':
                             )
                             if os.path.exists(model_forecast_file):
                                 if var_name == 'APCP':
-                                    if 'grib2' in model_forecast_file:
+                                    if any(
+                                        g in model_forecast_file \
+                                        for g in grib2_file_names
+                                    ):
                                         convert_grib2_grib1(
                                             model_forecast_file,
                                             link_model_forecast_file
@@ -1397,7 +1410,10 @@ elif RUN == 'precip_step1':
                                                   +model_forecast_file+' '
                                                   +link_model_forecast_file)
                                 elif var_name == 'PRATE':
-                                    if 'grib2' in model_forecast_file:
+                                    if any(
+                                        g in model_forecast_file \
+                                        for g in grib2_file_names
+                                    ):
                                         convert_grib2_grib1(
                                             model_forecast_file,
                                             link_model_forecast_file
@@ -2025,7 +2041,9 @@ elif RUN == 'maps2d':
                     model_forecast_file = os.path.join(dir, name,
                                                        model_forecast_filename)
                     if os.path.exists(model_forecast_file):
-                        if 'grib2' in model_forecast_file:
+                        if any(
+                            g in model_forecast_file for g in grib2_file_names
+                        ):
                             convert_grib2_grib1(model_forecast_file,
                                                 link_model_forecast_file)
                         else:
@@ -2100,7 +2118,9 @@ elif RUN == 'maps2d':
                         exit(1)
                     anl_file = os.path.join(anl_dir, anl_filename)
                     if os.path.exists(anl_file):
-                        if 'grib2' in anl_file:
+                        if any(
+                            g in anl_file for g in grib2_file_names
+                        ):
                             convert_grib2_grib1(anl_file,
                                                 link_anl_file)
                         else:
@@ -2181,7 +2201,9 @@ elif RUN == 'maps2d':
                         exit(1)
                     anl_file = os.path.join(anl_dir, anl_filename)
                     if os.path.exists(anl_file):
-                        if 'grib2' in anl_file:
+                        if any(
+                            g in anl_file for g in grib2_file_names
+                        ):
                             convert_grib2_grib1(anl_file,
                                                 link_anl_file)
                         else:
@@ -2512,7 +2534,10 @@ elif RUN == 'mapsda':
                                 dir, name, model_forecast_filename
                             )
                             if os.path.exists(model_forecast_file):
-                                if 'grib2' in model_forecast_file:
+                                if any(
+                                    g in model_forecast_file \
+                                    for g in grib2_file_names
+                                ):
                                     convert_grib2_grib1(
                                         model_forecast_file,
                                         link_model_forecast_file
@@ -2583,7 +2608,10 @@ elif RUN == 'mapsda':
                         anl_dir = os.path.join(dir, name)
                         anl_file = os.path.join(anl_dir, anl_filename)
                         if os.path.exists(anl_file):
-                            if 'grib2' in anl_file:
+                            if any(
+                                g in anl_file \
+                                for g in grib2_file_names
+                            ):
                                 convert_grib2_grib1(anl_file,
                                                     link_anl_file)
                             else:

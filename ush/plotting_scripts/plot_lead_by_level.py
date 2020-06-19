@@ -531,20 +531,19 @@ for stat in plot_stats_list:
         nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
         - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
     )
-    if stat == "bias":
+    if stat == "bias" or stat == "fbar_obar":
         make_colorbar = True
         colorbar_CF = CF1
         colorbar_CF_ticks = CF1.levels
-        colorbar_label = 'Bias'
-    elif stat!= "bias" and nmodels > 1:
+        if stat == "bias":
+            colorbar_label = 'Bias'
+        elif stat == "fbar_obar":
+            colorbar_label = 'Difference'
+    elif stat not in ["bias", "fbar_obar"] and nmodels > 1:
         make_colorbar = True
+        colorbar_CF = CF2
+        colorbar_CF_ticks = CF2.levels
         colorbar_label = 'Difference'
-        if stat == "fbar_obar":
-            colorbar_CF = CF1
-            colorbar_ticks = CF1.levels
-        else:
-            colorbar_CF = CF2
-            colorbar_CF_ticks = CF2.levels
     else:
         make_colorbar = False
     if make_colorbar:

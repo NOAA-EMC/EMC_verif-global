@@ -122,7 +122,7 @@ elif [ $machine = HERA ]; then
     fi
     module switch anaconda/anaconda2
 elif [ $machine = ORION ]; then
-    source /apps/lmod/init/sh
+    source /apps/lmod/lmod/init/sh
     module load contrib
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles

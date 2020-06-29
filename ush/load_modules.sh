@@ -122,7 +122,7 @@ elif [ $machine = HERA ]; then
     fi
     module switch anaconda/anaconda2
 elif [ $machine = ORION ]; then
-    source /apps/lmod/init/sh
+    source /apps/lmod/lmod/init/sh
     module load contrib
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
@@ -151,12 +151,17 @@ else
     echo "ERROR: $machine is not supported"
     exit 1
 fi
-export NCAP2=`which ncap2`
-export NCDUMP=`which ncdump`
 if [ $machine != "ORION" ]; then
+    export NCAP2=`which ncap2`
+    export NCDUMP=`which ncdump`
     export HTAR=`which htar`
+    export CONVERT=`which convert`
 fi
-export CONVERT=`which convert`
+if [ $machine = "ORION" ]; then
+    export NCAP2=`which ncap2 | sed 's/ncap2 is //g'`
+    export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
+    export CONVERT=`which convert | sed 's/convert is //g'`
+fi
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 

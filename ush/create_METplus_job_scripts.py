@@ -251,7 +251,10 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     )
                 if case == 'grid2obs' and type == 'conus_sfc':
                     if machine == 'HERA':
-                        run_pb2nc90 = False
+                        run_pb2nc90 = True
+                        MET_90_pb2nc = (
+                            '/contrib/met/9.0.2/bin/pb2nc'
+                        )
                     elif machine == 'ORION':
                         run_pb2nc90 = False
                     elif machine == 'WCOSS_C':
@@ -260,10 +263,13 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                         run_pb2nc90 = True
                         MET_90_pb2nc = (
                             '/gpfs/dell2/emc/verification/noscrub'
-                            +'/Julie.Prestopnik/met/9.0.1/bin/pb2nc'
+                            +'/Julie.Prestopnik/met/9.0.2/bin/pb2nc'
                         )
                     else:
                         run_pb2nc90 = False
+                    if run_pb2nc90:
+                        if not os.path.exists(MET_90_pb2nc):
+                            run_pb2nc90 = False
                     if run_pb2nc90:
                         nam_prepbufr_file_list = glob.glob(
                             os.path.join(DATA, RUN, 'data', 'prepbufr',

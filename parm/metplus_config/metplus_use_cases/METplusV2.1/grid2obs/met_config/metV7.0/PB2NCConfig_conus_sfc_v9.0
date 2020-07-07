@@ -9,7 +9,7 @@
 //
 // PrepBufr message type
 //
-message_type = ${PB2NC_MESSAGE_TYPE} ;
+message_type = ["ONLYSF", "ADPUPA"] ;
 
 //
 // Mapping of message type group name to comma-separated list of values
@@ -30,7 +30,7 @@ message_type_map = [];
 //
 // PrepBufr station ID
 //
-station_id = ${PB2NC_STATION_ID} ;
+station_id = [];
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,8 +38,8 @@ station_id = ${PB2NC_STATION_ID} ;
 // Observation time window
 //
 obs_window = {
-  beg = ${OBS_WINDOW_BEGIN};
-  end = ${OBS_WINDOW_END};
+  beg = -2700;
+  end = 2700;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +48,8 @@ obs_window = {
 // Observation retention regions
 //
 mask = {
-   grid = "${PB2NC_GRID}";
-   poly = "${PB2NC_POLY}";
+   grid = "";
+   poly = "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,8 +92,7 @@ level_category = [0, 1, 4, 5, 6];
 // Use obs_bufr_map to rename variables in the output.
 // If empty, process all available variables.
 //
-obs_bufr_var = ${OBS_BUFR_VAR_LIST};
-
+obs_bufr_var = ["TOB", "UOB", "VOB", "TOCC", "D_RH", "TDO", "PMO", "HOVI", "CEILING", "MXGS", "D_CAPE", "D_PBL"];
 ////////////////////////////////////////////////////////////////////////////////
 
 //
@@ -119,6 +118,8 @@ obs_prefbufr_map = [
    { key = "D_RH";    val = "RH";    },
    { key = "D_MIXR";  val = "MIXR";  },
    { key = "D_PRMSL"; val = "PRMSL"; },
+   { key = "D_PBL";   val = "HPBL";  },
+   { key = "D_CAPE";  val = "CAPE";  },
    { key = "TDO";     val = "DPT";   },
    { key = "PMO";     val = "PRMSL"; },
    { key = "TOCC";    val = "TCDC";  },
@@ -156,6 +157,6 @@ time_summary = {
 ////////////////////////////////////////////////////////////////////////////////
 
 tmp_dir = "/tmp";
-version = "V8.0";
+version = "V9.0";
 
 ////////////////////////////////////////////////////////////////////////////////

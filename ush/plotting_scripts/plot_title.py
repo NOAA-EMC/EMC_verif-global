@@ -173,6 +173,8 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'TOZNE': 'Total Ozone',
         'DPT': 'Dewpoint Temperature',
         'TCDC': 'Total Cloud Cover',
+        'VIS': 'Visibility',
+        'GUST': 'Wind Gust',
         'APCP_24': '24 hour Accumulated Precipitation'
     }
     if var_name in list(var_name_title_dict.keys()):
@@ -198,11 +200,13 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
     # Build variable extra info. title
     if var_extra == '':
         var_extra_title = ''
-    elif 'GRIB_lvl_typ' in var_extra:
+    elif 'GRIBlvltyp' in var_extra:
         if '7' in var_extra:
             var_extra_title = 'Tropopause'
         elif '200' in var_extra:
             var_extra_title = 'Entire Atmosphere'
+        elif '215' in var_extra:
+            var_extra_title = 'Cloud Ceiling'
     else:
         var_extra_title = var_extra
     # Build variable threshold title 
@@ -231,6 +235,8 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
     elif 'L' in var_level:
         if var_name in ['HPBL', 'CWAT', 'PWAT', 'TOZONE', 'TCDC']:
             var_info_title = var_name_title
+        elif var_name == 'HGT' and '215' in var_extra:
+            var_info_title = var_extra_title
         else:
             var_info_title = var_extra_title+' '+var_name_title
         if var_thresh_title != '':

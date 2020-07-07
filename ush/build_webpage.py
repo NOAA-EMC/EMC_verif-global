@@ -31,9 +31,12 @@ webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
 print("Webhost: "+webhost)
 print("Webhost location: "+webdir)
+image_list = os.listdir(os.path.join(DATA, RUN, 'metplus_output', 'images'))
+nimages = len(image_list)
+print("\nTotal images in "+os.path.join(DATA, RUN, 'metplus_output', 'images')+": "+str(nimages))
 
 # Set up job wall time information
-web_walltime = '60' 
+web_walltime = '120'
 walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
         .total_seconds()
 walltime = (datetime.datetime.min

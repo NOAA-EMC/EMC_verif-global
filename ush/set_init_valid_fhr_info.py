@@ -88,6 +88,7 @@ elif RUN == 'grid2obs_step1':
     fhr_max = float(os.environ['g2o1_fhr_max']) 
     vhr_list_upper_air = os.environ['g2o1_vhr_list_upper_air'].split(' ')
     vhr_list_conus_sfc = os.environ['g2o1_vhr_list_conus_sfc'].split(' ')
+    vhr_list_polar_sfc = os.environ['g2o1_vhr_list_polar_sfc'].split(' ')
     nfcyc = len(fcyc_list)
     nvhr_upper_air = len(vhr_list_upper_air)
     if nfcyc > nvhr_upper_air:
@@ -113,12 +114,27 @@ elif RUN == 'grid2obs_step1':
     while fhr <= fhr_max_conus_sfc:
         fhr_list_conus_sfc.append(str(int(fhr)).zfill(2))
         fhr+=fhr_intvl_conus_sfc
+    nvhr_polar_sfc = len(vhr_list_polar_sfc)
+    if nfcyc > nvhr_polar_sfc:
+        fhr_intvl_polar_sfc = int(24/nfcyc)
+    else:
+        fhr_intvl_polar_sfc = int(24/nvhr_polar_sfc)
+    nfhr_polar_sfc = fhr_max/fhr_intvl_polar_sfc
+    fhr_max_polar_sfc = int(nfhr_polar_sfc*fhr_intvl_polar_sfc)
+    fhr_list_polar_sfc = []
+    fhr = fhr_min
+    while fhr <= fhr_max_polar_sfc:
+        fhr_list_polar_sfc.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl_polar_sfc
     valid_hr_beg_upper_air = vhr_list_upper_air[0]
     valid_hr_end_upper_air = vhr_list_upper_air[-1]
     valid_hr_inc_upper_air = int((24/nvhr_upper_air)*3600)
     valid_hr_beg_conus_sfc = vhr_list_conus_sfc[0]
     valid_hr_end_conus_sfc = vhr_list_conus_sfc[-1]
     valid_hr_inc_conus_sfc = int((24/nvhr_conus_sfc)*3600)
+    valid_hr_beg_polar_sfc = vhr_list_polar_sfc[0]
+    valid_hr_end_polar_sfc = vhr_list_polar_sfc[-1]
+    valid_hr_inc_polar_sfc = int((24/nvhr_polar_sfc)*3600)
     init_hr_beg = fcyc_list[0]
     init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
@@ -127,6 +143,9 @@ elif RUN == 'grid2obs_step1':
     )
     env_var_dict['g2o1_fhr_list_conus_sfc'] = (
         ' '.join(fhr_list_conus_sfc).replace(' ', ', ')
+    )
+    env_var_dict['g2o1_fhr_list_polar_sfc'] = (
+        ' '.join(fhr_list_polar_sfc).replace(' ', ', ')
     )
     env_var_dict['g2o1_valid_hr_beg_upper_air'] = (
         str(valid_hr_beg_upper_air).zfill(2)
@@ -145,6 +164,15 @@ elif RUN == 'grid2obs_step1':
     )
     env_var_dict['g2o1_valid_hr_inc_conus_sfc'] = (
         str(valid_hr_inc_conus_sfc)
+    )
+    env_var_dict['g2o1_valid_hr_beg_polar_sfc'] = (
+        str(valid_hr_beg_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o1_valid_hr_end_polar_sfc'] = (
+        str(valid_hr_end_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o1_valid_hr_inc_polar_sfc'] = (
+        str(valid_hr_inc_polar_sfc)
     )
     env_var_dict['g2o1_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['g2o1_init_hr_end'] = str(init_hr_end).zfill(2)

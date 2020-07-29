@@ -753,6 +753,7 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
+    iabp_arctic_ftp = os.environ['iabp_arctic_ftp']
     # No HPSS access from Orion
     if machine == 'ORION':
         print("WARNING: Orion does not currently have access to HPSS..."
@@ -1232,6 +1233,28 @@ elif RUN == 'grid2obs_step1':
                     print(error_msg)
                     with open(error_file, 'a') as file:
                         file.write(error_msg)
+        # Get IABP files
+        for valid_time in valid_time_list:
+            YYYYmmddHH = valid_time.strftime('%Y%m%d%H')
+            YYYYmmdd = valid_time.strftime('%Y%m%d')
+            YYYYmm = valid_time.strftime('%Y%m')
+            YYYY = valid_time.strftime('%Y')
+            mm = valid_time.strftime('%m')
+            dd = valid_time.strftime('%d')
+            HH = valid_time.strftime('%H')
+            link_iabp_data_dir = os.path.join(cwd, 'data', 'iabp')
+            #iabp_arctic_ftp
+            #link_prepbufr_file = os.path.join(link_prepbufr_data_dir,
+            #                                  'prepbufr.gdas.'+YYYYmmddHH)
+            #prod_file = os.path.join(prepbufr_prod_upper_air_dir,
+            #                         'gdas.'+YYYYmmdd, HH,
+            #                         'gdas.t'+HH+'z.prepbufr')
+            #arch_file = os.path.join(prepbufr_arch_dir, 'gdas',
+            #                         'prepbufr.gdas.'+YYYYmmddHH)
+            #hpss_date_dir = os.path.join(hpss_prod_base_dir,
+            #                             'rh'+YYYY, YYYYmm,
+            #                             YYYYmmdd)
+
 elif RUN == 'grid2obs_step2':
     # Read in environment variables
     type_list = os.environ['g2o2_type_list'].split(' ')

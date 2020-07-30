@@ -24,7 +24,7 @@ def get_all_tc_storms_basin_year(basin, year):
     ## 2020
     basin_year_names_dict['AL_2020'] = ['ARTHUR', 'BERTHA', 'CRISTOBAL',
                                         'DOLLY', 'EDOUARD', 'FAY', 'GONZALO',
-                                        'HANNA']
+                                        'HANNA', 'ISAIAS']
     basin_year_names_dict['CP_2020'] = ['']
     basin_year_names_dict['EP_2020'] = ['AMANDA', 'BORIS', 'CRISTINA',
                                         'DOUGLAS']
@@ -123,6 +123,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2020_FAY'] = 'al062020'
     storm_id_dict['AL_2020_GONZALO'] = 'al072020'
     storm_id_dict['AL_2020_HANNA'] = 'al082020'
+    storm_id_dict['AL_2020_ISAIAS'] = 'al092020'
     storm_id_dict['EP_2020_AMANDA'] = 'ep022020'
     storm_id_dict['EP_2020_BORIS'] = 'ep032020'
     storm_id_dict['EP_2020_CRISTINA'] = 'ep052020'

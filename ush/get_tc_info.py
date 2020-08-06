@@ -28,7 +28,8 @@ def get_all_tc_storms_basin_year(basin, year):
     basin_year_names_dict['CP_2020'] = ['']
     basin_year_names_dict['EP_2020'] = ['AMANDA', 'BORIS', 'CRISTINA',
                                         'DOUGLAS']
-    basin_year_names_dict['WP_2020'] = ['VONGFONG', 'NURI']
+    basin_year_names_dict['WP_2020'] = ['VONGFONG', 'NURI', 'HAGUPIT',
+                                        'SINLAKU']
     ## 2019
     basin_year_names_dict['AL_2019'] = ['ANDREA', 'BARRY', 'CHANTAL', 'DORIAN',
                                         'ERIN', 'FERNAND', 'GABRIELLE',
@@ -130,6 +131,8 @@ def get_tc_storm_id(storm):
     storm_id_dict['EP_2020_DOUGLAS'] = 'ep082020'
     storm_id_dict['WP_2020_VONGFONG'] = 'wp012020'
     storm_id_dict['WP_2020_NURI'] = 'wp022020'
+    storm_id_dict['WP_2020_HAGUPIT'] = 'wp032020'
+    storm_id_dict['WP_2020_SINLAKU'] = 'wp042020'
     ## 2019
     storm_id_dict['AL_2019_ANDREA'] = 'al012019'
     storm_id_dict['AL_2019_BARRY'] = 'al022019'

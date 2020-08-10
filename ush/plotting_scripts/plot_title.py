@@ -188,7 +188,10 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         if var_level == 'Z0':
             var_level_title = 'Surface'
         else:
-            var_level_title = var_level.replace('Z', '')+' meter'
+            if var_name in ['TSOIL', 'SOILW']:
+                var_level_title = var_level.replace('Z', '')+' centimeter'
+            else:
+                var_level_title = var_level.replace('Z', '')+' meter'
     elif 'L' in var_level:
         var_level_title = ''
     elif 'A' in var_level:

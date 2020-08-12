@@ -54,7 +54,7 @@ def get_all_tc_storms_basin_year(basin, year):
     basin_year_names_dict['AL_2018'] = ['ALBERTO', 'BERYL', 'CHRIS', 'DEBBY',
                                         'ERNESTO', 'FLORENCE', 'GORDON',
                                         'HELENE', 'ISAAC', 'JOYCE', 'KIRK',
-                                        'LESILE', 'MICHAEL', 'NADINE', 'OSCAR']
+                                        'LESLIE', 'MICHAEL', 'NADINE', 'OSCAR']
     basin_year_names_dict['CP_2018'] = ['']
     basin_year_names_dict['EP_2018'] = ['ALETTA', 'BUD', 'CARLOTTA', 'DANIEL',
                                         'EMILIA', 'FABIO', 'GILMA', 'HECTOR',
@@ -213,7 +213,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2018_ISAAC'] = 'al092018'
     storm_id_dict['AL_2018_JOYCE'] = 'al102018'
     storm_id_dict['AL_2018_KIRK'] = 'al122018'
-    storm_id_dict['AL_2018_LESILE'] = 'al132018'
+    storm_id_dict['AL_2018_LESLIE'] = 'al132018'
     storm_id_dict['AL_2018_MICHAEL'] = 'al142018'
     storm_id_dict['AL_2018_NADINE']  = 'al152018'
     storm_id_dict['AL_2018_OSCAR'] = 'al162018'

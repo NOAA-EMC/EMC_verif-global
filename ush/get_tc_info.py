@@ -36,7 +36,7 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'HUMBERTO', 'IMELDA', 'JERRY', 'KAREN',
                                         'LORENZO', 'NESTOR', 'OLGA', 'PABLO',
                                         'REBEKAH', 'SEBASTIEN']
-    basin_year_names_dict['CP_2019'] = ['']
+    basin_year_names_dict['CP_2019'] = ['EMA']
     basin_year_names_dict['EP_2019'] = ['ALVIN', 'BARBARA', 'COSME',
                                         'DALILA', 'ERICK', 'FLOSSIE', 'GIL',
                                         'HENRIETTE', 'IVO', 'JULIETTE', 'KIKO',
@@ -54,8 +54,8 @@ def get_all_tc_storms_basin_year(basin, year):
     basin_year_names_dict['AL_2018'] = ['ALBERTO', 'BERYL', 'CHRIS', 'DEBBY',
                                         'ERNESTO', 'FLORENCE', 'GORDON',
                                         'HELENE', 'ISAAC', 'JOYCE', 'KIRK',
-                                        'LESILE', 'MICHAEL', 'NADINE', 'OSCAR']
-    basin_year_names_dict['CP_2018'] = ['']
+                                        'LESLIE', 'MICHAEL', 'NADINE', 'OSCAR']
+    basin_year_names_dict['CP_2018'] = ['WALAKA']
     basin_year_names_dict['EP_2018'] = ['ALETTA', 'BUD', 'CARLOTTA', 'DANIEL',
                                         'EMILIA', 'FABIO', 'GILMA', 'HECTOR',
                                         'ILEANA', 'JOHN', 'KRISTY', 'LANE',
@@ -155,6 +155,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2019_PABLO'] = 'al182019'
     storm_id_dict['AL_2019_REBEKAH'] = 'al192019'
     storm_id_dict['AL_2019_SEBASTIEN'] = 'al202019'
+    storm_id_dict['CP_2019_EMA'] = 'cp012019'
     storm_id_dict['EP_2019_ALVIN'] = 'ep012019'
     storm_id_dict['EP_2019_BARBARA'] = 'ep022019'
     storm_id_dict['EP_2019_COSME'] = 'ep032019'
@@ -213,10 +214,11 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2018_ISAAC'] = 'al092018'
     storm_id_dict['AL_2018_JOYCE'] = 'al102018'
     storm_id_dict['AL_2018_KIRK'] = 'al122018'
-    storm_id_dict['AL_2018_LESILE'] = 'al132018'
+    storm_id_dict['AL_2018_LESLIE'] = 'al132018'
     storm_id_dict['AL_2018_MICHAEL'] = 'al142018'
     storm_id_dict['AL_2018_NADINE']  = 'al152018'
     storm_id_dict['AL_2018_OSCAR'] = 'al162018'
+    storm_id_dict['CP_2018_WALAKA'] = 'cp012018'
     storm_id_dict['EP_2018_ALETTA'] = 'ep022018'
     storm_id_dict['EP_2018_BUD'] = 'ep032018'
     storm_id_dict['EP_2018_CARLOTTA'] = 'ep042018'

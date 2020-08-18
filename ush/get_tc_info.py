@@ -333,7 +333,14 @@ def get_tc_storm_dates(bdeck_file):
         skipinitialspace=True, header=None,
         names=bdeck_cols
     )
+    storm_TY_list = bdeck_data['TY'].tolist()
+    idx = 0
+    for storm_TY in storm_TY_list:
+        if storm_TY not in ['DB', 'LO', 'WV']:
+            break
+        else:
+            idx+=1
     storm_date_list = bdeck_data['YYYYMMDDHH'].tolist()
-    storm_start_date = str(storm_date_list[0])
+    storm_start_date = str(storm_date_list[idx])
     storm_end_date = str(storm_date_list[-1])
     return storm_start_date, storm_end_date

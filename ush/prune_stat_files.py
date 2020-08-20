@@ -47,7 +47,7 @@ for env_var_model in env_var_model_list:
         with open(met_stat_file) as msf:
             first_line = msf.readline()
         filter_cmd = (
-            ' | grep "'+vx_mask+'" | grep "'+fcst_var_name+'"'
+            ' | grep "'+vx_mask+'" | grep "'+fcst_var_name+'" | grep -v "VCNT"'
         )
         ps = subprocess.Popen('grep -R "'+model+'" '+met_stat_file+filter_cmd,
                               shell=True, stdout=subprocess.PIPE,

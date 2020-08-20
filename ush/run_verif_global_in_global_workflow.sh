@@ -194,7 +194,7 @@ if [ -s config.machine ]; then
 fi
 
 ## Load modules and set machine specific variables
-if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
+if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" -a $machine != "ORION" ]; then
     echo "ERROR: $machine is not supported"
     exit 1
 fi

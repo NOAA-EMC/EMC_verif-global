@@ -1087,6 +1087,12 @@ def create_job_script_tropcyc(model_list, storm_list):
         storm_start_date, storm_end_date = get_tc_info.get_tc_storm_dates(
             bdeck_file
         )
+        storm_start_date_MET_format = datetime.datetime.strptime(
+            storm_start_date, '%Y%m%d%H'
+        ).strftime('%Y%m%d_%H%M%S')
+        storm_end_date_MET_format = datetime.datetime.strptime(
+            storm_end_date, '%Y%m%d%H'
+        ).strftime('%Y%m%d_%H%M%S')
         if METplus_tropcyc_process == 'tc_pairs':
             for model in model_list:
                 njob+=1
@@ -1102,8 +1108,16 @@ def create_job_script_tropcyc(model_list, storm_list):
                                             'job'+str(njob))
                 job_file = open(job_filename, 'w')
                 set_job_common_env(job_file)
-                job_file.write('export START_DATE="'+storm_start_date+'"\n')
-                job_file.write('export END_DATE="'+storm_end_date+'"\n')
+                job_file.write('export START_DATE="'+start_date+'"\n')
+                job_file.write('export END_DATE="'+end_date+'"\n')
+                job_file.write('export STORM_START_DATE="'
+                               +storm_start_date+'"\n')
+                job_file.write('export STORM_END_DATE="'
+                               +storm_end_date+'"\n')
+                job_file.write('export STORM_START_DATE_MET_format="'
+                               +storm_start_date_MET_format+'"\n')
+                job_file.write('export STORM_END_DATE_MET_format="'
+                               +storm_end_date_MET_format+'"\n')
                 job_file.write('export model="'+model+'"\n')
                 job_file.write('export model_atcf_abbrv="'+model_atcf_abbrv
                                +'"\n')
@@ -1142,8 +1156,16 @@ def create_job_script_tropcyc(model_list, storm_list):
                                         'job'+str(njob))
             job_file = open(job_filename, 'w')
             set_job_common_env(job_file)
-            job_file.write('export START_DATE="'+storm_start_date+'"\n')
-            job_file.write('export END_DATE="'+storm_end_date+'"\n')
+            job_file.write('export START_DATE="'+start_date+'"\n')
+            job_file.write('export END_DATE="'+end_date+'"\n')
+            job_file.write('export STORM_START_DATE="'
+                           +storm_start_date+'"\n')
+            job_file.write('export STORM_END_DATE="'
+                           +storm_end_date+'"\n')
+            job_file.write('export STORM_START_DATE_MET_format="'
+                           +storm_start_date_MET_format+'"\n')
+            job_file.write('export STORM_END_DATE_MET_format="'
+                           +storm_end_date_MET_format+'"\n')
             job_file.write('export storm="'+storm+'"\n')
             job_file.write('export basin="'+basin+'"\n')
             job_file.write('export year="'+year+'"\n')
@@ -1203,6 +1225,8 @@ def create_job_script_tropcyc(model_list, storm_list):
                                         'job'+str(njob))
             job_file = open(job_filename, 'w')
             set_job_common_env(job_file)
+            job_file.write('export START_DATE="'+start_date+'"\n')
+            job_file.write('export END_DATE="'+end_date+'"\n')
             job_file.write('export basin="'+basin+'"\n')
             job_file.write('export fhr_list="'+fhr_list+'"\n')
             job_file.write('export init_hour_list="'+init_hour_list+'"\n')

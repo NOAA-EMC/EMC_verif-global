@@ -42,8 +42,8 @@ storm_name = ${STORM_NAME};
 //
 // Model initialization time windows to include or exclude
 //
-init_beg = "${INIT_BEG}";
-init_end = "${INIT_END}";
+init_beg = "${STORM_START_DATE_MET_format}";
+init_end = "${STORM_END_DATE_MET_format}";
 init_inc = ${INIT_INCLUDE};
 init_exc = ${INIT_EXCLUDE};
 //

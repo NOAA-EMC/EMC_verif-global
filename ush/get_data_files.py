@@ -11,6 +11,7 @@ import os
 import subprocess
 import datetime
 from time import sleep
+import pandas as pd
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -753,7 +754,7 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
-    iabp_arctic_ftp = os.environ['iabp_arctic_ftp']
+    iabp_ftp = os.environ['iabp_ftp']
     # No HPSS access from Orion
     if machine == 'ORION':
         print("WARNING: Orion does not currently have access to HPSS..."
@@ -1177,84 +1178,93 @@ elif RUN == 'grid2obs_step1':
                        pbo2['hpssfile'] = hpss_file2
                        pbo2['filetype'] = 'ndas'
                        prepbufr_files_to_check.append(pbo2)
-            if not os.path.exists(link_prepbufr_data_dir):
-                os.makedirs(link_prepbufr_data_dir)
-                os.makedirs(
-                    os.path.join(link_prepbufr_data_dir+'/HPSS_jobs')
-                )
-            if not os.path.exists(link_prepbufr_file):
-                for prepbufr_file_group in prepbufr_files_to_check:
-                    prod_file = prepbufr_file_group['prodfile']
-                    arch_file = prepbufr_file_group['archfile']    
-                    hpss_tar = prepbufr_file_group['hpsstar']
-                    hpss_file = prepbufr_file_group['hpssfile']
-                    file_type = prepbufr_file_group['filetype']
-                    if os.path.exists(prod_file):
-                        os.system('ln -sf '+prod_file+' '+link_prepbufr_file)
-                    elif os.path.exists(arch_file):
-                        os.system('ln -sf '+arch_file+' '+link_prepbufr_file)
-                    else:
+            if type in ['upper_air', 'conus_sfc']:
+                if not os.path.exists(link_prepbufr_data_dir):
+                    os.makedirs(link_prepbufr_data_dir)
+                    os.makedirs(
+                        os.path.join(link_prepbufr_data_dir+'/HPSS_jobs')
+                    )
+                if not os.path.exists(link_prepbufr_file):
+                    for prepbufr_file_group in prepbufr_files_to_check:
+                        prod_file = prepbufr_file_group['prodfile']
+                        arch_file = prepbufr_file_group['archfile']
+                        hpss_tar = prepbufr_file_group['hpsstar']
+                        hpss_file = prepbufr_file_group['hpssfile']
+                        file_type = prepbufr_file_group['filetype']
+                        if os.path.exists(prod_file):
+                            os.system('ln -sf '+prod_file+' '+link_prepbufr_file)
+                        elif os.path.exists(arch_file):
+                            os.system('ln -sf '+arch_file+' '+link_prepbufr_file)
+                        else:
+                            if prepbufr_run_hpss == 'YES':
+                                print("Did not find "+prod_file+" or "
+                                      +arch_file+" online...going to try "
+                                      +"to get file from HPSS")
+                                hpss_job_filename = os.path.join(
+                                      link_prepbufr_data_dir,
+                                      'HPSS_jobs', 'HPSS_'
+                                      +hpss_tar.rpartition('/')[2]
+                                      +'_'+hpss_file.replace('/', '_')+'.sh'
+                                )
+                                get_hpss_data(hpss_job_filename,
+                                              link_prepbufr_data_dir,
+                                              link_prepbufr_file,
+                                              hpss_tar, hpss_file)
+                        if os.path.exists(link_prepbufr_file):
+                            break
+                if not os.path.exists(link_prepbufr_file):
+                    error_dir = os.path.join(link_prepbufr_data_dir)
+                    error_file = os.path.join(
+                        error_dir,
+                        'error_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
+                    )
+                    for prepbufr_file_group in prepbufr_files_to_check:
+                        prod_file = prepbufr_file_group['prodfile']
+                        arch_file = prepbufr_file_group['archfile']
+                        hpss_tar = prepbufr_file_group['hpsstar']
+                        hpss_file = prepbufr_file_group['hpssfile']
+                        file_type = prepbufr_file_group['filetype']
                         if prepbufr_run_hpss == 'YES':
-                            print("Did not find "+prod_file+" or "
-                                  +arch_file+" online...going to try "
-                                  +"to get file from HPSS")
-                            hpss_job_filename = os.path.join(
-                                  link_prepbufr_data_dir,
-                                  'HPSS_jobs', 'HPSS_'
-                                  +hpss_tar.rpartition('/')[2]
-                                  +'_'+hpss_file.replace('/', '_')+'.sh'
-                            )
-                            get_hpss_data(hpss_job_filename,
-                                          link_prepbufr_data_dir, 
-                                          link_prepbufr_file,
-                                          hpss_tar, hpss_file)
-                    if os.path.exists(link_prepbufr_file):
-                        break
-            if not os.path.exists(link_prepbufr_file):
-                error_dir = os.path.join(link_prepbufr_data_dir)
-                error_file = os.path.join(
-                    error_dir,
-                    'error_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
+                            error_msg = ('WARNING: '+prod_file+' and '+arch_file
+                                         +' do not exist and did not find '
+                                         +'HPSS file '+hpss_file+' from '
+                                         +hpss_tar+' or walltime exceeded')
+                        else:
+                            error_msg = ('WARNING: '+prod_file+' and '
+                                         +arch_file+' do not exist')
+                        print(error_msg)
+                        with open(error_file, 'a') as file:
+                            file.write(error_msg)
+            if type == 'polar_sfc':
+                iabp_data_dir = os.path.join(cwd, 'data', 'iabp')
+                if not os.path.exists(iabp_data_dir):
+                    os.makedirs(iabp_data_dir)
+                iabp_YYYYmmdd_data_dir = os.path.join(
+                    cwd, 'data', 'iabp', YYYYmmdd
                 )
-                for prepbufr_file_group in prepbufr_files_to_check:
-                    prod_file = prepbufr_file_group['prodfile']
-                    arch_file = prepbufr_file_group['archfile']
-                    hpss_tar = prepbufr_file_group['hpsstar']
-                    hpss_file = prepbufr_file_group['hpssfile']
-                    file_type = prepbufr_file_group['filetype']
-                    if prepbufr_run_hpss == 'YES':
-                        error_msg = ('WARNING: '+prod_file+' and '+arch_file
-                                     +' do not exist and did not find '
-                                     +'HPSS file '+hpss_file+' from '
-                                     +hpss_tar+' or walltime exceeded')
-                    else:
-                        error_msg = ('WARNING: '+prod_file+' and '
-                                     +arch_file+' do not exist')
-                    print(error_msg)
-                    with open(error_file, 'a') as file:
-                        file.write(error_msg)
-        # Get IABP files
-        for valid_time in valid_time_list:
-            YYYYmmddHH = valid_time.strftime('%Y%m%d%H')
-            YYYYmmdd = valid_time.strftime('%Y%m%d')
-            YYYYmm = valid_time.strftime('%Y%m')
-            YYYY = valid_time.strftime('%Y')
-            mm = valid_time.strftime('%m')
-            dd = valid_time.strftime('%d')
-            HH = valid_time.strftime('%H')
-            link_iabp_data_dir = os.path.join(cwd, 'data', 'iabp')
-            #iabp_arctic_ftp
-            #link_prepbufr_file = os.path.join(link_prepbufr_data_dir,
-            #                                  'prepbufr.gdas.'+YYYYmmddHH)
-            #prod_file = os.path.join(prepbufr_prod_upper_air_dir,
-            #                         'gdas.'+YYYYmmdd, HH,
-            #                         'gdas.t'+HH+'z.prepbufr')
-            #arch_file = os.path.join(prepbufr_arch_dir, 'gdas',
-            #                         'prepbufr.gdas.'+YYYYmmddHH)
-            #hpss_date_dir = os.path.join(hpss_prod_base_dir,
-            #                             'rh'+YYYY, YYYYmm,
-            #                             YYYYmmdd)
-
+                # Get IABP data from web
+                if not os.path.exists(iabp_YYYYmmdd_data_dir):
+                    os.makedirs(iabp_YYYYmmdd_data_dir)
+                nfiles_iabp_YYYYmmdd_data_dir = len(
+                    os.listdir(iabp_YYYYmmdd_data_dir)
+                )
+                if nfiles_iabp_YYYYmmdd_data_dir == 0:
+                    for iabp_region in ['Arctic', 'Antarctic']:
+                        iabp_ftp_region_YYYYmmdd_file = os.path.join(
+                            iabp_ftp, iabp_region, 'FR_'+YYYYmmdd+'.dat'
+                        )
+                        iabp_region_YYYYmmdd_file = os.path.join(
+                            iabp_YYYYmmdd_data_dir,
+                            iabp_region+'_FR_'+YYYYmmdd+'.dat'
+                        )
+                        os.system('wget '+iabp_ftp_region_YYYYmmdd_file+' '
+                                  +'-O '+iabp_region_YYYYmmdd_file)
+                    nfiles_iabp_YYYYmmdd_data_dir = len(
+                        os.listdir(iabp_YYYYmmdd_data_dir)
+                    )
+                    if nfiles_iabp_YYYYmmdd_data_dir == 0:
+                        print("WARNING: Could not get IABP files from FTP "
+                              +"for "+YYYYmmdd)
 elif RUN == 'grid2obs_step2':
     # Read in environment variables
     type_list = os.environ['g2o2_type_list'].split(' ')

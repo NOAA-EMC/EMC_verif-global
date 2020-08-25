@@ -207,6 +207,6 @@ export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"
 export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
 export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
 export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
-export iabp_arctic_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data/Arctic"
+export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 
 echo "END: set_up_verif_global.sh"

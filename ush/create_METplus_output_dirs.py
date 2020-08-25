@@ -56,9 +56,15 @@ elif RUN == 'grid2grid_step2':
 elif RUN == 'grid2obs_step1':
     gather_by = os.environ['g2o1_gather_by']
     for type in os.environ['g2o1_type_list'].split(' '):
+        if type in ['upper_air', 'conus_sfc']:
+           met_2nc_tool = 'pb2nc'
+           obs_file = 'prepbufr'
+        elif type == 'polar_sfc':
+           met_2nc_tool = 'ascii2nc'
+           obs_file = 'iabp'
         metplus_output_subdir_list.append(
             os.path.join('make_met_data_by_'+make_met_data_by,
-                         'pb2nc',type, 'prepbufr')
+                         met_2nc_tool, type, obs_file)
         )
         for model in model_list:
             metplus_output_subdir_list.append(

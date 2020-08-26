@@ -229,7 +229,6 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                 job_file.write('export init_hr_inc="'+init_hr_inc+'"\n')
                 for name, value in extra_env_info.items():
                     job_file.write('export '+name+'="'+value+'"\n')
-                job_file.write('\n')
                 metplus_conf_list = [
                     os.path.join(metplus_version_conf_dir, case,
                                  'make_met_data_by_'+make_met_data_by,
@@ -249,6 +248,7 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                         "export stat_analysis_obtype='"
                         +', '.join(stat_analysis_obtype_list)+"'\n"
                     )
+                job_file.write('\n')
                 if case == 'grid2obs' and type == 'conus_sfc':
                     if machine == 'HERA':
                         run_pb2nc90 = True
@@ -299,6 +299,29 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                                 +nam_pb2nc_file+' '
                                 +pb2nc_90_config+'\n'
                             )
+                if case == 'grid2obs' and type == 'polar_sfc':
+                    job_file.write(
+                        'python '
+                        +os.path.join(USHverif_global,
+                                      'format_iabp_data_for_ascii2nc.py\n')
+                    )
+                    MET_ascii2nc = os.path.join(
+                        os.environ['HOMEMET'], 'bin', 'ascii2nc'
+                    )
+                    iabp_DATE_file = os.path.join(
+                        DATA, RUN, 'data', 'iabp',
+                        'iabp.'+date.strftime('%Y%m%d')
+                    )
+                    iabp_DATE_ascii2nc_file = os.path.join(
+                        DATA, RUN, 'metplus_output',
+                        'make_met_data_by_'+make_met_data_by, 'ascii2nc',
+                        type, 'iabp', 'iabp.'+date.strftime('%Y%m%d')+'.nc'
+                    )
+                    job_file.write(
+                        MET_ascii2nc+' '
+                        +iabp_DATE_file+' '
+                        +iabp_DATE_ascii2nc_file+'\n'
+                    )
                 metplus_conf_list.append(
                     os.path.join(metplus_version_conf_dir, case,
                                  'gather_by_'+gather_by,

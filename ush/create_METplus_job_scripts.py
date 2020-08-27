@@ -862,6 +862,31 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                              'obs_var_options': ''
                     }
                 }
+            elif type == 'polar_sfc':
+                vx_mask_list = ['G223', 'POLAR', 'ARCTIC']
+                var_dict = {
+                    'TMP2m': {'fcst_var_name': 'TMP',
+                              'fcst_var_levels': ['Z2'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'TMP',
+                              'obs_var_levels': ['Z2'],
+                              'obs_var_options': ''
+                    },
+                    'TMPsfc': {'fcst_var_name': 'TMP',
+                               'fcst_var_levels': ['Z0'],
+                               'fcst_var_options': '',
+                               'obs_var_name': 'TMP',
+                               'obs_var_levels': ['Z0'],
+                               'obs_var_options': ''
+                    },
+                    'PRESsfc': {'fcst_var_name': 'PRES',
+                                'fcst_var_levels': ['Z0'],
+                                'fcst_var_options': '',
+                                'obs_var_name': 'PRES',
+                                'obs_var_levels': ['Z0'],
+                                'obs_var_options': ''
+                    }
+                }                
             model_info = {}
             nmodels = int(len(model_list))
             if nmodels > 8:
@@ -1040,10 +1065,11 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     +'-c '+metplus_machine_conf+' '
                     +'-c '+metplus_conf+'\n'
                 )
-                if case == 'precip':
+                if case == 'precip' or \
+                    (case == 'grid2obs' and type == 'polar_sfc'):
                     job_file.write(
                         os.path.join(USHverif_global, 'plotting_scripts',
-                                     'make_plots_wrapper_precip.py')+' '
+                                     'make_plots_wrapper_EMC_verif-global.py')+' '
                         +'-c '+metplus_machine_conf+' '
                         +'-c '+metplus_conf+'\n'
                 )

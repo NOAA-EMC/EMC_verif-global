@@ -863,7 +863,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     }
                 }
             elif type == 'polar_sfc':
-                vx_mask_list = ['G223', 'POLAR', 'ARCTIC']
+                vx_mask_list = ['ARCTIC']
                 var_dict = {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],

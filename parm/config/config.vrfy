@@ -167,9 +167,9 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     #g2o1_vhr_list_polar_sfc:    all valid hours to be included in polar_sfc verification: HH
     #g2o1_fhr_min:               forecast hour to start verification HH[H]
     #g2o1_fhr_max:               forecast hour to end verification HH[H]
-    #g2o1_obtype_upper_air:      observation type(s) to be used for upper_air
-    #g2o1_obtype_conus_sfc:      observation type(s) to be used for conus_sfc
-    #g2o1_obtype_polar_sfc:      observation type(s) to be used for polar_sfc
+    #g2o1_obtype_upper_air:      observation type(s) to be used for upper_air: any prepbufr obs. types
+    #g2o1_obtype_conus_sfc:      observation type(s) to be used for conus_sfc: any prepbufr obs. types
+    #g2o1_obtype_polar_sfc:      observation type(s) to be used for polar_sfc: IABP
     #g2o1_grid_upper_air:        grid to do upper_air verification on
     #g2o1_grid_conus_sfc:        grid to do conus_sfc verification on
     #g2o1_grid_polar_sfc:        grid to do polar_sfc verification on
@@ -187,7 +187,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     export g2o1_fhr_max="168"
     export g2o1_obtype_upper_air="ADPUPA"
     export g2o1_obtype_conus_sfc="ONLYSF ADPUPA"
-    export g2o1_obtype_polar_sfc="SFCSHP"
+    export g2o1_obtype_polar_sfc="IABP"
     export g2o1_grid_upper_air="G003"
     export g2o1_grid_conus_sfc="G104"
     export g2o1_grid_polar_sfc="G223"
@@ -208,9 +208,9 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     #g2o2_vhr_list_polar_sfc:   all valid hours to be included in polar_sfc verification: HH
     #g2o2_fhr_min:              forecast hour to start verification HH[H]
     #g2o2_fhr_max:              forecast hour to end verification HH[H]
-    #g2o2_obtype_upper_air:     observation type(s) to be used for upper_air
-    #g2o2_obtype_conus_sfc:     observation type(s) to be used for conus_sfc
-    #g2o2_obtype_polar_sfc:     observation type(s) to be used for polar_sfc 
+    #g2o2_obtype_upper_air:     observation type(s) to be used for upper_air: any prepbufr obs. types
+    #g2o2_obtype_conus_sfc:     observation type(s) to be used for conus_sfc: any prepbufr obs. types
+    #g2o2_obtype_polar_sfc:     observation type(s) to be used for polar_sfc: IABP
     #g2o2_event_eq:             do event equalization (True) or not (False)
     #g2o2_grid_upper_air:       grid to do upper_air verification on
     #g2o2_grid_conus_sfc:       grid to do conus_sfc verification on
@@ -226,7 +226,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     export g2o2_fhr_max="168"
     export g2o2_obtype_upper_air="ADPUPA"
     export g2o2_obtype_conus_sfc="ONLYSF ADPUPA"
-    export g2o2_obtype_polar_sfc="SFCSHP"
+    export g2o2_obtype_polar_sfc="IABP"
     export g2o2_event_eq="True"
     export g2o2_grid_upper_air="G003"
     export g2o2_grid_conus_sfc="G104"

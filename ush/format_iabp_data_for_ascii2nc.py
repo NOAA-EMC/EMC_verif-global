@@ -105,7 +105,7 @@ if nfiles_iabp_DATE_data_dir != 0:
                             )
                     iabp_region_DATE_ascii2nc.loc[
                         idx_ascii2nc, 'Message_Type'
-                    ] = 'SFCSHP'
+                    ] = 'IABP'
                     iabp_region_DATE_ascii2nc.loc[
                         idx_ascii2nc, 'Station_ID'
                     ] = iabp_region_DATE_data_idx_BuoyID

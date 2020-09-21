@@ -251,26 +251,30 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     )
                 if case == 'grid2obs' and type == 'conus_sfc':
                     if machine == 'HERA':
-                        run_pb2nc90 = True
-                        MET_90_pb2nc = (
-                            '/contrib/met/9.0.2/bin/pb2nc'
+                        run_pb2nc91 = True
+                        MET_91_pb2nc = (
+                            '/contrib/met/9.1/bin/pb2nc'
                         )
                     elif machine == 'ORION':
-                        run_pb2nc90 = False
+                        run_pb2nc91 = False
                     elif machine == 'WCOSS_C':
-                        run_pb2nc90 = False
+                        run_pb2nc91 = True
+                        MET_91_pb2nc = (
+                            '/gpfs/hps3/emc/meso/noscrub'
+                            +'/emc.metplus/met/9.1/exec/pb2nc'
+                        )
                     elif machine == 'WCOSS_DELL_P3':
-                        run_pb2nc90 = True
-                        MET_90_pb2nc = (
+                        run_pb2nc91 = True
+                        MET_91_pb2nc = (
                             '/gpfs/dell2/emc/verification/noscrub'
-                            +'/Julie.Prestopnik/met/9.0.2/bin/pb2nc'
+                            +'/emc.metplus/met/9.1/exec/pb2nc'
                         )
                     else:
-                        run_pb2nc90 = False
-                    if run_pb2nc90:
-                        if not os.path.exists(MET_90_pb2nc):
-                            run_pb2nc90 = False
-                    if run_pb2nc90:
+                        run_pb2nc91 = False
+                    if run_pb2nc91:
+                        if not os.path.exists(MET_91_pb2nc):
+                            run_pb2nc91 = False
+                    if run_pb2nc91:
                         nam_prepbufr_file_list = glob.glob(
                             os.path.join(DATA, RUN, 'data', 'prepbufr',
                                          'prepbufr.nam.'
@@ -281,10 +285,10 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                             'make_met_data_by_'+make_met_data_by,
                             'pb2nc', type, 'prepbufr'
                         )
-                        pb2nc_90_config = os.path.join(
+                        pb2nc_91_config = os.path.join(
                             metplus_version_conf_dir, case, 'met_config',
                             'metV'+os.environ['MET_version'],
-                            'PB2NCConfig_'+type+'_v9.0'
+                            'PB2NCConfig_'+type+'_v9.1'
                         )
                         for nam_prepbufr_file in nam_prepbufr_file_list:
                             nam_pb2nc_file_name = (
@@ -294,10 +298,10 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                                 nam_pb2nc_dir, nam_pb2nc_file_name
                             )
                             job_file.write(
-                                MET_90_pb2nc+' '
+                                MET_91_pb2nc+' '
                                 +nam_prepbufr_file+' '
                                 +nam_pb2nc_file+' '
-                                +pb2nc_90_config+'\n'
+                                +pb2nc_91_config+'\n'
                             )
                 metplus_conf_list.append(
                     os.path.join(metplus_version_conf_dir, case,

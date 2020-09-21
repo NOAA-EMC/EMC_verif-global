@@ -25,15 +25,20 @@ def get_all_tc_storms_basin_year(basin, year):
     basin_year_names_dict['AL_2020'] = ['ARTHUR', 'BERTHA', 'CRISTOBAL',
                                         'DOLLY', 'EDOUARD', 'FAY', 'GONZALO',
                                         'HANNA', 'ISAIAS', 'TEN', 'JOSEPHINE',
-                                        'KYLE']
+                                        'KYLE', 'LAURA', 'MARCO', 'NANA',
+                                        'OMAR', 'PAULETTE', 'RENE', 'SALLY',
+                                        'TEDDY', 'VICKY', 'WILFRED', 'ALPHA',
+                                        'BETA']
     basin_year_names_dict['CP_2020'] = ['']
     basin_year_names_dict['EP_2020'] = ['ONE', 'AMANDA', 'BORIS', 'FOUR',
                                         'CRISTINA', 'SIX', 'SEVEN',
-                                        'DOUGLAS', 'ELIDA', 'FAUSTO',
-                                        'GENEVIEVE']
+                                        'DOUGLAS', 'ELIDA', 'TEN', 'FAUSTO',
+                                        'GENEVIEVE', 'HERNAN', 'ISELLE',
+                                        'JULIO', 'KARINA']
     basin_year_names_dict['WP_2020'] = ['VONGFONG', 'NURI', 'HAGUPIT',
                                         'SINLAKU', 'JANGMI', 'SIX',
-                                        'MEKKHALA']
+                                        'MEKKHALA', 'HIGOS', 'BAVI', 'MAYSAK',
+                                        'HAISHEN', 'TWELVE', 'NOUL', 'DOLPHIN']
     ## 2019
     basin_year_names_dict['AL_2019'] = ['ANDREA', 'BARRY', 'THREE',
                                         'CHANTAL', 'DORIAN', 'ERIN',
@@ -122,6 +127,18 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2020_TEN'] = 'al102020'
     storm_id_dict['AL_2020_JOSEPHINE'] = 'al112020'
     storm_id_dict['AL_2020_KYLE'] = 'al122020'
+    storm_id_dict['AL_2020_LAURA'] = 'al132020'
+    storm_id_dict['AL_2020_MARCO'] = 'al142020'
+    storm_id_dict['AL_2020_OMAR'] = 'al152020'
+    storm_id_dict['AL_2020_NANA'] = 'al162020'
+    storm_id_dict['AL_2020_PAULETTE'] = 'al172020'
+    storm_id_dict['AL_2020_RENE'] = 'al182020'
+    storm_id_dict['AL_2020_SALLY'] = 'al192020'
+    storm_id_dict['AL_2020_TEDDY'] = 'al202020'
+    storm_id_dict['AL_2020_VICKY'] = 'al212020'
+    storm_id_dict['AL_2020_BETA'] = 'al222020'
+    storm_id_dict['AL_2020_WILFRED'] = 'al232020'
+    storm_id_dict['AL_2020_ALPHA'] = 'al242020'
     storm_id_dict['EP_2020_ONE'] = 'ep012020'
     storm_id_dict['EP_2020_AMANDA'] = 'ep022020'
     storm_id_dict['EP_2020_BORIS'] = 'ep032020'
@@ -131,8 +148,13 @@ def get_tc_storm_id(storm):
     storm_id_dict['EP_2020_SEVEN'] = 'ep072020'
     storm_id_dict['EP_2020_DOUGLAS'] = 'ep082020'
     storm_id_dict['EP_2020_ELIDA'] = 'ep092020'
+    storm_id_dict['EP_2020_TEN'] = 'ep102020'
     storm_id_dict['EP_2020_FAUSTO'] = 'ep112020'
     storm_id_dict['EP_2020_GENEVIEVE'] = 'ep122020'
+    storm_id_dict['EP_2020_HERNAN'] = 'ep132020'
+    storm_id_dict['EP_2020_ISELLE'] = 'ep142020'
+    storm_id_dict['EP_2020_JULIO'] = 'ep152020'
+    storm_id_dict['EP_2020_KARINA'] = 'ep162020'
     storm_id_dict['WP_2020_VONGFONG'] = 'wp012020'
     storm_id_dict['WP_2020_NURI'] = 'wp022020'
     storm_id_dict['WP_2020_HAGUPIT'] = 'wp032020'
@@ -140,6 +162,13 @@ def get_tc_storm_id(storm):
     storm_id_dict['WP_2020_JANGMI'] = 'wp052020'
     storm_id_dict['WP_2020_SIX'] = 'wp062020'
     storm_id_dict['WP_2020_MEKKHALA'] = 'wp072020'
+    storm_id_dict['WP_2020_HIGOS'] = 'wp082020'
+    storm_id_dict['WP_2020_BAVI'] = 'wp092020'
+    storm_id_dict['WP_2020_MAYSAK'] = 'wp102020'
+    storm_id_dict['WP_2020_HAISHEN'] = 'wp112020'
+    storm_id_dict['WP_2020_TWELVE'] = 'wp122020'
+    storm_id_dict['WP_2020_NOUL'] = 'wp132020'
+    storm_id_dict['WP_2020_DOLPHIN'] = 'wp142020'
     ## 2019
     storm_id_dict['AL_2019_ANDREA'] = 'al012019'
     storm_id_dict['AL_2019_BARRY'] = 'al022019'

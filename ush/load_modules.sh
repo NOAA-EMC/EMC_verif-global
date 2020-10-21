@@ -15,7 +15,7 @@ METplus_version=${3}
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global
-if [[ "$MET_version" =~ ^(7.0|8.0|8.1)$ ]]; then
+if [[ "$MET_version" =~ ^(8.1)$ ]]; then
     echo "Requested MET version: $MET_version"
 else
     echo "ERROR: $MET_version is not supported in verif_global"
@@ -46,10 +46,6 @@ if [ $machine = WCOSS_C ]; then
     if [ $MET_version = 8.1 ]; then
         module load met/$MET_version 
         export HOMEMET="/usrx/local/dev/met/${MET_version}"
-    elif [ $MET_version = 7.0 -o $MET_version = 8.0 ]; then
-        module use /gpfs/hps3/emc/global/noscrub/Julie.Prestopnik/modulefiles 
-        module load met/$MET_version 
-        export HOMEMET="/gpfs/hps3/emc/global/noscrub/Julie.Prestopnik/met/${MET_version}"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
@@ -79,10 +75,6 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     if [ $MET_version = 8.1 ]; then
         module load met/$MET_version 
         export HOMEMET="/usrx/local/dev/packages/met/${MET_version}"
-    elif [ $MET_version = 7.0 -o $MET_version = 8.0 ]; then
-        module use /gpfs/dell2/emc/verification/noscrub/Julie.Prestopnik/modulefiles 
-        module load met/$MET_version 
-        export HOMEMET="/gpfs/dell2/emc/verification/noscrub/Julie.Prestopnik/met/${MET_version}"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
@@ -106,7 +98,7 @@ elif [ $machine = HERA ]; then
     module load grib_util/1.1.1
     module use -a /contrib/anaconda/modulefiles
     module load anaconda/anaconda2-4.4.0
-    if [ $MET_version = 7.0 -o $MET_version = 8.0 -o $MET_version = 8.1 ]; then
+    if [ $MET_version = 8.1 ]; then
         module use -a /contrib/met/modulefiles
         module load met/$MET_version
         export HOMEMET="/contrib/met/${MET_version}"

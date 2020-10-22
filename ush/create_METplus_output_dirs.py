@@ -111,6 +111,28 @@ elif RUN == 'precip_step2':
     metplus_output_subdir_list.append(
        'images'
     )
+elif RUN == 'satellite_step1':
+    gather_by = os.environ['sat1_gather_by']
+    for type in os.environ['sat1_type_list'].split(' '):
+       for model in model_list:
+           metplus_output_subdir_list.append(
+               os.path.join('make_met_data_by_'+make_met_data_by,
+                            'grid_stat', type, model)
+           )
+           metplus_output_subdir_list.append(
+               os.path.join('gather_by_'+gather_by,
+                            'stat_analysis', type, model)
+           )
+elif RUN == 'satellite_step2':
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'stat_analysis')
+    )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'make_plots')
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
 elif RUN == 'tropcyc':
     metplus_output_subdir_list.append(
        'images'

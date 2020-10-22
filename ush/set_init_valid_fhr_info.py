@@ -372,6 +372,79 @@ elif RUN == 'precip_step2':
     env_var_dict['precip2_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['precip2_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['precip2_init_hr_inc'] = str(init_hr_inc)
+elif RUN == 'satellite_step1':
+    fhr_min = float(os.environ['sat1_fhr_min'])
+    fhr_max = float(os.environ['sat1_fhr_max'])
+    fcyc_list = os.environ['sat1_fcyc_list'].split(' ')
+    type_list = os.environ['sat1_type_list'].split(' ')
+    vhr_list = []
+    for type in type_list:
+        if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
+            if '00' not in vhr_list:
+                vhr_list.append('00')
+    nfcyc = len(fcyc_list)
+    nvhr = len(vhr_list)
+    if nfcyc > nvhr:
+        fhr_intvl = int(24/nfcyc)
+    else:
+        fhr_intvl = int(24/nvhr)
+    nfhr = fhr_max/fhr_intvl
+    fhr_max = int(nfhr*fhr_intvl)
+    fhr_list = []
+    fhr = fhr_min
+    while fhr <= fhr_max:
+        fhr_list.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl
+    valid_hr_beg = vhr_list[0]
+    valid_hr_end = vhr_list[-1]
+    valid_hr_inc = int((24/nvhr)*3600)
+    init_hr_beg = fcyc_list[0]
+    init_hr_end = fcyc_list[-1]
+    init_hr_inc = int((24/nfcyc)*3600)
+    env_var_dict['sat1_vhr_list'] = ' '.join(vhr_list).replace(', ', ' ')
+    env_var_dict['sat1_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
+    env_var_dict['sat1_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['sat1_valid_hr_end'] = str(valid_hr_end).zfill(2)
+    env_var_dict['sat1_valid_hr_inc'] = str(valid_hr_inc)
+    env_var_dict['sat1_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['sat1_init_hr_end'] = str(init_hr_end).zfill(2)
+    env_var_dict['sat1_init_hr_inc'] = str(init_hr_inc)
+elif RUN == 'satellite_step2':
+    fhr_min = float(os.environ['sat2_fhr_min'])
+    fhr_max = float(os.environ['sat2_fhr_max'])
+    fcyc_list = os.environ['sat2_fcyc_list'].split(' ')
+    type_list = os.environ['sat2_type_list'].split(' ')
+    vhr_list = []
+    for type in type_list:
+        if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
+            if '12' not in vhr_list:
+                vhr_list.append(12)
+    nfcyc = len(fcyc_list)
+    nvhr = len(vhr_list)
+    if nfcyc > nvhr:
+        fhr_intvl = int(24/nfcyc)
+    else:
+        fhr_intvl = int(24/nvhr)
+    nfhr = fhr_max/fhr_intvl
+    fhr_max = int(nfhr*fhr_intvl)
+    fhr_list = []
+    fhr = fhr_min
+    while fhr <= fhr_max:
+        fhr_list.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl
+    valid_hr_beg = vhr_list[0]
+    valid_hr_end = vhr_list[-1]
+    valid_hr_inc = int((24/nvhr)*3600)
+    init_hr_beg = fcyc_list[0]
+    init_hr_end = fcyc_list[-1]
+    init_hr_inc = int((24/nfcyc)*3600)
+    env_var_dict['sat2_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
+    env_var_dict['sat2_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['sat2_valid_hr_end'] = str(valid_hr_end).zfill(2)
+    env_var_dict['sat2_valid_hr_inc'] = str(valid_hr_inc)
+    env_var_dict['sat2_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['sat2_init_hr_end'] = str(init_hr_end).zfill(2)
+    env_var_dict['sat2_init_hr_inc'] = str(init_hr_inc)
 elif RUN == 'tropcyc':
     fhr_min = float(os.environ['tropcyc_fhr_min'])
     fhr_max = float(os.environ['tropcyc_fhr_max'])

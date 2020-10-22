@@ -23,6 +23,8 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_GRID2OBS_STEP2:  runs METplus stat_analysis, make_plots
 #RUN_PRECIP_STEP1:    runs METplus pcp_combine, grid_stat, stat_analysis
 #RUN_PRECIP_STEP2:    runs METplus stat_analysis, make_plots
+#RUN_SATELLITE_STEP1: runs METplus grid_stat, stat_analysis
+#RUN_SATELLITE_STEP2: runs METplus stat_analysis, make_plots
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
@@ -32,6 +34,8 @@ export RUN_GRID2OBS_STEP1="YES"
 export RUN_GRID2OBS_STEP2="NO"
 export RUN_PRECIP_STEP1="YES"
 export RUN_PRECIP_STEP2="NO"
+export RUN_SATELLITE_STEP1="NO"
+export RUN_SATELLITE_STEP2="NO"
 export RUN_TROPCYC="NO"
 export RUN_MAPS2D="NO"
 export RUN_MAPSDA="NO"
@@ -283,6 +287,54 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     export precip2_fhr_max="180"
     export precip2_event_eq="True"
     export precip2_grid="G211"
+fi
+
+if [ $RUN_SATELLITE_STEP1 = YES ]; then
+    #sat1_type_list:           list of satellite/satellite analysis to run verification for:
+    #                              ghrsst_ncei_avhrr_anl:    GHRSST global Level 4 sea surface temperature analysis
+    #                                                        from AVHRR and in stui obs from NCEI
+    #                              ghrsst_ospo_geopolar_anl: GHRSST global Level 4 sea surface temperature analysis
+    #                                                        from multi-satellite retrievals and in stui obs
+    #                                                        from OSPO
+    #sat1_type_list:           list type satellites to run verification for:
+    #sat1_fyc_list:            all forecst cycles to be included in verification: HH
+    #sat1_fhr_min:             forecast hour to start verification HH[H]
+    #sat1_fhr_max:             forecast hour to end verification HH[H]
+    #sat1_grid:                grid to do verification on
+    #sat1_gather_by:           how to group the verification data, VSDB, VALID, INIT
+    #sat1_sea_ice_thresh:      threshold for sea ice, anything >= considered ice, anything below no ice
+    #sat1_mv_database_name:    name of the METviewer database to send data to, MUST START WITH "mv"
+    #sat1_mv_database_group:   name of the group the METviewer database belongs to
+    #sat1_mv_database_desc:    description of database, can be blank  
+    export sat1_type_list="ghrsst_ncei_avhrr_anl"
+    export sat1_fcyc_list="00 06 12 18"
+    export sat1_fhr_min="00"
+    export sat1_fhr_max="168"
+    export sat1_grid="G003"
+    export sat1_gather_by="VSDB"
+    export sat1_sea_ice_thresh="0.15"
+    export sat1_mv_database_name="mv_gfs_satellite_metplus_TEST"
+    export sat1_mv_database_group="NOAA NCEP"
+    export sat1_mv_database_desc="Satellite METplus data for ops. GFS"
+fi
+
+if [ $RUN_SATELLITE_STEP2 = YES ]; then
+    #sat2_model_plot_name_list: list of models reference name on plots
+    #sat2_gather_by_list:       list of how model data was gathered in step 1
+    #sat2_type_list:            list of satellite/satellite analysis to run for: ghrsst_ncei_avhrr_anl, ghrsst_ospo_geopolar_anl
+    #sat2_fyc_list:             all forecst cycles to be included in verification: HH
+    #sat2_fhr_min:              forecast hour to start verification HH[H]
+    #sat2_fhr_max:              forecast hour to end verification HH[H]
+    #sat2_event_eq:             do event equalization (True) or not (False)
+    #sat2_grid:                 grid verification was done on
+    export sat2_model_plot_name_list="ops_gfs"
+    export sat2_gather_by_list="VSDB"
+    export sat2_type_list="ghrsst_ncei_avhrr_anl"
+    export sat2_fcyc_list="00"
+    export sat2_fhr_min="00"
+    export sat2_fhr_max="168"
+    export sat2_event_eq="True"
+    export sat2_grid="G003"
 fi
 
 if [ $RUN_TROPCYC = YES ]; then

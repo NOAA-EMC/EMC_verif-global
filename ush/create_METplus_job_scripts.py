@@ -45,6 +45,12 @@ elif RUN == 'precip_step1':
 elif RUN == 'precip_step2':
     type_list = os.environ['precip2_type_list'].split(' ')
     case = 'precip'
+elif RUN == 'satellite_step1':
+    type_list = os.environ['sat1_type_list'].split(' ')
+    case = 'satellite'
+elif RUN == 'satellite_step2':
+    type_list = os.environ['sat2_type_list'].split(' ')
+    case = 'satellite'
 elif RUN == 'maps2d':
     type_list = os.environ['maps2d_type_list'].split(' ')
 elif RUN == 'mapsda':
@@ -209,6 +215,21 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                     extra_env_info['model_filetype'] = (
                         model_fileformat_list[model_index][0:4]
                     )
+                elif case == 'satellite':
+                    gather_by = os.environ['sat1_gather_by']
+                    fhr_list = os.environ['sat1_fhr_list']
+                    valid_hr_beg = os.environ['sat1_valid_hr_beg']
+                    valid_hr_end = os.environ['sat1_valid_hr_end']
+                    valid_hr_inc = os.environ['sat1_valid_hr_inc']
+                    init_hr_beg = os.environ['sat1_init_hr_beg']
+                    init_hr_end = os.environ['sat1_init_hr_end']
+                    init_hr_inc = os.environ['sat1_init_hr_inc']
+                    obtype = type
+                    extra_env_info = {}
+                    extra_env_info['verif_grid'] = os.environ['sat1_grid']
+                    extra_env_info['sea_ice_thresh'] = (
+                        os.environ['sat1_sea_ice_thresh']
+                    )
                 # Create job file
                 job_filename = os.path.join(DATA, RUN,
                                             'metplus_job_scripts',
@@ -325,6 +346,14 @@ def create_job_script_step1(sdate, edate, model_list, type_list, case):
                         MET_ascii2nc+' '
                         +iabp_DATE_file+' '
                         +iabp_DATE_ascii2nc_file+'\n'
+                    )
+                if case == 'satellite' \
+                        and type in ['ghrsst_ncei_avhrr_anl',
+                                     'ghrsst_ospo_geopolar_anl']:
+                    job_file.write(
+                        'python '
+                        +os.path.join(USHverif_global,
+                                      'gen_satellite_ice_vx_mask.py')+'\n'
                     )
                 metplus_conf_list.append(
                     os.path.join(metplus_version_conf_dir, case,
@@ -997,6 +1026,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         model_arch_dir_list[index]
                     )
                 model_info['model'+str(model_num)+'_obtype'] = obtype
+        #elif case == 'satellite':
         for var_name, fcst_obs_var_info in var_dict.items():
             for vx_mask in vx_mask_list:
                 njob+=1
@@ -1946,9 +1976,11 @@ def create_job_script_mapsda(sdate, edate, model_list, type_list):
                         job_file.close()
  
 # Run job creation function
-if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1']:
+if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1',
+           'satellite_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
-elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2']:
+elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2'
+             'satellite_step2']:
     create_job_script_step2(sdate, edate, model_list, type_list, case)
 elif RUN in ['tropcyc']:
     import get_tc_info

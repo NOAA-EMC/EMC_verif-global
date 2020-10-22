@@ -208,5 +208,7 @@ export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
 export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
 export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
-
+export ghrsst_ncei_avhrr_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/NCEI/AVHRR_OI/v2.1"
+export ghrsst_ospo_geopolar_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/hyrax/allData/ghrsst/data/GDS2/L4/GLOB/OSPO/Geo_Polar_Blended/v1"
+ 
 echo "END: set_up_verif_global.sh"

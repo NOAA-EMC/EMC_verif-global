@@ -1890,7 +1890,73 @@ elif RUN == 'satellite_step1':
                     with open(error_file, 'a') as file:
                         file.write(error_msg)
 elif RUN == 'satellite_step2':
-    print(RUN)
+    # Read in environment variables
+    type_list = os.environ['sat2_type_list'].split(' ')
+    gather_by_list = os.environ['sat2_gather_by_list'].split(' ')
+    if plot_by == 'VALID':
+        start_hr = os.environ['sat2_valid_hr_beg']
+        end_hr = os.environ['sat2_valid_hr_end']
+        hr_inc = os.environ['sat2_valid_hr_inc']
+    else:
+        start_hr = os.environ['sat2_init_hr_beg']
+        end_hr = os.environ['sat2_init_hr_end']
+        hr_inc = os.environ['sat2_init_hr_inc']
+    fhr_list = os.environ['sat2_fhr_list'].split(', ')
+    # Get date and time information
+    time_info = get_time_info(start_date, end_date, start_hr, end_hr, hr_inc,
+                              fhr_list, plot_by)
+    # Get archive MET .stat files
+    cwd = os.getcwd()
+    for name in model_list:
+        index = model_list.index(name)
+        if len(model_arch_dir_list) != len(model_list):
+            arch_dir = model_arch_dir_list[0]
+        else:
+            arch_dir = model_arch_dir_list[index]
+        if len(gather_by_list) != len(model_list):
+            gather_by = gather_by_list[0]
+        else:
+            gather_by = gather_by_list[index]
+        for type in type_list:
+            full_arch_dir = os.path.join(arch_dir, 'metplus_data',
+                                         'by_'+gather_by, 'satellite',
+                                          type)
+            link_model_data_dir = os.path.join(cwd, 'data', name, type)
+            if not os.path.exists(link_model_data_dir):
+                os.makedirs(link_model_data_dir)
+            for time in time_info:
+                valid_time = time['validtime']
+                init_time = time['inittime']
+                lead = time['lead']
+                if gather_by == 'VALID' or gather_by == 'VSDB':
+                    stat_file = os.path.join(full_arch_dir,
+                                             valid_time.strftime('%H')+'Z',
+                                             name, name+'_'
+                                             +valid_time.strftime('%Y%m%d')
+                                             +'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, name
+                                                  +'_valid'+valid_time \
+                                                  .strftime('%Y%m%d')
+                                                  +'_valid'+valid_time \
+                                                  .strftime('%H')+'.stat')
+                elif gather_by == 'INIT':
+                    stat_file = os.path.join(full_arch_dir,
+                                             init_time.strftime('%H')+'Z',
+                                             name, name+'_'
+                                             +init_time.strftime('%Y%m%d')
+                                             +'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, name
+                                                  +'_init'+init_time \
+                                                  .strftime('%Y%m%d')
+                                                  +'_init'+init_time \
+                                                  .strftime('%H')+'.stat')
+                if not os.path.exists(link_stat_file):
+                    if os.path.exists(stat_file):
+                        os.system('ln -sf '+stat_file+' '
+                                  +link_stat_file)
+                    else:
+                        print("WARNING: "+stat_file+" "
+                              +"does not exist")
 elif RUN == 'tropcyc':
     import get_tc_info
     # Read in environment variables

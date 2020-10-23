@@ -1026,7 +1026,90 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                         model_arch_dir_list[index]
                     )
                 model_info['model'+str(model_num)+'_obtype'] = obtype
-        #elif case == 'satellite':
+        elif case == 'satellite':
+            model_plot_name_list = (
+                os.environ['sat2_model_plot_name_list'].split(' ')
+            )
+            if len(model_plot_name_list) != len(model_list):
+                print(
+                    "model_list and sat2_model_plot_name_list "
+                    +"are not of equal length"
+                )
+                exit(1)
+            fhr_list = os.environ['sat2_fhr_list']
+            valid_hr_beg = os.environ['sat2_valid_hr_beg']
+            valid_hr_end = os.environ['sat2_valid_hr_end']
+            valid_hr_inc = os.environ['sat2_valid_hr_inc']
+            init_hr_beg = os.environ['sat2_init_hr_beg']
+            init_hr_end = os.environ['sat2_init_hr_end']
+            init_hr_inc = os.environ['sat2_init_hr_inc']
+            event_equalization = os.environ['sat2_event_eq']
+            interp = 'NEAREST'
+            extra_env_info = {}
+            extra_env_info['verif_grid'] = os.environ['sat2_grid']
+            extra_env_info['sea_ice_thresh'] = (
+                os.environ['sat2_sea_ice_thresh']
+            )
+            if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
+                line_type = 'SL1L2'
+                plot_stats_list = 'bias, rmse'
+                vx_mask_list = [os.environ['sat2_grid'], 'NH', 'SH',
+                                'POLAR', 'ARCTIC', 'SEA_ICE', 'SEA_ICE_FREE',
+                                'SEA_ICE_POLAR', 'SEA_ICE_FREE_POLAR']
+                var_dict = {
+                    'SST': {'fcst_var_name': 'TMP_Z0_mean',
+                            'fcst_var_levels': ['Z0'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'analysed_sst',
+                            'obs_var_levels': ['Z0'],
+                            'obs_var_options': '',
+                            'obs_var_thresholds': ''
+                    },
+                    'ICEC': {'fcst_var_name': 'ICEC_Z0_mean',
+                             'fcst_var_levels': ['Z0'],
+                             'fcst_var_options': (
+                                 'ge'+os.environ['sat2_sea_ice_thresh']
+                             ),
+                             'obs_var_name': 'sea_ice_fraction',
+                             'obs_var_levels': ['Z0'],
+                             'obs_var_options': (
+                                 'ge'+os.environ['sat2_sea_ice_thresh']
+                             ),
+                             'obs_var_thresholds': ''
+                    }
+                }
+            model_info = {}
+            nmodels = int(len(model_list))
+            if nmodels > 8:
+                print(
+                    "Too many models listed in model_list. "
+                    +"Current maximum is 8."
+                )
+                exit(1)
+            for model in model_list:
+                index = model_list.index(model)
+                model_num = index + 1
+                model_info['model'+str(model_num)] = model
+                model_info['model'+str(model_num)+'_plot_name'] = (
+                         model_plot_name_list[index]
+                )
+                if (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) > 1):
+                    print(
+                        "model_arch_dir_list and model_list not of "
+                        +"equal length"
+                    )
+                    exit(1)
+                elif (len(model_arch_dir_list) != len(model_list)
+                        and len(model_arch_dir_list) == 1):
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[0]
+                    )
+                else:
+                    model_info['model'+str(model_num)+'_arch_dir'] = (
+                        model_arch_dir_list[index]
+                    )
+                model_info['model'+str(model_num)+'_obtype'] = type
         for var_name, fcst_obs_var_info in var_dict.items():
             for vx_mask in vx_mask_list:
                 njob+=1
@@ -1100,7 +1183,8 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                     +'-c '+metplus_conf+'\n'
                 )
                 if case == 'precip' or \
-                    (case == 'grid2obs' and type == 'polar_sfc'):
+                    (case == 'grid2obs' and type == 'polar_sfc') \
+                    or case == 'satellite':
                     job_file.write(
                         os.path.join(USHverif_global, 'plotting_scripts',
                                      'make_plots_wrapper_EMC_verif-global.py')+' '
@@ -1979,7 +2063,7 @@ def create_job_script_mapsda(sdate, edate, model_list, type_list):
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1',
            'satellite_step1']:
     create_job_script_step1(sdate, edate, model_list, type_list, case)   
-elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2'
+elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
              'satellite_step2']:
     create_job_script_step2(sdate, edate, model_list, type_list, case)
 elif RUN in ['tropcyc']:

@@ -308,7 +308,7 @@ if [ $RUN_SATELLITE_STEP1 = YES ]; then
     #sat1_mv_database_desc:    description of database, can be blank  
     export sat1_type_list="ghrsst_ncei_avhrr_anl"
     export sat1_fcyc_list="00 06 12 18"
-    export sat1_fhr_min="00"
+    export sat1_fhr_min="24"
     export sat1_fhr_max="168"
     export sat1_grid="G003"
     export sat1_gather_by="VSDB"
@@ -325,14 +325,16 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     #sat2_fyc_list:             all forecst cycles to be included in verification: HH
     #sat2_fhr_min:              forecast hour to start verification HH[H]
     #sat2_fhr_max:              forecast hour to end verification HH[H]
+    #sat2_sea_ice_thresh:       threshold for sea ice, anything >= considered ice, anything below no ice
     #sat2_event_eq:             do event equalization (True) or not (False)
     #sat2_grid:                 grid verification was done on
     export sat2_model_plot_name_list="ops_gfs"
     export sat2_gather_by_list="VSDB"
     export sat2_type_list="ghrsst_ncei_avhrr_anl"
     export sat2_fcyc_list="00"
-    export sat2_fhr_min="00"
+    export sat2_fhr_min="24"
     export sat2_fhr_max="168"
+    export sat2_sea_ice_thresh="0.15"
     export sat2_event_eq="True"
     export sat2_grid="G003"
 fi

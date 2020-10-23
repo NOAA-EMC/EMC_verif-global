@@ -260,6 +260,89 @@ class MakePlotsWrapper(CommandBuilder):
                 model_plot_name_list.append(model_plot_name)
         return ' '.join(model_name_list), ' '.join(model_plot_name_list)
 
+    def create_plots_satellite_ghrsst(self, fcst_var_level_list, obs_var_level_list,
+                                      fcst_var_thresh_list, obs_var_thresh_list,
+                                      lead_list, plotting_scripts_dir):
+        """! Create plots for the satellite verification for variables
+             on single level. Runs plotting scripts: plot_time_series.py,
+             plot_lead_mean.py
+             
+             Args:
+                 fcst_var_level_list - list of forecst variable level
+                                       information 
+                 obs_var_level_list -  list of observation variable level
+                                       information
+                 fcst_var_thresh_list - list of forecast variable threshold
+                                        information
+                 obs_var_thresh_list - list of observation variable threshold
+                                        information
+                 lead_list - list of forecast hour leads
+                 plotting_scripts_dir - directory to put images and data
+                
+             Returns:
+        """
+        self.add_env_var("LEAD_LIST", ', '.join(lead_list))
+        #time series plot
+        for lead in lead_list:
+            self.add_env_var('LEAD', lead)
+            for vl in range(len(fcst_var_level_list)):
+                self.add_env_var('FCST_VAR_LEVEL', fcst_var_level_list[vl])
+                self.add_env_var('OBS_VAR_LEVEL',obs_var_level_list[vl])
+                for vt in range(len(fcst_var_thresh_list)):
+                    self.add_env_var('FCST_VAR_THRESH', fcst_var_thresh_list[vt])
+                    self.add_env_var('OBS_VAR_THRESH', obs_var_thresh_list[vt])
+                    self.set_plotting_script(os.path.join(plotting_scripts_dir, "plot_time_series.py"))
+                    self.logger.debug("Running "+os.path.join(plotting_scripts_dir, "plot_time_series.py")+" with...")
+                    self.logger.debug("DATES: "+os.environ['PLOT_TIME']+" "+os.environ['START_DATE_YYYYmmdd']+" "+os.environ['END_DATE_YYYYmmdd'])
+                    self.logger.debug("VALID TIME INFO: "+os.environ['VALID_TIME_INFO'])
+                    self.logger.debug("INIT TIME INFO: "+os.environ['INIT_TIME_INFO'])
+                    self.logger.debug("FCST VAR: "+os.environ['FCST_VAR_NAME']+" "+fcst_var_level_list[vl]+" "+fcst_var_thresh_list[vt]+" "+os.environ['FCST_VAR_EXTRA'])
+                    self.logger.debug("OBS VAR: "+os.environ['OBS_VAR_NAME']+" "+obs_var_level_list[vl]+" "+obs_var_thresh_list[vt]+" "+os.environ['OBS_VAR_EXTRA'])
+                    self.logger.debug("INTERP: "+os.environ['INTERP'])
+                    self.logger.debug("REGION: "+os.environ["REGION"])
+                    self.logger.debug("LEAD: "+lead)
+                    self.logger.debug("EVENT_EQUALIZATION: "+os.environ['EVENT_EQUALIZATION'])
+                    self.logger.debug("CI_METHOD: "+os.environ['CI_METHOD'])
+                    self.logger.debug("VERIF_GRID: "+os.environ['VERIF_GRID'])
+                    self.logger.debug("MODEL_NAME_LIST: "+os.environ['MODEL_NAME_LIST'])
+                    self.logger.debug("MODEL_PLOT_NAME_LIST: "+os.environ['MODEL_PLOT_NAME_LIST'])
+                    self.logger.debug("PLOT_STATS_LIST: "+os.environ['PLOT_STATS_LIST'])
+                    cmd = self.get_command()
+                    if cmd is None:
+                        self.logger.error("ERROR: make_plots could not generate command for "+self.plotting_script)
+                        return
+                    self.build()
+                    self.clear()
+        #lead mean plot
+        for vl in range(len(fcst_var_level_list)):
+            self.add_env_var('FCST_VAR_LEVEL', fcst_var_level_list[vl])
+            self.add_env_var('OBS_VAR_LEVEL',obs_var_level_list[vl])
+            for vt in range(len(fcst_var_thresh_list)):
+                self.add_env_var('FCST_VAR_THRESH', fcst_var_thresh_list[vt])
+                self.add_env_var('OBS_VAR_THRESH', obs_var_thresh_list[vt])
+                self.set_plotting_script(os.path.join(plotting_scripts_dir, "plot_lead_mean.py"))
+                self.logger.debug("Running "+os.path.join(plotting_scripts_dir, "plot_lead_mean.py")+" with...")
+                self.logger.debug("DATES: "+os.environ['PLOT_TIME']+" "+os.environ['START_DATE_YYYYmmdd']+" "+os.environ['END_DATE_YYYYmmdd'])
+                self.logger.debug("VALID TIME INFO: "+os.environ['VALID_TIME_INFO'])
+                self.logger.debug("INIT TIME INFO: "+os.environ['INIT_TIME_INFO'])
+                self.logger.debug("FCST VAR: "+os.environ['FCST_VAR_NAME']+" "+fcst_var_level_list[vl]+" "+fcst_var_thresh_list[vt]+" "+os.environ['FCST_VAR_EXTRA'])
+                self.logger.debug("OBS VAR: "+os.environ['OBS_VAR_NAME']+" "+obs_var_level_list[vl]+" "+obs_var_thresh_list[vt]+" "+os.environ['OBS_VAR_EXTRA'])
+                self.logger.debug("INTERP: "+os.environ['INTERP'])
+                self.logger.debug("REGION: "+os.environ["REGION"])
+                self.logger.debug("LEAD_LIST: "+os.environ["LEAD_LIST"])
+                self.logger.debug("EVENT_EQUALIZATION: "+os.environ['EVENT_EQUALIZATION'])
+                self.logger.debug("CI_METHOD: "+os.environ['CI_METHOD'])
+                self.logger.debug("VERIF_GRID: "+os.environ['VERIF_GRID'])
+                self.logger.debug("MODEL_NAME_LIST: "+os.environ['MODEL_NAME_LIST'])
+                self.logger.debug("MODEL_PLOT_NAME_LIST: "+os.environ['MODEL_PLOT_NAME_LIST'])
+                self.logger.debug("PLOT_STATS_LIST: "+os.environ['PLOT_STATS_LIST'])
+                cmd = self.get_command()
+                if cmd is None:
+                    self.logger.error("ERROR: make_plots could not generate command for "+self.plotting_script)
+                    return
+                self.build()
+                self.clear()
+
     def create_plots_grid2obs_polar_sfc(self, fcst_var_level_list, obs_var_level_list,
                                         fcst_var_thresh_list, obs_var_thresh_list,
                                         lead_list, plotting_scripts_dir):
@@ -491,7 +574,6 @@ class MakePlotsWrapper(CommandBuilder):
                 return
             self.build()
             self.clear()
-
        
  
     def create_plots(self, verif_case, verif_type):
@@ -624,6 +706,10 @@ class MakePlotsWrapper(CommandBuilder):
                             self.create_plots_grid2obs_polar_sfc(fcst_var_level_list, obs_var_level_list,
                                                                  fcst_var_thresh_list, obs_var_thresh_list,
                                                                  lead_list, plotting_scripts_dir)
+                        elif verif_case == "satellite" and verif_type in ("ghrsst_ncei_avhrr_anl", "ghrsst_ospo_geopolar_anl"):
+                            self.create_plots_satellite_ghrsst(fcst_var_level_list, obs_var_level_list,
+                                                               fcst_var_thresh_list, obs_var_thresh_list,
+                                                               lead_list, plotting_scripts_dir)
 
     def run_all_times(self):
         verif_case = self.config.getstr('config', 'VERIF_CASE')
@@ -644,6 +730,12 @@ class MakePlotsWrapper(CommandBuilder):
                 self.logger.error(verif_type+" is not an accepted VERIF_TYPE option for VERIF_CASE = grid2obs")
         elif verif_case == "precip":
             run_make_plots = True
+        elif verif_case == "satellite":
+            if verif_type in ("ghrsst_ncei_avhrr_anl", "ghrsst_ospo_geopolar_anl"):
+                run_make_plots = True
+            else:
+                run_make_plots = False
+                self.logger.error(verif_type+" is not an accepted VERIF_TYPE option for VERIF_CASE = satellite")
         else:
             self.logger.error(verif_case+" is not an accepted VERIF_CASE option")
         if run_make_plots:

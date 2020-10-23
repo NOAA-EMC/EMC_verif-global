@@ -417,8 +417,8 @@ elif RUN == 'satellite_step2':
     vhr_list = []
     for type in type_list:
         if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
-            if '12' not in vhr_list:
-                vhr_list.append(12)
+            if '00' not in vhr_list:
+                vhr_list.append('00')
     nfcyc = len(fcyc_list)
     nvhr = len(vhr_list)
     if nfcyc > nvhr:

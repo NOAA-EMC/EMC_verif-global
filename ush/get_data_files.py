@@ -1258,6 +1258,7 @@ elif RUN == 'grid2obs_step1':
                             iabp_region+'_FR_'+YYYYmmdd+'.dat'
                         )
                         os.system('wget '+iabp_ftp_region_YYYYmmdd_file+' '
+                                  +'--no-check-certificate '
                                   +'-O '+iabp_region_YYYYmmdd_file)
                     nfiles_iabp_YYYYmmdd_data_dir = len(
                         os.listdir(iabp_YYYYmmdd_data_dir)

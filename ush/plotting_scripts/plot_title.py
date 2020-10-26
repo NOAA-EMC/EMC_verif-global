@@ -125,11 +125,11 @@ def get_region_title(region):
         'GMC': 'Gulf of Mexico Coast',
         'NAK': 'Northern Alaska',
         'SAK': 'Southern Alaska',
-        'G211': 'CONUS - NCEP Grid 211'
-        'SEA_ICE': 'Sea Ice',
-        'SEA_ICE_FREE': 'Sea Ice Free',
-        'SEA_ICE_POLAR': 'Sea Ice Polar',
-        'SEA_ICE_FREE_POLAR': 'Sea Ice Free Polar'
+        'G211': 'CONUS - NCEP Grid 211',
+        'SEA_ICE': 'Global - Sea Ice',
+        'SEA_ICE_FREE': 'Global - Sea Ice Free',
+        'SEA_ICE_POLAR': 'Polar - Sea Ice',
+        'SEA_ICE_FREE_POLAR': 'Polar - Sea Ice Free'
     }
     if region in list(region_title_dict.keys()):
         region_title = region_title_dict[region] 
@@ -182,8 +182,9 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'TCDC': 'Total Cloud Cover',
         'VIS': 'Visibility',
         'GUST': 'Wind Gust',
-        'APCP_24': '24 hour Accumulated Precipitation'
-        'ICEC': 'Sea Ice Concentration'
+        'APCP_24': '24 hour Accumulated Precipitation',
+        'TMP_Z0_mean': 'Temperature',
+        'ICEC_Z0_mean': 'Sea Ice Concentration'
     }
     if var_name in list(var_name_title_dict.keys()):
         var_name_title = var_name_title_dict[var_name]

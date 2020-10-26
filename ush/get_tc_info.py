@@ -28,7 +28,8 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'KYLE', 'LAURA', 'MARCO', 'NANA',
                                         'OMAR', 'PAULETTE', 'RENE', 'SALLY',
                                         'TEDDY', 'VICKY', 'WILFRED', 'ALPHA',
-                                        'BETA', 'GAMMA', 'DELTA']
+                                        'BETA', 'GAMMA', 'DELTA', 'EPSILON',
+                                        'ZETA']
     basin_year_names_dict['CP_2020'] = ['']
     basin_year_names_dict['EP_2020'] = ['ONE', 'AMANDA', 'BORIS', 'FOUR',
                                         'CRISTINA', 'SIX', 'SEVEN',
@@ -40,7 +41,8 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'SINLAKU', 'JANGMI', 'SIX',
                                         'MEKKHALA', 'HIGOS', 'BAVI', 'MAYSAK',
                                         'HAISHEN', 'TWELVE', 'NOUL', 'DOLPHIN',
-                                        'KUJIRA', 'CHAN-HOM']
+                                        'KUJIRA', 'CHAN-HOM', 'LINFA', 'NANGKA',
+                                        'SAUDEL', 'TWENTY', 'MOLAVE']
     ## 2019
     basin_year_names_dict['AL_2019'] = ['ANDREA', 'BARRY', 'THREE',
                                         'CHANTAL', 'DORIAN', 'ERIN',
@@ -143,6 +145,8 @@ def get_tc_storm_id(storm):
     storm_id_dict['AL_2020_ALPHA'] = 'al242020'
     storm_id_dict['AL_2020_GAMMA'] = 'al252020'
     storm_id_dict['AL_2020_DELTA'] = 'al262020'
+    storm_id_dict['AL_2020_EPSILON'] = 'al272020'
+    storm_id_dict['AL_2020_ZETA'] = 'al282020'
     storm_id_dict['EP_2020_ONE'] = 'ep012020'
     storm_id_dict['EP_2020_AMANDA'] = 'ep022020'
     storm_id_dict['EP_2020_BORIS'] = 'ep032020'
@@ -178,6 +182,11 @@ def get_tc_storm_id(storm):
     storm_id_dict['WP_2020_DOLPHIN'] = 'wp142020'
     storm_id_dict['WP_2020_KUJIRA'] = 'wp152020'
     storm_id_dict['WP_2020_CHAN-HOM'] = 'wp162020'
+    storm_id_dict['WP_2020_LINFA'] = 'wp172020'
+    storm_id_dict['WP_2020_NANGKA'] = 'wp182020'
+    storm_id_dict['WP_2020_SAUDEL'] = 'wp192020'
+    storm_id_dict['WP_2020_TWENTY'] = 'wp202020'
+    storm_id_dict['WP_2020_MOLAVE'] = 'wp212020'
     ## 2019
     storm_id_dict['AL_2019_ANDREA'] = 'al012019'
     storm_id_dict['AL_2019_BARRY'] = 'al022019'

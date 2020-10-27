@@ -88,6 +88,7 @@ elif RUN == 'grid2obs_step1':
     fhr_max = float(os.environ['g2o1_fhr_max']) 
     vhr_list_upper_air = os.environ['g2o1_vhr_list_upper_air'].split(' ')
     vhr_list_conus_sfc = os.environ['g2o1_vhr_list_conus_sfc'].split(' ')
+    vhr_list_polar_sfc = os.environ['g2o1_vhr_list_polar_sfc'].split(' ')
     nfcyc = len(fcyc_list)
     nvhr_upper_air = len(vhr_list_upper_air)
     if nfcyc > nvhr_upper_air:
@@ -113,12 +114,27 @@ elif RUN == 'grid2obs_step1':
     while fhr <= fhr_max_conus_sfc:
         fhr_list_conus_sfc.append(str(int(fhr)).zfill(2))
         fhr+=fhr_intvl_conus_sfc
+    nvhr_polar_sfc = len(vhr_list_polar_sfc)
+    if nfcyc > nvhr_polar_sfc:
+        fhr_intvl_polar_sfc = int(24/nfcyc)
+    else:
+        fhr_intvl_polar_sfc = int(24/nvhr_polar_sfc)
+    nfhr_polar_sfc = fhr_max/fhr_intvl_polar_sfc
+    fhr_max_polar_sfc = int(nfhr_polar_sfc*fhr_intvl_polar_sfc)
+    fhr_list_polar_sfc = []
+    fhr = fhr_min
+    while fhr <= fhr_max_polar_sfc:
+        fhr_list_polar_sfc.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl_polar_sfc
     valid_hr_beg_upper_air = vhr_list_upper_air[0]
     valid_hr_end_upper_air = vhr_list_upper_air[-1]
     valid_hr_inc_upper_air = int((24/nvhr_upper_air)*3600)
     valid_hr_beg_conus_sfc = vhr_list_conus_sfc[0]
     valid_hr_end_conus_sfc = vhr_list_conus_sfc[-1]
     valid_hr_inc_conus_sfc = int((24/nvhr_conus_sfc)*3600)
+    valid_hr_beg_polar_sfc = vhr_list_polar_sfc[0]
+    valid_hr_end_polar_sfc = vhr_list_polar_sfc[-1]
+    valid_hr_inc_polar_sfc = int((24/nvhr_polar_sfc)*3600)
     init_hr_beg = fcyc_list[0]
     init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
@@ -127,6 +143,9 @@ elif RUN == 'grid2obs_step1':
     )
     env_var_dict['g2o1_fhr_list_conus_sfc'] = (
         ' '.join(fhr_list_conus_sfc).replace(' ', ', ')
+    )
+    env_var_dict['g2o1_fhr_list_polar_sfc'] = (
+        ' '.join(fhr_list_polar_sfc).replace(' ', ', ')
     )
     env_var_dict['g2o1_valid_hr_beg_upper_air'] = (
         str(valid_hr_beg_upper_air).zfill(2)
@@ -146,6 +165,15 @@ elif RUN == 'grid2obs_step1':
     env_var_dict['g2o1_valid_hr_inc_conus_sfc'] = (
         str(valid_hr_inc_conus_sfc)
     )
+    env_var_dict['g2o1_valid_hr_beg_polar_sfc'] = (
+        str(valid_hr_beg_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o1_valid_hr_end_polar_sfc'] = (
+        str(valid_hr_end_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o1_valid_hr_inc_polar_sfc'] = (
+        str(valid_hr_inc_polar_sfc)
+    )
     env_var_dict['g2o1_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['g2o1_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['g2o1_init_hr_inc'] = str(init_hr_inc).zfill(2)
@@ -155,6 +183,7 @@ elif RUN == 'grid2obs_step2':
     fhr_max = float(os.environ['g2o2_fhr_max'])
     vhr_list_upper_air = os.environ['g2o2_vhr_list_upper_air'].split(' ')
     vhr_list_conus_sfc = os.environ['g2o2_vhr_list_conus_sfc'].split(' ')
+    vhr_list_polar_sfc = os.environ['g2o2_vhr_list_polar_sfc'].split(' ')
     nfcyc = len(fcyc_list)
     nvhr_upper_air = len(vhr_list_upper_air)
     if nfcyc > nvhr_upper_air:
@@ -180,12 +209,27 @@ elif RUN == 'grid2obs_step2':
     while fhr <= fhr_max_conus_sfc:
         fhr_list_conus_sfc.append(str(int(fhr)).zfill(2))
         fhr+=fhr_intvl_conus_sfc
+    nvhr_polar_sfc = len(vhr_list_polar_sfc)
+    if nfcyc > nvhr_polar_sfc:
+        fhr_intvl_polar_sfc = int(24/nfcyc)
+    else:
+        fhr_intvl_polar_sfc = int(24/nvhr_polar_sfc)
+    nfhr_polar_sfc = fhr_max/fhr_intvl_polar_sfc
+    fhr_max_polar_sfc = int(nfhr_polar_sfc*fhr_intvl_polar_sfc)
+    fhr_list_polar_sfc = []
+    fhr = fhr_min
+    while fhr <= fhr_max_polar_sfc:
+        fhr_list_polar_sfc.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl_polar_sfc
     valid_hr_beg_upper_air = vhr_list_upper_air[0]
     valid_hr_end_upper_air = vhr_list_upper_air[-1]
     valid_hr_inc_upper_air = int((24/nvhr_upper_air)*3600)
     valid_hr_beg_conus_sfc = vhr_list_conus_sfc[0]
     valid_hr_end_conus_sfc = vhr_list_conus_sfc[-1]
     valid_hr_inc_conus_sfc = int((24/nvhr_conus_sfc)*3600)
+    valid_hr_beg_polar_sfc = vhr_list_polar_sfc[0]
+    valid_hr_end_polar_sfc = vhr_list_polar_sfc[-1]
+    valid_hr_inc_polar_sfc = int((24/nvhr_polar_sfc)*3600)
     init_hr_beg = fcyc_list[0]
     init_hr_end = fcyc_list[-1]
     init_hr_inc = int((24/nfcyc)*3600)
@@ -194,6 +238,9 @@ elif RUN == 'grid2obs_step2':
     )
     env_var_dict['g2o2_fhr_list_conus_sfc'] = (
         ' '.join(fhr_list_conus_sfc).replace(' ', ', ')
+    )
+    env_var_dict['g2o2_fhr_list_polar_sfc'] = (
+        ' '.join(fhr_list_polar_sfc).replace(' ', ', ')
     )
     env_var_dict['g2o2_valid_hr_beg_upper_air'] = (
         str(valid_hr_beg_upper_air).zfill(2)
@@ -212,6 +259,15 @@ elif RUN == 'grid2obs_step2':
     )
     env_var_dict['g2o2_valid_hr_inc_conus_sfc'] = (
         str(valid_hr_inc_conus_sfc)
+    )
+    env_var_dict['g2o2_valid_hr_beg_polar_sfc'] = (
+        str(valid_hr_beg_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o2_valid_hr_end_polar_sfc'] = (
+        str(valid_hr_end_polar_sfc).zfill(2)
+    )
+    env_var_dict['g2o2_valid_hr_inc_polar_sfc'] = (
+        str(valid_hr_inc_polar_sfc)
     )
     env_var_dict['g2o2_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['g2o2_init_hr_end'] = str(init_hr_end).zfill(2)
@@ -316,6 +372,79 @@ elif RUN == 'precip_step2':
     env_var_dict['precip2_init_hr_beg'] = str(init_hr_beg).zfill(2)
     env_var_dict['precip2_init_hr_end'] = str(init_hr_end).zfill(2)
     env_var_dict['precip2_init_hr_inc'] = str(init_hr_inc)
+elif RUN == 'satellite_step1':
+    fhr_min = float(os.environ['sat1_fhr_min'])
+    fhr_max = float(os.environ['sat1_fhr_max'])
+    fcyc_list = os.environ['sat1_fcyc_list'].split(' ')
+    type_list = os.environ['sat1_type_list'].split(' ')
+    vhr_list = []
+    for type in type_list:
+        if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
+            if '00' not in vhr_list:
+                vhr_list.append('00')
+    nfcyc = len(fcyc_list)
+    nvhr = len(vhr_list)
+    if nfcyc > nvhr:
+        fhr_intvl = int(24/nfcyc)
+    else:
+        fhr_intvl = int(24/nvhr)
+    nfhr = fhr_max/fhr_intvl
+    fhr_max = int(nfhr*fhr_intvl)
+    fhr_list = []
+    fhr = fhr_min
+    while fhr <= fhr_max:
+        fhr_list.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl
+    valid_hr_beg = vhr_list[0]
+    valid_hr_end = vhr_list[-1]
+    valid_hr_inc = int((24/nvhr)*3600)
+    init_hr_beg = fcyc_list[0]
+    init_hr_end = fcyc_list[-1]
+    init_hr_inc = int((24/nfcyc)*3600)
+    env_var_dict['sat1_vhr_list'] = ' '.join(vhr_list).replace(', ', ' ')
+    env_var_dict['sat1_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
+    env_var_dict['sat1_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['sat1_valid_hr_end'] = str(valid_hr_end).zfill(2)
+    env_var_dict['sat1_valid_hr_inc'] = str(valid_hr_inc)
+    env_var_dict['sat1_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['sat1_init_hr_end'] = str(init_hr_end).zfill(2)
+    env_var_dict['sat1_init_hr_inc'] = str(init_hr_inc)
+elif RUN == 'satellite_step2':
+    fhr_min = float(os.environ['sat2_fhr_min'])
+    fhr_max = float(os.environ['sat2_fhr_max'])
+    fcyc_list = os.environ['sat2_fcyc_list'].split(' ')
+    type_list = os.environ['sat2_type_list'].split(' ')
+    vhr_list = []
+    for type in type_list:
+        if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
+            if '00' not in vhr_list:
+                vhr_list.append('00')
+    nfcyc = len(fcyc_list)
+    nvhr = len(vhr_list)
+    if nfcyc > nvhr:
+        fhr_intvl = int(24/nfcyc)
+    else:
+        fhr_intvl = int(24/nvhr)
+    nfhr = fhr_max/fhr_intvl
+    fhr_max = int(nfhr*fhr_intvl)
+    fhr_list = []
+    fhr = fhr_min
+    while fhr <= fhr_max:
+        fhr_list.append(str(int(fhr)).zfill(2))
+        fhr+=fhr_intvl
+    valid_hr_beg = vhr_list[0]
+    valid_hr_end = vhr_list[-1]
+    valid_hr_inc = int((24/nvhr)*3600)
+    init_hr_beg = fcyc_list[0]
+    init_hr_end = fcyc_list[-1]
+    init_hr_inc = int((24/nfcyc)*3600)
+    env_var_dict['sat2_fhr_list'] = ' '.join(fhr_list).replace(' ', ', ')
+    env_var_dict['sat2_valid_hr_beg'] = str(valid_hr_beg).zfill(2)
+    env_var_dict['sat2_valid_hr_end'] = str(valid_hr_end).zfill(2)
+    env_var_dict['sat2_valid_hr_inc'] = str(valid_hr_inc)
+    env_var_dict['sat2_init_hr_beg'] = str(init_hr_beg).zfill(2)
+    env_var_dict['sat2_init_hr_end'] = str(init_hr_end).zfill(2)
+    env_var_dict['sat2_init_hr_inc'] = str(init_hr_inc)
 elif RUN == 'tropcyc':
     fhr_min = float(os.environ['tropcyc_fhr_min'])
     fhr_max = float(os.environ['tropcyc_fhr_max'])

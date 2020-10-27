@@ -57,5 +57,8 @@ for env_var_model in env_var_model_list:
                                             met_stat_filename)
         with open(pruned_met_stat_file, 'w') as pmsf:
             pmsf.write(first_line+output)
+    if RUN == 'satellite_step2':
+        os.system('sed -i "s/0,\*,\*/Z0/g" '
+                  +pruned_data_dir+'/*')
 
 print("END: "+os.path.basename(__file__))

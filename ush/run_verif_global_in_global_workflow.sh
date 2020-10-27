@@ -31,10 +31,12 @@
 ## MET_verbosity, log_MET_output_to_METplus
 ## fhr_min, fhr_max, g2g1_type_list
 ## g2g1_anl_name, g2g1_anl_fileformat_list
-## g2g21_grid, g2o1_type_list, g2o1_obtype_upper_air
+## g2g1_grid, g2o1_type_list, g2o1_obtype_upper_air
 ## g2o1_grid_upper_air, g2o1_fhr_out_upper_air
 ## g2o1_obtype_conus_sfc, g2o1_grid_conus_sfc
-## g2o1_fhr_out_conus_sfc, g2o1_prepbufr_data_runhpss
+## g2o1_fhr_out_conus_sfc, g2o1_obtype_polar_sfc,
+## g2o1_grid_polar_sfc, g2o1_fhr_out_polar_sfc
+## g2o1_prepbufr_data_runhpss
 ## precip1_obtype, precip1_accum_length
 ## precip1_model_bucket_list, precip1_model_varname_list
 ## precip1_model_fileformat_list, precip1_grid
@@ -121,16 +123,19 @@ export g2g1_grid=${g2g1_grid:-G002}
 export g2g1_gather_by=$gather_by
 export model_data_runhpss=$get_data_from_hpss
 # GRID-TO-OBS STEP 1
-export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
+export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc polar_sfc"}
 export g2o1_fcyc_list=$fcyc_list
 export g2o1_fhr_min=$fhr_min
 export g2o1_fhr_max=$fhr_max
 export g2o1_obtype_upper_air=${g2o1_obtype_upper_air:-"ADPUPA"}
 export g2o1_obtype_conus_sfc=${g2o1_obtype_conus_sfc:-"ONLYSF ADPUPA"}
+export g2o1_obtype_polar_sfc=${g2o1_obtype_polar_sfc:-"IABP"}
 export g2o1_fhr_out_upper_air=${g2o1_fhr_out_upper_air:-6}
 export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
+export g2o1_fhr_out_polar_sfc=${g2o1_fhr_out_polar_sfc:-3}
 export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
 export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
+export g2o1_grid_polar_sfc=${g2o_grid_polar_sfc:-G223}
 export g2o1_gather_by=$gather_by
 export g2o1_prepbufr_data_runhpss=${g2o1_prepbufr_data_runhpss:-"NO"}
 if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
@@ -148,6 +153,15 @@ elif [ $g2o1_fhr_out_conus_sfc -eq 3 ]; then
     export g2o1_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
 else
     echo "ERROR: g2o1_fhr_out_conus_sfc=$g2o1_fhr_out_conus_sfc is not supported"
+fi
+if [ $g2o1_fhr_out_polar_sfc -eq 12 ]; then
+    export g2o1_vhr_list_polar_sfc="00 12"
+elif [ $g2o1_fhr_out_polar_sfc -eq 6 ]; then
+    export g2o1_vhr_list_polar_sfc="00 06 12 18"
+elif [ $g2o1_fhr_out_polar_sfc -eq 3 ]; then
+    export g2o1_vhr_list_polar_sfc="00 03 06 09 12 15 18 21"
+else
+    echo "ERROR: g2o1_fhr_out_polar_sfc=$g2o1_fhr_out_polar_sfc is not supported"
 fi
 # PRECIP STEP 1
 export precip1_fcyc_list=$fcyc_list

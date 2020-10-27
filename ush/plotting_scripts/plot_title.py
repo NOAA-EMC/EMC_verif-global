@@ -103,7 +103,10 @@ def get_region_title(region):
         'NH': 'Northern Hemisphere 20N-90N',
         'SH': 'Southern Hemisphere 20S-90S',
         'G236': 'CONUS - NCEP Grid 236',
+        'G223': 'CONUS - NCEP Grid 223',
         'CONUS': 'CONUS',
+        'POLAR': 'Polar 60-90 N/S',
+        'ARCTIC': 'Arctic',
         'EAST': 'Eastern US',
         'WEST': 'Western US',
         'NWC': 'Northwest Coast',
@@ -122,7 +125,11 @@ def get_region_title(region):
         'GMC': 'Gulf of Mexico Coast',
         'NAK': 'Northern Alaska',
         'SAK': 'Southern Alaska',
-        'G211': 'CONUS - NCEP Grid 211'
+        'G211': 'CONUS - NCEP Grid 211',
+        'SEA_ICE': 'Global - Sea Ice',
+        'SEA_ICE_FREE': 'Global - Sea Ice Free',
+        'SEA_ICE_POLAR': 'Polar - Sea Ice',
+        'SEA_ICE_FREE_POLAR': 'Polar - Sea Ice Free'
     }
     if region in list(region_title_dict.keys()):
         region_title = region_title_dict[region] 
@@ -175,7 +182,9 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'TCDC': 'Total Cloud Cover',
         'VIS': 'Visibility',
         'GUST': 'Wind Gust',
-        'APCP_24': '24 hour Accumulated Precipitation'
+        'APCP_24': '24 hour Accumulated Precipitation',
+        'TMP_Z0_mean': 'Temperature',
+        'ICEC_Z0_mean': 'Sea Ice Concentration'
     }
     if var_name in list(var_name_title_dict.keys()):
         var_name_title = var_name_title_dict[var_name]

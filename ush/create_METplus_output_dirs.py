@@ -56,9 +56,15 @@ elif RUN == 'grid2grid_step2':
 elif RUN == 'grid2obs_step1':
     gather_by = os.environ['g2o1_gather_by']
     for type in os.environ['g2o1_type_list'].split(' '):
+        if type in ['upper_air', 'conus_sfc']:
+           met_2nc_tool = 'pb2nc'
+           obs_file = 'prepbufr'
+        elif type == 'polar_sfc':
+           met_2nc_tool = 'ascii2nc'
+           obs_file = 'iabp'
         metplus_output_subdir_list.append(
             os.path.join('make_met_data_by_'+make_met_data_by,
-                         'pb2nc',type, 'prepbufr')
+                         met_2nc_tool, type, obs_file)
         )
         for model in model_list:
             metplus_output_subdir_list.append(
@@ -96,6 +102,28 @@ elif RUN == 'precip_step1':
                              'stat_analysis', type, model)
             )
 elif RUN == 'precip_step2':
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'stat_analysis')
+    )
+    metplus_output_subdir_list.append(
+       os.path.join('plot_by_'+plot_by, 'make_plots')
+    )
+    metplus_output_subdir_list.append(
+       'images'
+    )
+elif RUN == 'satellite_step1':
+    gather_by = os.environ['sat1_gather_by']
+    for type in os.environ['sat1_type_list'].split(' '):
+       for model in model_list:
+           metplus_output_subdir_list.append(
+               os.path.join('make_met_data_by_'+make_met_data_by,
+                            'grid_stat', type, model)
+           )
+           metplus_output_subdir_list.append(
+               os.path.join('gather_by_'+gather_by,
+                            'stat_analysis', type, model)
+           )
+elif RUN == 'satellite_step2':
     metplus_output_subdir_list.append(
        os.path.join('plot_by_'+plot_by, 'stat_analysis')
     )

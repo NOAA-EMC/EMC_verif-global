@@ -16,12 +16,12 @@ This package can be run standalone. It has also been incorporated to run the fir
 EMC_verif-global depends on the following prerequisities to be available on the system:
 * workload management platform / scheduler - LSF or SLURM
 * python version 2.7.14
-* MET version 7.0, 8.0, or 8.1 (https://github.com/NCAR/MET)
+* MET version 8.1 (https://github.com/NCAR/MET)
 * METplus version 2.1 (https://github.com/NCAR/METplus)
 * NCEPLIBS-grib_util
 * NCEPLIBS-prod_util
 * NetCDF (Network Common Data Form)
-* netCDF Operators (NCO) 
+* NetCDF Operators (NCO) 
 
 EMC_verif-global is supported on the following machines:
 * WCOSS-Dell (Mars and Venus)

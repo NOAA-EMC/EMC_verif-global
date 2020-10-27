@@ -86,6 +86,22 @@ if [ $RUN_PRECIP_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exprecip_step2.sh
 fi
 
+if [ $RUN_SATELLITE_STEP1 = YES ] ; then
+    echo
+    echo "===== RUNNING SATELLITE STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for satellite verifcation using METplus ====="
+    export RUN="satellite_step1"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exsatellite_step1.sh
+fi
+
+if [ $RUN_SATELLITE_STEP2 = YES ] ; then
+    echo
+    echo "===== RUNNING SATELLITE STEP 2 VERIFICATION  ====="
+    echo "===== calculating statistics and creating plots for satellite verifcation using METplus ====="
+    export RUN="satellite_step2"
+    python $HOMEverif_global/ush/run_batch.py $machine $HOMEverif_global/scripts/exsatellite_step2.sh
+fi
+
 if [ $RUN_TROPCYC = YES ] ; then
     echo
     echo "===== RUNNING TROPICAL CYCLONE VERIFICATION  ====="

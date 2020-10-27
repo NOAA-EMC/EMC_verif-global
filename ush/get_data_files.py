@@ -11,6 +11,7 @@ import os
 import subprocess
 import datetime
 from time import sleep
+import pandas as pd
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -753,6 +754,7 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     prepbufr_run_hpss = os.environ['g2o1_prepbufr_data_runhpss']
+    iabp_ftp = os.environ['iabp_ftp']
     # No HPSS access from Orion
     if machine == 'ORION':
         print("WARNING: Orion does not currently have access to HPSS..."
@@ -1176,62 +1178,94 @@ elif RUN == 'grid2obs_step1':
                        pbo2['hpssfile'] = hpss_file2
                        pbo2['filetype'] = 'ndas'
                        prepbufr_files_to_check.append(pbo2)
-            if not os.path.exists(link_prepbufr_data_dir):
-                os.makedirs(link_prepbufr_data_dir)
-                os.makedirs(
-                    os.path.join(link_prepbufr_data_dir+'/HPSS_jobs')
-                )
-            if not os.path.exists(link_prepbufr_file):
-                for prepbufr_file_group in prepbufr_files_to_check:
-                    prod_file = prepbufr_file_group['prodfile']
-                    arch_file = prepbufr_file_group['archfile']    
-                    hpss_tar = prepbufr_file_group['hpsstar']
-                    hpss_file = prepbufr_file_group['hpssfile']
-                    file_type = prepbufr_file_group['filetype']
-                    if os.path.exists(prod_file):
-                        os.system('ln -sf '+prod_file+' '+link_prepbufr_file)
-                    elif os.path.exists(arch_file):
-                        os.system('ln -sf '+arch_file+' '+link_prepbufr_file)
-                    else:
+            if type in ['upper_air', 'conus_sfc']:
+                if not os.path.exists(link_prepbufr_data_dir):
+                    os.makedirs(link_prepbufr_data_dir)
+                    os.makedirs(
+                        os.path.join(link_prepbufr_data_dir+'/HPSS_jobs')
+                    )
+                if not os.path.exists(link_prepbufr_file):
+                    for prepbufr_file_group in prepbufr_files_to_check:
+                        prod_file = prepbufr_file_group['prodfile']
+                        arch_file = prepbufr_file_group['archfile']
+                        hpss_tar = prepbufr_file_group['hpsstar']
+                        hpss_file = prepbufr_file_group['hpssfile']
+                        file_type = prepbufr_file_group['filetype']
+                        if os.path.exists(prod_file):
+                            os.system('ln -sf '+prod_file+' '+link_prepbufr_file)
+                        elif os.path.exists(arch_file):
+                            os.system('ln -sf '+arch_file+' '+link_prepbufr_file)
+                        else:
+                            if prepbufr_run_hpss == 'YES':
+                                print("Did not find "+prod_file+" or "
+                                      +arch_file+" online...going to try "
+                                      +"to get file from HPSS")
+                                hpss_job_filename = os.path.join(
+                                      link_prepbufr_data_dir,
+                                      'HPSS_jobs', 'HPSS_'
+                                      +hpss_tar.rpartition('/')[2]
+                                      +'_'+hpss_file.replace('/', '_')+'.sh'
+                                )
+                                get_hpss_data(hpss_job_filename,
+                                              link_prepbufr_data_dir,
+                                              link_prepbufr_file,
+                                              hpss_tar, hpss_file)
+                        if os.path.exists(link_prepbufr_file):
+                            break
+                if not os.path.exists(link_prepbufr_file):
+                    error_dir = os.path.join(link_prepbufr_data_dir)
+                    error_file = os.path.join(
+                        error_dir,
+                        'error_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
+                    )
+                    for prepbufr_file_group in prepbufr_files_to_check:
+                        prod_file = prepbufr_file_group['prodfile']
+                        arch_file = prepbufr_file_group['archfile']
+                        hpss_tar = prepbufr_file_group['hpsstar']
+                        hpss_file = prepbufr_file_group['hpssfile']
+                        file_type = prepbufr_file_group['filetype']
                         if prepbufr_run_hpss == 'YES':
-                            print("Did not find "+prod_file+" or "
-                                  +arch_file+" online...going to try "
-                                  +"to get file from HPSS")
-                            hpss_job_filename = os.path.join(
-                                  link_prepbufr_data_dir,
-                                  'HPSS_jobs', 'HPSS_'
-                                  +hpss_tar.rpartition('/')[2]
-                                  +'_'+hpss_file.replace('/', '_')+'.sh'
-                            )
-                            get_hpss_data(hpss_job_filename,
-                                          link_prepbufr_data_dir, 
-                                          link_prepbufr_file,
-                                          hpss_tar, hpss_file)
-                    if os.path.exists(link_prepbufr_file):
-                        break
-            if not os.path.exists(link_prepbufr_file):
-                error_dir = os.path.join(link_prepbufr_data_dir)
-                error_file = os.path.join(
-                    error_dir,
-                    'error_'+valid_time.strftime('%Y%m%d%H%M')+'.txt'
+                            error_msg = ('WARNING: '+prod_file+' and '+arch_file
+                                         +' do not exist and did not find '
+                                         +'HPSS file '+hpss_file+' from '
+                                         +hpss_tar+' or walltime exceeded')
+                        else:
+                            error_msg = ('WARNING: '+prod_file+' and '
+                                         +arch_file+' do not exist')
+                        print(error_msg)
+                        with open(error_file, 'a') as file:
+                            file.write(error_msg)
+            if type == 'polar_sfc':
+                iabp_data_dir = os.path.join(cwd, 'data', 'iabp')
+                if not os.path.exists(iabp_data_dir):
+                    os.makedirs(iabp_data_dir)
+                iabp_YYYYmmdd_data_dir = os.path.join(
+                    cwd, 'data', 'iabp', YYYYmmdd
                 )
-                for prepbufr_file_group in prepbufr_files_to_check:
-                    prod_file = prepbufr_file_group['prodfile']
-                    arch_file = prepbufr_file_group['archfile']
-                    hpss_tar = prepbufr_file_group['hpsstar']
-                    hpss_file = prepbufr_file_group['hpssfile']
-                    file_type = prepbufr_file_group['filetype']
-                    if prepbufr_run_hpss == 'YES':
-                        error_msg = ('WARNING: '+prod_file+' and '+arch_file
-                                     +' do not exist and did not find '
-                                     +'HPSS file '+hpss_file+' from '
-                                     +hpss_tar+' or walltime exceeded')
-                    else:
-                        error_msg = ('WARNING: '+prod_file+' and '
-                                     +arch_file+' do not exist')
-                    print(error_msg)
-                    with open(error_file, 'a') as file:
-                        file.write(error_msg)
+                # Get IABP data from web
+                if not os.path.exists(iabp_YYYYmmdd_data_dir):
+                    os.makedirs(iabp_YYYYmmdd_data_dir)
+                nfiles_iabp_YYYYmmdd_data_dir = len(
+                    os.listdir(iabp_YYYYmmdd_data_dir)
+                )
+                if nfiles_iabp_YYYYmmdd_data_dir == 0:
+                    for iabp_region in ['Arctic', 'Antarctic']:
+                        iabp_ftp_region_YYYYmmdd_file = os.path.join(
+                            iabp_ftp, iabp_region, 'FR_'+YYYYmmdd+'.dat'
+                        )
+                        iabp_region_YYYYmmdd_file = os.path.join(
+                            iabp_YYYYmmdd_data_dir,
+                            iabp_region+'_FR_'+YYYYmmdd+'.dat'
+                        )
+                        os.system('wget '+iabp_ftp_region_YYYYmmdd_file+' '
+                                  +'--no-check-certificate '
+                                  +'-O '+iabp_region_YYYYmmdd_file)
+                    nfiles_iabp_YYYYmmdd_data_dir = len(
+                        os.listdir(iabp_YYYYmmdd_data_dir)
+                    )
+                    if nfiles_iabp_YYYYmmdd_data_dir == 0:
+                        print("WARNING: Could not get IABP files from FTP "
+                              +"for "+YYYYmmdd)
 elif RUN == 'grid2obs_step2':
     # Read in environment variables
     type_list = os.environ['g2o2_type_list'].split(' ')
@@ -1641,6 +1675,282 @@ elif RUN == 'precip_step2':
                                                       .strftime('%Y%m%d')
                                                       +'_init'+init_time \
                                                       .strftime('%H')+'.stat')
+                if not os.path.exists(link_stat_file):
+                    if os.path.exists(stat_file):
+                        os.system('ln -sf '+stat_file+' '
+                                  +link_stat_file)
+                    else:
+                        print("WARNING: "+stat_file+" "
+                              +"does not exist")
+elif RUN == 'satellite_step1':
+    # Read in environment variables
+    if make_met_data_by == 'VALID':
+        start_hr = os.environ['sat1_valid_hr_beg']
+        end_hr = os.environ['sat1_valid_hr_end']
+        hr_inc = os.environ['sat1_valid_hr_inc']
+    else:
+        start_hr = os.environ['sat1_init_hr_beg']
+        end_hr = os.environ['sat1_init_hr_end']
+        hr_inc = os.environ['sat1_init_hr_inc']
+    fhr_list = os.environ['sat1_fhr_list'].split(', ')
+    type_list = os.environ['sat1_type_list'].split(' ')
+    ghrsst_ncei_avhrr_anl_ftp = os.environ['ghrsst_ncei_avhrr_anl_ftp']
+    ghrsst_ospo_geopolar_anl_ftp = os.environ['ghrsst_ospo_geopolar_anl_ftp']
+    # Get date and time information
+    time_info = get_time_info(start_date, end_date, start_hr, end_hr, hr_inc,
+                              fhr_list, make_met_data_by)
+    # Get model forecast files
+    cwd = os.getcwd()
+    for name in model_list:
+        index = model_list.index(name)
+        dir = model_dir_list[index]
+        file_format = model_fileformat_list[index]
+        if 'gfs' in file_format:
+            dump = 'gfs'
+        elif 'gdas' in file_format:
+            dump = 'gdas'
+        hpss_dir = model_hpssdir_list[index]
+        link_model_data_dir = os.path.join(cwd, 'data', name)
+        if not os.path.exists(link_model_data_dir):
+            os.makedirs(link_model_data_dir)
+            os.makedirs(
+                os.path.join(link_model_data_dir, 'HPSS_jobs')
+            )
+        for time in time_info:
+            valid_time = time['validtime']
+            init_time = time['inittime']
+            lead_end = time['lead']
+            if init_time.strftime('%H') in ['03', '09', '15', '21']:
+                continue
+            else:
+                for type in type_list:
+                    if type in ['ghrsst_ncei_avhrr_anl',
+                                'ghrsst_ospo_geopolar_anl'] \
+                            and valid_time.strftime('%H') == '00':
+                        nfiles_mean = 5
+                    nf, leads_in_mean_list = 1, []
+                    while nf <= nfiles_mean:
+                        lead_now = int(lead_end)-((nf-1)*6)
+                        leads_in_mean_list.append(lead_now)
+                        nf+=1
+                    leads_in_mean_list_check = filter(lambda x: x >= 0,
+                                                      leads_in_mean_list)
+                    if len(leads_in_mean_list_check) == len(leads_in_mean_list):
+                        lead_mean_link_model_forecast_file_list = []
+                        for lead_in_mean in leads_in_mean_list:
+                            lead = str(lead_in_mean).zfill(2)
+                            link_model_forecast_file = os.path.join(
+                                link_model_data_dir,
+                                'f'+lead+'.'+init_time.strftime('%Y%m%d%H')
+                            )
+                            if not os.path.exists(link_model_forecast_file):
+                                model_forecast_filename = format_filler(
+                                    file_format,
+                                    init_time
+                                    + datetime.timedelta(
+                                        hours=int(lead_in_mean)
+                                    ),
+                                    init_time, lead
+                                )
+                                model_forecast_file = os.path.join(
+                                    dir, name, model_forecast_filename
+                                )
+                                if os.path.exists(model_forecast_file):
+                                    if any(
+                                        g in model_forecast_file \
+                                        for g in grib2_file_names
+                                    ):
+                                        convert_grib2_grib1(
+                                            model_forecast_file,
+                                            link_model_forecast_file
+                                        )
+                                    else:
+                                        os.system('ln -sf '
+                                                  +model_forecast_file+' '
+                                                  +link_model_forecast_file)
+                                else:
+                                    if model_data_run_hpss == 'YES':
+                                        print("Did not find "
+                                              +model_forecast_file+" "
+                                              +"online...going to try "
+                                              +"to get file from HPSS")
+                                        hpss_tar, hpss_file, \
+                                                hpss_job_filename = (
+                                            set_up_gfs_hpss_info(
+                                                init_time, hpss_dir,
+                                                dump, 'f'+lead.zfill(3),
+                                                link_model_data_dir
+                                            )
+                                        )
+                                        get_hpss_data(hpss_job_filename,
+                                                      link_model_data_dir,
+                                                      link_model_forecast_file,
+                                                      hpss_tar, hpss_file)
+                            if not os.path.exists(link_model_forecast_file):
+                                if model_data_run_hpss == 'YES':
+                                    print("WARNING: "+model_forecast_file+" "
+                                          +"does not exist and did not find "
+                                          +"HPSS file "+hpss_file+" from "
+                                          +hpss_tar+" or walltime exceeded")
+                                else:
+                                    print("WARNING: "+model_forecast_file+" "
+                                          +"does not exist")
+                            else:
+                                lead_mean_link_model_forecast_file_list \
+                                .append(link_model_forecast_file)
+                        lead_end_mean_file = os.path.join(
+                            link_model_data_dir,
+                            'f'+lead_end+'.'+init_time.strftime('%Y%m%d%H')
+                            +'.mean.'+type
+                        )
+                        pcp_combine_cmd = subprocess.check_output(
+                            'which pcp_combine', shell=True
+                        ).replace('\n', '')
+                        os.system(pcp_combine_cmd+' -derive "mean" '
+                                  +' '.join(
+                                      lead_mean_link_model_forecast_file_list
+                                  )+" -field '"+'name="TMP"; level="Z0"; '
+                                  +"' -field '"+'name="ICEC"; level="Z0"; '
+                                  +"' "+lead_end_mean_file)    
+    # Get satellite/satellite analysis as truth
+    valid_time_list = []
+    for time in time_info:
+        valid_time = time['validtime']
+        if valid_time not in valid_time_list:
+            valid_time_list.append(valid_time)
+    for valid_time in valid_time_list:
+        YYYYmmddHH = valid_time.strftime('%Y%m%d%H')
+        YYYYmmdd = valid_time.strftime('%Y%m%d')
+        YYYYmm = valid_time.strftime('%Y%m')
+        YYYY = valid_time.strftime('%Y')
+        mm = valid_time.strftime('%m')
+        dd = valid_time.strftime('%d')
+        HH = valid_time.strftime('%H')
+        DOY = valid_time.strftime('%j')
+        valid_timeM1 = valid_time - datetime.timedelta(hours=24)
+        YYYYmmddHHM1 = valid_timeM1.strftime('%Y%m%d%H')
+        YYYYmmddM1 = valid_timeM1.strftime('%Y%m%d')
+        YYYYmmM1 = valid_timeM1.strftime('%Y%m')
+        YYYYM1 = valid_timeM1.strftime('%Y')
+        mmM1 = valid_timeM1.strftime('%m')
+        ddM1 = valid_timeM1.strftime('%d')
+        HHM1 = valid_timeM1.strftime('%H')
+        DOYM1 = valid_timeM1.strftime('%j')
+        for type in type_list:
+            link_sat_type_data_dir = os.path.join(cwd, 'data',
+                                                  type)
+            if not os.path.exists(link_sat_type_data_dir):
+                os.makedirs(link_sat_type_data_dir)
+            # ghrsst_ncei_avhrr_anl and ghrsst_ospo_geopolar_anl are valid
+            # YYYYmmddM-1 00Z and YYYYmmdd 00Z
+            if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl'] \
+                    and HH == '00':
+                link_sat_type_file = os.path.join(link_sat_type_data_dir,
+                                                  type+'.'+YYYYmmddHH)
+                if type == 'ghrsst_ncei_avhrr_anl':
+                    sat_ftp_file = os.path.join(
+                        ghrsst_ncei_avhrr_anl_ftp,
+                        YYYYM1, DOYM1,
+                        YYYYmmddM1
+                        +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
+                        +'v02.0-fv02.1.nc'
+                    )
+                    adjust_time = '86400'
+                elif type == 'ghrsst_ospo_geopolar_anl':
+                    sat_ftp_file = os.path.join(
+                        ghrsst_ospo_geopolar_anl_ftp,
+                        YYYYM1, DOYM1,
+                        YYYYmmddM1
+                        +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
+                        +'-GLOB-v02.0-fv01.0.nc'
+                    )
+                    adjust_time = '43200'
+                os.system('wget -q '+sat_ftp_file+' -O '+link_sat_type_file)
+                if os.path.exists(link_sat_type_file) \
+                        and os.path.getsize(link_sat_type_file) > 0:
+                    os.system(os.environ['NCAP2']+' -s "time=time+'+adjust_time
+                               +'" -O '+link_sat_type_file+' '+link_sat_type_file)
+                    os.system(os.environ['NCAP2']+' -s "'
+                              +'sea_ice_fraction=float(sea_ice_fraction)'
+                              +'" -O '+link_sat_type_file+' '+link_sat_type_file)
+                else:
+                    error_dir = os.path.join(link_sat_type_data_dir)
+                    error_file = os.path.join(
+                        error_dir, 'error_'+type+'.'+YYYYmmddHH+'.txt'
+                    )
+                    if not os.path.exists(link_sat_type_file):
+                        error_msg = ('WARNING: '+link_sat_type_file+' '
+                                     +'does not exist could not get '
+                                     +'from '+sat_ftp_file)
+                    else:
+                        if os.path.getsize(link_sat_type_file) == 0:
+                            error_msg = ('WARNING: '+link_sat_type_file+' '
+                                         +'exists but 0 sized, did not get '
+                                         +'it correctly from '+sat_ftp_file)
+                    print(error_msg)
+                    with open(error_file, 'a') as file:
+                        file.write(error_msg)
+elif RUN == 'satellite_step2':
+    # Read in environment variables
+    type_list = os.environ['sat2_type_list'].split(' ')
+    gather_by_list = os.environ['sat2_gather_by_list'].split(' ')
+    if plot_by == 'VALID':
+        start_hr = os.environ['sat2_valid_hr_beg']
+        end_hr = os.environ['sat2_valid_hr_end']
+        hr_inc = os.environ['sat2_valid_hr_inc']
+    else:
+        start_hr = os.environ['sat2_init_hr_beg']
+        end_hr = os.environ['sat2_init_hr_end']
+        hr_inc = os.environ['sat2_init_hr_inc']
+    fhr_list = os.environ['sat2_fhr_list'].split(', ')
+    # Get date and time information
+    time_info = get_time_info(start_date, end_date, start_hr, end_hr, hr_inc,
+                              fhr_list, plot_by)
+    # Get archive MET .stat files
+    cwd = os.getcwd()
+    for name in model_list:
+        index = model_list.index(name)
+        if len(model_arch_dir_list) != len(model_list):
+            arch_dir = model_arch_dir_list[0]
+        else:
+            arch_dir = model_arch_dir_list[index]
+        if len(gather_by_list) != len(model_list):
+            gather_by = gather_by_list[0]
+        else:
+            gather_by = gather_by_list[index]
+        for type in type_list:
+            full_arch_dir = os.path.join(arch_dir, 'metplus_data',
+                                         'by_'+gather_by, 'satellite',
+                                          type)
+            link_model_data_dir = os.path.join(cwd, 'data', name, type)
+            if not os.path.exists(link_model_data_dir):
+                os.makedirs(link_model_data_dir)
+            for time in time_info:
+                valid_time = time['validtime']
+                init_time = time['inittime']
+                lead = time['lead']
+                if gather_by == 'VALID' or gather_by == 'VSDB':
+                    stat_file = os.path.join(full_arch_dir,
+                                             valid_time.strftime('%H')+'Z',
+                                             name, name+'_'
+                                             +valid_time.strftime('%Y%m%d')
+                                             +'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, name
+                                                  +'_valid'+valid_time \
+                                                  .strftime('%Y%m%d')
+                                                  +'_valid'+valid_time \
+                                                  .strftime('%H')+'.stat')
+                elif gather_by == 'INIT':
+                    stat_file = os.path.join(full_arch_dir,
+                                             init_time.strftime('%H')+'Z',
+                                             name, name+'_'
+                                             +init_time.strftime('%Y%m%d')
+                                             +'.stat')
+                    link_stat_file = os.path.join(link_model_data_dir, name
+                                                  +'_init'+init_time \
+                                                  .strftime('%Y%m%d')
+                                                  +'_init'+init_time \
+                                                  .strftime('%H')+'.stat')
                 if not os.path.exists(link_stat_file):
                     if os.path.exists(stat_file):
                         os.system('ln -sf '+stat_file+' '

@@ -3,7 +3,9 @@ Program Name: get_machine.py
 Contact(s): Mallory Row
 Abstract: This script is run by set_up_verif_global.sh.
           It gets the name of the name of the machine being
-          run on by checking environment variables.
+          run on by checking environment variables "machine"
+          or "MACHINE". If not does matching based on environment
+          variable "HOSTNAME" or output from hostname executable.
 '''
 
 import os

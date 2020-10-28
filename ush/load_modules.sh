@@ -88,31 +88,34 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load compiler_third/ips/18.0.1/NCO/4.7.0
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
-    module load intel
-    module load impi
-    module load hpss/hpss
-    module load netcdf
-    module load nco
-    module use -a /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-    module load prod_util/1.1.0
-    module load grib_util/1.1.1
-    module use -a /contrib/anaconda/modulefiles
-    module load anaconda/anaconda2-4.4.0
-    if [ $MET_version = 8.1 ]; then
-        module use -a /contrib/met/modulefiles
-        module load met/$MET_version
-        export HOMEMET="/contrib/met/${MET_version}"
+    module purge
+    module load intel/18.0.5.274
+    module use /contrib/anaconda/modulefiles
+    module load anaconda/latest
+    if [ $MET_version = 9.1 ]; then
+        module use /contrib/met/modulefiles
+        module load met/9.1
+        export HOMEMET="/contrib/met/9.1"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
-    if [ $METplus_version = 2.1 ]; then
-        export HOMEMETplus="/contrib/METplus/METplus-$METplus_version"
+    if [ $METplus_version = 3.1 ]; then
+        module use /contrib/METplus/modulefiles
+        module load metplus/3.1
+        export HOMEMETplus="/contrib/METplus/METplus-3.1"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module switch anaconda/anaconda2
+    module load impi/2018.4.274
+    module load hpss/hpss
+    module load imagemagick/7.0.8-53
+    module load netcdf/4.6.1
+    module load nco/4.9.1
+    module use -a /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+    module load prod_util/1.1.0
+    module load grib_util/1.1.1
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module load contrib

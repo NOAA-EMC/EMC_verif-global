@@ -15,13 +15,13 @@ METplus_version=${3}
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global
-if [[ "$MET_version" =~ ^(8.1)$ ]]; then
+if [[ "$MET_version" =~ ^(9.1)$ ]]; then
     echo "Requested MET version: $MET_version"
 else
     echo "ERROR: $MET_version is not supported in verif_global"
     exit 1
 fi
-if [[ "$METplus_version" =~ ^(2.1)$ ]]; then
+if [[ "$METplus_version" =~ ^(3.1)$ ]]; then
     echo "Requested METplus version: $METplus_version"
 else
     echo "ERROR: $METplus_version is not supported in verif_global"
@@ -59,33 +59,34 @@ if [ $machine = WCOSS_C ]; then
     fi
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
-    module load EnvVars/1.0.2
-    module load lsf/10.1 
-    module load ips/18.0.1.163 
-    module load impi/18.0.1 
-    module load prod_util/1.1.0 
-    module load grib_util/1.0.6 
-    module load NCO/4.7.0 
-    module load NetCDF/4.5.0
-    module load HPSS/5.0.2.5  
-    module load CFP/2.0.1
-    module use /usrx/local/dev/modulefiles
-    module load python/2.7.14
-    module load imagemagick/6.9.9-25 
-    if [ $MET_version = 8.1 ]; then
-        module load met/$MET_version 
-        export HOMEMET="/usrx/local/dev/packages/met/${MET_version}"
+    if [ $MET_version = 9.1 ]; then
+        module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
+        module load met/9.1
+        export HOMEMET="/gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles/met/${MET_version}"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
-    if [ $METplus_version = 2.1 ]; then
-        module load metplus/2.1
-        export HOMEMETplus="/usrx/local/dev/packages/met/METplus/METplus-$METplus_version"
+    if [ $METplus_version = 3.1 ]; then
+        module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
+        module load metplus/3.1
+        export HOMEMETplus="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METplus/METplus-$METplus_version"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+    module load EnvVars/1.0.3
+    module load lsf/10.1 
+    module load ips/18.0.1.163 
+    module load impi/18.0.1
+    module load CFP/2.0.1
+    module load HPSS/5.0.2.5
+    module load imagemagick/6.9.9-25
+    module load prod_util/1.1.5
+    module load grib_util/1.1.1
+    module load NetCDF/4.5.0
+    module use /usrx/local/dev/modulefiles
+    module load compiler_third/ips/18.0.1/NCO/4.7.0
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
     module load intel

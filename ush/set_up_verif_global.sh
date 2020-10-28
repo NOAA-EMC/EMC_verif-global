@@ -14,7 +14,7 @@ export NET="verif_global"
 export RUN_ENVIR="emc"
 export envir="dev"
 
-## Output set up
+## Create output directory and set output related environment variables
 if [ -d "$OUTPUTROOT" ] ; then
    echo "OUTPUTROOT ($OUTPUTROOT) ALREADY EXISTS"
    echo "OVERRIDE CURRENT OUTPUTROOT? [yes/no]"
@@ -37,6 +37,7 @@ if [ -d "$OUTPUTROOT" ] ; then
 else
    mkdir -p ${OUTPUTROOT}
 fi
+
 echo "Output will be in: $OUTPUTROOT"
 export COMROOT="$OUTPUTROOT/com"
 export NWGESROOT="$OUTPUTROOT/nwges"
@@ -59,7 +60,7 @@ mkdir -p $DCOM $PCOM
 cd $DATA
 echo
 
-## Get machine
+## Get machine, set environment variable 'machine', and check that it is a supported machine
 python $HOMEverif_global/ush/get_machine.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
@@ -71,15 +72,16 @@ if [ -s config.machine ]; then
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
-    echo
 fi
 
-## Load modules and set machine specific variables
-if [ $machine != "HERA" -a $machine != "ORION" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" ]; then
-    echo "ERROR: $machine is not supported"
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
+   echo 
+else
+    echo "ERROR: $machine is not a supported machine"
     exit 1
 fi
 
+## Load modules and set machine specific variables
 . $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
 status=$?
 [[ $status -ne 0 ]] && exit $status

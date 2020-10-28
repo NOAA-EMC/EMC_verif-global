@@ -88,54 +88,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"
 echo
 
-## Account and queues for machines
-if [ $machine = "HERA" ]; then
-    export ACCOUNT="fv3-cpu"
-    export QUEUE="batch"
-    export QUEUESHARED="batch"
-    export QUEUESERV="service"
-    export PARTITION_BATCH=""
-elif [ $machine = "ORION" ]; then
-    export ACCOUNT="fv3-cpu"
-    export QUEUE="batch"
-    export QUEUESHARED="batch"
-    export QUEUESERV="service"
-    export PARTITION_BATCH="orion"
-elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
-    export ACCOUNT="GFS-DEV"
-    export QUEUE="dev"
-    export QUEUESHARED="dev_shared"
-    export QUEUESERV="dev_transfer"
-    export PARTITION_BATCH=""
-fi
-
-## Run settings for machines
-if [ $machine = "HERA" ]; then
-    export nproc="40"
-    export MPMD="YES"
-elif [ $machine = "ORION" ]; then
-    export nproc="40"
-    export MPMD="YES"
-elif [ $machine = "WCOSS_C" ]; then
-    export nproc="24"
-    export MPMD="YES"
-elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export nproc="28"
-    export MPMD="YES"
-fi
-
-## Get fix directory
-if [ $machine = "HERA" ]; then
-    export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
-elif [ $machine = "ORION" ]; then
-    export FIXverif_global="/work/noaa/global/glopara/fix/fix_verif"
-elif [ $machine = "WCOSS_C" ] ; then
-    export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
-elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
-fi
-
-## Installations for verif_global, met, and METplus
+## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
 export USHverif_global=$HOMEverif_global/ush
@@ -148,7 +101,45 @@ export USHMETplus=$HOMEMETplus/ush
 export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
-## Machine and user specific paths
+## Set fix file directory
+if [ $machine = "HERA" ]; then
+    export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
+elif [ $machine = "ORION" ]; then
+    export FIXverif_global="/work/noaa/global/glopara/fix/fix_verif"
+elif [ $machine = "WCOSS_C" ] ; then
+    export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
+elif [ $machine = "WCOSS_DELL_P3" ]; then
+    export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
+fi
+
+## Set account, queues, and run settings for machines
+if [ $machine = "HERA" ]; then
+    export ACCOUNT="fv3-cpu"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="service"
+    export PARTITION_BATCH=""
+    export nproc="40"
+    export MPMD="YES"
+elif [ $machine = "ORION" ]; then
+    export ACCOUNT="fv3-cpu"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="service"
+    export PARTITION_BATCH="orion"
+    export nproc="40"
+    export MPMD="YES"
+elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
+    export ACCOUNT="GFS-DEV"
+    export QUEUE="dev"
+    export QUEUESHARED="dev_shared"
+    export QUEUESERV="dev_transfer"
+    export PARTITION_BATCH=""
+    export nproc="28"
+    export MPMD="YES"
+fi
+
+## Set machine and user specific paths
 if [ $machine = "HERA" ]; then
     export NWROOT="/scratch1/NCEPDEV/global/glopara/nwpara"
     export HOMEDIR="/scratch1/NCEPDEV/global/$USER"
@@ -195,7 +186,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export trak_arch_dir="/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck"
 fi
 
-## Some operational directories
+## Set operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod" 
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
@@ -204,7 +195,7 @@ export nhc_atcfnoaa_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/aid_nws"
 export nhc_atcfnavy_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/btk"
 export nhc_atcfnavy_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/aid"
 
-## Some online sites
+## Set online and FTP sites
 export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"
 export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
 export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"

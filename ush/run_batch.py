@@ -6,24 +6,24 @@ Abstract: This script is run by run_verif_global.sh.
           script to run and submits it.
 '''
 
-from __future__ import (print_function, division)
 import os
 import sys
 import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in script agruments
-machine = sys.argv[1]
-script = sys.argv[2]
-
 # Read in environment variables
+machine = os.environ['machine']
 NET = os.environ['NET']
 RUN = os.environ['RUN']
+HOMEverif_global = os.environ['HOMEverif_global']
 QUEUE = os.environ['QUEUE']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
 nproc = os.environ['nproc']
+
+# Get RUN ex script
+script = os.path.join(HOMEverif_global, 'scripts', 'ex'+RUN+'.sh')
 
 # Create job card directory and file name
 cwd = os.getcwd()

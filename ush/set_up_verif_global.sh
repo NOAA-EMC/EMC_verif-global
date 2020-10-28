@@ -81,7 +81,7 @@ else
     exit 1
 fi
 
-## Load modules and set machine specific variables
+## Load modules, set paths to MET and METplus, and some executables
 . $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
 status=$?
 [[ $status -ne 0 ]] && exit $status
@@ -101,7 +101,7 @@ export USHMETplus=$HOMEMETplus/ush
 export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
-## Set fix file directory
+## Set machine specific fix directory
 if [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
 elif [ $machine = "ORION" ]; then
@@ -112,7 +112,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 fi
 
-## Set account, queues, and run settings for machines
+## Set machine specific account, queues, and run settings
 if [ $machine = "HERA" ]; then
     export ACCOUNT="fv3-cpu"
     export QUEUE="batch"
@@ -139,7 +139,7 @@ elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
     export MPMD="YES"
 fi
 
-## Set machine and user specific paths
+## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
     export NWROOT="/scratch1/NCEPDEV/global/glopara/nwpara"
     export HOMEDIR="/scratch1/NCEPDEV/global/$USER"
@@ -203,5 +203,5 @@ export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 export ghrsst_ncei_avhrr_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/NCEI/AVHRR_OI/v2.1"
 export ghrsst_ospo_geopolar_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/hyrax/allData/ghrsst/data/GDS2/L4/GLOB/OSPO/Geo_Polar_Blended/v1"
- 
+
 echo "END: set_up_verif_global.sh"

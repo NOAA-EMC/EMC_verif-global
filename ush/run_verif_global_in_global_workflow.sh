@@ -193,33 +193,35 @@ if [ -d $RUN_DIR ]; then
     rm -r $RUN_DIR
 fi
 
-## Get machine
+## Get machine, set environment variable 'machine', and check that it is a supported machine
 python $HOMEverif_global/ush/get_machine.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
 echo
+
 if [ -s config.machine ]; then
     . $DATA/config.machine
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
-    echo
 fi
 
-## Load modules and set machine specific variables
-if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" -a $machine != "ORION" ]; then
-    echo "ERROR: $machine is not supported"
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
+   echo
+else
+    echo "ERROR: $machine is not a supported machine"
     exit 1
 fi
 
-. $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
+## Load modules, set paths to MET and METplus, and some executables
+. $HOMEverif_global/ush/load_modules.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"
 echo
 
-## Installations for verif_global, MET, and METplus
+## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
 export FIXverif_global=$FIXgfs/fix_verif
@@ -233,7 +235,7 @@ export USHMETplus=$HOMEMETplus/ush
 export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
-## Machine and user specific paths
+## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
     export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
@@ -252,7 +254,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 fi
 
-## Some operational directories
+## Set operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"

@@ -31,34 +31,33 @@ fi
 ## Load
 if [ $machine = WCOSS_C ]; then
     source /opt/modules/default/init/sh
-    module use /usrx/local/prod/modulefiles
-    module use /usrx/local/dev/modulefiles
-    module load xt-lsfhpc/9.1.3 
-    module load alps 
-    module load cfp-intel-sandybridge/1.1.0 
-    module load prod_util 
-    module load grib_util/1.1.0 
-    module load util_shared/1.0.7 
-    module load nco-gnu-sandybridge/4.4.4 
-    module load NetCDF-intel-sandybridge/4.2 
-    module load hpss 
-    module load python/2.7.14 
-    if [ $MET_version = 8.1 ]; then
-        module load met/$MET_version 
-        export HOMEMET="/usrx/local/dev/met/${MET_version}"
+    module purge
+    if [ $MET_version = 9.1 ]; then
+        module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
+        module load met/9.1
+        export HOMEMET="/gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles/met/${MET_version}"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
-    if [ $METplus_version = 2.1 ]; then
-        module load metplus/2.1
-        export HOMEMETplus="/usrx/local/dev/met/METplus/METplus-$METplus_version"
+    if [ $METplus_version = 3.1 ]; then
+        module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
+        module load metplus/3.1
+        export HOMEMETplus="/gpfs/hps3/emc/meso/noscrub/emc.metplus/METplus/METplus-$METplus_version"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+    module load cfp-intel-sandybridge/1.1.0
+    module load hpss/4.1.0.3
+    module load imagemagick-intel-sandybridge/6.8.3
+    module load prod_util/1.1.2
+    module load grib_util/1.1.1
+    module load NetCDF-intel-sandybridge/4.2
+    module load nco-gnu-sandybridge/4.4.4
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
+    module purge
     if [ $MET_version = 9.1 ]; then
         module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
         module load met/9.1

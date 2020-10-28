@@ -32,6 +32,7 @@ fi
 if [ $machine = WCOSS_C ]; then
     source /opt/modules/default/init/sh
     module purge
+    module load craype-haswell
     if [ $MET_version = 9.1 ]; then
         module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
         module load met/9.1
@@ -52,8 +53,9 @@ if [ $machine = WCOSS_C ]; then
     module load hpss/4.1.0.3
     module load prod_util/1.1.2
     module load grib_util/1.1.1
-    module load NetCDF-intel-sandybridge/4.2
     module load nco-gnu-sandybridge/4.4.4
+    module use /usrx/local/dev/modulefiles
+    module load NetCDF-intel-sandybridge/4.5.0
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
     module purge

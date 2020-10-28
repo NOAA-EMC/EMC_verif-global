@@ -50,7 +50,7 @@ if [ $machine = WCOSS_C ]; then
     fi
     module load cfp-intel-sandybridge/1.1.0
     module load hpss/4.1.0.3
-    module load imagemagick-intel-sandybridge/6.8.3
+    #module load imagemagick-intel-sandybridge/6.8.3
     module load prod_util/1.1.2
     module load grib_util/1.1.1
     module load NetCDF-intel-sandybridge/4.2
@@ -80,7 +80,7 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load impi/18.0.1
     module load CFP/2.0.1
     module load HPSS/5.0.2.5
-    module load imagemagick/6.9.9-25
+    #module load imagemagick/6.9.9-25
     module load prod_util/1.1.5
     module load grib_util/1.1.1
     module load NetCDF/4.5.0
@@ -110,38 +110,41 @@ elif [ $machine = HERA ]; then
     fi
     module load impi/2018.4.274
     module load hpss/hpss
-    module load imagemagick/7.0.8-53
+    #module load imagemagick/7.0.8-53
     module load netcdf/4.6.1
     module load nco/4.9.1
-    module use -a /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
     module load prod_util/1.1.0
     module load grib_util/1.1.1
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
+    module purge
+    module load slurm/19.05.3-2
     module load contrib
-    module use /apps/contrib/NCEPLIBS/orion/modulefiles
-    module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module load intel/2020
-    module load impi/2020
-    module load grib_util/1.2.0
-    module load prod_util/1.2.0
-    module load nco/4.8.1
-    module load netcdf/4.7.2
-    module load intelpython2/2019.5
-    if [ $MET_version = 8.1 ]; then
-        module use /work/noaa/ovp/jprestop/MET/modulefiles
-        module load met/$MET_version
-        export HOMEMET="/work/noaa/ovp/jprestop/MET/${MET_version}"
+    module load intelpython3/2020
+    if [ $MET_version = 9.1 ]; then
+        module load met/9.1
+        export HOMEMET="/apps/contrib/MET/9.1"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
-    if [ $METplus_version = 2.1 ]; then
-        export HOMEMETplus="/work/noaa/ovp/jprestop/METplus/METplus-$METplus_version"
+    if [ $METplus_version = 3.1 ]; then
+        module use /apps/contrib/modulefiles
+        module load metplus/3.1
+        export HOMEMETplus="/apps/contrib/MET/METplus/METplus-3.1"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+    module load impi/2020
+    module load netcdf/4.7.2
+    module load nco/4.9.3
+    module use /apps/contrib/NCEPLIBS/orion/modulefiles
+    module use /apps/contrib/NCEPLIBS/lib/modulefiles
+    module load grib_util/1.2.0
+    module load prod_util/1.2.0
 else
     echo "ERROR: $machine is not supported"
     exit 1

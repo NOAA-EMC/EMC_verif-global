@@ -8,10 +8,6 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-machine=${1}
-MET_version=${2}
-METplus_version=${3}
-
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global

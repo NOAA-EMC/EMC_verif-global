@@ -82,7 +82,7 @@ else
 fi
 
 ## Load modules, set paths to MET and METplus, and some executables
-. $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
+. $HOMEverif_global/ush/load_modules.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"

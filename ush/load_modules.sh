@@ -50,7 +50,6 @@ if [ $machine = WCOSS_C ]; then
     fi
     module load cfp-intel-sandybridge/1.1.0
     module load hpss/4.1.0.3
-    #module load imagemagick-intel-sandybridge/6.8.3
     module load prod_util/1.1.2
     module load grib_util/1.1.1
     module load NetCDF-intel-sandybridge/4.2
@@ -80,7 +79,6 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load impi/18.0.1
     module load CFP/2.0.1
     module load HPSS/5.0.2.5
-    #module load imagemagick/6.9.9-25
     module load prod_util/1.1.5
     module load grib_util/1.1.1
     module load NetCDF/4.5.0
@@ -110,7 +108,6 @@ elif [ $machine = HERA ]; then
     fi
     module load impi/2018.4.274
     module load hpss/hpss
-    #module load imagemagick/7.0.8-53
     module load netcdf/4.6.1
     module load nco/4.9.1
     module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles

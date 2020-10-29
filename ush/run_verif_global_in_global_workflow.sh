@@ -127,39 +127,39 @@ export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc polar_sfc"}
 export g2o1_fcyc_list=$fcyc_list
 export g2o1_fhr_min=$fhr_min
 export g2o1_fhr_max=$fhr_max
-export g2o1_obtype_upper_air=${g2o1_obtype_upper_air:-"ADPUPA"}
-export g2o1_obtype_conus_sfc=${g2o1_obtype_conus_sfc:-"ONLYSF ADPUPA"}
-export g2o1_obtype_polar_sfc=${g2o1_obtype_polar_sfc:-"IABP"}
+export g2o1_upper_air_obtype=${g2o1_obtype_upper_air:-"ADPUPA"}
+export g2o1_conus_sfc_obtype=${g2o1_obtype_conus_sfc:-"ONLYSF ADPUPA"}
+export g2o1_polar_sfc_obtype=${g2o1_obtype_polar_sfc:-"IABP"}
 export g2o1_fhr_out_upper_air=${g2o1_fhr_out_upper_air:-6}
 export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
 export g2o1_fhr_out_polar_sfc=${g2o1_fhr_out_polar_sfc:-3}
-export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
-export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
-export g2o1_grid_polar_sfc=${g2o_grid_polar_sfc:-G223}
+export g2o1_upper_air_grid=${g2o_grid_upper_air:-G003}
+export g2o1_conus_sfc_grid=${g2o_grid_conus_sfc:-G104}
+export g2o1_polar_sfc_grid=${g2o_grid_polar_sfc:-G223}
 export g2o1_gather_by=$gather_by
 export g2o1_prepbufr_data_runhpss=${g2o1_prepbufr_data_runhpss:-"NO"}
 if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
-    export g2o1_vhr_list_upper_air="00 12"
+    export g2o1_upper_air_vhr_list="00 12"
 elif [ $g2o1_fhr_out_upper_air -eq 6 ]; then
-    export g2o1_vhr_list_upper_air="00 06 12 18"
+    export g2o1_upper_air_vhr_list="00 06 12 18"
 else
     echo "ERROR: g2o1_fhr_out_upper_air=$g2o1_fhr_out_upper_air is not supported"
 fi
 if [ $g2o1_fhr_out_conus_sfc -eq 12 ]; then
-    export g2o1_vhr_list_conus_sfc="00 12"
+    export g2o1_conus_sfc_vhr_list="00 12"
 elif [ $g2o1_fhr_out_conus_sfc -eq 6 ]; then
-    export g2o1_vhr_list_conus_sfc="00 06 12 18"
+    export g2o1_conus_sfc_vhr_list="00 06 12 18"
 elif [ $g2o1_fhr_out_conus_sfc -eq 3 ]; then
-    export g2o1_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
+    export g2o1_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
 else
     echo "ERROR: g2o1_fhr_out_conus_sfc=$g2o1_fhr_out_conus_sfc is not supported"
 fi
 if [ $g2o1_fhr_out_polar_sfc -eq 12 ]; then
-    export g2o1_vhr_list_polar_sfc="00 12"
+    export g2o1_polar_sfc_vhr_list="00 12"
 elif [ $g2o1_fhr_out_polar_sfc -eq 6 ]; then
-    export g2o1_vhr_list_polar_sfc="00 06 12 18"
+    export g2o1_polar_sfc_vhr_list="00 06 12 18"
 elif [ $g2o1_fhr_out_polar_sfc -eq 3 ]; then
-    export g2o1_vhr_list_polar_sfc="00 03 06 09 12 15 18 21"
+    export g2o1_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
 else
     echo "ERROR: g2o1_fhr_out_polar_sfc=$g2o1_fhr_out_polar_sfc is not supported"
 fi

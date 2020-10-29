@@ -241,8 +241,7 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     #precip1_fyc_list:             all forecst cycles to be included in verification: HH
     #precip1_fhr_min:              forecast hour to start verification HH[H]
     #precip1_fhr_max:              forecast hour to end verification HH[H]
-    #precip1_obtype:               precip observation type/name
-    #precip1_accum_length:         verification accumulation length in hours
+    #precip1_type_list:            precip observation type/name, ccpa_accum_24hr
     #precip1_model_bucket_list:    model file accumulation bucket in HH, support continuous bucket in future
     #precip1_model_varname_list:   model file precip variable to use: APCP or PRATE
     #precip_model_fileformat_list: file format of model files
@@ -255,8 +254,7 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     export precip1_fcyc_list="00 06 12 18"
     export precip1_fhr_min="00"
     export precip1_fhr_max="180"
-    export precip1_obtype="ccpa"
-    export precip1_accum_length="24"
+    export precip1_type_list="ccpa_accum24hr"
     export precip1_model_bucket_list="06"
     export precip1_model_varname_list="APCP"
     export precip1_model_fileformat_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}" 
@@ -271,8 +269,7 @@ fi
 if [ $RUN_PRECIP_STEP2 = YES ]; then
     #precip2_model_plot_name_list: list of models reference name on plots
     #precip2_gather_by_list:       list of how model data was gathered in step 1
-    #precip2_obtype:               precip observation type/name used in step 1
-    #precip2_accum_length:         verification accumulation length in hours
+    #precip2_type_list:            precip observation type/name, ccpa_accum_24hr
     #precip2_fcyc_list:            all forecst cycles to be included in verification: HH
     #precip2_fhr_min:              forecast hour to start verification HH[H]
     #precip2_fhr_max:              forecast hour to end verification HH[H]
@@ -280,8 +277,7 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     #precip2_grid:                 grid to do verification on
     export precip2_model_plot_name_list="ops_gfs"
     export precip2_gather_by_list="VSDB"
-    export precip2_obtype="ccpa"
-    export precip2_accum_length="24"
+    export precip2_type_list="ccpa_accum24hr"
     export precip2_fcyc_list="00 06 12 18"
     export precip2_fhr_min="00"
     export precip2_fhr_max="180"

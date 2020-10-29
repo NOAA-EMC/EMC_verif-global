@@ -26,10 +26,6 @@ mkdir -p $RUN
 cd $RUN
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
-export precip2_type_list="${precip2_obtype}_accum${precip2_accum_length}hr"
-if [ $precip2_fhr_max -gt 180 ]; then
-    export precip2_fhr_max=180
-fi
 python $USHverif_global/set_init_valid_fhr_info.py
 status=$?
 [[ $status -ne 0 ]] && exit $status

@@ -167,8 +167,7 @@ fi
 export precip1_fcyc_list=$fcyc_list
 export precip1_fhr_min=$fhr_min
 export precip1_fhr_max=$fhr_max
-export precip1_obtype=${precip1_obtype:-ccpa}
-export precip1_accum_length=${precip1_accum_length:-24}
+export precip1_type_list=${precip1_obtype:-ccpa}_accum${precip1_accum_length:-24}hr
 export precip1_model_bucket_list=${precip_model_bucket_list:-06}
 export precip1_model_varname_list=${precip_model_varname_list:-APCP}
 export precip1_model_fileformat_list=${precip1_model_filefomat_list:-$model_fileformat_list}

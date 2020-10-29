@@ -166,40 +166,40 @@ fi
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     #g2o1_type_list:             list type of verifications to run for grid-to-obs, upper_air, conus_sfc, polar_sfc
     #g2o1_fyc_list:              all forecst cycles to be included in verification: HH
-    #g2o1_upper_air_vhr_list:    all valid hours to be included in upper_air verification: HH
-    #g2o1_conus_sfc_vhr_list:    all valid hours to be included in conus_sfc verification: HH
-    #g2o1_polar_sfc_vhr_list:    all valid hours to be included in polar_sfc verification: HH
     #g2o1_fhr_min:               forecast hour to start verification HH[H]
     #g2o1_fhr_max:               forecast hour to end verification HH[H]
-    #g2o1_upper_air_obtype:      observation type(s) to be used for upper_air: any prepbufr obs. types
-    #g2o1_conus_sfc_obtype:      observation type(s) to be used for conus_sfc: any prepbufr obs. types
-    #g2o1_polar_sfc_obtype:      observation type(s) to be used for polar_sfc: IABP
-    #g2o1_upper_air_grid:        grid to do upper_air verification on
-    #g2o1_conus_sfc_grid:        grid to do conus_sfc verification on
-    #g2o1_polar_sfc_grid:        grid to do polar_sfc verification on
     #g2o1_gather_by:             how to group the verification data, VSDB, VALID, INIT
+    #g2o1_prepbufr_data_runhpss: get files from HPSS ("YES") if not online
+    #g2o1_upper_air_vhr_list:   all valid hours to be included in upper_air verification: HH
+    #g2o1_upper_air_obtype:     observation type(s) to be used for upper_air: any prepbufr obs. types
+    #g2o1_upper_air_grid:       grid to do upper_air verification on
+    #g2o1_conus_sfc_vhr_list:   all valid hours to be included in conus_sfc verification: HH
+    #g2o1_conus_sfc_obtype:     observation type(s) to be used for conus_sfc: any prepbufr obs. types
+    #g2o1_conus_sfc_grid:       grid to do conus_sfc verification on
+    #g2o1_polar_sfc_vhr_list:   all valid hours to be included in polar_sfc verification: HH
+    #g2o1_polar_sfc_obtype:     observation type(s) to be used for polar_sfc: IABP
+    #g2o1_polar_sfc_grid:       grid to do polar_sfc verification on
     #g2o1_mv_database_name:      name of the METviewer database to send data to, MUST START WITH "mv"
     #g2o1_mv_database_group:     name of the group the METviewer database belongs to
     #g2o1_mv_database_desc:      description of database, can be blank  
-    #g2o1_prepbufr_data_runhpss: get files from HPSS ("YES") if not online
     export g2o1_type_list="upper_air conus_sfc polar_sfc"
     export g2o1_fcyc_list="00 06 12 18"
-    export g2o1_upper_air_vhr_list="00 06 12 18"
-    export g2o1_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
-    export g2o1_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
     export g2o1_fhr_min="00"
     export g2o1_fhr_max="168"
-    export g2o1_upper_air_obtype="ADPUPA"
-    export g2o1_conus_sfc_obtype="ONLYSF ADPUPA"
-    export g2o1_polar_sfc_obtype="IABP"
-    export g2o1_upper_air_grid="G003"
-    export g2o1_conus_sfc_grid="G104"
-    export g2o1_polar_sfc_grid="G223"
     export g2o1_gather_by="VSDB"
+    export g2o1_prepbufr_data_runhpss="YES"
+    export g2o1_upper_air_vhr_list="00 06 12 18"
+    export g2o1_upper_air_obtype="ADPUPA"
+    export g2o1_upper_air_grid="G003"
+    export g2o1_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
+    export g2o1_conus_sfc_obtype="ONLYSF ADPUPA"
+    export g2o1_conus_sfc_grid="G104"
+    export g2o1_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
+    export g2o1_polar_sfc_obtype="IABP"
+    export g2o1_polar_sfc_grid="G223"
     export g2o1_mv_database_name="mv_gfs_grid2obs_metplus_TEST"
     export g2o1_mv_database_group="NOAA NCEP"
     export g2o1_mv_database_desc="Grid-to-obs METplus data for ops. GFS"
-    export g2o1_prepbufr_data_runhpss="YES"
 fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ]; then
@@ -207,33 +207,33 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     #g2o2_gather_by_list:       list of how model data was gathered in step 1
     #g2o2_type_list:            list type of verifications to run for grid-to-obs, upper_air, conus_sfc, polar_sfc
     #g2o2_fyc_list:             all forecst cycles to be included in verification: HH
-    #g2o2_upper_air_vhr_list:   all valid hours to be included in upper_air verification: HH
-    #g2o2_conus_sfc_vhr_list:   all valid hours to be included in conus_sfc verification: HH
-    #g2o2_polar_sfc_vhr_list:   all valid hours to be included in polar_sfc verification: HH
     #g2o2_fhr_min:              forecast hour to start verification HH[H]
     #g2o2_fhr_max:              forecast hour to end verification HH[H]
-    #g2o2_upper_air_obtype:     observation type(s) to be used for upper_air: any prepbufr obs. types
-    #g2o2_conus_sfc_obtype:     observation type(s) to be used for conus_sfc: any prepbufr obs. types
-    #g2o2_polar_sfc_obtype:     observation type(s) to be used for polar_sfc: IABP
     #g2o2_event_eq:             do event equalization (True) or not (False)
+    #g2o2_upper_air_vhr_list:   all valid hours to be included in upper_air verification: HH
+    #g2o2_upper_air_obtype:     observation type(s) to be used for upper_air: any prepbufr obs. types
     #g2o2_upper_air_grid:       grid to do upper_air verification on
+    #g2o2_conus_sfc_vhr_list:   all valid hours to be included in conus_sfc verification: HH
+    #g2o2_conus_sfc_obtype:     observation type(s) to be used for conus_sfc: any prepbufr obs. types
     #g2o2_conus_sfc_grid:       grid to do conus_sfc verification on
+    #g2o2_polar_sfc_vhr_list:   all valid hours to be included in polar_sfc verification: HH
+    #g2o2_polar_sfc_obtype:     observation type(s) to be used for polar_sfc: IABP
     #g2o2_polar_sfc_grid:       grid to do polar_sfc verification on
     export g2o2_model_plot_name_list="ops_gfs"
     export g2o2_gather_by_list="VSDB"
     export g2o2_type_list="upper_air conus_sfc"
     export g2o2_fcyc_list="00 06 12 18"
-    export g2o2_upper_air_vhr_list="00 06 12 18"
-    export g2o2_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
-    export g2o2_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
     export g2o2_fhr_min="00"
     export g2o2_fhr_max="168"
-    export g2o2_upper_air_obtype="ADPUPA"
-    export g2o2_conus_sfc_obtype="ONLYSF ADPUPA"
-    export g2o2_polar_sfc_obtype="IABP"
     export g2o2_event_eq="True"
+    export g2o2_upper_air_vhr_list="00 06 12 18"
+    export g2o2_upper_air_obtype="ADPUPA"
     export g2o2_upper_air_grid="G003"
+    export g2o2_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
+    export g2o2_conus_sfc_obtype="ONLYSF ADPUPA"
     export g2o2_conus_sfc_grid="G104"
+    export g2o2_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
+    export g2o2_polar_sfc_obtype="IABP"
     export g2o2_polar_sfc_grid="G223"
 fi
 

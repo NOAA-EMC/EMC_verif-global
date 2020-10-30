@@ -632,6 +632,14 @@ for stat in plot_stats_list:
                                         +"_fhr"+lead
                                         +"_"+gridregion
                                         +".png")
+        elif verif_case == 'satellite':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_valid"+valid_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion+"_"+verif_type
+                                        +".png")
         else:
             savefig_name = os.path.join(plotting_out_dir_imgs, 
                                         stat
@@ -656,6 +664,14 @@ for stat in plot_stats_list:
                                         +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
                                         +"_fhr"+lead
                                         +"_"+gridregion
+                                        +".png")
+        elif verif_case == 'satellite':
+            savefig_name = os.path.join(plotting_out_dir_imgs,
+                                        stat
+                                        +"_init"+init_time_info[0][0:2]+"Z"
+                                        +"_"+fcst_var_name+"_"+fcst_var_level
+                                        +"_fhr"+lead
+                                        +"_"+gridregion+"_"+verif_type
                                         +".png")
         else:
             savefig_name = os.path.join(plotting_out_dir_imgs, 

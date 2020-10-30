@@ -26,9 +26,6 @@ mkdir -p $RUN
 cd $RUN
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
-if [ $g2o1_fhr_max -gt 168 ]; then
-    export g2o1_fhr_max=168
-fi
 python $USHverif_global/set_init_valid_fhr_info.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
@@ -108,6 +105,8 @@ while [ $DATE -le ${end_date} ] ; do
                     gather_by_hour_list=$g2o1_vhr_list_upper_air
                 elif [ $type = conus_sfc ]; then
                     gather_by_hour_list=$g2o1_vhr_list_conus_sfc
+                elif [ $type = polar_sfc ]; then
+                    gather_by_hour_list=$g2o1_vhr_list_polar_sfc
                 fi
             else
                 gather_by_hour_list=$g2o1_fcyc_list
@@ -120,6 +119,9 @@ while [ $DATE -le ${end_date} ] ; do
                     elif [ $type = conus_sfc ]; then
                         valid_hr_beg=$g2o1_valid_hr_beg_conus_sfc
                         valid_hr_end=$g2o1_valid_hr_end_conus_sfc
+                    elif [ $type = polar_sfc ]; then
+                        valid_hr_beg=$g2o1_valid_hr_beg_polar_sfc
+                        valid_hr_end=$g2o1_valid_hr_end_polar_sfc
                     fi
                     verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${valid_hr_beg}_${DATE}${valid_hr_end}_${gather_by_hour}.stat"
                 else

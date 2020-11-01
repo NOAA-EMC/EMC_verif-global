@@ -43,9 +43,9 @@ def get_hr_list_info(hr_list):
              hr_list - list of strings of two digit hours
 
          Returns:
-             hr_beg  - two digit string of the first hour
-             hr_end  - two digit string of the end hour
-             hr_inc  - string of the increment of the
+             hr_beg - two digit string of the first hour
+             hr_end - two digit string of the end hour
+             hr_inc - string of the increment of the
                        hours in the list in seconds
     """
     hr_beg = (hr_list[0]).zfill(2)
@@ -64,8 +64,8 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
              fhr_max_str - string of the last forecast hour
 
          Returns:
-             fhr_list  - string of all forecast hours
-                         to be considered in the verification
+             fhr_list - string of all forecast hours
+                        to be considered in the verification
     """
     fhr_min = float(fhr_min_str)
     fhr_max = float(fhr_max_str)
@@ -86,6 +86,7 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     return fhr_list_str
 
 env_var_dict = {}
+env_var_dict['RUN_abbrev'] = RUN_abbrev
 if RUN in ['grid2grid_step1', 'grid2grid_step2',
            'grid2obs_step1', 'grid2obs_step2',
            'precip_step1', 'precip_step2',

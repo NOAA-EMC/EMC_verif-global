@@ -380,6 +380,7 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     export sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
     export sat2_ghrsst_ncei_avhrr_anl_event_eq="True"
     export sat2_ghrsst_ncei_avhrr_anl_grid="G003"
+    export sat2_ghrsst_ospo_geopolar_anl_gather_by_list="VSDB"
     export sat2_ghrsst_ospo_geopolar_anl_fcyc_list="00"
     export sat2_ghrsst_ospo_geopolar_anl_fhr_min="00"
     export sat2_ghrsst_ospo_geopolar_anl_fhr_max="168"

@@ -14,24 +14,9 @@ import numpy as np
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Set RUN abbreviation dictionary and set abbreviation
-RUN_abbrev_dict = {
-    'grid2grid_step1': 'g2g1',
-    'grid2grid_step2': 'g2g2',
-    'grid2obs_step1': 'g2o1',
-    'grid2obs_step2': 'g2o2',
-    'precip_step1': 'precip1',
-    'precip_step2': 'precip2',
-    'satellite_step1': 'sat1',
-    'satellite_step2': 'sat2',
-    'tropcyc': 'tropcyc',
-    'maps2d': 'maps2d',
-    'mapsda': 'mapsda'
-}
-
 # Get environment variables
 RUN = os.environ['RUN']
-RUN_abbrev = RUN_abbrev_dict[RUN]
+RUN_abbrev = os.environ['RUN_abbrev']
 if RUN != 'tropcyc':
     RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 
@@ -86,7 +71,6 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     return fhr_list_str
 
 env_var_dict = {}
-env_var_dict['RUN_abbrev'] = RUN_abbrev
 if RUN in ['grid2grid_step1', 'grid2grid_step2',
            'grid2obs_step1', 'grid2obs_step2',
            'precip_step1', 'precip_step2',
@@ -152,7 +136,6 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
                         int(RUN_abbrev_type_fhr_min)
                         + (int(vhr) - int(fcyc))
                     )
-                    print(vhr+' '+fcyc+' '+str(fhr_min_vhr_fcyc))
                     if fhr_min_vhr_fcyc < int(RUN_abbrev_type_accum_length):
                         fhr_min_vhr_fcyc+=int(RUN_abbrev_type_accum_length)
                     RUN_abbrev_type_fhr_min_vhr_fcyc_list.append(

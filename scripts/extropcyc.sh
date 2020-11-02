@@ -22,9 +22,18 @@
 
 set -x 
 
+export RUN_abbrev="$RUN"
+
 # Set up directories
 mkdir -p $RUN
 cd $RUN
+
+# Check user's configuration file
+python $USHverif_global/check_config.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
+echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py

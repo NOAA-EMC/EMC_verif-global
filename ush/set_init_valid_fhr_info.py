@@ -25,7 +25,7 @@ def get_hr_list_info(hr_list):
          increment for cycle or valid hour list
 
          Args:
-             hr_list - list of strings of two digit hours
+             hr_list - list of strings of hours
 
          Returns:
              hr_beg - two digit string of the first hour
@@ -43,8 +43,8 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
          considered
 
          Args:
-             fcyc_list   - list of strings of two digit cycle hours
-             vhr_list    - list of strings of two digit valid hours
+             fcyc_list   - list of strings of cycle hours
+             vhr_list    - list of strings of valid hours
              fhr_min_str - string of the first forecast hour
              fhr_max_str - string of the last forecast hour
 

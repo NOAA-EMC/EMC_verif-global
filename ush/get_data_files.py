@@ -14,7 +14,7 @@ import pandas as pd
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in environment variables
+# Read in common environment variables
 RUN = os.environ['RUN']
 model_list = os.environ['model_list'].split(' ')
 model_dir_list = os.environ['model_dir_list'].split(' ')
@@ -587,10 +587,12 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
             print("WARNING: "+stat_file+" does not exist")
 
 if RUN == 'grid2grid_step1':
+    # Read in RUN related environment variables
+    gfs_dir = os.environ['gstat']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in environment variables
+        # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
             RUN_abbrev_type+'_fcyc_list'
         ].split(' ')
@@ -663,11 +665,11 @@ if RUN == 'grid2grid_step1':
                 RUN_abbrev_type_truth_name_short = model
                 model_RUN_abbrev_type_truth_hpss_dir = model_hpss_dir
             elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00']:
-                model_RUN_abbrev_type_truth_dir = os.environ['gstat']
-                RUN_abbrev_type_truth_name_short = 'gfs'
-                model_RUN_abbrev_type_truth_hpss_dir = (
-                    '/NCEPPROD/hpssprod/runhistory'
+                model_RUN_abbrev_type_truth_dir = gfs_dir
+                RUN_abbrev_type_truth_name_short = (
+                    RUN_abbrev_type_truth_name.split('_')[0]
                 )
+                model_RUN_abbrev_type_truth_hpss_dir = hpss_prod_base_dir
                 if RUN_abbrev_type_truth_name \
                         == 'gfs_'+RUN_abbrev_type_truth_name_lead \
                         and model_RUN_abbrev_type_truth_file_format != \
@@ -735,6 +737,7 @@ if RUN == 'grid2grid_step1':
                         print("WARNING: Unable to link model f00 file as "
                               +"subsitute truth file for "+RUN_type)
 elif RUN == 'grid2grid_step2':
+    # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

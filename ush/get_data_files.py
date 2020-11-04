@@ -522,6 +522,70 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         else:
             print("WARNING: "+model_file+" does not exist")
 
+def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
+                        name, stat_data_dir, gather_by, RUN_dir_name,
+                        RUN_sub_dir_name, link_data_dir):
+    """! This links a model .stat file from its archive.
+
+         Args:
+             valid_time_dt    - datetime object of the valid time
+             init_time_dt     - datetime object of the
+                                initialization time
+             lead_str         - string of the forecast lead
+             name             - string of the model name
+             stat_data_dir    - string of the online archive
+                                for model MET .stat files
+             gather_by        - string of the file format the
+                                files are saved as in the data_dir
+             RUN_dir_name     - string of RUN directory name
+                                in 'metplus_data' archive
+             RUN_sub_dir_name - string of RUN sub-directory name
+                                (under RUN_dir_name)
+                                in 'metplus_data' archive
+             link_data_dir    - string of the directory to link
+                                model data to
+
+         Returns:
+    """
+    model_stat_gather_by_RUN_dir = os.path.join(stat_data_dir, 'metplus_data',
+                                                'by_'+gather_by, RUN_dir_name,
+                                                RUN_sub_dir_name)
+    if gather_by == 'VALID':
+         model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
+                                        valid_time.strftime('%H')+'Z', name,
+                                        name+'_'+valid_time.strftime('%Y%m%d')
+                                        +'.stat')
+         link_model_stat_file = os.path.join(link_data_dir, name+'_valid'
+                                             +valid_time.strftime('%Y%m%d')
+                                             +'_valid'+valid_time.strftime('%H')
+                                             +'.stat')
+    elif gather_by == 'INIT':
+         model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
+                                        init_time.strftime('%H')+'Z', name,
+                                        name+'_'+init_time.strftime('%Y%m%d')
+                                        +'.stat')
+         link_model_stat_file = os.path.join(link_data_dir, name+'_init'
+                                             +init_time.strftime('%Y%m%d')
+                                             +'_init'+init_time.strftime('%H')
+                                             +'.stat')
+    elif gather_by == 'VSDB':
+         if RUN_dir_name == 'grid2grid':
+             model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
+                                            valid_time.strftime('%H')+'Z',
+                                            name, name+'_'
+                                            +valid_time.strftime('%Y%m%d')
+                                            +'.stat')
+             link_model_stat_file = os.path.join(link_data_dir, name+'_valid'
+                                                 +valid_time.strftime('%Y%m%d')
+                                                 +'_valid'
+                                                 +valid_time.strftime('%H')
+                                                 +'.stat')
+    if not os.path.exists(link_model_stat_file):
+        if os.path.exists(model_stat_file):
+            os.system('ln -sf '+model_stat_file+' '+link_model_stat_file)
+        else:
+            print("WARNING: "+stat_file+" does not exist")
+
 if RUN == 'grid2grid_step1':
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
@@ -670,7 +734,61 @@ if RUN == 'grid2grid_step1':
                     if not os.path.exists(link_truth_file):
                         print("WARNING: Unable to link model f00 file as "
                               +"subsitute truth file for "+RUN_type)
-#elif RUN == 'grid2grid_step2':
+elif RUN == 'grid2grid_step2':
+    # Get stat files for each option in RUN_type_list
+    for RUN_type in RUN_type_list:
+        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
+        # Read in environment variables
+        RUN_abbrev_type_fcyc_list = os.environ[
+            RUN_abbrev_type+'_fcyc_list'
+        ].split(' ')
+        RUN_abbrev_type_vhr_list = os.environ[
+            RUN_abbrev_type+'_vhr_list'
+        ].split(' ')
+        RUN_abbrev_type_start_hr = os.environ[
+            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
+        ]
+        RUN_abbrev_type_end_hr = os.environ[
+            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
+        ]
+        RUN_abbrev_type_hr_inc = os.environ[
+            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
+        ]
+        RUN_abbrev_type_fhr_list = os.environ[
+            RUN_abbrev_type+'_fhr_list'
+        ].split(', ')
+        RUN_abbrev_type_truth_name_list = os.environ[
+            RUN_abbrev_type+'_truth_name_list'
+        ].split(' ')
+        RUN_abbrev_type_gather_by_list = os.environ[
+            RUN_abbrev_type+'_gather_by_list'
+        ].split(' ')
+        # Get date and time information for RUN_type
+        RUN_abbrev_type_time_info_dict = get_time_info(
+            start_date, end_date, RUN_abbrev_type_start_hr,
+            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
+            RUN_abbrev_type_fhr_list, plot_by
+        )
+        # Get stat files model
+        for model in model_list:
+            model_idx = model_list.index(model)
+            model_stat_dir = model_stat_dir_list[model_idx]
+            model_RUN_abbrev_type_gather_by = (
+                RUN_abbrev_type_gather_by_list[model_idx]
+            )
+            link_model_RUN_type_data_dir = os.path.join(cwd, 'data',
+                                                        model, RUN_type)
+            if not os.path.exists(link_model_RUN_type_data_dir):
+                os.makedirs(link_model_RUN_type_data_dir)
+            for time in RUN_abbrev_type_time_info_dict:
+                valid_time = time['valid_time']
+                init_time = time['init_time']
+                lead = time['lead']
+                get_model_stat_file(valid_time, init_time, lead,
+                                    model, model_stat_dir,
+                                    model_RUN_abbrev_type_gather_by,
+                                    'grid2grid', RUN_type,
+                                    link_model_RUN_type_data_dir)
 #elif RUN == 'grid2obs_step1':
 #elif RUN == 'grid2obs_step2':
 #elif RUN == 'precip_step1':

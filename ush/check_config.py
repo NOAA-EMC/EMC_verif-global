@@ -145,7 +145,18 @@ if RUN == 'grid2grid_step1':
         valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
             'VALID', 'INIT', 'VSDB'
         ]
-#elif RUN == 'grid2grid_step2':
+elif RUN == 'grid2grid_step2':
+    for RUN_type in RUN_type_list:
+        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
+        valid_config_var_values_dict[RUN_abbrev_type+'_truth_name_list'] = [
+            'self_anl', 'self_f00', 'gfs_anl', 'gfs_f00'
+        ]
+        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by_list'] = [
+            'VALID', 'INIT', 'VSDB'
+        ]
+        valid_config_var_values_dict[RUN_abbrev_type+'_event_eq'] = [
+            'True', 'False'
+        ]
 #elif RUN == 'grid2obs_step1':
 #elif RUN == 'grid2obs_step2':
 #elif RUN == 'precip_step1':
@@ -156,8 +167,23 @@ if RUN == 'grid2grid_step1':
 #elif RUN == 'maps2d':
 #elif RUN == 'mapsda':
 for config_var in list(valid_config_var_values_dict.keys()):
-    if os.environ[config_var] not in valid_config_var_values_dict[config_var]:
-        print("ERROR: value of "+os.environ[config_var]+" for "
+    if 'list' in config_var:
+        for list_item in os.environ[config_var].split(' '):
+            if list_item not in valid_config_var_values_dict[config_var]:
+                config_var_pass = False
+                failed_config_value = list_item
+                break
+            else:
+                config_var_pass = True
+    else:
+        if os.environ[config_var] \
+                not in valid_config_var_values_dict[config_var]:
+            config_var_pass = False
+            failed_config_value = os.environ[config_var]
+        else:
+            config_var_pass = True
+    if not config_var_pass:
+        print("ERROR: value of "+failed_config_value+" for "
               +config_var+" not a valid option. Valid options are "
               +', '.join(valid_config_var_values_dict[config_var]))
         exit(1)

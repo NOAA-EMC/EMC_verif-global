@@ -205,7 +205,7 @@ elif RUN == 'precip_step1':
         valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
             'VALID', 'INIT', 'VSDB'
         ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_model_varname_list'] = [
+        valid_config_var_values_dict[RUN_abbrev_type+'_model_var_list'] = [
             'APCP', 'PRATE'
         ]
         RUN_abbrev_type_accum_length = (

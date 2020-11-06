@@ -297,7 +297,7 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     #precip1_mv_database_desc: description of database, can be blank
     export precip1_type_list="ccpa_accum24hr"
     export precip1_ccpa_accum24hr_model_bucket_list="06"
-    export precip1_ccpa_accum24hr_model_varname_list="APCP"
+    export precip1_ccpa_accum24hr_model_var_list="APCP"
     export precip1_ccpa_accum24hr_model_file_format_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
     export precip1_ccpa_accum24hr_fcyc_list="00 06 12 18"
     export precip1_ccpa_accum24hr_fhr_min="00"

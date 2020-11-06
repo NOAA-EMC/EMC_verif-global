@@ -76,7 +76,7 @@ else:
                 RUN_abbrev_type+'_model_bucket_list'
             )
             check_config_var_len_list.append(
-                RUN_abbrev_type+'_model_varname_list'
+                RUN_abbrev_type+'_model_var_list'
             )
             check_config_var_len_list.append(
                 RUN_abbrev_type+'_model_file_format_list'

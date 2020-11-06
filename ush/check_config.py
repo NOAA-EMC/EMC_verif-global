@@ -213,12 +213,19 @@ elif RUN == 'precip_step1':
         )
         for model_bucket in \
                 os.environ[RUN_abbrev_type+'_model_bucket_list'].split(' '):
-            if int(model_bucket) > int(RUN_abbrev_type_accum_length):
-                print("ERROR: value of "+model_bucket+" in "
-                      +RUN_abbrev_type+"_model_bucket_list must be <= to "
-                      +RUN_abbrev_type+" accumulation length which is "
-                      +RUN_abbrev_type_accum_length)
-                exit(1)
+            if model_bucket != 'continuous':
+                if model_bucket.isnumeric():
+                    if int(model_bucket) > int(RUN_abbrev_type_accum_length):
+                        print("ERROR: value of "+model_bucket+" in "
+                              +RUN_abbrev_type+"_model_bucket_list must be "
+                              +"<= to "+RUN_abbrev_type+" accumulation length "
+                              +"which is "+RUN_abbrev_type_accum_length)
+                        exit(1)
+                else:
+                    print("ERROR: value of "+model_bucket+" in "
+                          +RUN_abbrev_type+"_model_bucket_list "
+                          +"must be numeric")
+                    exit(1)
     valid_config_var_values_dict[RUN_abbrev+'_obs_data_run_hpss'] = [
         'YES', 'NO'
     ]

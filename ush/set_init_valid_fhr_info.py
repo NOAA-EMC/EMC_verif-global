@@ -65,7 +65,7 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     fhr_list = []
     fhr = fhr_min
     while fhr <= fhr_max:
-        fhr_list.append(str(int(fhr)).zfill(2))
+        fhr_list.append(str(int(fhr)))
         fhr+=fhr_intvl
     fhr_list_str = ', '.join(fhr_list)
     return fhr_list_str

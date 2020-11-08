@@ -7,21 +7,42 @@ Abstract: This script is run by all scripts in scripts/.
 '''
 
 import os
+import datetime
+import calendar
 
 print("BEGIN: "+os.path.basename(__file__))
 
 # Read in environment variables
 RUN = os.environ['RUN']
 RUN_abbrev = os.environ['RUN_abbrev']
-model_list = os.environ['model_list'].split(' ')
-model_dir_list = os.environ['model_dir_list'].split(' ')
-model_stat_dir_list = os.environ['model_stat_dir_list'].split(' ')
-model_file_format_list = os.environ['model_file_format_list'].split(' ')
-model_hpss_dir_list = os.environ['model_hpss_dir_list'].split(' ')
-make_met_data_by = os.environ['make_met_data_by']
-plot_by = os.environ['plot_by']
 if RUN != 'tropcyc':
     RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+
+# Do date check
+date_check_name_list = ['start', 'end']
+for date_check_name in date_check_name_list:
+    date_check = os.environ[date_check_name+'_date']
+    date_check_year = int(date_check[0:4])
+    date_check_month = int(date_check[4:6])
+    date_check_day = int(date_check[6:])
+    if len(date_check) != 8:
+        print("ERROR: "+date_check_name+"_date not in YYYYMMDD format")
+        exit(1)
+    if date_check_month > 12 or int(date_check_month) == 0:
+        print("ERROR: month "+str(date_check_month)+" in value "
+              +date_check+" for "+date_check_name+"_date is not a valid month")
+        exit(1)
+    if date_check_day \
+            > calendar.monthrange(date_check_year, date_check_month)[1]:
+        print("ERROR: day "+str(date_check_day)+" in value "
+              +date_check+" for "+date_check_name+"_date is not a valid day "
+              +"for month")
+        exit(1)
+if datetime.datetime.strptime(os.environ['end_date'], '%Y%m%d') \
+        < datetime.datetime.strptime(os.environ['start_date'], '%Y%m%d'):
+    print("ERROR: end_date ("+os.environ['end_date']+") cannot be less than "
+          +"start_date ("+os.environ['start_date']+")")
+    exit(1)
 
 # Do check for valid RUN_type options
 valid_RUN_type_opts_dict = {

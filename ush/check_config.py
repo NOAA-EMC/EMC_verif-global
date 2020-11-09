@@ -283,6 +283,36 @@ elif RUN == 'satellite_step2':
                   +"must be <= 1")
             exit(1)
 elif RUN == 'tropcyc':
+    import get_tc_info
+    tc_dict = get_tc_info.get_tc_dict()
+    valid_basin_list = []
+    valid_year_list = []
+    for tc in list(tc_dict.keys()):
+        valid_basin = tc.split('_')[0]
+        if valid_basin not in valid_basin_list:
+            valid_basin_list.append(valid_basin)
+        valid_year = tc.split('_')[1]
+        if valid_year not in valid_year_list:
+            valid_year_list.append(valid_year)
+    for basin_year_name in os.environ[RUN+'_storm_list'].split(' '):
+        basin = basin_year_name.split('_')[0]
+        year = basin_year_name.split('_')[1]
+        name = basin_year_name.split('_')[2]
+        if basin not in valid_basin_list:
+            print("ERROR: basin value of "+basin+" in "+basin_year_name+" in "
+                  +RUN+"_storm_list not a valid option. Valid options are "
+                  +' '.join(valid_basin_list))
+            exit(1)
+        elif year not in valid_year_list:
+            print("ERROR: year value of "+year+" in "+basin_year_name+" in "
+                  +RUN+"_storm_list not a valid option. Valid options are "
+                  +' '.join(valid_year_list))
+            exit(1)
+        if name != 'ALLNAMED':
+            if basin_year_name not in list(tc_dict.keys()):
+                print("ERROR: name value of "+name+" in "+basin_year_name+" "
+                      +"in "+basin_year_name+" not supported")
+                exit(1)
     for atcf_name in os.environ[RUN+'_model_atcf_name_list'].split(' '):
         if len(atcf_name) != 4:
             print("ERROR: length of "+atcf_name+" in "

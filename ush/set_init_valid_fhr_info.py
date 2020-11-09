@@ -198,24 +198,6 @@ elif RUN in ['maps2d', 'mapsda']:
         env_var_dict[RUN_abbrev_type+'_make_met_data_by'] = (
             RUN_abbrev_type_make_met_data_by
         )
-        # Process forecast hours
-        if RUN == 'maps2d':
-            RUN_abbrev_type_forecast_to_plot_list = (
-                os.environ[RUN_abbrev_type+'_forecast_to_plot_list'].split(' ')
-            )
-            RUN_abbrev_type_fhr_list_str = ', '.join(
-                RUN_abbrev_type_forecast_to_plot_list
-            )
-            env_var_dict[RUN_abbrev_type+'_fhr_list'] = (
-                RUN_abbrev_type_fhr_list_str
-            )
-        elif RUN == 'mapsda':
-            RUN_abbrev_type_guess_hour = (
-                os.environ[RUN_abbrev_type+'_guess_hour']
-            )
-            env_var_dict[RUN_abbrev_type+'_guess_hour'] = (
-               RUN_abbrev_type_guess_hour.zfill(2)
-            )
 
 # Create file with environment variables to source
 with open('python_gen_env_vars.sh', 'a') as file:

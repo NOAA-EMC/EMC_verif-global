@@ -242,14 +242,14 @@ def get_tc_dict():
     tc_dict['WP_2018_THIRTYSIX'] = 'wp362018'
     return tc_dict
 
-def get_tc_storm_dates(bdeck_file):
+def get_tc_dates(bdeck_file):
     """! Get storm start and end dates for a named storm
          in a given basin for a give year
         
          Args: 
              basin - string of two letter basin identifier
              year  - string of four number year
-             name  - strinf of storm name
+             name  - string of storm name
  
          Returns:
              storm_start_date - string of the storm's start

@@ -110,10 +110,6 @@ else:
             check_config_var_len_list.append(
                 RUN_abbrev_type+'_gather_by_list'
             )
-        elif RUN == 'maps2d':
-            check_config_var_len_list.append(
-                RUN_abbrev_type+'_anl_file_format_list'
-            )
         elif RUN == 'mapsda':
             if RUN_type == 'gdas':
                 check_config_var_len_list.append(
@@ -319,13 +315,13 @@ elif RUN == 'tropcyc':
                   +RUN+"_model_atcf_name_list != to 4")
             exit(1)
 elif RUN == 'maps2d':
+    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = [
+        'YES', 'NO'
+    ]
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type+'_make_met_data_by'] = [
             'VALID', 'INIT'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_anl_name'] = [
-            'self_anl', 'self_f00', 'gfs_anl', 'gfs_f00'
         ]
         if RUN_type == 'model2model':
             valid_config_var_values_dict[RUN_abbrev_type

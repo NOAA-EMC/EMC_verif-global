@@ -192,9 +192,9 @@ elif RUN in ['maps2d', 'mapsda']:
         (RUN_abbrev_type_hr_beg,
          RUN_abbrev_type_hr_end,
          RUN_abbrev_type_hr_inc) = get_hr_list_info(RUN_abbrev_type_hr_list)
-        env_var_dict[RUN_abbrev_type+'_fcyc_beg'] = RUN_abbrev_type_hr_beg
-        env_var_dict[RUN_abbrev_type+'_fcyc_end'] = RUN_abbrev_type_hr_end
-        env_var_dict[RUN_abbrev_type+'_fcyc_inc'] = RUN_abbrev_type_hr_inc
+        env_var_dict[RUN_abbrev_type+'_init_beg'] = RUN_abbrev_type_hr_beg
+        env_var_dict[RUN_abbrev_type+'_init_end'] = RUN_abbrev_type_hr_end
+        env_var_dict[RUN_abbrev_type+'_init_inc'] = RUN_abbrev_type_hr_inc
         env_var_dict[RUN_abbrev_type+'_make_met_data_by'] = (
             RUN_abbrev_type_make_met_data_by
         )

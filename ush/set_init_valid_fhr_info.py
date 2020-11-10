@@ -187,7 +187,7 @@ elif RUN in ['maps2d', 'mapsda']:
             os.environ[RUN_abbrev_type+'_make_met_data_by']
         )
         RUN_abbrev_type_hr_list = (
-            os.environ[RUN_abbrev_type+'_hout_list'].split(' ')
+            os.environ[RUN_abbrev_type+'_hour_list'].split(' ')
         )
         (RUN_abbrev_type_hr_beg,
          RUN_abbrev_type_hr_end,

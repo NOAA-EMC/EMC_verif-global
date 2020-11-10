@@ -74,6 +74,8 @@ if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
 if RUN == 'tropcyc':
     check_config_var_len_list.append(RUN+'_model_atcf_name_list')
     check_config_var_len_list.append(RUN+'_model_file_format_list')
+elif RUN == 'maps2d':
+    check_config_var_len_list.append(RUN+'_anl_file_format_list')
 else:
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

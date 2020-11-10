@@ -187,14 +187,14 @@ elif RUN in ['maps2d', 'mapsda']:
             os.environ[RUN_abbrev_type+'_make_met_data_by']
         )
         RUN_abbrev_type_hr_list = (
-            os.environ[RUN_abbrev_type+'_fcyc_list'].split(' ')
+            os.environ[RUN_abbrev_type+'_hout_list'].split(' ')
         )
         (RUN_abbrev_type_hr_beg,
          RUN_abbrev_type_hr_end,
          RUN_abbrev_type_hr_inc) = get_hr_list_info(RUN_abbrev_type_hr_list)
-        env_var_dict[RUN_abbrev_type+'_init_beg'] = RUN_abbrev_type_hr_beg
-        env_var_dict[RUN_abbrev_type+'_init_end'] = RUN_abbrev_type_hr_end
-        env_var_dict[RUN_abbrev_type+'_init_inc'] = RUN_abbrev_type_hr_inc
+        env_var_dict[RUN_abbrev_type+'_hour_beg'] = RUN_abbrev_type_hr_beg
+        env_var_dict[RUN_abbrev_type+'_hour_end'] = RUN_abbrev_type_hr_end
+        env_var_dict[RUN_abbrev_type+'_hour_inc'] = RUN_abbrev_type_hr_inc
         env_var_dict[RUN_abbrev_type+'_make_met_data_by'] = (
             RUN_abbrev_type_make_met_data_by
         )

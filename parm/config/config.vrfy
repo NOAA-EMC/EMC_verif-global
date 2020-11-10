@@ -413,7 +413,7 @@ if [ $RUN_MAPS2D = YES ]; then
     #maps2d_type_list: list type of verifications to run for maps2d: model2model, model2obs
     #### For each type the followings can be set, where [type] is model2model or model2obs
     #####    maps2d_[type]_make_met_data_by: how to treat dates, "VALID" or "INIT"
-    #####    maps2d_[type]_fcyc_list:        all forecast cycles to be included in verification: HH
+    #####    maps2d_[type]_hour_list:        all forecast cycles to be included in verification: HH
     #####    maps2d_[type]_forecast_to_plot: list of model forecast times to plot:
     #####                                        for analysis use anl,
     #####                                        for a single forecast hour use f (ex. f120),
@@ -428,12 +428,12 @@ if [ $RUN_MAPS2D = YES ]; then
     export maps2d_plot_diff="YES"
     export maps2d_type_list="model2model model2obs"
     export maps2d_model2model_make_met_data_by="INIT"
-    export maps2d_model2model_fcyc_list="00"
+    export maps2d_model2model_hour_list="00"
     export maps2d_model2model_forecast_to_plot_list="anl d1 d5 d10"
     export maps2d_model2model_regrid_to_grid="G002"
     export maps2d_model2model_forecast_anl_diff="NO"
     export maps2d_model2obs_make_met_data_by="INIT"
-    export maps2d_model2obs_fcyc_list="00"
+    export maps2d_model2obs_hour_list="00"
     export maps2d_model2obs_forecast_to_plot_list="anl d1 d5 d10"
     export maps2d_model2obs_regrid_to_grid="G002"
     export maps2d_model2obs_use_ceres="NO"
@@ -446,7 +446,7 @@ if [ $RUN_MAPSDA = YES ]; then
     #mapsda_type_list: list type of verifications to run for mapsda: gdas, ens
     #### For each type the followings can be set, where [type] is gdas or ens
     #####    mapsda_[type]_make_met_data_by:       how to treat dates, "VALID" or "INIT"
-    #####    mapsda_[type]_fcyc_list:              all hours to be included in verification: HH
+    #####    mapsda_[type]_hour_list:              all hours to be included in verification: HH
     #####    mapsda_[type]_regrid_to_grid:         NCEP grid to regrid data to
     #####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
     #mapsda_gdas_model_file_format_list: file format of model GDAS files
@@ -458,13 +458,13 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_latlon_area="-90 90 0 360"
     export mapsda_type_list="gdas ens"
     export mapsda_gdas_make_met_data_by="VALID"
-    export mapsda_gdas_fcyc_list="00 06 12 18"
+    export mapsda_gdas_hour_list="00 06 12 18"
     export mapsda_gdas_regrid_to_grid="G002"
     export mapsda_gdas_guess_hour="06"
     export mapsda_gdas_model_file_format_list="pgbf{lead?fmt=%H}.gdas.{init?fmt=%Y%m%d%H}"
     export mapsda_gdas_anl_file_format_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"
     export mapsda_ens_make_met_data_by="VALID"
-    export mapsda_ens_fcyc_list="00 06 12 18"
+    export mapsda_ens_hour_list="00 06 12 18"
     export mapsda_ens_regrid_to_grid="G002"
     export mapsda_ens_guess_hour="06"
     export mapsda_ens_model_dir_list="/gpfs/dell1/nco/ops/com/gfs/prod"

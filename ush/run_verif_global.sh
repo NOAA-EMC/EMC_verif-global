@@ -30,7 +30,7 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully sourced ${config}"
 echo
- 
+
 echo "=============== SETTING UP ==============="
 . $HOMEverif_global/ush/set_up_verif_global.sh
 status=$?
@@ -44,7 +44,7 @@ if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-grid verifcation using METplus ====="
     export RUN="grid2grid_step1"
     python $HOMEverif_global/ush/run_batch.py
-fi 
+fi
 
 if [ $RUN_GRID2GRID_STEP2 = YES ] ; then
     echo
@@ -60,7 +60,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step1"
     python $HOMEverif_global/ush/run_batch.py
-fi  
+fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ] ; then
     echo
@@ -68,7 +68,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ] ; then
     echo "===== calculating statistics and creating plots for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step2"
     python $HOMEverif_global/ush/run_batch.py
-fi 
+fi
 
 if [ $RUN_PRECIP_STEP1 = YES ] ; then
     echo

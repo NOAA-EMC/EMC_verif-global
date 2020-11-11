@@ -73,8 +73,8 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
         exit 1
     fi
     module load EnvVars/1.0.3
-    module load lsf/10.1 
-    module load ips/18.0.1.163 
+    module load lsf/10.1
+    module load ips/18.0.1.163
     module load impi/18.0.1
     module load CFP/2.0.1
     module load HPSS/5.0.2.5

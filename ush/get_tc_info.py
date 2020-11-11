@@ -10,9 +10,9 @@ import pandas as pd
 
 def get_tc_dict():
     """! Get supported TC dictionary
-        
+
          Args:
- 
+
          Returns:
              tc_dict - dictionary of TC's basin_year_name
                        as key and ID as the value
@@ -245,12 +245,12 @@ def get_tc_dict():
 def get_tc_dates(bdeck_file):
     """! Get storm start and end dates for a named storm
          in a given basin for a give year
-        
-         Args: 
+
+         Args:
              basin - string of two letter basin identifier
              year  - string of four number year
              name  - string of storm name
- 
+
          Returns:
              storm_start_date - string of the storm's start
                                 date (YYYYMMDD)

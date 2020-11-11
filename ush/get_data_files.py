@@ -1668,7 +1668,7 @@ elif RUN == 'tropcyc':
                 if config_storm_basin+'_'+config_storm_year in byn:
                     RUN_abbrev_tc_list.append(byn)
         else:
-            RUN_abbrev_tc_list.append(storm)
+            RUN_abbrev_tc_list.append(config_storm)
     # Get bdeck/truth and  model track files
     for tc in RUN_abbrev_tc_list:
         basin = tc.split('_')[0]

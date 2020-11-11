@@ -30,7 +30,7 @@ cwd = os.getcwd()
 batch_job_dir = os.path.join(cwd, 'batch_jobs')
 if not os.path.exists(batch_job_dir):
     os.makedirs(batch_job_dir)
-job_card_filename = os.path.join(batch_job_dir, 
+job_card_filename = os.path.join(batch_job_dir,
                                  NET+'_'+RUN+'.sh')
 job_output_filename = os.path.join(batch_job_dir,
                                    NET+'_'+RUN+'.out')
@@ -88,7 +88,7 @@ with open(job_card_filename, 'a') as job_card:
     job_card.write('\n')
     job_card.write('/bin/sh '+script)
 
-# Submit job card 
+# Submit job card
 print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
 if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:

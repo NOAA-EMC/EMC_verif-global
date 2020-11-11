@@ -1,5 +1,5 @@
 '''
-Program Name: set_init_valid_fhr_info.py 
+Program Name: set_init_valid_fhr_info.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This sets up the necessary environment variables

@@ -155,75 +155,100 @@ valid_config_var_values_dict = {
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_truth_name'] = [
-            'self_anl', 'self_f00', 'gfs_anl', 'gfs_f00'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_truth_name'] = ['self_anl', 'self_f00',
+                                                        'gfs_anl', 'gfs_f00']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
 elif RUN == 'grid2grid_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_truth_name_list'] = [
-            'self_anl', 'self_f00', 'gfs_anl', 'gfs_f00'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by_list'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_event_eq'] = [
-            'True', 'False'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_truth_name_list'] = ['self_anl',
+                                                             'self_f00',
+                                                             'gfs_anl',
+                                                             'gfs_f00']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by_list'] = ['VALID', 'INIT',
+                                                            'VSDB']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_event_eq'] = ['True', 'False']
 elif RUN == 'grid2obs_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN_type == 'polar_sfc':
-            valid_config_var_values_dict[RUN_abbrev_type+'_obtype_list'] = [
-                'IABP'
-            ]
+            valid_config_var_values_dict[RUN_abbrev_type
+                                         +'_obtype_list'] = ['IABP']
         else:
-            valid_config_var_values_dict[RUN_abbrev_type+'_obtype_list'] = [
-                 'ADPUPA', 'AIRCAR', 'AIRCFT', 'ADPSFC', 'ERS1DA',
-                 'GOESND', 'GPSIPW', 'MSONET', 'PROFLR', 'QKSWND',
-                 'RASSDA', 'SATEMP', 'SATWND', 'SFCBOG', 'SFCSHP',
-                 'SPSSMI', 'SYNDAT', 'VADWND', 'SURFACE', 'ANYAIR',
-                 'ANYSFC', 'ONLYSF'
-             ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-    valid_config_var_values_dict[RUN_abbrev+'_prepbufr_data_run_hpss'] = [
-        'YES', 'NO'
-    ]
+            valid_config_var_values_dict[RUN_abbrev_type
+                                         +'_obtype_list'] = ['ADPUPA',
+                                                             'AIRCAR',
+                                                             'AIRCFT',
+                                                             'ADPSFC',
+                                                             'ERS1DA',
+                                                             'GOESND',
+                                                             'GPSIPW',
+                                                             'MSONET',
+                                                             'PROFLR',
+                                                             'QKSWND',
+                                                             'RASSDA',
+                                                             'SATEMP',
+                                                             'SATWND',
+                                                             'SFCBOG',
+                                                             'SFCSHP',
+                                                             'SPSSMI',
+                                                             'SYNDAT',
+                                                             'VADWND',
+                                                             'SURFACE',
+                                                             'ANYAIR',
+                                                             'ANYSFC',
+                                                             'ONLYSF']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
+    valid_config_var_values_dict[RUN_abbrev
+                                 +'_prepbufr_data_run_hpss'] = ['YES', 'NO']
 elif RUN == 'grid2obs_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN_type == 'polar_sfc':
-            valid_config_var_values_dict[RUN_abbrev_type+'_obtype_list'] = [
-                'IABP'
-            ]
+            valid_config_var_values_dict[RUN_abbrev_type
+                                         +'_obtype_list'] = ['IABP']
         else:
-            valid_config_var_values_dict[RUN_abbrev_type+'_obtype_list'] = [
-                 'ADPUPA', 'AIRCAR', 'AIRCFT', 'ADPSFC', 'ERS1DA',
-                 'GOESND', 'GPSIPW', 'MSONET', 'PROFLR', 'QKSWND',
-                 'RASSDA', 'SATEMP', 'SATWND', 'SFCBOG', 'SFCSHP',
-                 'SPSSMI', 'SYNDAT', 'VADWND', 'SURFACE', 'ANYAIR',
-                 'ANYSFC', 'ONLYSF'
-             ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by_list'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_event_eq'] = [
-            'True', 'False'
-        ]
+            valid_config_var_values_dict[RUN_abbrev_type
+                                         +'_obtype_list'] = ['ADPUPA',
+                                                             'AIRCAR',
+                                                             'AIRCFT',
+                                                             'ADPSFC',
+                                                             'ERS1DA',
+                                                             'GOESND',
+                                                             'GPSIPW',
+                                                             'MSONET',
+                                                             'PROFLR',
+                                                             'QKSWND',
+                                                             'RASSDA',
+                                                             'SATEMP',
+                                                             'SATWND',
+                                                             'SFCBOG',
+                                                             'SFCSHP',
+                                                             'SPSSMI',
+                                                             'SYNDAT',
+                                                             'VADWND',
+                                                             'SURFACE',
+                                                             'ANYAIR',
+                                                             'ANYSFC',
+                                                             'ONLYSF']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by_list'] = ['VALID', 'INIT',
+                                                            'VSDB']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_event_eq'] = ['True', 'False']
 elif RUN == 'precip_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_model_var_list'] = [
-            'APCP', 'PRATE'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_model_var_list'] = ['APCP', 'PRATE']
         RUN_abbrev_type_accum_length = (
             RUN_type.split('accum')[1].replace('hr','')
         )
@@ -242,24 +267,21 @@ elif RUN == 'precip_step1':
                           +RUN_abbrev_type+"_model_bucket_list "
                           +"must be numeric")
                     exit(1)
-    valid_config_var_values_dict[RUN_abbrev+'_obs_data_run_hpss'] = [
-        'YES', 'NO'
-    ]
+    valid_config_var_values_dict[RUN_abbrev
+                                 +'_obs_data_run_hpss'] = ['YES', 'NO']
 elif RUN == 'precip_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by_list'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_event_eq'] = [
-            'True', 'False'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by_list'] = ['VALID', 'INIT',
+                                                            'VSDB']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_event_eq'] = ['True', 'False']
 elif RUN == 'satellite_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
         if float(os.environ[RUN_abbrev_type+'_sea_ice_thresh']) > 1:
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")
@@ -267,12 +289,11 @@ elif RUN == 'satellite_step1':
 elif RUN == 'satellite_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_gather_by_list'] = [
-            'VALID', 'INIT', 'VSDB'
-        ]
-        valid_config_var_values_dict[RUN_abbrev_type+'_event_eq'] = [
-            'True', 'False'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_gather_by_list'] = ['VALID', 'INIT',
+                                                            'VSDB']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_event_eq'] = ['True', 'False']
         if float(os.environ[RUN_abbrev_type+'_sea_ice_thresh']) > 1:
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")
@@ -314,27 +335,19 @@ elif RUN == 'tropcyc':
                   +RUN+"_model_atcf_name_list != to 4")
             exit(1)
 elif RUN == 'maps2d':
-    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = [
-        'YES', 'NO'
-    ]
+    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_make_met_data_by'] = [
-            'VALID', 'INIT'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_make_met_data_by'] = ['VALID', 'INIT']
         if RUN_type == 'model2model':
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_forecast_anl_diff'] = [
-                'YES', 'NO'
-            ]
+                                         +'_forecast_anl_diff'] = ['YES', 'NO']
         elif RUN_type == 'model2obs':
-            valid_config_var_values_dict[RUN_abbrev_type+'_use_ceres'] = [
-                'YES', 'NO'
-            ]
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_use_monthly_mean'] = [
-                'YES', 'NO'
-            ]
+                                         +'_use_ceres'] = ['YES', 'NO']
+            valid_config_var_values_dict[RUN_abbrev_type
+                                         +'_use_monthly_mean'] = ['YES', 'NO']
         for forecast_to_plot \
                 in os.environ[RUN_abbrev_type
                               +'_forecast_to_plot_list'].split(' '):
@@ -358,14 +371,14 @@ elif RUN == 'maps2d':
 elif RUN == 'mapsda':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type+'_make_met_data_by'] = [
-            'VALID', 'INIT'
-        ]
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_make_met_data_by'] = ['VALID', 'INIT']
         if RUN_type == 'ens':
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_model_data_run_hpss'] = [
-                'YES', 'NO'
-            ]
+                                         +'_model_data_run_hpss'] = ['YES',
+                                                                     'NO']
+
+# Run through and check config variables from dictionary
 for config_var in list(valid_config_var_values_dict.keys()):
     if 'list' in config_var:
         for list_item in os.environ[config_var].split(' '):

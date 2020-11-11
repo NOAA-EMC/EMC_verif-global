@@ -113,19 +113,16 @@ else:
                 RUN_abbrev_type+'_gather_by_list'
             )
         elif RUN == 'mapsda':
+            check_config_var_len_list.append(
+                RUN_abbrev_type+'_model_file_format_list'
+            )
             if RUN_type == 'gdas':
-                check_config_var_len_list.append(
-                    RUN_abbrev_type+'_model_file_format_list'
-                )
                 check_config_var_len_list.append(
                     RUN_abbrev_type+'_anl_file_format_list'
                 )
             if RUN_type == 'ens':
                 check_config_var_len_list.append(
                     RUN_abbrev_type+'_model_dir_list'
-                )
-                check_config_var_len_list.append(
-                    RUN_abbrev_type+'_netcdf_suffix_list'
                 )
 for config_var in check_config_var_len_list:
     if len(os.environ[config_var].split(' ')) \
@@ -365,10 +362,6 @@ elif RUN == 'mapsda':
             'VALID', 'INIT'
         ]
         if RUN_type == 'ens':
-            valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_netcdf_suffix_list'] = [
-                'nc', 'nc4'
-            ]
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_model_data_run_hpss'] = [
                 'YES', 'NO'

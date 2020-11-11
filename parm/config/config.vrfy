@@ -54,7 +54,7 @@ export RUN_MAPSDA="NO"
 export model_list="gfs"                                                
 export model_dir_list="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/stat/global"
 export model_stat_dir_list="/gpfs/dell2/emc/modeling/noscrub/$USER/archive"
-export model_file_format_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
+export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"
 export model_data_run_hpss="NO"
 export model_hpss_dir_list="/NCEPPROD/hpssprod/runhistory"
 export hpss_walltime="10"
@@ -298,7 +298,7 @@ if [ $RUN_PRECIP_STEP1 = YES ]; then
     export precip1_type_list="ccpa_accum24hr"
     export precip1_ccpa_accum24hr_model_bucket_list="06"
     export precip1_ccpa_accum24hr_model_var_list="APCP"
-    export precip1_ccpa_accum24hr_model_file_format_list="pgbf{lead?fmt=%H}.gfs.{init?fmt=%Y%m%d%H}"
+    export precip1_ccpa_accum24hr_model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"
     export precip1_ccpa_accum24hr_fcyc_list="00 06 12 18"
     export precip1_ccpa_accum24hr_fhr_min="00"
     export precip1_ccpa_accum24hr_fhr_max="180"
@@ -441,7 +441,7 @@ if [ $RUN_MAPS2D = YES ]; then
     export maps2d_model2obs_forecast_to_plot_list="anl d1 d5 d10"
     export maps2d_model2obs_regrid_to_grid="G002"
     export maps2d_model2obs_use_ceres="NO"
-    export maps2d_model2obs_use_monthly_mean="YES"
+    export maps2d_model2obs_use_monthly_mean="NO"
 fi
 
 if [ $RUN_MAPSDA = YES ]; then
@@ -455,8 +455,8 @@ if [ $RUN_MAPSDA = YES ]; then
     #####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
     #mapsda_gdas_model_file_format_list: file format of model GDAS files
     #mapsda_gdas_anl_file_format_list: file format of analysis files for GDAS maps
-    #mapsda_ens_model_dir_list: directory where model ens files are located (ROTDIR)
-    #mapsda_ens_netcdf_suffix_list: file suffix for ens files; should be .nc4 or .nc
+    #mapsda_ens_model_dir_list: directory where model ens files are located
+    #mapsda_ens_model_file_format_list: file format for ens files
     #mapsda_ens_model_data_run_hpss: get files from HPSS ("YES") if not online
     export mapsda_model_plot_name_list="ops_gfs"
     export mapsda_latlon_area="-90 90 0 360"
@@ -465,14 +465,14 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_gdas_hour_list="00 06 12 18"
     export mapsda_gdas_regrid_to_grid="G002"
     export mapsda_gdas_guess_hour="06"
-    export mapsda_gdas_model_file_format_list="pgbf{lead?fmt=%H}.gdas.{init?fmt=%Y%m%d%H}"
+    export mapsda_gdas_model_file_format_list="pgbf{lead?fmt=%2H}.gdas.{init?fmt=%Y%m%d%H}"
     export mapsda_gdas_anl_file_format_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}"
-    export mapsda_ens_make_met_data_by="VALID"
+    export mapsda_ens_make_met_data_by="INIT"
     export mapsda_ens_hour_list="00 06 12 18"
     export mapsda_ens_regrid_to_grid="G002"
     export mapsda_ens_guess_hour="06"
-    export mapsda_ens_model_dir_list="/gpfs/dell1/nco/ops/com/gfs/prod"
-    export mapsda_ens_netcdf_suffix_list="nc4"
+    export mapsda_ens_model_dir_list="/gpfs/dell1/nco/ops/com"
+    export mapsda_ens_model_file_format_list="prod/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc4"
     export mapsda_ens_model_data_run_hpss="YES"
 fi
 

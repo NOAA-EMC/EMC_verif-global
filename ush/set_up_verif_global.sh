@@ -75,7 +75,7 @@ if [ -s config.machine ]; then
 fi
 
 if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
-   echo 
+   echo
 else
     echo "ERROR: $machine is not a supported machine"
     exit 1
@@ -183,7 +183,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
 fi
 
 ## Set operational directories
-export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod" 
+export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
 export nhc_atcfnoaa_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/btk"

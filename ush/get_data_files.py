@@ -47,7 +47,7 @@ def get_time_info(start_date_str, end_date_str,
     """! This creates a list of dictionaries containing information
          on the valid dates and times, the initialization dates
          and times, and forecast hour pairings
-        
+
          Args:
              start_date_str - string of the verification start
                               date
@@ -64,7 +64,7 @@ def get_time_info(start_date_str, end_date_str,
              date_type      - string defining by what type
                               date and times to create METplus
                               data
-             
+
          Returns:
              time_info - list of dictionaries with the valid,
                          initalization, and forecast hour
@@ -107,14 +107,14 @@ def format_filler(unfilled_file_format, dt_valid_time, dt_init_time, str_lead):
     """! This creates a list of objects containing information
          on the valid dates and times, the initialization dates
          and times, and forecast hour pairings
-        
+
          Args:
              unfilled_file_format   - string of file naming convention
              dt_valid_time          - datetime object of the valid time
              dt_init_time           - datetime object of the
                                       initialization time
              str_lead               - string of the forecast lead
-          
+
          Returns:
              filled_file_format - string of file_format
                                   filled in with verifying
@@ -298,7 +298,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     """! This creates a job card with the necessary information
          to retrieve a file from HPSS. It then submits this
          job card to the transfer queue and the designating
-         wall time. 
+         wall time.
 
          Args:
              hpss_job_filename - string of the path of the
@@ -417,7 +417,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
 
 def convert_grib2_grib1(grib2_file, grib1_file):
     """! This converts GRIB2 data to GRIB1
-        
+
          Args:
              grib2_file - string of the path to
                           the GRIB2 file to
@@ -425,7 +425,7 @@ def convert_grib2_grib1(grib2_file, grib1_file):
              grib1_file - string of the path to
                           save the converted GRIB1
                           file
- 
+
          Returns:
     """
     print("Converting GRIB2 file "+grib2_file+" "
@@ -912,7 +912,7 @@ elif RUN == 'grid2obs_step1':
                     prepbufr_dict_list = []
                     # Set up prepbufr file information
                     if RUN_type == 'upper_air':
-                        prepbufr = 'gdas' 
+                        prepbufr = 'gdas'
                         link_prepbufr_file = os.path.join(
                             link_prepbufr_dir, 'prepbufr.'+prepbufr+'.'
                             +YYYYmmddHH
@@ -1041,7 +1041,7 @@ elif RUN == 'grid2obs_step1':
                                 prepbufr_hpss_tar = os.path.join(
                                     hpss_prod_base_dir, 'rh'
                                     +ndas_date_dict['YYYY'+ndas_hour],
-                                    ndas_date_dict['YYYYmm'+ndas_hour], 
+                                    ndas_date_dict['YYYYmm'+ndas_hour],
                                     ndas_date_dict['YYYYmmdd'+ndas_hour],
                                     'com_nam_prod_ndas.'
                                     +ndas_date_dict['YYYYmmdd'+ndas_hour]
@@ -1372,7 +1372,7 @@ elif RUN == 'precip_step1':
                                   +RUN_type_arch_file+" online...going to try "
                                   +"to get file from HPSS")
                             hpss_job_filename = os.path.join(
-                                link_RUN_type_dir, 'HPSS_jobs', 
+                                link_RUN_type_dir, 'HPSS_jobs',
                                 'HPSS_'+RUN_type_hpss_tar.rpartition('/')[2]
                                 +'_'+RUN_type_hpss_file.replace('/', '_')+'.sh'
                             )

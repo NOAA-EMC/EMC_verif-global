@@ -2149,7 +2149,8 @@ elif RUN == 'mapsda':
                         process_vars = (
                             ' -v tmp,ugrd,vgrd,spfh,pressfc,o3mr,clwmr '
                         )
-                    os.system(ncea+' '+exisiting_file_list+' -o '
-                              +avg_file+process_vars)
+                    if exisiting_file_list != '':
+                        os.system(ncea+' '+exisiting_file_list+' -o '
+                                  +avg_file+process_vars)
 
 print("END: "+os.path.basename(__file__))

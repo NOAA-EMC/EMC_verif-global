@@ -178,31 +178,31 @@ elif RUN == 'grid2obs_step1':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN_type == 'polar_sfc':
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_obtype_list'] = ['IABP']
+                                         +'_msg_type_list'] = ['IABP']
         else:
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_obtype_list'] = ['ADPUPA',
-                                                             'AIRCAR',
-                                                             'AIRCFT',
-                                                             'ADPSFC',
-                                                             'ERS1DA',
-                                                             'GOESND',
-                                                             'GPSIPW',
-                                                             'MSONET',
-                                                             'PROFLR',
-                                                             'QKSWND',
-                                                             'RASSDA',
-                                                             'SATEMP',
-                                                             'SATWND',
-                                                             'SFCBOG',
-                                                             'SFCSHP',
-                                                             'SPSSMI',
-                                                             'SYNDAT',
-                                                             'VADWND',
-                                                             'SURFACE',
-                                                             'ANYAIR',
-                                                             'ANYSFC',
-                                                             'ONLYSF']
+                                         +'_msg_type_list'] = ['ADPUPA',
+                                                              'AIRCAR',
+                                                              'AIRCFT',
+                                                              'ADPSFC',
+                                                              'ERS1DA',
+                                                              'GOESND',
+                                                              'GPSIPW',
+                                                              'MSONET',
+                                                              'PROFLR',
+                                                              'QKSWND',
+                                                              'RASSDA',
+                                                              'SATEMP',
+                                                              'SATWND',
+                                                              'SFCBOG',
+                                                              'SFCSHP',
+                                                              'SPSSMI',
+                                                              'SYNDAT',
+                                                              'VADWND',
+                                                              'SURFACE',
+                                                              'ANYAIR',
+                                                              'ANYSFC',
+                                                              'ONLYSF']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
     valid_config_var_values_dict[RUN_abbrev
@@ -212,31 +212,31 @@ elif RUN == 'grid2obs_step2':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN_type == 'polar_sfc':
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_obtype_list'] = ['IABP']
+                                         +'_msg_type_list'] = ['IABP']
         else:
             valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_obtype_list'] = ['ADPUPA',
-                                                             'AIRCAR',
-                                                             'AIRCFT',
-                                                             'ADPSFC',
-                                                             'ERS1DA',
-                                                             'GOESND',
-                                                             'GPSIPW',
-                                                             'MSONET',
-                                                             'PROFLR',
-                                                             'QKSWND',
-                                                             'RASSDA',
-                                                             'SATEMP',
-                                                             'SATWND',
-                                                             'SFCBOG',
-                                                             'SFCSHP',
-                                                             'SPSSMI',
-                                                             'SYNDAT',
-                                                             'VADWND',
-                                                             'SURFACE',
-                                                             'ANYAIR',
-                                                             'ANYSFC',
-                                                             'ONLYSF']
+                                         +'_msg_type_list'] = ['ADPUPA',
+                                                              'AIRCAR',
+                                                              'AIRCFT',
+                                                              'ADPSFC',
+                                                              'ERS1DA',
+                                                              'GOESND',
+                                                              'GPSIPW',
+                                                              'MSONET',
+                                                              'PROFLR',
+                                                              'QKSWND',
+                                                              'RASSDA',
+                                                              'SATEMP',
+                                                              'SATWND',
+                                                              'SFCBOG',
+                                                              'SFCSHP',
+                                                              'SPSSMI',
+                                                              'SYNDAT',
+                                                              'VADWND',
+                                                              'SURFACE',
+                                                              'ANYAIR',
+                                                              'ANYSFC',
+                                                              'ONLYSF']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']

@@ -200,33 +200,35 @@ fi
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then
     #g2o1_type_list: list type of verifications to run for grid-to-obs: upper_air, conus_sfc, polar_sfc
     #### For each type the followings can be set, where [type] is upper_air, conus_sfc, or polar_sfc
-    #####    g2o1_[type]_obtype_list: observation type(s) to be used
-    #####    g2o1_[type]_fyc_list:    all forecst cycles to be included in verification: HH
-    #####    g2o1_[type]_vhr_list:    all valid hours to be included in verification: HH
-    #####    g2o1_[type]_fhr_min:     forecast hour to start verification HH[H]
-    #####    g2o1_[type]_fhr_max:     forecast hour to end verification HH[H]
-    #####    g2o1_[type]_grid:        NCEP grid to do verification on
-    #####    g2o1_[type]_gather_by:   how to group the verification data, VSDB, VALID, INIT
+    #####    g2o1_[type]_msg_type_list: observation message type(s) to be used
+    #####                                  upper_air, conus_sfc: any prepbufr
+    #####                                  polar_sfc: IABP
+    #####    g2o1_[type]_fyc_list:      all forecst cycles to be included in verification: HH
+    #####    g2o1_[type]_vhr_list:      all valid hours to be included in verification: HH
+    #####    g2o1_[type]_fhr_min:       forecast hour to start verification HH[H]
+    #####    g2o1_[type]_fhr_max:       forecast hour to end verification HH[H]
+    #####    g2o1_[type]_grid:          NCEP grid to do verification on
+    #####    g2o1_[type]_gather_by:     how to group the verification data, VSDB, VALID, INIT
     #g2o1_prepbufr_data_run_hpss: get files from HPSS ("YES") if not online
     #g2o1_mv_database_name: name of the METviewer database to send data to, MUST START WITH "mv"
     #g2o1_mv_database_group: name of the group the METviewer database belongs to
     #g2o1_mv_database_desc: description of database, can be blank
     export g2o1_type_list="upper_air conus_sfc polar_sfc"
-    export g2o1_upper_air_obtype_list="ADPUPA"
+    export g2o1_upper_air_msg_type_list="ADPUPA"
     export g2o1_upper_air_fcyc_list="00 06 12 18"
     export g2o1_upper_air_vhr_list="00 06 12 18"
     export g2o1_upper_air_fhr_min="00"
     export g2o1_upper_air_fhr_max="168"
     export g2o1_upper_air_grid="G003"
     export g2o1_upper_air_gather_by="VSDB"
-    export g2o1_conus_sfc_obtype_list="ONLYSF ADPUPA"
+    export g2o1_conus_sfc_msg_type_list="ONLYSF ADPUPA"
     export g2o1_conus_sfc_fcyc_list="00 06 12 18"
     export g2o1_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
     export g2o1_conus_sfc_fhr_min="00"
     export g2o1_conus_sfc_fhr_max="168"
     export g2o1_conus_sfc_grid="G104"
     export g2o1_conus_sfc_gather_by="VSDB"
-    export g2o1_polar_sfc_obtype_list="IABP"
+    export g2o1_polar_sfc_msg_type_list="IABP"
     export g2o1_polar_sfc_fcyc_list="00 06 12 18"
     export g2o1_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"
     export g2o1_polar_sfc_fhr_min="00"
@@ -243,17 +245,19 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     #g2o2_model_plot_name_list: list of models reference name on plots
     #g2o2_type_list: list type of verifications to run for grid-to-obs: upper_air, conus_sfc, polar_sfc
     #### For each type the followings can be set, where [type] is upper_air, conus_sfc, or polar_sfc
-    #####    g2o2_[type]_obtype_list:    observation type(s) to be used
-    #####    g2o2_[type]_gather_by_list: list of how model data was gathered in step 1
-    #####    g2o2_[type]_fyc_list:       all forecst cycles to be included in verification: HH
-    #####    g2o2_[type]_vhr_list:       all valid hours to be included in verification: HH
-    #####    g2o2_[type]_fhr_min:        forecast hour to start verification HH[H]
-    #####    g2o2_[type]_fhr_max:        forecast hour to end verification HH[H]
-    #####    g2o2_[type]_event_eq:       do event equalization (True) or not (False)
-    #####    g2o2_[type]_grid:           NCEP grid verification was done on
+    #####    g2o2_[type]_msg_type_list:    observation message type(s) to be used
+    #####                                  upper_air, conus_sfc: any prepbufr
+    #####                                  polar_sfc: IABP
+    #####    g2o2_[type]_gather_by_list:   list of how model data was gathered in step 1
+    #####    g2o2_[type]_fyc_list:         all forecst cycles to be included in verification: HH
+    #####    g2o2_[type]_vhr_list:         all valid hours to be included in verification: HH
+    #####    g2o2_[type]_fhr_min:          forecast hour to start verification HH[H]
+    #####    g2o2_[type]_fhr_max:          forecast hour to end verification HH[H]
+    #####    g2o2_[type]_event_eq:         do event equalization (True) or not (False)
+    #####    g2o2_[type]_grid:             NCEP grid verification was done on
     export g2o2_model_plot_name_list="ops_gfs"
     export g2o2_type_list="upper_air conus_sfc polar_sfc"
-    export g2o2_upper_air_obtype_list="ADPUPA"
+    export g2o2_upper_air_msg_type_list="ADPUPA"
     export g2o2_upper_air_gather_by_list="VSDB"
     export g2o2_upper_air_fcyc_list="00 06 12 18"
     export g2o2_upper_air_vhr_list="00 06 12 18"
@@ -261,7 +265,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     export g2o2_upper_air_fhr_max="168"
     export g2o2_upper_air_event_eq="True"
     export g2o2_upper_air_grid="G003"
-    export g2o2_conus_sfc_obtype_list="ONLYSF ADPUPA"
+    export g2o2_conus_sfc_msg_type_list="ONLYSF ADPUPA"
     export g2o2_conus_sfc_gather_by_list="VSDB"
     export g2o2_conus_sfc_fcyc_list="00 06 12 18"
     export g2o2_conus_sfc_vhr_list="00 03 06 09 12 15 18 21"
@@ -269,7 +273,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     export g2o2_conus_sfc_fhr_max="168"
     export g2o2_conus_sfc_event_eq="True"
     export g2o2_conus_sfc_grid="G104"
-    export g2o2_polar_sfc_obtype_list="IABP"
+    export g2o2_polar_sfc_msg_type_list="IABP"
     export g2o2_polar_sfc_gather_by_list="VSDB"
     export g2o2_polar_sfc_fcyc_list="00 06 12 18"
     export g2o2_polar_sfc_vhr_list="00 03 06 09 12 15 18 21"

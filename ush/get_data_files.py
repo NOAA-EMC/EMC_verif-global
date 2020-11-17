@@ -738,7 +738,7 @@ if RUN == 'grid2grid_step1':
                         if not os.path.exists(link_model_f00_file):
                             get_model_file(valid_time, valid_time, '00',
                                            model, model_dir, model_file_format,
-                                           model_data_run_hpss, model_hpss_dir,
+                                           'NO', model_hpss_dir,
                                            link_model_dir,
                                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
                         else:

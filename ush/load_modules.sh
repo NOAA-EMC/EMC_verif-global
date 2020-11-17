@@ -146,15 +146,21 @@ else
     exit 1
 fi
 if [ $machine != "ORION" ]; then
+    export RM=`which rm`
+    export CUT=`which cut`
+    export TR=`which tr`
     export NCAP2=`which ncap2`
+    export CONVERT=`which convert`
     export NCDUMP=`which ncdump`
     export HTAR=`which htar`
-    export CONVERT=`which convert`
 fi
 if [ $machine = "ORION" ]; then
+    export RM=`which rm | sed 's/rm is //g'`
+    export CUT=`which cut | sed 's/cut is //g'`
+    export TR=`which tr | sed 's/tr is //g'`
     export NCAP2=`which ncap2 | sed 's/ncap2 is //g'`
-    export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
     export CONVERT=`which convert | sed 's/convert is //g'`
+    export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
 fi
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"

@@ -14,12 +14,6 @@ import numpy as np
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Get environment variables
-RUN = os.environ['RUN']
-RUN_abbrev = os.environ['RUN_abbrev']
-if RUN != 'tropcyc':
-    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-
 def get_hr_list_info(hr_list):
     """! This get the beginning hour, end hour, and
          increment for cycle or valid hour list
@@ -70,6 +64,13 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     fhr_list_str = ', '.join(fhr_list)
     return fhr_list_str
 
+# Get environment variables
+RUN = os.environ['RUN']
+RUN_abbrev = os.environ['RUN_abbrev']
+if RUN != 'tropcyc':
+    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+
+# Build dictionary
 env_var_dict = {}
 if RUN in ['grid2grid_step1', 'grid2grid_step2',
            'grid2obs_step1', 'grid2obs_step2',

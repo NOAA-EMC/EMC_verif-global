@@ -14,33 +14,6 @@ import pandas as pd
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in common environment variables
-RUN = os.environ['RUN']
-model_list = os.environ['model_list'].split(' ')
-model_dir_list = os.environ['model_dir_list'].split(' ')
-model_stat_dir_list = os.environ['model_stat_dir_list'].split(' ')
-model_file_format_list = os.environ['model_file_format_list'].split(' ')
-model_data_run_hpss = os.environ['model_data_run_hpss']
-model_hpss_dir_list = os.environ['model_hpss_dir_list'].split(' ')
-start_date = os.environ['start_date']
-end_date = os.environ['end_date']
-make_met_data_by = os.environ['make_met_data_by']
-plot_by = os.environ['plot_by']
-machine = os.environ['machine']
-RUN_abbrev = os.environ['RUN_abbrev']
-if RUN != 'tropcyc':
-    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-
-# Set some common varaibles
-hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
-cwd = os.getcwd()
-
-# No HPSS access from Orion
-if machine == 'ORION':
-    print("WARNING: Orion does not currently have access to HPSS..."
-          +"setting model_data_runhpss to NO")
-    model_data_run_hpss = 'NO'
-
 def get_time_info(start_date_str, end_date_str,
                   start_hr_str, end_hr_str, hr_inc_str,
                   fhr_list, date_type):
@@ -605,6 +578,33 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
             os.system('ln -sf '+model_stat_file+' '+link_model_stat_file)
         else:
             print("WARNING: "+model_stat_file+" does not exist")
+
+# Read in common environment variables
+RUN = os.environ['RUN']
+model_list = os.environ['model_list'].split(' ')
+model_dir_list = os.environ['model_dir_list'].split(' ')
+model_stat_dir_list = os.environ['model_stat_dir_list'].split(' ')
+model_file_format_list = os.environ['model_file_format_list'].split(' ')
+model_data_run_hpss = os.environ['model_data_run_hpss']
+model_hpss_dir_list = os.environ['model_hpss_dir_list'].split(' ')
+start_date = os.environ['start_date']
+end_date = os.environ['end_date']
+make_met_data_by = os.environ['make_met_data_by']
+plot_by = os.environ['plot_by']
+machine = os.environ['machine']
+RUN_abbrev = os.environ['RUN_abbrev']
+if RUN != 'tropcyc':
+    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+
+# Set some common varaibles
+hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
+cwd = os.getcwd()
+
+# No HPSS access from Orion
+if machine == 'ORION':
+    print("WARNING: Orion does not currently have access to HPSS..."
+          +"setting model_data_runhpss to NO")
+    model_data_run_hpss = 'NO'
 
 if RUN == 'grid2grid_step1':
     # Read in RUN related environment variables

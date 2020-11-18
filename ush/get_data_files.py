@@ -677,7 +677,7 @@ if RUN == 'grid2grid_step1':
                          +'.gfs.{valid?fmt=%Y%m%d%H}'):
                     print("WARNING: "+RUN_abbrev_type+"_truth_name set to "
                           +"gfs_"+RUN_abbrev_type_truth_name_lead+" but "
-                          +"file format does not match exepcted value. "
+                          +"file format does not match expected value. "
                           +"Using to pgb"+RUN_abbrev_type_truth_name_lead
                           +".gfs.{valid?fmt=%Y%m%d%H}")
                     model_RUN_abbrev_type_truth_file_format = (
@@ -729,19 +729,13 @@ if RUN == 'grid2grid_step1':
                             and RUN_abbrev_type_truth_name != 'self_f00':
                         print("WARNING: "+RUN_type+" truth file ("
                               +truth_file+") not found...will try to link "
-                              +"model f00 instead")
+                              +"model f00 from "+link_model_dir+" instead")
                         link_model_f00_file = os.path.join(
                             link_model_dir,
-                            format_filler('f00.{init?fmt=%Y%m%d%H}',
+                            format_filler('f000.{init?fmt=%Y%m%d%H}',
                                           valid_time, valid_time, '00')
                         )
-                        if not os.path.exists(link_model_f00_file):
-                            get_model_file(valid_time, valid_time, '00',
-                                           model, model_dir, model_file_format,
-                                           'NO', model_hpss_dir,
-                                           link_model_dir,
-                                           RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
-                        else:
+                        if os.path.exists(link_model_f00_file):
                             os.system('ln -sf '+link_model_f00_file+' '
                                        +link_truth_file)
                     if not os.path.exists(link_truth_file):

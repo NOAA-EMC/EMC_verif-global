@@ -160,6 +160,22 @@ if RUN == 'grid2grid_step1':
                                                         'gfs_anl', 'gfs_f00']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
+        if 'anl' in os.environ[RUN_abbrev_type+'_truth_name']:
+            truth_opt_list = ['anl', 'anal', 'analysis']
+        elif 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
+            truth_opt_list = ['f0', 'f00', 'f000']
+        if 'anl' in os.environ[RUN_abbrev_type+'_truth_name'] \
+                or 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
+            for truth_file_format \
+                    in os.environ[RUN_abbrev_type+'_truth_file_format_list'] \
+                    .split(' '):
+                if not any(opt in truth_file_format for opt in truth_opt_list):
+                    print("ERROR: "+truth_file_format+" in "+RUN_abbrev_type
+                          +"_truth_file_format_list does not contain an "
+                          +"expected string ("+', '.join(truth_opt_list)+") "
+                          +"for "+RUN_abbrev_type+"_truth_name set as "
+                          +os.environ[RUN_abbrev_type+'_truth_name'])
+                    exit(1)
 elif RUN == 'grid2grid_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -182,27 +198,27 @@ elif RUN == 'grid2obs_step1':
         else:
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_msg_type_list'] = ['ADPUPA',
-                                                              'AIRCAR',
-                                                              'AIRCFT',
-                                                              'ADPSFC',
-                                                              'ERS1DA',
-                                                              'GOESND',
-                                                              'GPSIPW',
-                                                              'MSONET',
-                                                              'PROFLR',
-                                                              'QKSWND',
-                                                              'RASSDA',
-                                                              'SATEMP',
-                                                              'SATWND',
-                                                              'SFCBOG',
-                                                              'SFCSHP',
-                                                              'SPSSMI',
-                                                              'SYNDAT',
-                                                              'VADWND',
-                                                              'SURFACE',
-                                                              'ANYAIR',
-                                                              'ANYSFC',
-                                                              'ONLYSF']
+                                                               'AIRCAR',
+                                                               'AIRCFT',
+                                                               'ADPSFC',
+                                                               'ERS1DA',
+                                                               'GOESND',
+                                                               'GPSIPW',
+                                                               'MSONET',
+                                                               'PROFLR',
+                                                               'QKSWND',
+                                                               'RASSDA',
+                                                               'SATEMP',
+                                                               'SATWND',
+                                                               'SFCBOG',
+                                                               'SFCSHP',
+                                                               'SPSSMI',
+                                                               'SYNDAT',
+                                                               'VADWND',
+                                                               'SURFACE',
+                                                               'ANYAIR',
+                                                               'ANYSFC',
+                                                               'ONLYSF']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
     valid_config_var_values_dict[RUN_abbrev
@@ -216,27 +232,27 @@ elif RUN == 'grid2obs_step2':
         else:
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_msg_type_list'] = ['ADPUPA',
-                                                              'AIRCAR',
-                                                              'AIRCFT',
-                                                              'ADPSFC',
-                                                              'ERS1DA',
-                                                              'GOESND',
-                                                              'GPSIPW',
-                                                              'MSONET',
-                                                              'PROFLR',
-                                                              'QKSWND',
-                                                              'RASSDA',
-                                                              'SATEMP',
-                                                              'SATWND',
-                                                              'SFCBOG',
-                                                              'SFCSHP',
-                                                              'SPSSMI',
-                                                              'SYNDAT',
-                                                              'VADWND',
-                                                              'SURFACE',
-                                                              'ANYAIR',
-                                                              'ANYSFC',
-                                                              'ONLYSF']
+                                                               'AIRCAR',
+                                                               'AIRCFT',
+                                                               'ADPSFC',
+                                                               'ERS1DA',
+                                                               'GOESND',
+                                                               'GPSIPW',
+                                                               'MSONET',
+                                                               'PROFLR',
+                                                               'QKSWND',
+                                                               'RASSDA',
+                                                               'SATEMP',
+                                                               'SATWND',
+                                                               'SFCBOG',
+                                                               'SFCSHP',
+                                                               'SPSSMI',
+                                                               'SYNDAT',
+                                                               'VADWND',
+                                                               'SURFACE',
+                                                               'ANYAIR',
+                                                               'ANYSFC',
+                                                               'ONLYSF']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']

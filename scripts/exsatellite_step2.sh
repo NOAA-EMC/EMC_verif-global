@@ -41,6 +41,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
 echo
@@ -48,18 +49,21 @@ echo
 # Link needed data files and set up model information
 mkdir -p data
 python $USHverif_global/get_data_files.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
 # Create output directories for METplus
 python $USHverif_global/create_METplus_output_dirs.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
 echo
 
 # Create job scripts to run METplus
 python $USHverif_global/create_METplus_job_scripts.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 

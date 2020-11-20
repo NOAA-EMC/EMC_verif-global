@@ -3,7 +3,7 @@ Program Name: create_METplus_job_scripts.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This creates multiple independent job cards. These
-          jobs contain all the necessary environment variables 
+          jobs contain all the necessary environment variables
           and METplus commands to needed to run the specific
           METplus verification use case and types (each job
           could be run independenttly on the command line).
@@ -12,415 +12,223 @@ Abstract: This script is run by all scripts in scripts/.
 import sys
 import os
 import datetime
-import glob 
+import glob
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in environment variables
-METplus_version = os.environ['METplus_version']
-PARMverif_global = os.environ['PARMverif_global']
-USHMETplus = os.environ['USHMETplus']
-USHverif_global = os.environ['USHverif_global']
-DATA = os.environ['DATA']
-RUN = os.environ['RUN']
-machine = os.environ['machine']
-MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
-
-if RUN == 'grid2grid_step1':
-    type_list = os.environ['g2g1_type_list'].split(' ')
-    case = 'grid2grid'
-if RUN == 'grid2grid_step2':
-    type_list = os.environ['g2g2_type_list'].split(' ')
-    case = 'grid2grid'
-elif RUN == 'grid2obs_step1':
-    type_list = os.environ['g2o1_type_list'].split(' ')
-    case = 'grid2obs'
-elif RUN == 'grid2obs_step2':
-    type_list = os.environ['g2o2_type_list'].split(' ')
-    case = 'grid2obs'
-elif RUN == 'precip_step1':
-    type_list = os.environ['precip1_type_list'].split(' ')
-    case = 'precip'
-elif RUN == 'precip_step2':
-    type_list = os.environ['precip2_type_list'].split(' ')
-    case = 'precip'
-elif RUN == 'satellite_step1':
-    type_list = os.environ['sat1_type_list'].split(' ')
-    case = 'satellite'
-elif RUN == 'satellite_step2':
-    type_list = os.environ['sat2_type_list'].split(' ')
-    case = 'satellite'
-elif RUN == 'maps2d':
-    type_list = os.environ['maps2d_type_list'].split(' ')
-elif RUN == 'mapsda':
-    type_list = os.environ['mapsda_type_list'].split(' ')
-model_list = os.environ['model_list'].split(' ')
-model_arch_dir_list = os.environ['model_arch_dir_list'].split(' ')
-start_date = os.environ['start_date']
-end_date = os.environ['end_date']
-make_met_data_by = os.environ['make_met_data_by']
-plot_by = os.environ['plot_by']
-
-# METplus paths
-master_metplus = os.path.join(USHMETplus, 'master_metplus.py')
-metplus_machine_conf = os.path.join(PARMverif_global, 'metplus_config',
-                                    'machine.conf')
-metplus_version_conf_dir = os.path.join(PARMverif_global,
-                                        'metplus_config',
-                                        'metplus_use_cases',
-                                        'METplusV'+METplus_version)
-
-# Set up date information
-sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]),
-                          int(start_date[6:]))
-edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]),
-                          int(end_date[6:]))
-
-def set_job_common_env(job_file):
-    """! Writes out environment variables common
+def init_env_dict():
+    """! Initialize dictionary with environment variables
+         and their values to write in job scripts with common
          to all METplus job
-        
-         Args:
-             job_file - string of the path of the
-                        METplus job card name
- 
-         Returns:
-    """
-    env_var_list = [ 'HOMEverif_global', 'USHverif_global', 'HOMEMETplus',
-                     'HOMEMET', 'DATA', 'RUN', 'WGRIB2', 'NCAP2', 'NCDUMP',
-                     'CONVERT', 'METplus_verbosity', 'MET_verbosity', 
-                     'log_MET_output_to_METplus', 'PARMverif_global',
-                     'USHMETplus', 'FIXverif_global', 'METplus_version',
-                     'MET_version' ]
-    job_file.write('#!/bin/sh\n')
-    for env_var in env_var_list:
-        job_file.write('export '+env_var+'="'+os.environ[env_var]+'"\n')
 
-def create_job_script_step1(sdate, edate, model_list, type_list, case):
-    """! Writes out job cards based on requested verification
-         for step 1 jobs
-        
          Args:
-             sdate      - datetime object of the verification start
-                          date
-             edate      - datetime object of the verification end
-                          date
-             model_list - list of strings of model names
-             type_list  - list of strings of the types of the
-                          verification use case
-             case       - string of the verification use case
- 
+
+         Returns:
+             env_var_dict - dictionary with keys as environment
+                            variables names and values as
+                            environment variable values
+    """
+    env_var_list = [
+        'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
+        'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
+        'log_MET_output_to_METplus', 'METplus_verbosity', 'MET_version',
+        'HOMEMET', 'MET_verbosity', 'DATA', 'RUN', 'RM', 'CUT', 'TR', 'NCAP2',
+        'CONVERT', 'NCDUMP'
+    ]
+    env_var_dict = {}
+    for env_var in env_var_list:
+        env_var_dict[env_var] = os.environ[env_var]
+    return env_var_dict
+
+def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
+                             case_type_list):
+    """! Writes out individual job scripts based on requested verification
+         for step 1 RUN
+
+         Args:
+             start_date_dt  - datetime object of the verification start
+                              date
+             end_date_dt    - datetime object of the verification end
+                              date
+             case           - string of the verification use case
+             case_abbrev    - string of case abbrevation
+             case_type_list - list of strings of the types of the
+                              verification use case
+
          Returns:
     """
     njob = 0
-    date = sdate
-    while date <= edate:
-        for model in model_list:
-            for type in type_list:
-                njob+=1
-                # Set up information for environment variables
-                if case == 'grid2grid':
-                    fhr_list = os.environ['g2g1_fhr_list']
-                    gather_by = os.environ['g2g1_gather_by']
-                    valid_hr_beg = os.environ['g2g1_valid_hr_beg']
-                    valid_hr_end = os.environ['g2g1_valid_hr_end']
-                    valid_hr_inc = os.environ['g2g1_valid_hr_inc']
-                    init_hr_beg = os.environ['g2g1_init_hr_beg']
-                    init_hr_end = os.environ['g2g1_init_hr_end']
-                    init_hr_inc = os.environ['g2g1_init_hr_inc']
-                    extra_env_info = {}
-                    if type == 'sfc':
-                        obtype = model+'_f00'
+    # Initialize environment variable job dictionary
+    job_env_dict = init_env_dict()
+    job_env_dict['make_met_data_by'] = os.environ['make_met_data_by']
+    # Set important METplus paths
+    master_metplus = os.path.join(
+        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
+    )
+    machine_conf = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
+    )
+    make_met_data_by_conf_dir = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config',
+        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
+        case, 'make_met_data_by_'+job_env_dict['make_met_data_by']
+    )
+    # Set up model environment variables in dictionary
+    for model in os.environ['model_list'].split(' '):
+        job_env_dict['model'] = model
+        model_idx = os.environ['model_list'].split(' ').index(model)
+        # Set up case_type environment variables in dictionary
+        for case_type in case_type_list:
+            case_abbrev_type = case_abbrev+'_'+case_type
+            case_type_env_list = ['gather_by', 'grid', 'fhr_list',
+                                  'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
+                                  'init_hr_beg', 'init_hr_end', 'init_hr_inc']
+            for case_type_env in case_type_env_list:
+                job_env_dict[case_type_env] = (
+                    os.environ[case_abbrev_type+'_'+case_type_env]
+                )
+            gather_by_conf_dir = os.path.join(
+                job_env_dict['PARMverif_global'], 'metplus_config',
+                'metplus_use_cases',
+                'METplusV'+job_env_dict['METplus_version'],
+                case, 'gather_by_'+job_env_dict['gather_by']
+            )
+            if case == 'grid2grid':
+                obtype = os.environ[
+                    case_abbrev_type+'_truth_name'
+                ].replace('self', model)
+                job_env_dict['obtype'] = obtype
+            elif case == 'grid2obs':
+                if case_type == 'upper_air':
+                    obtype = 'gdas'
+                elif case_type == 'conus_sfc':
+                    if date_dt \
+                            >= datetime.datetime.strptime('20170320',
+                                                          '%Y%m%d'):
+                        obtype = 'nam'
                     else:
-                        if os.environ['g2g1_anl_name'] == 'self_anl':
-                            obtype = model+'_anl'
-                        elif os.environ['g2g1_anl_name'] == 'self_f00':
-                            obtype = model+'_f00'
-                        elif os.environ['g2g1_anl_name'] == 'gfs_anl':
-                            obtype = 'gfs_anl'
-                        elif os.environ['g2g1_anl_name'] == 'gfs_f00':
-                            obtype = 'gfs_f00'
-                        anl_file_list = glob.glob(
-                            os.path.join(os.environ['DATA'], 
-                                         'grid2grid_step1', 'data', model,
-                                         'anl.'+date.strftime('%Y%m%d')+'*')
-                        )
-                        link_anl_type = []
-                        if len(anl_file_list) > 0:
-                            for anl_file in anl_file_list:
-                                if os.path.islink(anl_file):
-                                    if (os.readlink(anl_file) ==
-                                            anl_file.replace('anl', 'f00')):
-                                        link_anl_type.append('f00')
-                                    else:
-                                        link_anl_type.append('anl')
+                        obtype = 'ndas'
+                elif case_type == 'polar_sfc':
+                    obtype = 'iabp'
+                job_env_dict['obtype'] = obtype
+                job_env_dict['msg_type_list'] = ', '.join(
+                    os.environ[case_abbrev_type+'_msg_type_list'].split(' ')
+                )
+            elif case == 'precip':
+                job_env_dict['obtype'] = case_type
+                job_env_dict['model_bucket'] = os.environ[
+                    case_abbrev_type+'_model_bucket_list'
+                ].split(' ')[model_idx]
+                job_env_dict['model_var'] = os.environ[
+                    case_abbrev_type+'_model_var_list'
+                ].split(' ')[model_idx]
+                job_env_dict['model_file_format'] = os.environ[
+                    case_abbrev_type+'_model_file_format_list'
+                ].split(' ')[model_idx][0:4]
+            elif case == 'satellite':
+                job_env_dict['obtype'] = case_type
+                job_env_dict['sea_ice_thresh'] = os.environ[
+                    case_abbrev_type+'_sea_ice_thresh'
+                ]
+            # Set up date environment variables in dictionary
+            date_dt = start_date_dt
+            while date_dt <= end_date_dt:
+                njob+=1
+                job_env_dict['DATE'] = date_dt.strftime('%Y%m%d')
+                # Need to do check on grid-to-grid truth file
+                # for the date: was requested truth subsituted?
+                if case == 'grid2grid':
+                    truth_file_list = glob.glob(
+                        os.path.join(job_env_dict['DATA'], 'grid2grid_step1',
+                                     'data', model, case_type+'.truth.'
+                                     +date_dt.strftime('%Y%m%d')+'*')
+                    )
+                    link_truth_name_list = []
+                    if len(truth_file_list) > 0:
+                        for truth_file in truth_file_list:
+                            if os.path.islink(truth_file):
+                                if model in os.readlink(truth_file) \
+                                    and 'f000' in os.readlink(truth_file) \
+                                    and obtype != model+'_f00':
+                                        link_truth_name_list.append(model+'_f00')
                                 else:
-                                    if os.path.exists(anl_file):
-                                        link_anl_type.append('anl')
-                            if all(anl == 'f00' for anl in link_anl_type):
-                                obtype = obtype.replace('anl', 'f00')
-                    extra_env_info['verif_grid'] = os.environ['g2g1_grid']
-                elif case == 'grid2obs':
-                    gather_by = os.environ['g2o1_gather_by']
-                    init_hr_beg = os.environ['g2o1_init_hr_beg']
-                    init_hr_end = os.environ['g2o1_init_hr_end']
-                    init_hr_inc = os.environ['g2o1_init_hr_inc']
-                    extra_env_info = {}
-                    fhr_list = os.environ['g2o1_fhr_list_'+type]
-                    obtype = ', '.join(
-                        os.environ['g2o1_obtype_'+type].split(' ')
-                    )
-                    valid_hr_beg = os.environ['g2o1_valid_hr_beg_'+type]
-                    valid_hr_end = os.environ['g2o1_valid_hr_end_'+type]
-                    valid_hr_inc = os.environ['g2o1_valid_hr_inc_'+type]
-                    extra_env_info['verif_grid'] = (
-                        os.environ['g2o1_grid_'+type]
-                    )
-                    if type == 'upper_air':
-                        extra_env_info['prepbufr'] = 'gdas'
-                    elif type == 'conus_sfc':
-                        if int(date.strftime('%Y%m%d')) > 20170319:
-                            extra_env_info['prepbufr'] = 'nam'
-                        else:
-                            extra_env_info['prepbufr'] = 'ndas'
-                elif case == 'precip':
-                    gather_by = os.environ['precip1_gather_by']
-                    fhr_list = os.environ['precip1_fhr_list']
-                    obtype = os.environ['precip1_obtype']
-                    valid_hr_beg = os.environ['precip1_valid_hr_beg']
-                    valid_hr_end = os.environ['precip1_valid_hr_end']
-                    valid_hr_inc = os.environ['precip1_valid_hr_inc']
-                    init_hr_beg = os.environ['precip1_init_hr_beg']
-                    init_hr_end = os.environ['precip1_init_hr_end']
-                    init_hr_inc = os.environ['precip1_init_hr_inc']
-                    extra_env_info = {}
-                    extra_env_info['verif_grid'] = os.environ['precip1_grid']
-                    model_bucket_list = (
-                        os.environ['precip1_model_bucket_list'].split(' ')
-                    )
-                    model_varname_list = (
-                        os.environ['precip1_model_varname_list'].split(' ')
-                    )
-                    model_fileformat_list = (
-                        os.environ['precip1_model_fileformat_list'].split(' ')
-                    )
-                    model_index = model_list.index(model)
-                    extra_env_info['model_bucket'] = (
-                        model_bucket_list[model_index]
-                    )
-                    extra_env_info['model_varname'] = (
-                        model_varname_list[model_index]
-                    )
-                    extra_env_info['model_filetype'] = (
-                        model_fileformat_list[model_index][0:4]
-                    )
-                elif case == 'satellite':
-                    gather_by = os.environ['sat1_gather_by']
-                    fhr_list = os.environ['sat1_fhr_list']
-                    valid_hr_beg = os.environ['sat1_valid_hr_beg']
-                    valid_hr_end = os.environ['sat1_valid_hr_end']
-                    valid_hr_inc = os.environ['sat1_valid_hr_inc']
-                    init_hr_beg = os.environ['sat1_init_hr_beg']
-                    init_hr_end = os.environ['sat1_init_hr_end']
-                    init_hr_inc = os.environ['sat1_init_hr_inc']
-                    obtype = type
-                    extra_env_info = {}
-                    extra_env_info['verif_grid'] = os.environ['sat1_grid']
-                    extra_env_info['sea_ice_thresh'] = (
-                        os.environ['sat1_sea_ice_thresh']
-                    )
+                                    link_truth_name_list.append(obtype)
+                            else:
+                                link_truth_name_list.append(obtype)
+                    if obtype != model+'_f00':
+                        if all(truth == model+'_f00'
+                                for truth in link_truth_name_list):
+                            job_env_dict['obtype'] = model+'_f00'
                 # Create job file
-                job_filename = os.path.join(DATA, RUN,
+                job_filename = os.path.join(job_env_dict['DATA'],
+                                            job_env_dict['RUN'],
                                             'metplus_job_scripts',
                                             'job'+str(njob))
                 job_file = open(job_filename, 'w')
-                set_job_common_env(job_file)
-                job_file.write('export DATE="'+date.strftime('%Y%m%d')+'"\n')
-                job_file.write('export model="'+model+'"\n')
-                job_file.write('export obtype="'+obtype+'"\n')
-                job_file.write('export make_met_data_by="'+make_met_data_by+'"\n')
-                job_file.write('export gather_by="'+gather_by+'"\n')
-                job_file.write('export fhr_list="'+fhr_list+'"\n')
-                job_file.write('export valid_hr_beg="'+valid_hr_beg+'"\n')
-                job_file.write('export valid_hr_end="'+valid_hr_end+'"\n')
-                job_file.write('export valid_hr_inc="'+valid_hr_inc+'"\n')
-                job_file.write('export init_hr_beg="'+init_hr_beg+'"\n')
-                job_file.write('export init_hr_end="'+init_hr_end+'"\n')
-                job_file.write('export init_hr_inc="'+init_hr_inc+'"\n')
-                for name, value in extra_env_info.items():
+                job_file.write('#!/bin/sh\n')
+                # Write environment variables
+                for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
-                metplus_conf_list = [
-                    os.path.join(metplus_version_conf_dir, case,
-                                 'make_met_data_by_'+make_met_data_by,
-                                 type+'.conf')
-                ]
-                if case == 'grid2grid' and type == 'anom':
-                    metplus_conf_list.append(
-                        os.path.join(metplus_version_conf_dir, case,
-                                     'make_met_data_by_'+make_met_data_by,
-                                     type+'_height.conf')
-                    )
-                if case == 'grid2obs':
-                    stat_analysis_obtype_list = []
-                    for ob in os.environ['g2o1_obtype_'+type].split(' '):
-                        stat_analysis_obtype_list.append('"'+ob+'"')
-                    job_file.write(
-                        "export stat_analysis_obtype='"
-                        +', '.join(stat_analysis_obtype_list)+"'\n"
-                    )
+                # Write METplus commands
                 job_file.write('\n')
-                if case == 'grid2obs' and type == 'conus_sfc':
-                    if machine == 'HERA':
-                        run_pb2nc91 = True
-                        MET_91_pb2nc = (
-                            '/contrib/met/9.1/bin/pb2nc'
-                        )
-                    elif machine == 'ORION':
-                        run_pb2nc91 = False
-                    elif machine == 'WCOSS_C':
-                        run_pb2nc91 = True
-                        MET_91_pb2nc = (
-                            '/gpfs/hps3/emc/meso/noscrub'
-                            +'/emc.metplus/met/9.1/exec/pb2nc'
-                        )
-                    elif machine == 'WCOSS_DELL_P3':
-                        run_pb2nc91 = True
-                        MET_91_pb2nc = (
-                            '/gpfs/dell2/emc/verification/noscrub'
-                            +'/emc.metplus/met/9.1/exec/pb2nc'
-                        )
-                    else:
-                        run_pb2nc91 = False
-                    if run_pb2nc91:
-                        if not os.path.exists(MET_91_pb2nc):
-                            run_pb2nc91 = False
-                    if run_pb2nc91:
-                        nam_prepbufr_file_list = glob.glob(
-                            os.path.join(DATA, RUN, 'data', 'prepbufr',
-                                         'prepbufr.nam.'
-                                          +date.strftime('%Y%m%d')+'*')
-                        )
-                        nam_pb2nc_dir = os.path.join(
-                            DATA, RUN, 'metplus_output',
-                            'make_met_data_by_'+make_met_data_by,
-                            'pb2nc', type, 'prepbufr'
-                        )
-                        pb2nc_91_config = os.path.join(
-                            metplus_version_conf_dir, case, 'met_config',
-                            'metV'+os.environ['MET_version'],
-                            'PB2NCConfig_'+type+'_v9.1'
-                        )
-                        for nam_prepbufr_file in nam_prepbufr_file_list:
-                            nam_pb2nc_file_name = (
-                                nam_prepbufr_file.rpartition('/')[2]+'.nc'
-                            )
-                            nam_pb2nc_file = os.path.join(
-                                nam_pb2nc_dir, nam_pb2nc_file_name
-                            )
-                            job_file.write(
-                                MET_91_pb2nc+' '
-                                +nam_prepbufr_file+' '
-                                +nam_pb2nc_file+' '
-                                +pb2nc_91_config+'\n'
-                            )
-                if case == 'grid2obs' and type == 'polar_sfc':
+                metplus_conf_list = [
+                    os.path.join(make_met_data_by_conf_dir, case_type+'.conf')
+                ]
+                if case == 'grid2grid' and case_type == 'anom':
+                    metplus_conf_list.append(
+                        os.path.join(make_met_data_by_conf_dir,
+                                     case_type+'_height.conf')
+                    )
+                if case == 'grid2obs' and case_type == 'polar_sfc':
                     job_file.write(
                         'python '
-                        +os.path.join(USHverif_global,
-                                      'format_iabp_data_for_ascii2nc.py\n')
+                        +os.path.join(job_env_dict['USHverif_global'],
+                                      'format_iabp_data_for_ascii2nc.py')+'\n'
                     )
-                    MET_ascii2nc = os.path.join(
-                        os.environ['HOMEMET'], 'bin', 'ascii2nc'
-                    )
-                    iabp_DATE_file = os.path.join(
-                        DATA, RUN, 'data', 'iabp',
-                        'iabp.'+date.strftime('%Y%m%d')
-                    )
-                    iabp_DATE_ascii2nc_file = os.path.join(
-                        DATA, RUN, 'metplus_output',
-                        'make_met_data_by_'+make_met_data_by, 'ascii2nc',
-                        type, 'iabp', 'iabp.'+date.strftime('%Y%m%d')+'.nc'
-                    )
-                    job_file.write(
-                        MET_ascii2nc+' '
-                        +iabp_DATE_file+' '
-                        +iabp_DATE_ascii2nc_file+'\n'
-                    )
-                if case == 'satellite' \
-                        and type in ['ghrsst_ncei_avhrr_anl',
-                                     'ghrsst_ospo_geopolar_anl']:
+                    job_file.write('\n')
+                if case == 'satellite':
                     job_file.write(
                         'python '
-                        +os.path.join(USHverif_global,
+                        +os.path.join(job_env_dict['USHverif_global'],
                                       'gen_satellite_ice_vx_mask.py')+'\n'
                     )
+                    job_file.write('\n')
                 metplus_conf_list.append(
-                    os.path.join(metplus_version_conf_dir, case,
-                                 'gather_by_'+gather_by,
-                                 type+'.conf')
+                    os.path.join(gather_by_conf_dir, case_type+'.conf')
                 )
                 for metplus_conf in metplus_conf_list:
                     job_file.write(
-                        master_metplus+' '
-                        +'-c '+metplus_machine_conf+' '
+                        master_metplus+' -c '+machine_conf+' '
                         +'-c '+metplus_conf+'\n'
                     )
                 job_file.close()
-        date = date + datetime.timedelta(days=1)
+                date_dt = date_dt + datetime.timedelta(days=1)
 
-def create_job_script_step2(sdate, edate, model_list, type_list, case):
-    """! Writes out job cards based on requested verification
-         for step 2 jobs
-        
+def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
+                             case_type_list):
+    """! Writes out individual job scripts based on requested verification
+         for step 2 RUN
+
          Args:
-             sdate      - datetime object of the verification start
-                          date
-             edate      - datetime object of the verification end
-                          date
-             model_list - list of strings of model names
-             type_list  - list of strings of the types of the
-                          verification use case
-             case       - string of the verification use case
- 
+             start_date_dt  - datetime object of the verification start
+                              date
+             end_date_dt    - datetime object of the verification end
+                              date
+             case           - string of the verification use case
+             case_abbrev    - string of case abbrevation
+             case_type_list - list of strings of the types of the
+                              verification use case
+
          Returns:
     """
-    njob = 0
-    for type in type_list:
-        # Set up information for environment variables
-        if case == 'grid2grid':
-            model_plot_name_list = (
-                os.environ['g2g2_model_plot_name_list'].split(' ')
-            )
-            anl_name_list = os.environ['g2g2_anl_name_list'].split(' ')
-            if len(model_plot_name_list) != len(model_list):
-                print(
-                    "model_list and g2g2_model_plot_name_list "
-                    +"not of equal length"
-                )
-                exit(1)
-            if len(anl_name_list) != len(model_list):
-                print(
-                    "model_list and g2g2_anl_name_list not of equal length"
-                )
-                exit(1)
-            fhr_list = os.environ['g2g2_fhr_list']
-            valid_hr_beg = os.environ['g2g2_valid_hr_beg']
-            valid_hr_end = os.environ['g2g2_valid_hr_end']
-            valid_hr_inc = os.environ['g2g2_valid_hr_inc']
-            init_hr_beg = os.environ['g2g2_init_hr_beg']
-            init_hr_end = os.environ['g2g2_init_hr_end']
-            init_hr_inc = os.environ['g2g2_init_hr_inc']
-            event_equalization = os.environ['g2g2_event_eq']
-            interp = 'NEAREST'
-            extra_env_info = {}
-            extra_env_info['verif_grid'] = os.environ['g2g2_grid']
-            if type == 'anom':
-                line_type = 'SAL1L2, VAL1L2'
-                plot_stats_list = 'acc'
-                vx_mask_list = ['G002', 'NHX', 'SHX', 
-                                'PNA', 'TRO']
-                var_dict = {
+    # Set up plotting information dictionary
+    plotting_case_case_type_dict = {
+        'grid2grid_anom': {
+            'SAL1L2': {
+                'plot_stats_list': 'acc',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NHX', 'SHX', 'PNA', 'TRO'],
+                'var_dict': {
                     'HGT': {'fcst_var_name': 'HGT',
                             'fcst_var_levels': ['P1000', 'P700', 'P500',
                                                 'P250'],
@@ -428,52 +236,53 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                             'obs_var_name': 'HGT',
                             'obs_var_levels': ['P1000', 'P700', 'P500',
                                                'P250'],
-                            'obs_var_options': ''
-                    },
+                            'obs_var_options': ''},
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P850', 'P500', 'P250'],
                             'fcst_var_options': '',
                             'obs_var_name': 'TMP',
                             'obs_var_levels': ['P850', 'P500', 'P250'],
-                            'obs_var_options': ''
-                    },
+                            'obs_var_options': ''},
                     'UGRD': {'fcst_var_name': 'UGRD',
                              'fcst_var_levels': ['P850', 'P500', 'P250'],
                              'fcst_var_options': '',
                              'obs_var_name': 'UGRD',
                              'obs_var_levels': ['P850', 'P500', 'P250'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'VGRD': {'fcst_var_name': 'VGRD',
                              'fcst_var_levels': ['P850', 'P500', 'P250'],
                              'fcst_var_options': '',
                              'obs_var_name': 'VGRD',
                              'obs_var_levels': ['P850', 'P500', 'P250'],
-                             'obs_var_options': ''
-                    },
-                    'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
-                                  'fcst_var_levels': ['P850', 'P500', 'P250'],
-                                  'fcst_var_options': '',
-                                  'obs_var_name': 'UGRD_VGRD',
-                                  'obs_var_levels': ['P850', 'P500', 'P250'],
-                                  'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
                               'fcst_var_levels': ['Z0'],
                               'fcst_var_options': '',
                               'obs_var_name': 'PRMSL',
                               'obs_var_levels': ['Z0'],
-                              'obs_var_options': ''
-                    }
+                              'obs_var_options': ''}
+                 }
+            },
+            'VAL1L2': {
+                'plot_stats_list': 'acc',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NHX', 'SHX', 'PNA', 'TRO'],
+                'var_dict': {
+                    'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
+                                  'fcst_var_levels': ['P850', 'P500', 'P250'],
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'UGRD_VGRD',
+                                  'obs_var_levels': ['P850', 'P500', 'P250'],
+                                  'obs_var_options': ''}
                 }
-            elif type == 'pres':
-                line_type = 'SL1L2, VL1L2'
-                plot_stats_list = (
-                    'bias, rmse, msess, rsd, rmse_md, rmse_pv'
-                )
-                vx_mask_list = ['G002', 'NHX', 'SHX',
-                                'PNA', 'TRO']
-                var_dict = {
+            }
+        },
+        'grid2grid_pres': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse, msess, rsd, rmse_md, rmse_pv',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NHX', 'SHX', 'PNA', 'TRO'],
+                'var_dict': {
                     'HGT': {'fcst_var_name': 'HGT',
                             'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                 'P500', 'P200', 'P100',
@@ -485,8 +294,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                'P500', 'P200', 'P100',
                                                'P50', 'P20', 'P10',
                                                'P5', 'P1'],
-                            'obs_var_options': ''
-                    },
+                            'obs_var_options': ''},
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                 'P500', 'P200', 'P100',
@@ -498,8 +306,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                'P500', 'P200', 'P100',
                                                'P50', 'P20', 'P10',
                                                'P5', 'P1'],
-                            'obs_var_options': ''
-                    },
+                            'obs_var_options': ''},
                     'UGRD': {'fcst_var_name': 'UGRD',
                              'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                  'P500', 'P200', 'P100',
@@ -511,8 +318,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'VGRD': {'fcst_var_name': 'VGRD',
                              'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                  'P500', 'P200', 'P100',
@@ -524,8 +330,24 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
+                    'O3MR': {'fcst_var_name': 'O3MR',
+                             'fcst_var_levels': ['P100', 'P70', 'P50',
+                                                 'P30', 'P20', 'P10',
+                                                 'P5', 'P1'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'O3MR',
+                             'obs_var_levels': ['P100', 'P70', 'P50',
+                                                'P30', 'P20', 'P10',
+                                                'P5', 'P1'],
+                             'obs_var_options': ''}
+                }
+            },
+            'VL1L2': {
+                'plot_stats_list': 'bias, rmse, msess, rsd, rmse_md, rmse_pv',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NHX', 'SHX', 'PNA', 'TRO'],
+                'var_dict': {
                     'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
                                   'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                       'P500', 'P200', 'P100',
@@ -537,234 +359,141 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                      'P500', 'P200', 'P100',
                                                      'P50', 'P20', 'P10',
                                                      'P5', 'P1'],
-                                  'obs_var_options': ''
-                    },
-                    'O3MR': {'fcst_var_name': 'O3MR',
-                             'fcst_var_levels': ['P100', 'P70', 'P50',
-                                                 'P30', 'P20', 'P10',
-                                                 'P5', 'P1'],
-                             'fcst_var_options': '',
-                             'obs_var_name': 'O3MR',
-                             'obs_var_levels': ['P100', 'P70', 'P50',
-                                                'P30', 'P20', 'P10',
-                                                'P5', 'P1'],
-                             'obs_var_options': ''
-                    }
+                                  'obs_var_options': ''}
                 }
-            elif type == 'sfc':
-                line_type = 'SL1L2, VL1L2'
-                plot_stats_list = 'fbar'
-                vx_mask_list = ['G002', 'NHX', 'SHX', 
-                                'N60', 'S60', 'TRO',
-                                'NPO', 'SPO', 'NAO',
-                                'SAO', 'CONUS']
-                var_dict = {
+            }
+        },
+        'grid2grid_sfc': {
+            'SL1L2': {
+                'plot_stats_list': 'fbar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NHX', 'SHX', 'N60', 'S60', 'TRO', 'NPO',
+                                  'SPO', 'NAO', 'SAO', 'CONUS'],
+                'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
-                              'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'TMPsfc': {'fcst_var_name': 'TMP',
                                'fcst_var_levels': ['Z0'],
                                'fcst_var_options': '',
                                'obs_var_name': 'TMP',
                                'obs_var_levels': ['Z0'],
-                               'obs_var_options': ''
-                    },
+                               'obs_var_options': ''},
                     'TMPtrops': {'fcst_var_name': 'TMP',
                                  'fcst_var_levels': ['L0'],
                                  'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                  'obs_var_name': 'TMP',
                                  'obs_var_levels': ['L0'],
-                                 'obs_var_options': 'GRIB_lvl_typ = 7;'
-                    },
+                                 'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'RH2m': {'fcst_var_name': 'RH',
                              'fcst_var_levels': ['Z2'],
                              'fcst_var_options': '',
                              'obs_var_name': 'RH',
                              'obs_var_levels': ['Z2'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'SPFH2m': {'fcst_var_name': 'SPFH',
-                              'fcst_var_levels': ['Z2'],
-                              'fcst_var_options': '',
-                              'obs_var_name': 'SPFH',
-                              'obs_var_levels': ['Z2'],
-                              'obs_var_options': ''
-                    },
+                               'fcst_var_levels': ['Z2'],
+                               'fcst_var_options': '',
+                               'obs_var_name': 'SPFH',
+                               'obs_var_levels': ['Z2'],
+                               'obs_var_options': ''},
                     'HPBL': {'fcst_var_name': 'HPBL',
                              'fcst_var_levels': ['L0'],
                              'fcst_var_options': '',
                              'obs_var_name': 'HPBL',
                              'obs_var_levels': ['L0'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'PRESsfc': {'fcst_var_name': 'PRES',
                                 'fcst_var_levels': ['Z0'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'PRES',
                                 'obs_var_levels': ['Z0'],
-                                'obs_var_options': ''
-                    },
+                                'obs_var_options': ''},
                     'PREStrops': {'fcst_var_name': 'PRES',
                                   'fcst_var_levels': ['L0'],
                                   'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                   'obs_var_name': 'PRES',
                                   'obs_var_levels': ['L0'],
-                                  'obs_var_options': 'GRIB_lvl_typ = 7;'
-                    },
+                                  'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
-                               'fcst_var_levels': ['Z0'],
-                               'fcst_var_options': '',
-                               'obs_var_name': 'PRMSL',
-                               'obs_var_levels': ['Z0'],
-                               'obs_var_options': ''
-                    },
+                              'fcst_var_levels': ['Z0'],
+                              'fcst_var_options': '',
+                              'obs_var_name': 'PRMSL',
+                              'obs_var_levels': ['Z0'],
+                              'obs_var_options': ''},
                     'UGRD10m': {'fcst_var_name': 'UGRD',
                                 'fcst_var_levels': ['Z10'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'UGRD',
                                 'obs_var_levels': ['Z10'],
-                                'obs_var_options': ''
-                    },
+                                'obs_var_options': ''},
                     'VGRD10m': {'fcst_var_name': 'VGRD',
                                 'fcst_var_levels': ['Z10'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'VGRD',
                                 'obs_var_levels': ['Z10'],
-                                'obs_var_options': ''
-                    },
+                                'obs_var_options': ''},
                     'TSOILtop': {'fcst_var_name': 'TSOIL',
                                  'fcst_var_levels': ['Z10-0'],
                                  'fcst_var_options': '',
                                  'obs_var_name': 'TSOIL',
                                  'obs_var_levels': ['Z10-0'],
-                                 'obs_var_options': ''
-                    },
+                                 'obs_var_options': ''},
                     'SOILWtop': {'fcst_var_name': 'SOILW',
                                  'fcst_var_levels': ['Z10-0'],
                                  'fcst_var_options': '',
                                  'obs_var_name': 'SOILW',
                                  'obs_var_levels': ['Z10-0'],
-                                 'obs_var_options': ''
-                    },
+                                 'obs_var_options': ''},
                     'WEASD': {'fcst_var_name': 'WEASD',
                               'fcst_var_levels': ['Z0'],
                               'fcst_var_options': '',
                               'obs_var_name': 'WEASD',
                               'obs_var_levels': ['Z0'],
-                              'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'CAPE': {'fcst_var_name': 'CAPE',
                              'fcst_var_levels': ['Z0'],
                              'fcst_var_options': '',
                              'obs_var_name': 'CAPE',
                              'obs_var_levels': ['Z0'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'PWAT': {'fcst_var_name': 'PWAT',
                              'fcst_var_levels': ['L0'],
                              'fcst_var_options': '',
                              'obs_var_name': 'PWAT',
                              'obs_var_levels': ['L0'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'CWAT': {'fcst_var_name': 'CWAT',
                              'fcst_var_levels': ['L0'],
                              'fcst_var_options': '',
                              'obs_var_name': 'CWAT',
                              'obs_var_levels': ['L0'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'HGTtrops': {'fcst_var_name': 'HGT',
                                  'fcst_var_levels': ['L0'],
                                  'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                  'obs_var_name': 'HGT',
                                  'obs_var_levels': ['L0'],
-                                 'obs_var_options': 'GRIB_lvl_typ = 7;'
-                    },
+                                 'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'TOZNEclm': {'fcst_var_name': 'TOZNE',
                                  'fcst_var_levels': ['L0'],
                                  'fcst_var_options': '',
                                  'obs_var_name': 'TOZNE',
                                  'obs_var_levels': ['L0'],
-                                 'obs_var_options': ''
-                    }
+                                 'obs_var_options': ''}
                 }
-            model_info = {}
-            nmodels = int(len(model_list))
-            if nmodels > 8:
-                print(
-                    "Too many models listed in model_list. "
-                    +"Current maximum is 8."
-                )
-                exit(1)
-            for model in model_list:
-                index = model_list.index(model)
-                model_num = index + 1
-                model_info['model'+str(model_num)] = model
-                model_info['model'+str(model_num)+'_plot_name'] = (
-                         model_plot_name_list[index]
-                )
-                if (len(model_arch_dir_list) != len(model_list) 
-                        and len(model_arch_dir_list) > 1):
-                    print(
-                        "model_arch_dir_list and model_list not of "
-                        +"equal length"
-                    )
-                    exit(1)
-                elif (len(model_arch_dir_list) != len(model_list) 
-                        and len(model_arch_dir_list) == 1):
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[0]
-                    )
-                else:
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[index]
-                    )
-                if type == 'sfc':
-                    obtype = model+'_f00'
-                else:
-                    anl_name = anl_name_list[index]
-                    if anl_name == 'self_anl':
-                        obtype = model+'_anl'
-                    elif anl_name == 'self_f00':
-                        obtype = model+'_f00'
-                    elif anl_name == 'gfs_anl':
-                        obtype = 'gfs_anl'
-                    elif anl_name == 'gfs_f00':
-                        obtype = 'gfs_f00'
-                model_info['model'+str(model_num)+'_obtype'] = obtype
-        elif case == 'grid2obs':
-            model_plot_name_list = (
-                os.environ['g2o2_model_plot_name_list'].split(' ')
-            )
-            if len(model_plot_name_list) != len(model_list):
-                print(
-                    "model_list and g2o2_model_plot_name_list "
-                    +"are not of equal length"
-                )
-                exit(1)
-            obtype = ', '.join(os.environ['g2o2_obtype_'+type].split(' '))
-            fhr_list = os.environ['g2o2_fhr_list_'+type]
-            valid_hr_beg = os.environ['g2o2_valid_hr_beg_'+type]
-            valid_hr_end = os.environ['g2o2_valid_hr_end_'+type]
-            valid_hr_inc = os.environ['g2o2_valid_hr_inc_'+type]
-            init_hr_beg = os.environ['g2o2_init_hr_beg']
-            init_hr_end = os.environ['g2o2_init_hr_end']
-            init_hr_inc = os.environ['g2o2_init_hr_inc']
-            event_equalization = os.environ['g2o2_event_eq']
-            interp = 'BILIN'
-            line_type = 'SL1L2, VL1L2'
-            plot_stats_list = 'bias, rmse, fbar_obar'
-            extra_env_info = {}
-            extra_env_info['verif_grid'] = os.environ['g2o2_grid_'+type]
-            if type == 'upper_air':
-                vx_mask_list = ['G003', 'NH', 'SH', 'TRO', 'G236', 'POLAR',
-                                'ARCTIC']
-                var_dict = {
+            }
+        },
+        'grid2obs_upper_air': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse, fbar_obar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NH', 'SH', 'TRO', 'G236', 'POLAR',
+                                  'ARCTIC'],
+                'var_dict': {
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
@@ -778,8 +507,7 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
                                                 'P10', 'P5', 'P1'],
-                            'obs_var_options': ''
-                    },
+                            'obs_var_options': ''},
                     'RH': {'fcst_var_name': 'RH',
                            'fcst_var_levels': ['P1000', 'P925', 'P850',
                                                'P700', 'P500', 'P400',
@@ -793,8 +521,15 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                'P300', 'P250', 'P200',
                                                'P150', 'P100', 'P50',
                                                'P10', 'P5', 'P1'],
-                           'obs_var_options': ''
-                    },
+                           'obs_var_options': ''}
+                }
+            },
+            'VL1L2': {
+                'plot_stats_list': 'bias, rmse, fbar_obar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NH', 'SH', 'TRO', 'G236', 'POLAR',
+                                  'ARCTIC'],
+                'var_dict': {
                     'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
                                   'fcst_var_levels': ['P1000', 'P925', 'P850',
                                                       'P700', 'P500', 'P400',
@@ -808,179 +543,130 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                                      'P300', 'P250', 'P200',
                                                      'P150', 'P100', 'P50',
                                                      'P10', 'P5', 'P1'],
-                                  'obs_var_options': ''
-                    }
+                                  'obs_var_options': ''}
                 }
-            elif type == 'conus_sfc':
-                vx_mask_list = ['G104', 'WEST', 'EAST', 'MDW', 'NPL', 'SPL',
-                                'NEC', 'SEC', 'NWC', 'SWC', 'NMT', 'SMT',
-                                'SWD', 'GRB', 'LMV', 'GMC', 'APL', 'NAK',
-                                'SAK']
-                var_dict = {
+            }
+        },
+        'grid2obs_conus_sfc': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse, fbar_obar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['WEST', 'EAST', 'MDW', 'NPL', 'SPL', 'NEC',
+                                  'SEC', 'NWC', 'SWC', 'NMT', 'SMT', 'SWD',
+                                  'GRB', 'LMV', 'GMC', 'APL', 'NAK', 'SAK'],
+                'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
-                              'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'RH2m': {'fcst_var_name': 'RH',
                              'fcst_var_levels': ['Z2'],
                              'fcst_var_options': '',
                              'obs_var_name': 'RH',
                              'obs_var_levels': ['Z2'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'DPT2m': {'fcst_var_name': 'DPT',
                               'fcst_var_levels': ['Z2'],
                               'fcst_var_options': '',
                               'obs_var_name': 'DPT',
                               'obs_var_levels': ['Z2'],
-                              'obs_var_options': ''
-                    },
-                    'UGRD_VGRD10m': {'fcst_var_name': 'UGRD_VGRD',
-                                     'fcst_var_levels': ['Z10'],
-                                     'fcst_var_options': '',
-                                     'obs_var_name': 'UGRD_VGRD',
-                                     'obs_var_levels': ['Z10'],
-                                     'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'TCDC': {'fcst_var_name': 'TCDC',
                              'fcst_var_levels': ['L0'],
                              'fcst_var_options': 'GRIB_lvl_typ = 200;',
                              'obs_var_name': 'TCDC',
                              'obs_var_levels': ['L0'],
-                             'obs_var_options': ''
-                    },
+                             'obs_var_options': ''},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
                               'fcst_var_levels': ['Z0'],
                               'fcst_var_options': '',
                               'obs_var_name': 'PRMSL',
                               'obs_var_levels': ['Z0'],
-                              'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'VISsfc': {'fcst_var_name': 'VIS',
                                'fcst_var_levels': ['Z0'],
                                'fcst_var_options': '',
                                'obs_var_name': 'VIS',
                                'obs_var_levels': ['Z0'],
-                               'obs_var_options': ''
-                    },
+                               'obs_var_options': ''},
                     'HGTcldceil': {'fcst_var_name': 'HGT',
                                    'fcst_var_levels': ['L0'],
                                    'fcst_var_options': 'GRIB_lvl_typ = 215;',
                                    'obs_var_name': 'HGT',
                                    'obs_var_levels': ['L0'],
-                                   'obs_var_options': ''
-                    },
+                                   'obs_var_options': ''},
                     'CAPEsfc': {'fcst_var_name': 'CAPE',
                                 'fcst_var_levels': ['Z0'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'CAPE',
                                 'obs_var_levels': ['L100000-0'],
-                                'obs_var_options': ''
-                    },
+                                'obs_var_options': ''},
                     'GUSTsfc': {'fcst_var_name': 'GUST',
                                 'fcst_var_levels': ['Z0'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'GUST',
                                 'obs_var_levels': ['Z0'],
-                                'obs_var_options': ''
-                    },
+                                'obs_var_options': ''},
                     'HPBL': {'fcst_var_name': 'HPBL',
                              'fcst_var_levels': ['L0'],
                              'fcst_var_options': '',
                              'obs_var_name': 'HPBL',
                              'obs_var_levels': ['L0'],
-                             'obs_var_options': ''
-                    }
+                             'obs_var_options': ''}
                 }
-            elif type == 'polar_sfc':
-                vx_mask_list = ['ARCTIC']
-                var_dict = {
+            },
+            'VL1L2': {
+                'plot_stats_list': 'bias, rmse, fbar_obar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['WEST', 'EAST', 'MDW', 'NPL', 'SPL', 'NEC',
+                                  'SEC', 'NWC', 'SWC', 'NMT', 'SMT', 'SWD',
+                                  'GRB', 'LMV', 'GMC', 'APL', 'NAK', 'SAK'],
+                'var_dict': {
+                    'UGRD_VGRD10m': {'fcst_var_name': 'UGRD_VGRD',
+                                     'fcst_var_levels': ['Z10'],
+                                     'fcst_var_options': '',
+                                     'obs_var_name': 'UGRD_VGRD',
+                                     'obs_var_levels': ['Z10'],
+                                     'obs_var_options': ''},
+                }
+            }
+        },
+        'grid2obs_polar_sfc': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse, fbar_obar',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['ARCTIC'],
+                'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
-                              'obs_var_options': ''
-                    },
+                              'obs_var_options': ''},
                     'TMPsfc': {'fcst_var_name': 'TMP',
                                'fcst_var_levels': ['Z0'],
                                'fcst_var_options': '',
                                'obs_var_name': 'TMP',
                                'obs_var_levels': ['Z0'],
-                               'obs_var_options': ''
-                    },
+                               'obs_var_options': ''},
                     'PRESsfc': {'fcst_var_name': 'PRES',
                                 'fcst_var_levels': ['Z0'],
                                 'fcst_var_options': '',
                                 'obs_var_name': 'PRES',
                                 'obs_var_levels': ['Z0'],
-                                'obs_var_options': ''
-                    }
-                }                
-            model_info = {}
-            nmodels = int(len(model_list))
-            if nmodels > 8:
-                print(
-                    "Too many models listed in model_list. "
-                    +"Current maximum is 8."
-                )
-                exit(1)
-            for model in model_list:
-                index = model_list.index(model)
-                model_num = index + 1
-                model_info['model'+str(model_num)] = model
-                model_info['model'+str(model_num)+'_plot_name'] = (
-                         model_plot_name_list[index]
-                )
-                if (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) > 1):
-                    print(
-                        "model_arch_dir_list and model_list not of "
-                        +"equal length"
-                    )
-                    exit(1)
-                elif (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) == 1):
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[0]
-                    )
-                else:
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[index]
-                    )
-                model_info['model'+str(model_num)+'_obtype'] = obtype
-        elif case == 'precip':
-            model_plot_name_list = (
-                os.environ['precip2_model_plot_name_list'].split(' ')
-            )
-            if len(model_plot_name_list) != len(model_list):
-                print(
-                    "model_list and precip2_model_plot_name_list "
-                    +"not of equal length"
-                )
-                exit(1)
-            obtype = os.environ['precip2_obtype'] 
-            fhr_list = os.environ['precip2_fhr_list']
-            valid_hr_beg = os.environ['precip2_valid_hr_beg']
-            valid_hr_end = os.environ['precip2_valid_hr_end']
-            valid_hr_inc = os.environ['precip2_valid_hr_inc']
-            init_hr_beg = os.environ['precip2_init_hr_beg']
-            init_hr_end = os.environ['precip2_init_hr_end']
-            init_hr_inc = os.environ['precip2_init_hr_inc']
-            event_equalization = os.environ['precip2_event_eq']
-            interp = 'NEAREST'
-            line_type = 'CTC'
-            plot_stats_list = 'bias, ets'
-            vx_mask_list = ['G211']
-            extra_env_info = {}
-            extra_env_info['verif_grid'] = os.environ['precip2_grid']
-            extra_env_info['PYTHONPATH'] = os.environ['PYTHONPATH']
-            if type == 'ccpa_accum24hr':
-                var_dict = {
-                    'APCP_24': {'fcst_var_name': 'APCP_24',
+                                'obs_var_options': ''}
+                }
+            }
+        },
+        'precip_ccpa_accum24hr': {
+            'CTC': {
+                'plot_stats_list': 'bias, ets',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['EAST', 'WEST'],
+                'var_dict': {
+                   'APCP_24': {'fcst_var_name': 'APCP_24',
                                 'fcst_var_levels': ['A24'],
                                 'fcst_var_options': '',
                                 'fcst_var_thresholds': ('ge0.2, ge2, ge5, '
@@ -991,1104 +677,911 @@ def create_job_script_step2(sdate, edate, model_list, type_list, case):
                                 'obs_var_options': '',
                                 'obs_var_thresholds': ('ge0.2, ge2, ge5, '
                                                        +'ge10, ge15, ge25, '
-                                                       +'ge35, ge50, ge75')
-                    }
+                                                       +'ge35, ge50, ge75')}
                 }
-            model_info = {}
-            nmodels = int(len(model_list))
-            if nmodels > 8:
-                print(
-                    "Too many models listed in model_list. "
-                    +"Current maximum is 8."
-                )
-                exit(1)
-            for model in model_list:
-                index = model_list.index(model)
-                model_num = index + 1
-                model_info['model'+str(model_num)] = model
-                model_info['model'+str(model_num)+'_plot_name'] = (
-                         model_plot_name_list[index]
-                )
-                if (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) > 1):
-                    print(
-                        "model_arch_dir_list and model_list not of "
-                        +"equal length"
-                    )
-                    exit(1)
-                elif (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) == 1):
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[0]
-                    )
-                else:
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[index]
-                    )
-                model_info['model'+str(model_num)+'_obtype'] = obtype
-        elif case == 'satellite':
-            model_plot_name_list = (
-                os.environ['sat2_model_plot_name_list'].split(' ')
-            )
-            if len(model_plot_name_list) != len(model_list):
-                print(
-                    "model_list and sat2_model_plot_name_list "
-                    +"are not of equal length"
-                )
-                exit(1)
-            fhr_list = os.environ['sat2_fhr_list']
-            valid_hr_beg = os.environ['sat2_valid_hr_beg']
-            valid_hr_end = os.environ['sat2_valid_hr_end']
-            valid_hr_inc = os.environ['sat2_valid_hr_inc']
-            init_hr_beg = os.environ['sat2_init_hr_beg']
-            init_hr_end = os.environ['sat2_init_hr_end']
-            init_hr_inc = os.environ['sat2_init_hr_inc']
-            event_equalization = os.environ['sat2_event_eq']
-            interp = 'NEAREST'
-            extra_env_info = {}
-            extra_env_info['verif_grid'] = os.environ['sat2_grid']
-            extra_env_info['sea_ice_thresh'] = (
-                os.environ['sat2_sea_ice_thresh']
-            )
-            if type in ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl']:
-                line_type = 'SL1L2'
-                plot_stats_list = 'bias, rmse'
-                vx_mask_list = [os.environ['sat2_grid'], 'NH', 'SH',
-                                'POLAR', 'ARCTIC', 'SEA_ICE', 'SEA_ICE_FREE',
-                                'SEA_ICE_POLAR', 'SEA_ICE_FREE_POLAR']
-                var_dict = {
+            }
+        },
+        'satellite_ghrsst_ncei_avhrr_anl': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
+                                  'SEA_ICE_FREE', 'SEA_ICE_POLAR',
+                                  'SEA_ICE_FREE_POLAR'],
+                'var_dict': {
                     'SST': {'fcst_var_name': 'TMP_Z0_mean',
                             'fcst_var_levels': ['Z0'],
                             'fcst_var_options': '',
                             'obs_var_name': 'analysed_sst',
                             'obs_var_levels': ['Z0'],
                             'obs_var_options': '',
-                            'obs_var_thresholds': ''
-                    },
+                            'obs_var_thresholds': ''},
                     'ICEC': {'fcst_var_name': 'ICEC_Z0_mean',
                              'fcst_var_levels': ['Z0'],
-                             'fcst_var_options': (
-                                 'ge'+os.environ['sat2_sea_ice_thresh']
-                             ),
+                             'fcst_var_options':  '',
                              'obs_var_name': 'sea_ice_fraction',
                              'obs_var_levels': ['Z0'],
-                             'obs_var_options': (
-                                 'ge'+os.environ['sat2_sea_ice_thresh']
-                             ),
-                             'obs_var_thresholds': ''
-                    }
+                             'obs_var_options': '',
+                             'obs_var_thresholds': ''}
                 }
-            model_info = {}
-            nmodels = int(len(model_list))
-            if nmodels > 8:
-                print(
-                    "Too many models listed in model_list. "
-                    +"Current maximum is 8."
+            }
+        },
+        'satellite_ghrsst_ospo_geopolar_anl': {
+            'SL1L2': {
+                'plot_stats_list': 'bias, rmse',
+                'interp' : 'NEAREST',
+                'vx_mask_list' : ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
+                                  'SEA_ICE_FREE', 'SEA_ICE_POLAR',
+                                  'SEA_ICE_FREE_POLAR'],
+                'var_dict': {
+                    'SST': {'fcst_var_name': 'TMP_Z0_mean',
+                            'fcst_var_levels': ['Z0'],
+                            'fcst_var_options': '',
+                            'obs_var_name': 'analysed_sst',
+                            'obs_var_levels': ['Z0'],
+                            'obs_var_options': '',
+                            'obs_var_thresholds': ''},
+                    'ICEC': {'fcst_var_name': 'ICEC_Z0_mean',
+                             'fcst_var_levels': ['Z0'],
+                             'fcst_var_options': '',
+                             'obs_var_name': 'sea_ice_fraction',
+                             'obs_var_levels': ['Z0'],
+                             'obs_var_options': '',
+                             'obs_var_thresholds': ''}
+                }
+            }
+        }
+    }
+    njob = 0
+    # Initialize environment variable job dictionary
+    job_env_dict = init_env_dict()
+    job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
+    job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
+    job_env_dict['plot_by'] = os.environ['plot_by']
+    # Set important METplus paths
+    master_metplus = os.path.join(
+        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
+    )
+    machine_conf = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
+    )
+    plot_by_conf_dir = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config',
+        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
+        case, 'plot_by_'+job_env_dict['plot_by']
+    )
+    # Set up model environment variables in dictionary
+    model_list = os.environ['model_list'].split(' ')
+    model_stat_dir_list = os.environ['model_stat_dir_list'].split(' ')
+    model_plot_name_list = os.environ[
+        case_abbrev+'_model_plot_name_list'
+    ].split(' ')
+    nmodels = len(model_list)
+    if nmodels > 10:
+        print("ERROR: Too many models listed in model_list ("
+              +str(nmodels)+"), current maximum is 10")
+        exit(1)
+    for model in model_list:
+        model_idx = model_list.index(model)
+        model_num = model_idx + 1
+        job_env_dict['model'+str(model_num)] = model
+        job_env_dict['model'+str(model_num)+'_stat_dir'] = (
+            model_stat_dir_list[model_idx]
+        )
+        job_env_dict['model'+str(model_num)+'_plot_name'] = (
+            model_plot_name_list[model_idx]
+        )
+    # Set up case_type environment variables in dictionary
+    for case_type in case_type_list:
+        case_abbrev_type = case_abbrev+'_'+case_type
+        model_gather_by_list = (
+            os.environ[case_abbrev_type+'_gather_by_list'].split(' ')
+        )
+        for model in model_list:
+            model_idx = model_list.index(model)
+            model_num = model_idx + 1
+            job_env_dict['model'+str(model_num)+'_gather_by'] = (
+                model_gather_by_list[model_idx]
+            )
+            if case == 'grid2grid':
+                job_env_dict['model'+str(model_num)+'_obtype'] = (
+                    os.environ[case_abbrev_type+'_truth_name_list'].split(' ')
+                )[model_idx]
+            elif case == 'grid2obs':
+                job_env_dict['model'+str(model_num)+'_obtype'] = (
+                    ', '.join(os.environ[
+                        case_abbrev_type+'_msg_type_list'
+                    ].split(' '))
                 )
-                exit(1)
-            for model in model_list:
-                index = model_list.index(model)
-                model_num = index + 1
-                model_info['model'+str(model_num)] = model
-                model_info['model'+str(model_num)+'_plot_name'] = (
-                         model_plot_name_list[index]
-                )
-                if (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) > 1):
-                    print(
-                        "model_arch_dir_list and model_list not of "
-                        +"equal length"
-                    )
-                    exit(1)
-                elif (len(model_arch_dir_list) != len(model_list)
-                        and len(model_arch_dir_list) == 1):
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[0]
-                    )
-                else:
-                    model_info['model'+str(model_num)+'_arch_dir'] = (
-                        model_arch_dir_list[index]
-                    )
-                model_info['model'+str(model_num)+'_obtype'] = type
-        for var_name, fcst_obs_var_info in var_dict.items():
-            for vx_mask in vx_mask_list:
-                njob+=1
-                # Create job file
-                job_filename = os.path.join(DATA, RUN,
-                                            'metplus_job_scripts',
-                                            'job'+str(njob))
-                job_file = open(job_filename, 'w')
-                set_job_common_env(job_file)
-                job_file.write('export START_DATE="'
-                               +sdate.strftime('%Y%m%d')+'"\n')
-                job_file.write('export END_DATE="'
-                               +edate.strftime('%Y%m%d')+'"\n')
-                job_file.write('export plot_by="'+plot_by+'"\n')
-                job_file.write('export fhr_list="'+fhr_list+'"\n')
-                job_file.write('export valid_hr_beg="'+valid_hr_beg+'"\n')
-                job_file.write('export valid_hr_end="'+valid_hr_end+'"\n')
-                job_file.write('export valid_hr_inc="'+valid_hr_inc+'"\n')
-                job_file.write('export init_hr_beg="'+init_hr_beg+'"\n')
-                job_file.write('export init_hr_end="'+init_hr_end+'"\n')
-                job_file.write('export init_hr_inc="'+init_hr_inc+'"\n')
-                job_file.write('export var_name="'+var_name+'"\n')
+            elif case == 'precip':
+                job_env_dict['model'+str(model_num)+'_obtype'] = case
+            elif case == 'satellite':
+                job_env_dict['model'+str(model_num)+'_obtype'] = case
+        job_env_dict['case_type'] = case_type
+        case_type_env_list = ['grid', 'event_eq', 'fhr_list',
+                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
+                              'init_hr_beg', 'init_hr_end', 'init_hr_inc']
+        for case_type_env in case_type_env_list:
+            job_env_dict[case_type_env] = (
+                os.environ[case_abbrev_type+'_'+case_type_env]
+            )
+        plotting_dict = plotting_case_case_type_dict[case+'_'+case_type]
+        # Set up plotting environment variables in dictionary
+        for line_type in list(plotting_dict.keys()):
+            job_env_dict['line_type'] = line_type
+            job_env_dict['interp'] = plotting_dict[line_type]['interp']
+            job_env_dict['plot_stats_list'] = (
+                plotting_dict[line_type]['plot_stats_list']
+            )
+            var_dict = plotting_dict[line_type]['var_dict']
+            vx_mask_list = plotting_dict[line_type]['vx_mask_list']
+            vx_mask_list.append(job_env_dict['grid'])
+            for var_name, fcst_obs_var_info in var_dict.items():
+                job_env_dict['var_name'] = var_name
                 for var_info, var_info_val in fcst_obs_var_info.items():
                     if 'levels' in var_info:
-                        job_file.write(
-                             'export '+var_info+'="'
-                             +' '.join(var_info_val).replace(' ', ', ')+'"\n'
+                        job_env_dict[var_info] = (
+                            ' '.join(var_info_val).replace(' ', ', ')
                         )
                     else:
-                        job_file.write(
-                            'export '+var_info+'="'+var_info_val+'"\n'
-                        )
-                job_file.write('export vx_mask="'+vx_mask+'"\n')
-                job_file.write('export line_type="'+line_type+'"\n')
-                job_file.write('export plot_stats_list="'
-                               +plot_stats_list+'"\n')
-                job_file.write('export event_equalization="'
-                               +event_equalization+'"\n')
-                job_file.write('export interp="'+interp+'"\n')
-                job_file.write('export verif_case_type="'+type+'"\n')
-                for name, value in model_info.items():
-                    job_file.write('export '+name+'="'+value+'"\n')
-                for name, value in extra_env_info.items():
-                    job_file.write('export '+name+'="'+value+'"\n')
-                if case == 'grid2obs':
-                    stat_analysis_obtype_list = []
-                    for ob in os.environ['g2o2_obtype_'+type].split(' '):
-                        stat_analysis_obtype_list.append('"'+ob+'"')
+                        job_env_dict[var_info] = var_info_val
+                for vx_mask in vx_mask_list:
+                    job_env_dict['vx_mask'] = vx_mask
+                    njob+=1
+                    # Create job file
+                    job_filename = os.path.join(job_env_dict['DATA'],
+                                                job_env_dict['RUN'],
+                                                'metplus_job_scripts',
+                                                'job'+str(njob))
+                    job_file = open(job_filename, 'w')
+                    job_file.write('#!/bin/sh\n')
+                    # Write environment variables
+                    for name, value in job_env_dict.items():
+                        job_file.write('export '+name+'="'+value+'"\n')
+                    job_file.write('\n')
+                    # Write METplus commands
                     job_file.write(
-                        "export stat_analysis_obtype='"
-                        +', '.join(stat_analysis_obtype_list)+"'\n"
+                        'python '
+                        +os.path.join(job_env_dict['USHverif_global'],
+                                      'prune_stat_files.py\n')
                     )
-                job_file.write('\n')
-                job_file.write('python '
-                               +os.path.join(USHverif_global,
-                                             'prune_stat_files.py\n\n'))
-                if (case == 'grid2grid' and type == 'anom'
-                        and var_name == 'HGT'):
-                    metplus_conf = os.path.join(metplus_version_conf_dir,
-                                                case, 'plot_by_'+plot_by,
-                                                type+'_height_nmodels'
-                                                +str(nmodels)+'.conf\n')
-                else:
-                    metplus_conf = os.path.join(metplus_version_conf_dir,
-                                                case, 'plot_by_'+plot_by,
-                                                type+'_nmodels'
-                                                +str(nmodels)+'.conf\n')
-                job_file.write(
-                    master_metplus+' '
-                    +'-c '+metplus_machine_conf+' '
-                    +'-c '+metplus_conf+'\n'
-                )
-                if case == 'precip' or \
-                    (case == 'grid2obs' and type == 'polar_sfc') \
-                    or case == 'satellite':
+                    job_file.write('\n')
+                    if (case == 'grid2grid' and case_type == 'anom'
+                            and var_name == 'HGT'):
+                        metplus_conf = os.path.join(
+                            plot_by_conf_dir,
+                            case_type+'_height_nmodels'+str(nmodels)+'.conf'
+                        )
+                    else:
+                        metplus_conf = os.path.join(
+                            plot_by_conf_dir,
+                            case_type+'_nmodels'+str(nmodels)+'.conf'
+                        )
                     job_file.write(
-                        os.path.join(USHverif_global, 'plotting_scripts',
-                                     'make_plots_wrapper_EMC_verif-global.py')+' '
-                        +'-c '+metplus_machine_conf+' '
-                        +'-c '+metplus_conf+'\n'
-                )
-                job_file.write('nimgs=$(ls '
-                               +os.path.join(DATA, RUN, 'metplus_output',
-                                             'plot_by_'+plot_by, 'make_plots',
-                                              var_name+'_'+vx_mask, case, type,
-                                             'imgs', '*')
-                               +' |wc -l)\n')
-                job_file.write('if [ $nimgs -ne 0 ]; then\n')
-                job_file.write(
-                        '    ln -sf '
-                        +os.path.join(DATA, RUN, 'metplus_output',
-                                      'plot_by_'+plot_by, 'make_plots',
-                                      var_name+'_'+vx_mask, case, type,
-                                      'imgs', '*')+' '
-                        +os.path.join(DATA, RUN, 'metplus_output',
-                                      'images/.')+'\n'
-                )
-                job_file.write('fi')
-                job_file.close()
+                        master_metplus+' -c '+machine_conf+' -c '+metplus_conf
+                        +'\n'
+                    )
+                    job_file.write('\n')
+                    line_type_var_name_vx_mask_img_dir = os.path.join(
+                        job_env_dict['DATA'], job_env_dict['RUN'],
+                        'metplus_output',
+                        'plot_by_'+job_env_dict['plot_by'], 'make_plots',
+                        line_type+'_'+var_name+'_'+vx_mask, case,
+                        case_type, 'imgs'
+                    )
+                    main_img_dir = os.path.join(
+                        job_env_dict['DATA'], job_env_dict['RUN'],
+                        'metplus_output', 'images'
+                    )
+                    job_file.write(
+                        'nimgs=$(ls '+line_type_var_name_vx_mask_img_dir
+                        +'/* |wc -l)\n'
+                    )
+                    job_file.write('if [ $nimgs -ne 0 ]; then\n')
+                    job_file.write(
+                         '    ln -sf '+line_type_var_name_vx_mask_img_dir
+                         +'/* '+main_img_dir+'/.\n'
+                    )
+                    job_file.write('fi')
+                    job_file.close()
 
-def create_job_script_tropcyc(model_list, storm_list):
-    """! Writes out job cards based on requested verification
-         for tropical cyclone verification
-        
+def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
+                               tc_list):
+    """! Writes out individual job scripts based on requested tropical
+         cyclone verification
+
          Args:
-             model_list - list of strings of model names
-             storm_list - list of strings of the basin, year,
-                          and storm name
- 
+             start_date_dt  - datetime object of the verification start
+                              date
+             end_date_dt    - datetime object of the verification end
+                              date
+             case           - string of the verification use case
+             case_abbrev    - string of case abbrevation
+             tc_list        - list of strings of the basin_year_name
+
          Returns:
     """
-    METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
-    model_atcf_name_list = (
-        os.environ['tropcyc_model_atcf_name_list'].split(' ')
-    )
-    if METplus_tropcyc_process == 'tc_pairs':
+    import get_tc_info
+    tc_dict = get_tc_info.get_tc_dict()
+    METplus_process = os.environ['METplus_'+case_abbrev+'_process']
+    if METplus_process == 'tc_pairs':
         njob = 0
-    else:
-        njob = len(glob.glob(
-            os.path.join(DATA, RUN, 'metplus_job_scripts','job*')
-        ))
-        os.environ['njob_from_tc_pairs'] = str(njob)
-        npoe = len(glob.glob(
-            os.path.join(DATA, RUN, 'metplus_job_scripts','poe*')
-        ))
-        os.environ['npoe_from_tc_pairs'] = str(npoe)
-    basin_list = []
-    for storm in storm_list:
-        basin = storm.split('_')[0]
-        year = storm.split('_')[1]
-        name = storm.split('_')[2]
-        if basin not in basin_list:
-            basin_list.append(basin)
-        if storm == 'WP_2018_HECTOR':
+    elif METplus_process == 'tc_stat':
+        npoe = int(os.environ['ncount_poe'])
+        njob = int(os.environ['ncount_job'])
+        basin_list = []
+        for tc in tc_list:
+            basin = tc.split('_')[0]
+            if basin not in basin_list:
+                basin_list.append(basin)
+    # Initialize environment variable job dictionary
+    job_env_dict = init_env_dict()
+    job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
+    job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
+    job_env_dict['fhr_list'] = (
+        os.environ[case_abbrev+'_fhr_list'].replace(' ','')
+    )
+    job_env_dict['init_hour_list'] = ','.join(
+        os.environ['tropcyc_fcyc_list'].split(' ')
+    )
+    job_env_dict['valid_hour_list'] = ','.join(
+        os.environ['tropcyc_vhr_list'].split(' ')
+    )
+    # Set important METplus paths
+    master_metplus = os.path.join(
+        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
+    )
+    machine_conf = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
+    )
+    make_met_data_conf_dir = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config',
+        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
+        case, 'make_met_data'
+    )
+    gather_conf_dir = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config',
+        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
+        case, 'gather'
+    )
+    # Set up model environment varibles in dictionary
+    model_list = os.environ['model_list'].split(' ')
+    model_atcf_name_list = (
+        os.environ[case_abbrev+'_model_atcf_name_list'].split(' ')
+    )
+    nmodels = len(model_list)
+    if nmodels > 10:
+        print("ERROR: Too many models listed in model_list ("
+              +str(nmodels)+"), current maximum is 10")
+        exit(1)
+    model_atcf_abbrev_list = []
+    for model in model_list:
+        model_idx = model_list.index(model)
+        model_atcf_name = model_atcf_name_list[model_idx]
+        if model == 'gfs' and model_atcf_name != 'GFSO':
+            model_atcf_abbrev_list.append('GFSO')
+        else:
+            model_atcf_abbrev_list.append(model.ljust(4).upper()[0:4])
+    if METplus_process == 'tc_stat':
+        job_env_dict['model_list'] = ', '.join(model_list)
+        job_env_dict['model_atcf_name_list'] = ', '.join(model_atcf_name_list)
+        job_env_dict['model_atcf_abbrev_list'] = ', '.join(
+            model_atcf_abbrev_list
+        )
+    # Write basin mean job scripts
+    if METplus_process == 'tc_stat':
+        for basin in basin_list:
+            job_env_dict['basin'] = basin
+            # Create job file
+            njob+=1
+            job_filename = os.path.join(job_env_dict['DATA'],
+                                        job_env_dict['RUN'],
+                                        'metplus_job_scripts',
+                                        'job'+str(njob))
+            job_file = open(job_filename, 'w')
+            job_file.write('#!/bin/sh\n')
+            # Write environment variables
+            for name, value in job_env_dict.items():
+                job_file.write('export '+name+'="'+value+'"\n')
+            job_file.write('\n')
+            # Write METplus commands
+            metplus_conf = os.path.join(gather_conf_dir, 'basin.conf')
+            job_file.write(
+                master_metplus+' -c '+machine_conf+' -c '+metplus_conf+'\n'
+            )
+            job_file.write('\n')
+            job_file.write(
+                'python '
+                +os.path.join(job_env_dict['USHverif_global'],
+                                           'plotting_scripts',
+                                           'plot_tc_errors_lead_mean.py')
+                +'\n'
+            )
+            job_file.write('\n')
+            basin_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'plot', basin, 'imgs'
+            )
+            main_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'images'
+            )
+            job_file.write('nimgs=$(ls '+basin_img_dir+'/* |wc -l)\n')
+            job_file.write('if [ $nimgs -ne 0 ]; then\n')
+            job_file.write('    ln -sf '+basin_img_dir+'/* '+main_img_dir+'/.\n')
+            job_file.write('fi')
+            job_file.close()
+    # Set up tropical cyclone environment variables in dictionary
+    for tc in tc_list:
+        basin = tc.split('_')[0]
+        year = tc.split('_')[1]
+        name = tc.split('_')[2]
+        if tc == 'WP_2018_HECTOR':
             basin = 'EP'
-        storm_id =  get_tc_info.get_tc_storm_id(storm)
-        bdeck_data_dir = os.path.join(os.getcwd(), 'data', 'bdeck')
-        bdeck_filename = 'b'+storm_id+'.dat'
-        bdeck_file = os.path.join(bdeck_data_dir, bdeck_filename)
+        tc_id =  tc_dict[tc]
+        bdeck_file = os.path.join(job_env_dict['DATA'],
+                                  job_env_dict['RUN'], 'data', 'bdeck',
+                                  'b'+tc_id+'.dat')
         if not os.path.exists(bdeck_file):
             continue
-        storm_start_date, storm_end_date = get_tc_info.get_tc_storm_dates(
-            bdeck_file
+        tc_start_date, tc_end_date = (
+            get_tc_info.get_tc_dates(bdeck_file)
         )
-        storm_start_date_MET_format = datetime.datetime.strptime(
-            storm_start_date, '%Y%m%d%H'
+        tc_start_date_MET_format = datetime.datetime.strptime(
+            tc_start_date, '%Y%m%d%H'
         ).strftime('%Y%m%d_%H%M%S')
-        storm_end_date_MET_format = datetime.datetime.strptime(
-            storm_end_date, '%Y%m%d%H'
+        tc_end_date_MET_format = datetime.datetime.strptime(
+            tc_end_date, '%Y%m%d%H'
         ).strftime('%Y%m%d_%H%M%S')
-        if METplus_tropcyc_process == 'tc_pairs':
+        job_env_dict['TC_START_DATE'] = tc_start_date
+        job_env_dict['TC_END_DATE'] = tc_end_date
+        job_env_dict['TC_START_DATE_MET_format'] = tc_start_date_MET_format
+        job_env_dict['TC_END_DATE_MET_format'] = tc_end_date_MET_format
+        job_env_dict['tc'] = tc
+        job_env_dict['basin'] = basin
+        job_env_dict['year'] = year
+        job_env_dict['name'] = name
+        job_env_dict['tc_id'] = tc_id.upper()
+        job_env_dict['tc_num'] = tc_id[2:4]
+        # Write job scripts for METplus process
+        if METplus_process == 'tc_pairs':
             for model in model_list:
-                njob+=1
-                index = model_list.index(model)
-                model_atcf_abbrv = model_atcf_name_list[index]
-                if model == 'gfs' and model_atcf_abbrv != 'GFSO':
-                    print("Using operational GFS...using ATCF name as GFSO "
-                          +"to comply with MET")
-                    model_atcf_abbrv = 'GFSO'
+                job_env_dict['model'] = model
+                model_idx = model_list.index(model)
+                job_env_dict['model_atcf_abbrev'] = (
+                    model_atcf_abbrev_list[model_idx]
+                )
                 # Create job file
-                job_filename = os.path.join(DATA, RUN,
+                njob+=1
+                job_filename = os.path.join(job_env_dict['DATA'],
+                                            job_env_dict['RUN'],
                                             'metplus_job_scripts',
                                             'job'+str(njob))
                 job_file = open(job_filename, 'w')
-                set_job_common_env(job_file)
-                job_file.write('export START_DATE="'+start_date+'"\n')
-                job_file.write('export END_DATE="'+end_date+'"\n')
-                job_file.write('export STORM_START_DATE="'
-                               +storm_start_date+'"\n')
-                job_file.write('export STORM_END_DATE="'
-                               +storm_end_date+'"\n')
-                job_file.write('export STORM_START_DATE_MET_format="'
-                               +storm_start_date_MET_format+'"\n')
-                job_file.write('export STORM_END_DATE_MET_format="'
-                               +storm_end_date_MET_format+'"\n')
-                job_file.write('export model="'+model+'"\n')
-                job_file.write('export model_atcf_abbrv="'+model_atcf_abbrv
-                               +'"\n')
-                job_file.write('export storm="'+storm+'"\n')
-                job_file.write('export basin="'+basin+'"\n')
-                job_file.write('export year="'+year+'"\n')
-                job_file.write('export name="'+name+'"\n')
-                job_file.write('export storm_id="'+storm_id.upper()+'"\n')
-                job_file.write('export storm_num="'+storm_id[2:4]+'"\n')
+                job_file.write('#!/bin/sh\n')
+                # Write environment variables
+                for name, value in job_env_dict.items():
+                    job_file.write('export '+name+'="'+value+'"\n')
                 job_file.write('\n')
-                metplus_conf_list = [
-                    os.path.join(metplus_version_conf_dir, 'tropcyc',
-                                 'make_met_data',
-                                 'storm.conf')
-                ]
-                for metplus_conf in metplus_conf_list:
-                    job_file.write(
-                        master_metplus+' '
-                        +'-c '+metplus_machine_conf+' '
-                        +'-c '+metplus_conf+'\n'
-                    )
+                # Write METplus commands
+                metplus_conf = os.path.join(make_met_data_conf_dir, 'tc.conf')
+                job_file.write(master_metplus+' -c '+machine_conf+' '
+                               +'-c '+metplus_conf)
                 job_file.close()
-        else:
-            njob+=1
-            # Set up information for environment variables
-            fhr_list = os.environ['tropcyc_fhr_list'].replace(' ','')
-            init_hour_list = ','.join(
-                os.environ['tropcyc_fcyc_list'].split(' ')
-            )
-            valid_hour_list = ','.join(
-                os.environ['tropcyc_vhr_list'].split(' ')
-            )
+        elif METplus_process == 'tc_stat':
             # Create job file
-            job_filename = os.path.join(DATA, RUN,
+            njob+=1
+            job_filename = os.path.join(job_env_dict['DATA'],
+                                        job_env_dict['RUN'],
                                         'metplus_job_scripts',
                                         'job'+str(njob))
             job_file = open(job_filename, 'w')
-            set_job_common_env(job_file)
-            job_file.write('export START_DATE="'+start_date+'"\n')
-            job_file.write('export END_DATE="'+end_date+'"\n')
-            job_file.write('export STORM_START_DATE="'
-                           +storm_start_date+'"\n')
-            job_file.write('export STORM_END_DATE="'
-                           +storm_end_date+'"\n')
-            job_file.write('export STORM_START_DATE_MET_format="'
-                           +storm_start_date_MET_format+'"\n')
-            job_file.write('export STORM_END_DATE_MET_format="'
-                           +storm_end_date_MET_format+'"\n')
-            job_file.write('export storm="'+storm+'"\n')
-            job_file.write('export basin="'+basin+'"\n')
-            job_file.write('export year="'+year+'"\n')
-            job_file.write('export name="'+name+'"\n')
-            job_file.write('export storm_id="'+storm_id.upper()+'"\n')
-            job_file.write('export storm_num="'+storm_id[2:4]+'"\n')
-            job_file.write('export fhr_list="'+fhr_list+'"\n')
-            job_file.write('export init_hour_list="'+init_hour_list+'"\n')
-            job_file.write('export valid_hour_list="'+valid_hour_list+'"\n')
-            job_file.write('export model_atcf_name_list="'
-                           +', '.join(model_atcf_name_list)+'"\n')
+            job_file.write('#!/bin/sh\n')
+            # Write environment variables
+            for name, value in job_env_dict.items():
+                job_file.write('export '+name+'="'+value+'"\n')
             job_file.write('\n')
-            metplus_conf_list = [
-                os.path.join(metplus_version_conf_dir, 'tropcyc',
-                            'gather',
-                            'storm.conf')
-            ]
-            for metplus_conf in metplus_conf_list:
-                job_file.write(
-                    master_metplus+' '
-                    +'-c '+metplus_machine_conf+' '
-                    +'-c '+metplus_conf+'\n'
-                )
-            job_file.write('python '
-                           +os.path.join(USHverif_global, 'plotting_scripts',
-                                         'plot_tc_errors_lead_mean.py')+' '
-                           +storm+'\n')
-            job_file.write('nimgs=$(ls '
-                           +os.path.join(DATA, RUN, 'metplus_output','plot',
-                                         storm, 'imgs', '*')
-                           +' |wc -l)\n')
-            job_file.write('if [ $nimgs -ne 0 ]; then\n')
-            job_file.write(
-                '    ln -sf '
-                +os.path.join(DATA, RUN, 'metplus_output',
-                              'plot', storm, 'imgs', '*')+' '
-                +os.path.join(DATA, RUN, 'metplus_output',
-                              'images/.')+'\n'
-            )
-            job_file.write('fi')
-            job_file.close()
-    if METplus_tropcyc_process == 'tc_stat':
-        for basin in basin_list:
-            njob+=1
-            basin = basin.split('_')[0]
-            # Set up information for environment variables
-            fhr_list = os.environ['tropcyc_fhr_list'].replace(' ','')
-            init_hour_list = ','.join(
-                os.environ['tropcyc_fcyc_list'].split(' ')
-            )
-            valid_hour_list = ','.join(
-                os.environ['tropcyc_vhr_list'].split(' ')
-            )
-            # Create job file
-            job_filename = os.path.join(DATA, RUN,
-                                        'metplus_job_scripts',
-                                        'job'+str(njob))
-            job_file = open(job_filename, 'w')
-            set_job_common_env(job_file)
-            job_file.write('export START_DATE="'+start_date+'"\n')
-            job_file.write('export END_DATE="'+end_date+'"\n')
-            job_file.write('export basin="'+basin+'"\n')
-            job_file.write('export fhr_list="'+fhr_list+'"\n')
-            job_file.write('export init_hour_list="'+init_hour_list+'"\n')
-            job_file.write('export valid_hour_list="'+valid_hour_list+'"\n')
-            job_file.write('export model_atcf_name_list="'
-                           +', '.join(model_atcf_name_list)+'"\n')
+            # Write METplus commands
+            metplus_conf = os.path.join(gather_conf_dir, 'tc.conf')
+            job_file.write(master_metplus+' -c '+machine_conf+' '
+                           +'-c '+metplus_conf+'\n')
             job_file.write('\n')
-            metplus_conf_list = [
-                os.path.join(metplus_version_conf_dir, 'tropcyc',
-                            'gather',
-                            'basin.conf')
-            ]
-            for metplus_conf in metplus_conf_list:
-                job_file.write(
-                    master_metplus+' '
-                    +'-c '+metplus_machine_conf+' '
-                    +'-c '+metplus_conf+'\n'
-                )
-            job_file.write('python '
-                           +os.path.join(USHverif_global, 'plotting_scripts',
-                                         'plot_tc_errors_lead_mean.py')+' '
-                           +basin+'\n')
-            job_file.write('nimgs=$(ls '
-                           +os.path.join(DATA, RUN, 'metplus_output','plot',
-                                         basin, 'imgs', '*')
-                           +' |wc -l)\n')
-            job_file.write('if [ $nimgs -ne 0 ]; then\n')
             job_file.write(
-                '    ln -sf '
-                +os.path.join(DATA, RUN, 'metplus_output',
-                              'plot', basin, 'imgs', '*')+' '
-                +os.path.join(DATA, RUN, 'metplus_output',
-                              'images/.')+'\n'
+                'python '
+                +os.path.join(job_env_dict['USHverif_global'],
+                                           'plotting_scripts',
+                                           'plot_tc_errors_lead_mean.py')
+                +'\n'
             )
+            job_file.write('\n')
+            tc_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'plot', tc, 'imgs'
+            )
+            main_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'images'
+            )
+            job_file.write('nimgs=$(ls '+tc_img_dir+'/* |wc -l)\n')
+            job_file.write('if [ $nimgs -ne 0 ]; then\n')
+            job_file.write('    ln -sf '+tc_img_dir+'/* '+main_img_dir+'/.\n')
             job_file.write('fi')
             job_file.close()
 
-def create_job_script_maps2d(sdate, edate, model_list, type_list):
-    """! Writes out job cards based on requested verification
-         for maps2d verification
+def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
+                            case_type_list):
+    """! Writes out individual job scripts based on requested verification
+         for maps2d or mapdsda RUN
 
          Args:
-             sdate      - datetime object of the verification start
-                          date
-             edate      - datetime object of the verification end
-                          date
-             model_list - list of strings of model names
-             type_list  - list of strings of the types of the
-                          verification use case
+             start_date_dt  - datetime object of the verification start
+                              date
+             end_date_dt    - datetime object of the verification end
+                              date
+             case           - string of the verification use case
+             case_abbrev    - string of case abbrevation
+             case_type_list - list of strings of the types of the
+                              verification use case
 
          Returns:
     """
-    model_plot_name_list = (
-        os.environ['maps2d_model_plot_name_list'].split(' ')
-    )
-    if len(model_plot_name_list) != len(model_list):
-        print("model_list and maps2d_model_plot_name_list "
-              +"not of equal length")
-        exit(1)
-    make_met_data_by = os.environ['maps2d_make_met_data_by']
-    plot_by = make_met_data_by
-    hr_beg = os.environ['maps2d_hr_beg']
-    hr_end = os.environ['maps2d_hr_end']
-    hr_inc = os.environ['maps2d_hr_inc']
-    forecast_to_plot_list = (
-        os.environ['maps2d_forecast_to_plot_list'].split(' ')
-    )
-    forecast_anl_diff = os.environ['maps2d_model2model_forecast_anl_diff']
-    anl_name = os.environ['maps2d_anl_name']
-    use_ceres = os.environ['maps2d_model2obs_use_ceres']
-    use_monthly_mean = os.environ['maps2d_model2obs_use_monthly_mean']
-    regrid_to_grid = os.environ['maps2d_regrid_to_grid']
-    latlon_area = os.environ['maps2d_latlon_area']
-    model_info = {}
-    nmodels = int(len(model_list))
-    for model in model_list:
-        index = model_list.index(model)
-        model_num = index + 1
-        model_info['model'+str(model_num)] = model
-        model_info['model'+str(model_num)+'_plot_name'] = (
-            model_plot_name_list[index]
-        )
+    # Set up plotting information dictionary
+    plotting_case_case_type_dict = {
+        'maps2d_model2model': {
+            'preslevs': {'TMP': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                 '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                 '5hPa', '1hPa'],
+                         'HGT': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                 '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                 '5hPa', '1hPa'],
+                         'UGRD': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                  '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                  '5hPa', '1hPa'],
+                         'VGRD': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                  '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                  '5hPa', '1hPa'],
+                         'VVEL': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                  '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                  '5hPa', '1hPa'],
+                         'RH': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                '5hPa', '1hPa'],
+                         'CLWMR': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                   '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                   '5hPa', '1hPa'],
+                         'O3MR': ['1000hPa', '850hPa', '700hPa', '500hPa',
+                                  '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
+                                  '5hPa', '1hPa']},
+            'sfc': {'TMP': ['2mAGL', 'sfc'],
+                    'TMAX': ['2mAGL'],
+                    'TMIN': ['2mAGL'],
+                    'DPT': ['2mAGL'],
+                    'RH': ['2mAGL'],
+                    'SPFH': ['2mAGL'],
+                    'UGRD': ['10mAGL'],
+                    'VGRD': ['10mAGL'],
+                    'GUST': ['sfc'],
+                    'PRES': ['sfc'],
+                    'MSLET': ['msl'],
+                    'PRMSL': ['msl'],
+                    'LFTX': ['sfc'],
+                    '4LFTX': ['sfc'],
+                    'VIS': ['sfc'],
+                    'HGT': ['sfc'],
+                    'HINDEX': ['sfc'],
+                    'ICEC': ['sfc'],
+                    'U-GWD': ['sfc'],
+                    'V-GWD': ['sfc'],
+                    'UFLX': ['sfc'],
+                    'VFLX': ['sfc'],
+                    'ALBDO': ['sfc'],
+                    'LHTFL': ['sfc'],
+                    'SHTFL': ['sfc'],
+                    'GFLUX': ['sfc']},
+            'totcol': {'PWAT': ['column'],
+                       'CWAT': ['column'],
+                       'TOZNE': ['column'],
+                       'CWORK': ['column'],
+                       'RH': ['column']},
+            'precip': {'APCP': ['sfc_bucketaccum6hr'],
+                       'ACPCP': ['sfc_bucketaccum6hr'],
+                       'SNOD': ['sfc'],
+                       'WEASD': ['sfc'],
+                       'WATR': ['sfc']},
+            'cloudsrad': {'DLWRF': ['sfc'],
+                          'ULWRF': ['sfc', 'toa'],
+                          'DSWRF': ['sfc'],
+                          'USWRF': ['sfc', 'toa'],
+                          'ALBDO': ['sfc'],
+                          'SUNSD': ['sfc'],
+                          'TCDC': ['column', 'pbl', 'low',
+                                   'mid', 'high', 'convective'],
+                          'PRES': ['lowcloudbase', 'midcloudbase',
+                                   'highcloudbase', 'convectivecloudbase',
+                                   'lowcloudtop', 'midcloudtop',
+                                   'highcloudtop', 'convectivecloudtop'],
+                          'TMP': ['lowcloudtop', 'midcloudtop',
+                                  'highcloudtop'],
+                          'CWAT': ['column'],
+                          'CWORK': ['column']},
+            'capecin': {'CAPE': ['sfc', '255-0hPaAGL', '180-0hPaAGL'],
+                        'CIN': ['sfc', '255-0hPaAGL', '180-0hPaAGL']},
+            'pbl': {'HPBL': ['sfc'],
+                    'VRATE': ['pbl'],
+                    'UGRD': ['pbl'],
+                    'VGRD': ['pbl'],
+                    'TCDC': ['pbl']},
+            'groundsoil': {'TMP': ['sfc'],
+                           'TSOIL': ['0-10cmUGL', '10-40cmUGL',
+                                     '40-100cmUGL', '100-200cmUGL'],
+                           'SOILW': ['0-10cmUGL', '10-40cmUGL',
+                                     '40-100cmUGL', '100-200cmUGL'],
+                           'LHTFL': ['sfc'],
+                           'SHTFL': ['sfc'],
+                           'GFLUX': ['sfc'],
+                           'WATR': ['sfc'],
+                           'PEVPR': ['sfc'],
+                           'FLDCP': ['sfc'],
+                           'WILT': ['sfc']},
+            'groundsoil': {'TMP': ['sfc'],
+                           'TSOIL': ['0-10cmUGL', '10-40cmUGL',
+                                     '40-100cmUGL', '100-200cmUGL'],
+                           'SOILW': ['0-10cmUGL', '10-40cmUGL',
+                                     '40-100cmUGL', '100-200cmUGL'],
+                           'LHTFL': ['sfc'],
+                           'SHTFL': ['sfc'],
+                           'GFLUX': ['sfc'],
+                           'WATR': ['sfc'],
+                           'PEVPR': ['sfc'],
+                           'FLDCP': ['sfc'],
+                           'WILT': ['sfc']},
+            'tropopause': {'HGT': ['tropopause'],
+                           'TMP': ['tropopause'],
+                           'PRES': ['tropopause'],
+                           'UGRD': ['tropopause'],
+                           'VGRD': ['tropopause'],
+                           'VWSH': ['tropopause'],
+                           'ICAHT': ['tropopause']},
+            'sigma0995': {'TMP': ['0.995sigma'],
+                          'POT': ['0.995sigma'],
+                          'UGRD': ['0.995sigma'],
+                          'VGRD': ['0.995sigma'],
+                          'VVEL': ['0.995sigma'],
+                          'RH': ['0.995sigma']},
+            'maxwindlev': {'TMP': ['maxwindlev'],
+                           'PRES': ['maxwindlev'],
+                           'HGT': ['maxwindlev'],
+                           'UGRD': ['maxwindlev'],
+                           'VGRD': ['maxwindlev'],
+                           'ICAHT': ['maxwindlev']},
+            'highesttropfrzlev': {'HGT': ['highesttropfrzlev'],
+                                  'RH': ['highesttropfrzlev']}
+        },
+        'maps2d_model2obs': {
+            'cloudsrad': {'DLWRF': ['sfc'],
+                          'ULWRF': ['sfc', 'toa'],
+                          'DSWRF': ['sfc', 'toa'],
+                          'USWRF': ['sfc', 'toa'],
+                          'TCDC': ['column', 'low',
+                                   'mid', 'high']},
+            'sfc': {'TMP': ['2mAGL']},
+            'totcol': {'PWAT': ['column'],
+                       'CWAT': ['column']}
+        },
+        'mapsda_gdas':{
+            'preslevs':{'TMP': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                                '500hPa', '200hPa', '100hPa', '70hPa',
+                                '50hPa', '30hPa', '10hPa', '7hPa', '5hPa',
+                                '3hPa', '2hPa', '1hPa'],
+                        'UGRD': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                                 '500hPa', '200hPa', '100hPa', '70hPa',
+                                 '50hPa', '30hPa', '10hPa', '7hPa', '5hPa',
+                                 '3hPa', '2hPa', '1hPa'],
+                        'VGRD': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                                 '500hPa', '200hPa', '100hPa', '70hPa',
+                                 '50hPa', '30hPa', '10hPa', '7hPa',
+                                 '5hPa', '3hPa', '2hPa', '1hPa'],
+                        'RH': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                               '500hPa', '200hPa', '100hPa', '70hPa',
+                               '50hPa', '30hPa', '10hPa', '7hPa', '5hPa',
+                               '3hPa', '2hPa', '1hPa'],
+                        'CLWMR': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                                  '500hPa', '200hPa', '100hPa', '70hPa',
+                                  '50hPa', '30hPa', '10hPa', '7hPa', '5hPa',
+                                  '3hPa', '2hPa', '1hPa'],
+                        'O3MR': ['1000hPa', '925hPa', '800hPa', '700hPa',
+                                 '500hPa', '200hPa', '100hPa', '70hPa',
+                                 '50hPa', '30hPa', '10hPa', '7hPa', '5hPa',
+                                 '3hPa', '2hPa', '1hPa']},
+            'sfc': {'MSLET': ['msl']}
+        },
+        'mapsda_ens': {
+            'siglevs': {'TMP': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                '10hPa', '1hPa'],
+                        'UGRD': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                 '10hPa', '1hPa'],
+                        'VGRD': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                 '10hPa', '1hPa'],
+                        'SPFH': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                 '10hPa', '1hPa'],
+                        'CLWMR': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                  '10hPa', '1hPa'],
+                        'O3MR': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                 '10hPa', '1hPa']}
+        }
+    }
     njob = 0
-    for type in type_list:
-        extra_env_info = {}
-        extra_env_info['verif_case_type'] = type
-        if type == 'model2model':
-            if forecast_anl_diff == 'YES':
-                nmodels = nmodels * 2
-            if nmodels > 8:
-                if forecast_anl_diff == 'YES':
-                    print("Too many models listed, including analysis "
-                          +"(len(model_list)*2). Current maximum is 8.")
+    # Initialize environment variable job dictionary
+    job_env_dict = init_env_dict()
+    job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
+    job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
+    job_env_dict['latlon_area'] = os.environ[case_abbrev+'_latlon_area']
+    job_env_dict['plot_diff'] = os.environ[case_abbrev+'_plot_diff']
+    # Set important METplus paths
+    master_metplus = os.path.join(
+        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
+    )
+    machine_conf = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
+    )
+    case_conf_dir = os.path.join(
+        job_env_dict['PARMverif_global'], 'metplus_config',
+        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
+        case
+    )
+    # Set up model environment variables in dictionary
+    model_list = os.environ['model_list'].split(' ')
+    model_plot_name_list = os.environ[
+        case_abbrev+'_model_plot_name_list'
+    ].split(' ')
+    nmodels = len(model_list)
+    for model in model_list:
+        model_idx = model_list.index(model)
+        model_num = model_idx + 1
+        job_env_dict['model'+str(model_num)] = model
+        job_env_dict['model'+str(model_num)+'_plot_name'] = (
+            model_plot_name_list[model_idx]
+        )
+    # Set up case_type environment variables in dictionary
+    for case_type in case_type_list:
+        case_abbrev_type = case_abbrev+'_'+case_type
+        case_type_env_list = ['make_met_data_by', 'regrid_to_grid',
+                              'hour_beg', 'hour_end', 'hour_inc']
+        for case_type_env in case_type_env_list:
+            job_env_dict[case_type_env] = (
+                os.environ[case_abbrev_type+'_'+case_type_env]
+            )
+        job_env_dict['plot_by'] = job_env_dict['make_met_data_by']
+        job_env_dict['case_type'] = case_type
+        # Check we have enough room on subplots before continuing
+        if case == 'maps2d':
+            if case_type == 'model2model':
+                if os.environ[case_abbrev_type+'_forecast_anl_diff'] == 'YES':
+                    nsubplots = nmodels * 2
+                    error_msg = (
+                        '(number of models in model_list ,'+str(nmodels)+', '
+                        +'times 2, for '+case_abbrev_type
+                        +'_forecast_anl_diff = YES)'
+                    )
                 else:
-                    print("Too many models listed in model_list. "
-                          +"Current maximum is 8.")
-                exit(1)
-            extra_env_info['forecast_anl_diff'] = forecast_anl_diff
-            vars_preslevs_dict = {
-                'TMP': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa',
-                        '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'HGT': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                        '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'UGRD': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                         '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'VGRD': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                         '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'VVEL': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                         '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'RH': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                       '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'CLWMR': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                          '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa'],
-                'O3MR': ['1000hPa', '850hPa', '700hPa', '500hPa', '200hPa', 
-                         '100hPa', '70hPa', '50hPa', '10hPa', '5hPa', '1hPa']
-            }
-            vars_sfc_dict = {
-                'TMP': ['2mAGL', 'sfc'],
-                'TMAX': ['2mAGL'],
-                'TMIN': ['2mAGL'],
-                'DPT': ['2mAGL'],
-                'RH': ['2mAGL'],
-                'SPFH': ['2mAGL'],
-                'UGRD': ['10mAGL'],
-                'VGRD': ['10mAGL'],
-                'GUST': ['sfc'],
-                'PRES': ['sfc'],
-                'MSLET': ['msl'],
-                'PRMSL': ['msl'],
-                'LFTX': ['sfc'],
-                '4LFTX': ['sfc'],
-                'VIS': ['sfc'],
-                'HGT': ['sfc'],
-                'HINDEX': ['sfc'],
-                'ICEC': ['sfc'],
-                'U-GWD': ['sfc'],
-                'V-GWD': ['sfc'],
-                'UFLX': ['sfc'],
-                'VFLX': ['sfc'],
-                'ALBDO': ['sfc'],
-                'LHTFL': ['sfc'],
-                'SHTFL': ['sfc'],
-                'GFLUX': ['sfc']
-            }
-            vars_totcol_dict = {
-                'PWAT': ['column'],
-                'CWAT': ['column'],
-                'TOZNE': ['column'],
-                'CWORK': ['column'],
-                'RH': ['column']
-            }
-            vars_precip_dict = {
-                'APCP': ['sfc_bucketaccum6hr'],
-                'ACPCP': ['sfc_bucketaccum6hr'],
-                'SNOD': ['sfc'],
-                'WEASD': ['sfc'],
-                'WATR': ['sfc']
-            }
-            vars_cloudsrad_dict = {
-                'DLWRF': ['sfc'],
-                'ULWRF': ['sfc', 'toa'],
-                'DSWRF': ['sfc'],
-                'USWRF': ['sfc', 'toa'],
-                'ALBDO': ['sfc'],
-                'SUNSD': ['sfc'],
-                'TCDC': ['column', 'pbl', 'low',
-                         'mid', 'high', 'convective'],
-                'PRES': ['lowcloudbase', 'midcloudbase',
-                         'highcloudbase', 'convectivecloudbase',
-                         'lowcloudtop', 'midcloudtop',
-                         'highcloudtop', 'convectivecloudtop'],
-                'TMP': ['lowcloudtop', 'midcloudtop',
-                        'highcloudtop'],
-                'CWAT': ['column'],
-                'CWORK': ['column'],
-            }
-            vars_capecin_dict = {
-                'CAPE': ['sfc', '255-0hPaAGL', '180-0hPaAGL'],
-                'CIN': ['sfc', '255-0hPaAGL', '180-0hPaAGL']
-            }
-            vars_pbl_dict = {
-                'HPBL': ['sfc'],
-                'VRATE': ['pbl'],
-                'UGRD': ['pbl'],
-                'VGRD': ['pbl'],
-                'TCDC': ['pbl']
-            }
-            vars_groundsoil_dict = {
-                'TMP': ['sfc'],
-                'TSOIL': ['0-10cmUGL', '10-40cmUGL',
-                          '40-100cmUGL', '100-200cmUGL'],
-                'SOILW': ['0-10cmUGL', '10-40cmUGL',
-                          '40-100cmUGL', '100-200cmUGL'],
-                'LHTFL': ['sfc'],
-                'SHTFL': ['sfc'],
-                'GFLUX': ['sfc'],
-                'WATR': ['sfc'],
-                'PEVPR': ['sfc'],
-                'FLDCP': ['sfc'],
-                'WILT': ['sfc'],
-            }
-            vars_tropopause_dict = {
-                'HGT': ['tropopause'],
-                'TMP': ['tropopause'],
-                'PRES': ['tropopause'],
-                'UGRD': ['tropopause'],
-                'VGRD': ['tropopause'],
-                'VWSH': ['tropopause'],
-                'ICAHT': ['tropopause'],
-            }
-            vars_sigma0995_dict = {
-                'TMP': ['0.995sigma'],
-                'POT': ['0.995sigma'],
-                'UGRD': ['0.995sigma'],
-                'VGRD': ['0.995sigma'],
-                'VVEL': ['0.995sigma'],
-                'RH': ['0.995sigma']
-            }
-            vars_maxwindlev_dict = {
-                'TMP': ['maxwindlev'],
-                'PRES': ['maxwindlev'],
-                'HGT': ['maxwindlev'],
-                'UGRD': ['maxwindlev'],
-                'VGRD': ['maxwindlev'],
-                'ICAHT': ['maxwindlev']
-            }     
-            vars_highesttropfrzlev_dict = {
-                'HGT': ['highesttropfrzlev'],
-                'RH': ['highesttropfrzlev']
-            }
-            all_vars_dict = {
-                'preslevs': vars_preslevs_dict,
-                'sfc': vars_sfc_dict,
-                'totcol': vars_totcol_dict,
-                'precip': vars_precip_dict,
-                'cloudsrad': vars_cloudsrad_dict,
-                'capecin': vars_capecin_dict,
-                'pbl': vars_pbl_dict,
-                'groundsoil': vars_groundsoil_dict,
-                'tropopause': vars_tropopause_dict,
-                'sigma0995': vars_sigma0995_dict,
-                'maxwindlev': vars_maxwindlev_dict,
-                'highesttropfrzlev': vars_highesttropfrzlev_dict
-            }
-        elif type == 'model2obs':
-            extra_env_info['use_monthly_mean'] = use_monthly_mean
-            vars_cloudsrad_dict = {
-                'DLWRF': ['sfc'],
-                'ULWRF': ['sfc', 'toa'],
-                'DSWRF': ['sfc', 'toa'],
-                'USWRF': ['sfc', 'toa'],
-                'TCDC': ['column', 'low', 'mid', 'high'],
-            }
-            vars_sfc_dict = {
-                'TMP': ['2mAGL']
-            }
-            vars_totcol_dict = {
-                'PWAT': ['column'],
-                'CWAT': ['column']
-            }
-            all_vars_dict = {
-                'cloudsrad': vars_cloudsrad_dict,
-                'sfc': vars_sfc_dict,
-                'totcol': vars_totcol_dict,
-            }
-            grib_obtype_dict = {
-                'DLWRF': ['lw_sfc_down'],
-                'ULWRF': ['lw_sfc_up', 'lw_toa_up'],
-                'DSWRF': ['sw_sfc_down', 'sw_toa_down'],
-                'USWRF': ['sw_sfc_up', 'sw_toa_up'],
-                'TCDC': ['cldt', 'cldl', 'cldm', 'cldh'],
-                'TMP': ['air'],
-                'PWAT': ['tpw'],
-                'CWAT': ['clwp']
-            }
-        for vars_dict in list(all_vars_dict.keys()):
-            # Set up image directories
-            var_group_name_plot_out_dir = os.path.join(
-                DATA, RUN, 'metplus_output',
-                'plot_by_'+plot_by, type, vars_dict, 'imgs'
-            )
-            if not os.path.exists(var_group_name_plot_out_dir):
-                os.makedirs(var_group_name_plot_out_dir)
-            for var_name, var_levels in all_vars_dict[vars_dict].items():
-                # Set maps2d_type obtypes
-                for model in model_list:
-                    index = model_list.index(model)
-                    model_num = index + 1
-                    # Set up output directories
-                    var_group_name_make_met_out_dir = os.path.join(
-                        DATA, RUN, 'metplus_output',
-                        'make_met_data_by_'+make_met_data_by,
-                        'series_analysis', type, vars_dict, model
+                    nsubplots = nmodels
+                    error_msg = (
+                        '(number of models in model_list ,'+str(nmodels)+')'
                     )
-                    if not os.path.exists(var_group_name_make_met_out_dir):
-                        os.makedirs(var_group_name_make_met_out_dir)
-                    if type == 'model2model':
-                        if forecast_anl_diff == 'YES':
-                            if anl_name == 'self_anl':
-                                obtype = model+'_anl'
-                            elif anl_name == 'self_f00':
-                                obtype = model+'_f00'
-                            elif anl_name == 'gfs_anl':
-                                obtype = 'gfs_anl'
-                            elif anl_name == 'gfs_f00':
-                                obtype = 'gfs_f00'
-                        else:
-                            obtype = model
-                    elif type == 'model2obs':
-                        if use_ceres == 'YES':
-                            if vars_dict == 'cloudsrad':
-                                obtype = 'ceres'
-                            elif vars_dict == 'sfc':
-                                obtype = 'ghcn_cams'
-                            elif vars_dict == 'precip':
-                                obtype = 'gpcp'
-                            elif vars_dict == 'totcol':
-                                obtype = 'ceres'
-                        else:
-                            if vars_dict == 'cloudsrad':
-                                if var_name == 'TCDC':
-                                    obtype = 'rad_isccp'
-                                else:
-                                    obtype = 'rad_srb2'
-                            elif vars_dict == 'sfc':
-                                obtype = 'ghcn_cams'
-                            elif vars_dict == 'precip':
-                                obtype = 'gpcp'
-                            elif vars_dict == 'totcol':
-                                if var_name == 'CWAT':
-                                    obtype = 'clwp'
-                                else:
-                                    obtype = 'nvap'
-                        obtype_var_name = grib_obtype_dict[var_name]
-                        extra_env_info['obtype_var_name'] = (
-                            ' '.join(obtype_var_name).replace(' ', ', ')
-                        )
-                    model_info['model'+str(model_num)+'_obtype'] = obtype
-                for forecast_to_plot in forecast_to_plot_list:
-                    njob+=1
-                    # Create job file
-                    job_filename = os.path.join(DATA, RUN,
-                                                'metplus_job_scripts',
-                                                'job'+str(njob))
-                    job_file = open(job_filename, 'w')
-                    set_job_common_env(job_file)
-                    job_file.write('export START_DATE="'
-                                   +sdate.strftime('%Y%m%d')+'"\n')
-                    job_file.write('export END_DATE="'
-                                   +edate.strftime('%Y%m%d')+'"\n')
-                    job_file.write('export job_num_id="'+str(njob)+'"\n')
-                    job_file.write('export make_met_data_by="'
-                                   +make_met_data_by+'"\n')
-                    job_file.write('export plot_by="'+plot_by+'"\n')
-                    job_file.write('export forecast_to_plot="'
-                                   +forecast_to_plot+'"\n')
-                    job_file.write('export hr_beg="'+hr_beg+'"\n')
-                    job_file.write('export hr_end="'+hr_end+'"\n')
-                    job_file.write('export hr_inc="'+hr_inc+'"\n')
-                    job_file.write('export regrid_to_grid="'
-                                   +regrid_to_grid+'"\n')
-                    job_file.write('export latlon_area="'
-                                   +latlon_area+'"\n')
-                    job_file.write('export var_group_name="'
-                                   +vars_dict+'"\n')
-                    job_file.write('export var_name="'+var_name+'"\n')
-                    job_file.write('export var_levels="'
-                                   +' '.join(var_levels).replace(' ', ', ')
-                                   +'"\n')
-                    for name, value in model_info.items():
-                        job_file.write('export '+name+'="'+value+'"\n')
-                    for name, value in extra_env_info.items():
-                        job_file.write('export '+name+'="'+value+'"\n')
-                    job_file.write('\n')
-                    job_file.write(
-                        'python '
-                        +os.path.join(
-                            USHverif_global,
-                           'create_MET_series_analysis_jobs.py\n'
-                        )
-                    )
-                    for model in model_list:
-                        job_file.write(os.path.join(DATA, RUN,
-                                                    'metplus_job_scripts',
-                                                    'series_analysis_'
-                                                    +'job'+str(njob)+'_'
-                                                    +model+'.sh')+'\n')
-                    # Need to switch python modules to use Basemap
-                    if machine != 'ORION':
-                        if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
-                            job_file.write(
-                                'module switch python/3.6.3\n'
-                            )
-                            job_file.write(
-                                'export py_map_pckg="cartopy"\n'
-                            )
-                        else:
-                            job_file.write(
-                                'export py_map_pckg="basemap"\n'
-                            )
-                        job_file.write(
-                            'python '+os.path.join(USHverif_global,
-                                                   'plotting_scripts',
-                                                   'plot_maps2d_lat_lon_errors'
-                                                   +'.py\n')
-                        )
-                        if vars_dict == 'preslevs':
-                            job_file.write(
-                                'python '
-                                +os.path.join(USHverif_global,
-                                              'plotting_scripts',
-                                              'plot_maps2d_zonal_mean_errors'
-                                              +'.py\n')
-                            )
-                        job_file.write('nimgs=$(ls '
-                               +os.path.join(DATA, RUN, 'metplus_output',
-                                             'plot_by_'+plot_by,
-                                             type, vars_dict,
-                                             'imgs', '*')
-                               +' |wc -l)\n')
-                        job_file.write('if [ $nimgs -ne 0 ]; then\n')
-                        job_file.write(
-                             '    ln -sf '
-                             +os.path.join(DATA, RUN, 'metplus_output',
-                                           'plot_by_'+plot_by, type, vars_dict,
-                                           'imgs', '*')+' '
-                             +os.path.join(DATA, RUN, 'metplus_output',
-                                           'images/.')+'\n'
-                        )
-                        job_file.write('fi')
-                        job_file.close()
-                    else:
-                        job_file.write('# Cannot run plotting scripts due '
-                                       +'to no python versions on Orion '
-                                       +'having netCDF4')
-                        job_file.close()
-
-def create_job_script_mapsda(sdate, edate, model_list, type_list):
-    """! Writes out job cards based on requested verification
-         for mapsda verification
-
-         Args:
-             sdate      - datetime object of the verification start
-                          date
-             edate      - datetime object of the verification end
-                          date
-             model_list - list of strings of model names
-             type_list  - list of strings of the types of the
-                          verification use case
-
-         Returns:
-    """
-    model_plot_name_list = (
-        os.environ['mapsda_model_plot_name_list'].split(' ')
-    )
-    if len(model_plot_name_list) != len(model_list):
-        print("model_list and mapsda_model_plot_name_list "
-              +"not of equal length")
-    hr_beg = os.environ['mapsda_hr_beg']
-    hr_end = os.environ['mapsda_hr_end']
-    hr_inc = os.environ['mapsda_hr_inc']
-    regrid_to_grid = os.environ['mapsda_gdas_regrid_to_grid']
-    latlon_area = os.environ['mapsda_latlon_area']
-    file_suffix_list = os.environ['mapsda_ens_netcdf_suffix_list'].split(' ')
-    model_info = {}
-    nmodels = int(len(model_list))
-    for model in model_list:
-        index = model_list.index(model)
-        model_num = index + 1
-        model_info['model'+str(model_num)] = model
-        model_info['model'+str(model_num)+'_plot_name'] = (
-            model_plot_name_list[index]
-        )
-    njob = 0
-    for type in type_list:
-        extra_env_info = {}
-        extra_env_info['verif_case_type'] = type
-        if nmodels > 8:
-            print("Too many models listed in model_list. "
-                  +"Current maximum is 8.")
+            elif case_type == 'model2obs':
+                nsubplots = nmodels + 1
+                error_msg = (
+                    '(number of models in model_list ,'+str(nmodels)+', '
+                    +'plus 1, for observations)'
+                )
+        elif case == 'mapsda':
+            if case_type == 'gdas':
+                nsubplots = nmodels + 1
+                error_msg = (
+                    '(number of models in model_list ,'+str(nmodels)+', '
+                    +'plus 1, for model1 analysis)'
+                )
+            elif case_type == 'ens':
+                nsubplots = nmodels
+                error_msg = (
+                    '(number of models in model_list ,'+str(nmodels)+')'
+                )
+        if nsubplots > 10:
+            print("ERROR: Requested verification results in "
+                  +str(nsubplots)+" subplots "+error_msg
+                  +", current maximum is 10")
             exit(1)
-        if type == 'gdas':
-            make_met_data_by = os.environ['mapsda_gdas_make_met_data_by']
-            plot_by = make_met_data_by
-            forecast_to_plot_list = [os.environ['mapsda_gdas_guess_hour']]
-            extra_env_info['regrid_to_grid'] = regrid_to_grid
-            vars_preslevs_dict = {
-                'TMP': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                        '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                        '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
-                'UGRD': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
-                'VGRD': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
-                'RH': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                       '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                       '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
-                'CLWMR': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                          '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                          '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa'],
-                'O3MR': ['1000hPa', '925hPa', '800hPa', '700hPa', '500hPa',
-                         '200hPa', '100hPa', '70hPa', '50hPa', '30hPa',
-                         '10hPa', '7hPa', '5hPa', '3hPa', '2hPa', '1hPa']
-            }
-            vars_sfc_dict = {
-                'MSLET': ['msl']
-            }
-            all_vars_dict = {
-                'preslevs': vars_preslevs_dict,
-                'sfc': vars_sfc_dict,
-            }
-        elif type == 'ens':
-            make_met_data_by = os.environ['mapsda_ens_make_met_data_by']
-            plot_by = make_met_data_by
-            forecast_to_plot_list = [os.environ['mapsda_ens_guess_hour']]
-            vars_siglevs_dict = {
-                'TMP': ['1000hPa', '850hPa', '500hPa',
-                        '250hPa', '10hPa', '1hPa'],
-                'UGRD': ['1000hPa', '850hPa', '500hPa',
-                         '250hPa', '10hPa', '1hPa'],
-                'VGRD': ['1000hPa', '850hPa', '500hPa',
-                         '250hPa', '10hPa', '1hPa'],
-                'SPFH': ['1000hPa', '850hPa', '500hPa',
-                         '250hPa', '10hPa', '1hPa'],
-                'CLWMR': ['1000hPa', '850hPa', '500hPa',
-                          '250hPa', '10hPa', '1hPa'],
-                'O3MR': ['1000hPa', '850hPa', '500hPa',
-                         '250hPa', '10hPa', '1hPa'],
-            }
-            vars_sfc_dict = {
-                'PRES': ['sfc']
-            }
-            all_vars_dict = {
-                'siglevs': vars_siglevs_dict,
-                'sfc': vars_sfc_dict,
-            }
-        for vars_dict in list(all_vars_dict.keys()):
-            # Set up image directories
-            var_group_name_plot_out_dir = os.path.join(
-                DATA, RUN, 'metplus_output',
-                'plot_by_'+plot_by, type, vars_dict, 'imgs'
+        # Set some specific case_type environment variables in own dictionary
+        case_type_env_dict = {}
+        if case == 'maps2d':
+            if case_type == 'model2model':
+                case_type_env_dict['forecast_anl_diff'] = (
+                    os.environ[case_abbrev_type+'_forecast_anl_diff']
+                )
+            elif case_type == 'model2obs':
+                case_type_env_dict['use_ceres'] = (
+                    os.environ[case_abbrev_type+'_use_ceres']
+                )
+                case_type_env_dict['use_monthly_mean'] = (
+                    os.environ[case_abbrev_type+'_use_monthly_mean']
+                )
+        # Set forecasting plotting list
+        if case == 'maps2d':
+            forecast_to_plot_list = (
+                os.environ[case_abbrev_type+'_forecast_to_plot_list'] \
+                .split(' ')
             )
-            if not os.path.exists(var_group_name_plot_out_dir):
-                os.makedirs(var_group_name_plot_out_dir)
-            for var_name, var_levels in all_vars_dict[vars_dict].items():
-                # Set mapsda_type obtypes
+        elif case == 'mapsda':
+            forecast_to_plot_list = (
+                os.environ[case_abbrev_type+'_guess_hour'].split(' ')
+            )
+        # Set up plotting environment variables in dictionary
+        plotting_dict = plotting_case_case_type_dict[case+'_'+case_type]
+        for var_group in list(plotting_dict.keys()):
+            var_group_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'plot_by_'+job_env_dict['plot_by'], case_type,
+                var_group, 'imgs'
+            )
+            if not os.path.exists(var_group_img_dir):
+                os.makedirs(var_group_img_dir)
+            for model in model_list:
+                var_group_name_make_met_model_dir = os.path.join(
+                    job_env_dict['DATA'], job_env_dict['RUN'],
+                    'metplus_output',
+                    'make_met_data_by_'+job_env_dict['make_met_data_by'],
+                    'series_analysis', case_type, var_group, model
+                )
+                if not os.path.exists(var_group_name_make_met_model_dir):
+                    os.makedirs(var_group_name_make_met_model_dir)
+            job_env_dict['var_group'] = var_group
+            for var_name, var_levels in plotting_dict[var_group].items():
+                job_env_dict['var_name'] = var_name
+                job_env_dict['var_levels'] = (
+                    ' '.join(var_levels).replace(' ', ', ')
+                )
                 for model in model_list:
-                    index = model_list.index(model)
-                    model_num = index + 1
-                    if type == 'gdas':
-                        # Set up output directories
-                        var_group_name_make_met_out_dir = os.path.join(
-                            DATA, RUN, 'metplus_output',
-                            'make_met_data_by_'+make_met_data_by,
-                            'series_analysis', type, vars_dict, model
-                        )
-                        if not os.path.exists(var_group_name_make_met_out_dir):
-                            os.makedirs(var_group_name_make_met_out_dir)
-                        model_info['model'+str(model_num)+'_obtype'] = (
-                            model+'_anl'
-                        )
-                    elif type == 'ens':
-                        model_info['model'+str(model_num)+'_suffix'] = (
-                            file_suffix_list[index]
-                        )
+                    model_num = (model_list.index(model)) + 1
+                    if case == 'maps2d':
+                        if case_type == 'model2model':
+                            if case_type_env_dict['forecast_anl_diff'] \
+                                    == 'YES':
+                                obtype = model+'_anl'
+                            else:
+                                obtype = model
+                        elif case_type == 'model2obs':
+                            if var_group in ['cloudsrad', 'totcol']:
+                                if case_type_env_dict['use_ceres'] == 'YES':
+                                    obtype = 'ceres'
+                                else:
+                                    if var_name == 'TCDC':
+                                        obtype = 'rad_isccp'
+                                    elif var_name == 'CWAT':
+                                        obtype = 'clwp'
+                                    elif var_name == 'PWAT':
+                                        obtype = 'nvap'
+                                    elif var_name in ['DLWRF', 'ULWRF',
+                                                      'DSWRF', 'USWRF']:
+                                        obtype = 'rad_srb2'
+                            elif var_group == 'sfc':
+                                obtype == 'ghcn_cams'
+                            elif var_group == 'precip':
+                                obtype = 'gpcp'
+                        elif case == 'mapsda':
+                            if case_type == 'gdas':
+                                obtype = model+'_anl'
+                            elif case_type == 'ens':
+                                obtype = model
+                        job_env_dict['model'+str(model_num)+'_obtype'] = obtype
                 for forecast_to_plot in forecast_to_plot_list:
+                    job_env_dict['forecast_to_plot'] = forecast_to_plot
                     njob+=1
                     # Create job file
-                    job_filename = os.path.join(DATA, RUN,
+                    job_filename = os.path.join(job_env_dict['DATA'],
+                                                job_env_dict['RUN'],
                                                 'metplus_job_scripts',
                                                 'job'+str(njob))
                     job_file = open(job_filename, 'w')
-                    set_job_common_env(job_file)
-                    job_file.write('export START_DATE="'
-                                   +sdate.strftime('%Y%m%d')+'"\n')
-                    job_file.write('export END_DATE="'
-                                   +edate.strftime('%Y%m%d')+'"\n')
-                    job_file.write('export job_num_id="'+str(njob)+'"\n')
-                    job_file.write('export make_met_data_by="'
-                                   +make_met_data_by+'"\n')
-                    job_file.write('export plot_by="'+plot_by+'"\n')
-                    job_file.write('export forecast_to_plot="'
-                                   +forecast_to_plot+'"\n')
-                    job_file.write('export hr_beg="'+hr_beg+'"\n')
-                    job_file.write('export hr_end="'+hr_end+'"\n')
-                    job_file.write('export hr_inc="'+hr_inc+'"\n')
-                    job_file.write('export latlon_area="'
-                                   +latlon_area+'"\n')
-                    job_file.write('export var_group_name="'
-                                   +vars_dict+'"\n')
-                    job_file.write('export var_name="'+var_name+'"\n')
-                    job_file.write('export var_levels="'
-                                   +' '.join(var_levels).replace(' ', ', ')
-                                   +'"\n')
-                    for name, value in model_info.items():
+                    job_file.write('#!/bin/sh\n')
+                    # Write environment variables
+                    for name, value in job_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')
-                    for name, value in extra_env_info.items():
+                    for name, value in case_type_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')
                     job_file.write('\n')
-                    if type == 'gdas':
-                        job_file.write(
-                            'python '
-                            +os.path.join(
-                                USHverif_global,
-                               'create_MET_series_analysis_jobs.py\n'
-                            )
+                    # Write METplus commands
+                    metplus_conf = os.path.join(case_conf_dir, case+'.conf')
+                    job_file.write(master_metplus+' -c '+machine_conf+' '
+                                   +'-c '+metplus_conf+'\n')
+                    job_file.write('\n')
+                    if os.environ['machine'] == 'ORION':
+                        job_file.write('echo "No map python plotting packages '
+                                       +'installed on Orion. Not creating '
+                                       +'plots."\n')
+                    else:
+                        plotting_script_list = []
+                        plotting_script_list.append(
+                            'plot_'+case+'_lat_lon_errors.py'
                         )
-                        for model in model_list:
-                            job_file.write(os.path.join(DATA, RUN,
-                                                        'metplus_job_scripts',
-                                                        'series_analysis_'
-                                                        +'job'+str(njob)+'_'
-                                                        +model+'.sh')+'\n')
-                    # Need to switch python modules to use Basemap
-                    if machine != 'ORION':
-                        if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:
-                            job_file.write(
-                                'module switch python/3.6.3\n'
+                        if var_group == 'preslevs':
+                            plotting_script_list.append(
+                                'plot_'+case+'_zonal_mean_errors.py'
                             )
-                            job_file.write(
-                                'export py_map_pckg="cartopy"\n'
-                            )
-                        else:
-                            job_file.write(
-                                'export py_map_pckg="basemap"\n'
-                            )
-                        job_file.write(
-                            'python '+os.path.join(USHverif_global,
-                                                   'plotting_scripts',
-                                                   'plot_mapsda_lat_lon_errors'
-                                                   +'.py\n')
-                        )
-                        if vars_dict in ['preslevs']:
+                        for plotting_script in plotting_script_list:
                             job_file.write(
                                 'python '
-                                +os.path.join(USHverif_global,
-                                              'plotting_scripts',
-                                              'plot_mapsda_zonal_mean_errors'
-                                              +'.py\n')
+                                 +os.path.join(job_env_dict['USHverif_global'],
+                                               'plotting_scripts',
+                                                plotting_script)
+                                +'\n'
                             )
-                        job_file.write('nimgs=$(ls '
-                               +os.path.join(DATA, RUN, 'metplus_output',
-                                             'plot_by_'+plot_by,
-                                             type, vars_dict,
-                                             'imgs', '*')
-                               +' |wc -l)\n')
-                        job_file.write('if [ $nimgs -ne 0 ]; then\n')
-                        job_file.write(
-                             '    ln -sf '
-                             +os.path.join(DATA, RUN, 'metplus_output',
-                                           'plot_by_'+plot_by, type, vars_dict,
-                                           'imgs', '*')+' '
-                             +os.path.join(DATA, RUN, 'metplus_output',
-                                           'images/.')+'\n'
+                        job_file.write('\n')
+                        main_img_dir = os.path.join(
+                            job_env_dict['DATA'], job_env_dict['RUN'],
+                            'metplus_output', 'images'
                         )
+                        job_file.write('nimgs=$(ls '+var_group_img_dir
+                                       +'/* |wc -l)\n')
+                        job_file.write('if [ $nimgs -ne 0 ]; then\n')
+                        job_file.write('    ln -sf '+var_group_img_dir
+                                       +'/* '+main_img_dir+'/.\n')
                         job_file.write('fi')
-                        job_file.close() 
-                    else:
-                        job_file.write('# Cannot run plotting scripts due '
-                                       +'to no python versions on Orion '
-                                       +'having netCDF4')
                         job_file.close()
- 
+
+# Read in environment variables
+DATA = os.environ['DATA']
+RUN = os.environ['RUN']
+machine = os.environ['machine']
+MPMD = os.environ['MPMD']
+nproc = int(os.environ['nproc'])
+start_date = os.environ['start_date']
+end_date = os.environ['end_date']
+RUN_abbrev = os.environ['RUN_abbrev']
+
+# Set up date information
+sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]),
+                          int(start_date[6:]))
+edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]),
+                          int(end_date[6:]))
+
 # Run job creation function
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1',
            'satellite_step1']:
-    create_job_script_step1(sdate, edate, model_list, type_list, case)   
+    create_job_scripts_step1(
+        sdate, edate, RUN.split('_')[0], RUN_abbrev,
+        os.environ[RUN_abbrev+'_type_list'].split(' ')
+    )
 elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
              'satellite_step2']:
-    create_job_script_step2(sdate, edate, model_list, type_list, case)
+    create_job_scripts_step2(
+        sdate, edate, RUN.split('_')[0], RUN_abbrev,
+        os.environ[RUN_abbrev+'_type_list'].split(' ')
+    )
 elif RUN in ['tropcyc']:
     import get_tc_info
-    config_storm_list = os.environ['tropcyc_storm_list'].split(' ')
-    # Check storm_list to see if all storms for basin and year
-    # requested
-    storm_list = []
-    for storm in config_storm_list:
-        basin = storm.split('_')[0]
-        year = storm.split('_')[1]
-        name = storm.split('_')[2]
-        if name == 'ALLNAMED':
-            all_storms_in_basin_year_list = (
-                get_tc_info.get_all_tc_storms_basin_year(basin, year)
-            )
-            for byn in all_storms_in_basin_year_list:
-                storm_list.append(byn)
+    tc_dict = get_tc_info.get_tc_dict()
+    RUN_abbrev_tc_list = []
+    RUN_abbrev_config_storm_list = (
+        os.environ[RUN_abbrev+'_storm_list'].split(' ')
+    )
+    for config_storm in RUN_abbrev_config_storm_list:
+        config_storm_basin = config_storm.split('_')[0]
+        config_storm_year = config_storm.split('_')[1]
+        config_storm_name = config_storm.split('_')[2]
+        if config_storm_name == 'ALLNAMED':
+            for byn in list(tc_dict.keys()):
+                if config_storm_basin+'_'+config_storm_year in byn:
+                    RUN_abbrev_tc_list.append(byn)
         else:
-            storm_list.append(storm)
-    create_job_script_tropcyc(model_list, storm_list)
-elif RUN in ['maps2d']:
-    create_job_script_maps2d(sdate, edate, model_list, type_list)
-elif RUN in ['mapsda']:
-    create_job_script_mapsda(sdate, edate, model_list, type_list)
+            RUN_abbrev_tc_list.append(config_storm)
+    create_job_scripts_tropcyc(
+        sdate, edate, RUN, RUN_abbrev, RUN_abbrev_tc_list
+    )
+elif RUN in ['maps2d', 'mapsda']:
+    create_job_scripts_maps(
+        sdate, edate, RUN, RUN_abbrev,
+        os.environ[RUN_abbrev+'_type_list'].split(' ')
+    )
 
 # If running MPMD, create POE scripts
 if MPMD == 'YES':
@@ -2096,14 +1589,18 @@ if MPMD == 'YES':
         os.path.join(DATA, RUN, 'metplus_job_scripts', 'job*')
     )
     njob_files = len(job_files)
+    if njob_files == 0:
+        print("ERROR: No job files created in "
+              +os.path.join(DATA, RUN, 'metplus_job_scripts'))
+        exit(1)
     if RUN == 'tropcyc':
         METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
         if METplus_tropcyc_process == 'tc_pairs':
             njob, iproc = 1, 0
             node = 1
         else:
-            njob_from_tc_pairs = int(os.environ['njob_from_tc_pairs'])
-            npoe_from_tc_pairs = int(os.environ['npoe_from_tc_pairs'])
+            njob_from_tc_pairs = int(os.environ['ncount_job'])
+            npoe_from_tc_pairs = int(os.environ['ncount_poe'])
             njob = njob_from_tc_pairs + 1
             iproc = 0
             node = npoe_from_tc_pairs + 1

@@ -1,4 +1,5 @@
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -447,7 +448,7 @@ for var_level in var_levels:
                 cbar_height = 0.02
             else:
                 logger.error("Too many subplots selected, max. is 10")
-                exit(1)
+                sys.exit(1)
             suptitle_x_loc = (
                 plt.rcParams['figure.subplot.left']
                 +plt.rcParams['figure.subplot.right']

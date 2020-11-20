@@ -1,4 +1,5 @@
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -220,7 +221,7 @@ if verif_case_type == 'gdas':
 elif verif_case_type == 'ens':
     plot_stats_list = ['mean', 'spread']
     print("ERROR: Currently cannot do zonal means for ens")
-    exit(1)
+    sys.exit(1)
 
 # Set up information
 env_var_model_list = []
@@ -493,7 +494,7 @@ for stat in plot_stats_list:
         cbar_height = 0.02
     else:
         logger.error("Too many subplots selected, max. is 10")
-        exit(1)
+        sys.exit(1)
     suptitle_x_loc = (
         plt.rcParams['figure.subplot.left']
         +plt.rcParams['figure.subplot.right']

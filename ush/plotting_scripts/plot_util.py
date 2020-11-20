@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import datetime as datetime
 import pandas as pd
@@ -237,7 +238,7 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
                 ]
         else:
             logger.error("VCNT is not a valid LINE_TYPE in METV"+met_version)
-            exit(1)
+            sys.exit(1)
     elif line_type == 'CTC':
         if met_version >= 6.0:
             stat_file_line_type_columns = [
@@ -318,7 +319,7 @@ def calculate_average(logger, average_method, stat, model_dataframe,
     else:
         logger.error("Invalid entry for MEAN_METHOD, "
                      +"use MEAN, MEDIAN, or AGGREGATION")
-        exit(1)
+        sys.exit(1)
     return average_array
 
 def calculate_ci(logger, ci_method, modelB_values, modelA_values, total_days,
@@ -426,7 +427,7 @@ def calculate_ci(logger, ci_method, modelB_values, modelA_values, total_days,
     else:
         logger.error("Invalid entry for MAKE_CI_METHOD, "
                      +"use EMC, EMC_MONTE_CARLO")
-        exit(1)
+        sys.exit(1)
     return intvl
 
 def get_stat_plot_name(logger, stat):
@@ -484,7 +485,7 @@ def get_stat_plot_name(logger, stat):
         stat_plot_name = "Equitable Threat Score"
     else:
         logger.error(stat+" is not a valid option")
-        exit(1)
+        sys.exit(1)
     return stat_plot_name
 
 def calculate_stat(logger, model_data, stat):
@@ -575,7 +576,7 @@ def calculate_stat(logger, model_data, stat):
             fn_on = model_data.loc[:]['FN_ON']
         else:
             logger.error("Could not recognize line type from columns")
-            exit(1)
+            sys.exit(1)
     if stat == "bias":
         stat_plot_name = "Bias"
         if line_type == "SL1L2":
@@ -700,7 +701,7 @@ def calculate_stat(logger, model_data, stat):
             stat_values = speed_err
         else:
             logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
+            sys.exit(1)
     elif stat == "dir_err":
         stat_plot_name = "Difference in Average FCST and "+ \
                          "OBS Wind Vector Direction"
@@ -714,7 +715,7 @@ def calculate_stat(logger, model_data, stat):
            stat_values = rmsve
         else:
             logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
+            sys.exit(1)
     elif stat == "vdiff_speed":
         stat_plot_name = "Difference Vector Speed"
         if line_type == "VCNT":
@@ -760,7 +761,7 @@ def calculate_stat(logger, model_data, stat):
             logger.error(stat+" cannot be computed from line type "+line_type)
     else:
         logger.error(stat+" is not a valid option")
-        exit(1)
+        sys.exit(1)
     nindex = stat_values.index.nlevels
     if stat == "fbar_obar":
         if nindex == 1:

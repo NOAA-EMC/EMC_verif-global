@@ -2,6 +2,7 @@
 ## for EMC purposes
 
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import plot_util as plot_util
@@ -272,7 +273,7 @@ for stat in plot_stats_list:
                 cbar_height = 0.02
             else:
                 logger.error("Too many subplots selected, max. is 10")
-                exit(1)
+                sys.exit(1)
             suptitle_x_loc = (plt.rcParams['figure.subplot.left']
                       +plt.rcParams['figure.subplot.right'])/2.
             fig = plt.figure(figsize=(x_figsize, y_figsize))

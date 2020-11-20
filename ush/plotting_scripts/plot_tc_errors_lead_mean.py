@@ -131,7 +131,7 @@ if os.path.exists(summary_tcst_filename):
     nrow = sum(1 for line in open(summary_tcst_filename))
     if nrow == 0:
         print("ERROR: "+summary_tcst_filename+" empty")
-        exit(1)
+        sys.exit(1)
     else:
         print(summary_tcst_filename+" exists")
         summary_tcst_file = open(summary_tcst_filename, 'r')
@@ -451,4 +451,4 @@ if os.path.exists(summary_tcst_filename):
             plt.close()
 else:
     print("ERROR: "+summary_tcst_filename+" does not exist")
-    exit(1)
+    sys.exit(1)

@@ -6,6 +6,7 @@ Abstract: This script is run by all scripts in scripts/.
           the passed config file.
 '''
 
+import sys
 import os
 import datetime
 import calendar
@@ -27,22 +28,22 @@ for date_check_name in date_check_name_list:
     date_check_day = int(date_check[6:])
     if len(date_check) != 8:
         print("ERROR: "+date_check_name+"_date not in YYYYMMDD format")
-        exit(1)
+        sys.exit(1)
     if date_check_month > 12 or int(date_check_month) == 0:
         print("ERROR: month "+str(date_check_month)+" in value "
               +date_check+" for "+date_check_name+"_date is not a valid month")
-        exit(1)
+        sys.exit(1)
     if date_check_day \
             > calendar.monthrange(date_check_year, date_check_month)[1]:
         print("ERROR: day "+str(date_check_day)+" in value "
               +date_check+" for "+date_check_name+"_date is not a valid day "
               +"for month")
-        exit(1)
+        sys.exit(1)
 if datetime.datetime.strptime(os.environ['end_date'], '%Y%m%d') \
         < datetime.datetime.strptime(os.environ['start_date'], '%Y%m%d'):
     print("ERROR: end_date ("+os.environ['end_date']+") cannot be less than "
           +"start_date ("+os.environ['start_date']+")")
-    exit(1)
+    sys.exit(1)
 
 # Do check for valid RUN_type options
 valid_RUN_type_opts_dict = {
@@ -63,7 +64,7 @@ if RUN != 'tropcyc':
             print("ERROR: "+RUN_type+" not a valid option for "
                   +RUN_abbrev+"_type_list. Valid options are "
                   +', '.join(valid_RUN_type_opts_dict[RUN]))
-            exit(1)
+            sys.exit(1)
 
 # Do check for list config variables lengths
 check_config_var_len_list = ['model_dir_list', 'model_stat_dir_list',
@@ -132,7 +133,7 @@ for config_var in check_config_var_len_list:
            +os.environ[config_var]+") not equal to length of model_list "
            +"(length="+str(len(os.environ['model_list'].split(' ')))+", "
            +"values="+os.environ['model_list']+")")
-     exit(1)
+     sys.exit(1)
 
 # Do check for valid list config variable options
 valid_config_var_values_dict = {
@@ -175,7 +176,7 @@ if RUN == 'grid2grid_step1':
                           +"expected string ("+', '.join(truth_opt_list)+") "
                           +"for "+RUN_abbrev_type+"_truth_name set as "
                           +os.environ[RUN_abbrev_type+'_truth_name'])
-                    exit(1)
+                    sys.exit(1)
 elif RUN == 'grid2grid_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -277,12 +278,12 @@ elif RUN == 'precip_step1':
                               +RUN_abbrev_type+"_model_bucket_list must be "
                               +"<= to "+RUN_abbrev_type+" accumulation length "
                               +"which is "+RUN_abbrev_type_accum_length)
-                        exit(1)
+                        sys.exit(1)
                 else:
                     print("ERROR: value of "+model_bucket+" in "
                           +RUN_abbrev_type+"_model_bucket_list "
                           +"must be numeric")
-                    exit(1)
+                    sys.exit(1)
     valid_config_var_values_dict[RUN_abbrev
                                  +'_obs_data_run_hpss'] = ['YES', 'NO']
 elif RUN == 'precip_step2':
@@ -301,7 +302,7 @@ elif RUN == 'satellite_step1':
         if float(os.environ[RUN_abbrev_type+'_sea_ice_thresh']) > 1:
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")
-            exit(1)
+            sys.exit(1)
 elif RUN == 'satellite_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -313,7 +314,7 @@ elif RUN == 'satellite_step2':
         if float(os.environ[RUN_abbrev_type+'_sea_ice_thresh']) > 1:
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")
-            exit(1)
+            sys.exit(1)
 elif RUN == 'tropcyc':
     import get_tc_info
     tc_dict = get_tc_info.get_tc_dict()
@@ -334,22 +335,22 @@ elif RUN == 'tropcyc':
             print("ERROR: basin value of "+basin+" in "+basin_year_name+" in "
                   +RUN+"_storm_list not a valid option. Valid options are "
                   +' '.join(valid_basin_list))
-            exit(1)
+            sys.exit(1)
         elif year not in valid_year_list:
             print("ERROR: year value of "+year+" in "+basin_year_name+" in "
                   +RUN+"_storm_list not a valid option. Valid options are "
                   +' '.join(valid_year_list))
-            exit(1)
+            sys.exit(1)
         if name != 'ALLNAMED':
             if basin_year_name not in list(tc_dict.keys()):
                 print("ERROR: name value of "+name+" in "+basin_year_name+" "
                       +"in "+basin_year_name+" not supported")
-                exit(1)
+                sys.exit(1)
     for atcf_name in os.environ[RUN+'_model_atcf_name_list'].split(' '):
         if len(atcf_name) != 4:
             print("ERROR: length of "+atcf_name+" in "
                   +RUN+"_model_atcf_name_list != to 4")
-            exit(1)
+            sys.exit(1)
 elif RUN == 'maps2d':
     valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
@@ -372,18 +373,18 @@ elif RUN == 'maps2d':
                     print("ERROR: value of "+forecast_to_plot+" in "
                           +RUN_abbrev_type+"_forecast_to_plot_list must be "
                           +"anl to use analysis")
-                    exit(1)
+                    sys.exit(1)
             elif forecast_to_plot[0] in ['d', 'f']:
                 if not forecast_to_plot[1:].isnumeric():
                     print("ERROR: value of "+forecast_to_plot[1:]+" in "
                           +forecast_to_plot+" in "+RUN_abbrev_type
                           +"_forecast_to_plot_list must be numeric")
-                    exit(1)
+                    sys.exit(1)
             else:
                 print("ERROR: value of "+forecast_to_plot+" in "
                       +RUN_abbrev_type+"_forecast_to_plot_list must be either "
                       +"anl or dX or fX, where X is a number")
-                exit(1)
+                sys.exit(1)
 elif RUN == 'mapsda':
     valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
@@ -416,6 +417,6 @@ for config_var in list(valid_config_var_values_dict.keys()):
         print("ERROR: value of "+failed_config_value+" for "
               +config_var+" not a valid option. Valid options are "
               +', '.join(valid_config_var_values_dict[config_var]))
-        exit(1)
+        sys.exit(1)
 
 print("END: "+os.path.basename(__file__))

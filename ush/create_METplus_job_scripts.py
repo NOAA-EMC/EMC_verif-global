@@ -760,7 +760,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
     if nmodels > 10:
         print("ERROR: Too many models listed in model_list ("
               +str(nmodels)+"), current maximum is 10")
-        exit(1)
+        sys.exit(1)
     for model in model_list:
         model_idx = model_list.index(model)
         model_num = model_idx + 1
@@ -953,7 +953,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
     if nmodels > 10:
         print("ERROR: Too many models listed in model_list ("
               +str(nmodels)+"), current maximum is 10")
-        exit(1)
+        sys.exit(1)
     model_atcf_abbrev_list = []
     for model in model_list:
         model_idx = model_list.index(model)
@@ -1390,7 +1390,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
             print("ERROR: Requested verification results in "
                   +str(nsubplots)+" subplots "+error_msg
                   +", current maximum is 10")
-            exit(1)
+            sys.exit(1)
         # Set some specific case_type environment variables in own dictionary
         case_type_env_dict = {}
         if case == 'maps2d':
@@ -1592,7 +1592,7 @@ if MPMD == 'YES':
     if njob_files == 0:
         print("ERROR: No job files created in "
               +os.path.join(DATA, RUN, 'metplus_job_scripts'))
-        exit(1)
+        sys.exit(1)
     if RUN == 'tropcyc':
         METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
         if METplus_tropcyc_process == 'tc_pairs':

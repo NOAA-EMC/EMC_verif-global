@@ -8,6 +8,7 @@ Abstract: This script is run by set_up_verif_global.sh.
           variable "HOSTNAME" or output from hostname executable.
 '''
 
+import sys
 import os
 import re
 import subprocess
@@ -55,7 +56,7 @@ if 'machine' not in vars():
         machine = 'WCOSS_DELL_P3'
     else:
         print("Cannot find match for "+hostname)
-        exit(1)
+        sys.exit(1)
 
 # Write to machine config file
 if not os.path.exists('config.machine'):

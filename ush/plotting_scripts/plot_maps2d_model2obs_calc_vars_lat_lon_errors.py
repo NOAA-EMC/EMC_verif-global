@@ -1,4 +1,5 @@
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -48,7 +49,7 @@ type_list = os.environ['maps2d_type_list'].split(' ')
 if 'model2obs' not in type_list:
     print("model2obs verification no requested..."
           +"no need to calculate special variables")
-    exit()
+    sys.exit(1)
 
 # Functions
 def read_series_analysis_file(series_analysis_file, var_scale):
@@ -480,7 +481,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 cbar_height = 0.02
             else:
                 logger.error("Too many subplots selected, max. is 10")
-                exit(1)
+                sys.exit(1)
             suptitle_x_loc = (
                 plt.rcParams['figure.subplot.left']
                 +plt.rcParams['figure.subplot.right']

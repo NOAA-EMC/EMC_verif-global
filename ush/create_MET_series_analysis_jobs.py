@@ -7,6 +7,7 @@ Abstract: This script is run by the maps2d and mapsda jobs scripts.
 '''
 
 from __future__ import (print_function, division)
+import sys
 import os
 import re
 
@@ -161,7 +162,7 @@ def get_var_grib1_info(var_name, var_level):
     else:
         print("ERROR: Unable to speificy GRIB level type "
               +"from variable level info "+var_level)
-        exit(1)
+        sys.exit(1)
     # Define 1st and 2nd GRIB level
     var_level_nums = ''
     for v in var_level:

@@ -149,7 +149,7 @@ class MakePlotsWrapper(CommandBuilder):
                     fcst_levels = util.getlist(self.config.getstr('config', "FCST_VAR"+n+"_LEVELS"))
                 else:
                     self.logger.error("FCST_VAR"+n+"_LEVELS not defined")
-                    exit(1)
+                    sys.exit(1)
                 if self.config.has_option('config', "FCST_VAR"+n+"_OPTIONS"):
                     fcst_extra = self.config.getraw('config', "FCST_VAR"+n+"_OPTIONS")
                 else:
@@ -166,7 +166,7 @@ class MakePlotsWrapper(CommandBuilder):
                     obs_levels = util.getlist(self.config.getstr('config', "OBS_VAR"+n+"_LEVELS"))
                     if len(fcst_levels) != len(obs_levels):
                         self.logger.error("FCST_VAR"+n+"_LEVELS and OBS_VAR"+n+"_LEVELS do not have the same number of elements")
-                        exit(1)
+                        sys.exit(1)
                 else:
                     obs_levels = fcst_levels
                 if self.config.has_option('config', "OBS_VAR"+n+"_OPTIONS"):
@@ -177,12 +177,12 @@ class MakePlotsWrapper(CommandBuilder):
                     obs_thresh = util.getlist(self.config.getstr('config', "OBS_VAR"+n+"_THRESH"))
                     if len(fcst_thresh) != len(obs_thresh):
                         self.logger.error("FCST_VAR"+n+"_THRESH and OBS_VAR"+n+"_THRESH do not have the same number of elements")
-                        exit(1)
+                        sys.exit(1)
                 else:
                     obs_thresh = fcst_thresh
             else:
                 self.logger.error("FCST_VAR"+n+"_NAME not defined")
-                exit(1)
+                sys.exit(1)
             fo = util.FieldObj()
             fo.fcst_name = fcst_name
             fo.obs_name = obs_name
@@ -628,7 +628,7 @@ class MakePlotsWrapper(CommandBuilder):
             self.add_env_var('END_DATE_YYYYmmdd', init_end_YYYYmmdd)
         else:
             self.logger.error("Invalid entry for PLOT_TIME, use 'valid' or 'init'")
-            exit(1)
+            sys.exit(1)
         self.add_env_var('STAT_FILES_INPUT_DIR', stat_files_input_dir)
         self.add_env_var('PLOTTING_OUT_DIR', plotting_out_dir)
         self.add_env_var('PLOT_STATS_LIST', plot_stats_list)
@@ -652,7 +652,7 @@ class MakePlotsWrapper(CommandBuilder):
         self.add_env_var('MET_VERSION', str(met_version))
         if met_version < 6.0:
              self.logger.exit("Please run with MET version >= 6.0")
-             exit(1)
+             sys.exit(1)
         #build valid and init hour information
         valid_beg_HHMMSS = calendar.timegm(time.strptime(valid_hour_beg, "%H%M"))
         valid_end_HHMMSS = calendar.timegm(time.strptime(valid_hour_end, "%H%M"))
@@ -741,7 +741,7 @@ class MakePlotsWrapper(CommandBuilder):
         if run_make_plots:
             self.create_plots(verif_case, verif_type)
         else:
-           exit(1)
+           sys.exit(1)
 
 if __name__ == "__main__":
    util.run_stand_alone("make_plots_wrapper_EMC_verif-global", "MakePlots")

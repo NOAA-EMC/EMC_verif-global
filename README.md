@@ -8,7 +8,7 @@ This package has been designed to initially recreated all the verification capab
 2. Grid-to-Observations Verification: The first step in this verification is producing regular partial sums for various variables at various pressure levels, as well as surface fields. Gridded model forecasts are verified aganist observations. The second step invloves creating statistical plots from the archived regular partial sum files. Additionally, these plots can be sent, along with a website template, to a web server for easy display.
 3. Precipitation Verification: The first step in this verification is producing contingency table counts for precipitation accumulations at various thresholds. Gridded model forecasts are verified against observations. At this time only 24 hour preciptation accumulations compared to CCPA are supported. The second step invloves creating statistical plots from the archived contingency table count files. Additionally, these plots can be sent, along with a website template, to a web server for easy display.
 4. Tropical Cyclone Verification: Track and intensity error are computed using the model forecast track data from the atcfunix files. If a model atfcfunix file cannot be found, the data is search for in the a-deck file. B-deck files from the National Hurricane Center and Joint Typhoon Warning Center are used as truth. Plots are created for individual storms, as well as basin means. Additionally, these plots can be sent, along with a website template, to a web server for easy display.
-5. 2D Lat-Lon Maps Verification: Model forecasts for various variables are compared amongst other models and observations. The mean errors are displayed on a lat-lon grid as well as zonal means. 
+5. 2D Lat-Lon Maps Verification: Model forecasts for various variables are compared amongst other models and observations. The mean errors are displayed on a lat-lon grid as well as zonal means.
 6. Data Assimilation Verification: Similar to the 2D lat-lon maps verification, but the model GDAS analysis increments and ensemble mean and spread are plotted.
 
 This package can be run standalone. It has also been incorporated to run the first steps for grid-to-grid, grid-to-observations, and precipitation verification within GFS version 16 Global Workflow (https://github.com/NOAA-EMC/global-workflow).
@@ -21,7 +21,7 @@ EMC_verif-global depends on the following prerequisities to be available on the 
 * NCEPLIBS-grib_util
 * NCEPLIBS-prod_util
 * NetCDF (Network Common Data Form)
-* NetCDF Operators (NCO) 
+* NetCDF Operators (NCO)
 
 EMC_verif-global is supported on the following machines:
 * WCOSS-Dell (Mars and Venus)

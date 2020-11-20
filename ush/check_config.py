@@ -385,6 +385,7 @@ elif RUN == 'maps2d':
                       +"anl or dX or fX, where X is a number")
                 exit(1)
 elif RUN == 'mapsda':
+    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type

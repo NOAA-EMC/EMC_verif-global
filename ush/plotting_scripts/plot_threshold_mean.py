@@ -208,7 +208,7 @@ CI_bar_intvl_widths = (
 # Read and plot data
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_plot_name = plot_util.get_stat_plot_name(logger, 
+    stat_plot_name = plot_util.get_stat_plot_name(logger,
                                                   stat)
     stat_min_max_dict = {
         'ax1_stat_min': np.ma.masked_invalid(np.nan),
@@ -233,7 +233,7 @@ for stat in plot_stats_list:
         for vt in range(len(fcst_var_thresh_format_list)):
             fcst_var_thresh = fcst_var_thresh_format_list[vt]
             obs_var_thresh = obs_var_thresh_format_list[vt]
-            model_mean_file = os.path.join(plotting_out_dir_data, 
+            model_mean_file = os.path.join(plotting_out_dir_data,
                                            model_plot_name
                                            +"_"+stat
                                            #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -246,7 +246,7 @@ for stat in plot_stats_list:
                                            +"_LEAD_MEAN.txt")
             if os.path.exists(model_mean_file):
                 nrow = sum(1 for line in open(model_mean_file))
-                if nrow == 0: 
+                if nrow == 0:
                     logger.warning("Model "+str(model_num)+" "
                                    +model_name+" with plot name "
                                    +model_plot_name+" file: "
@@ -256,10 +256,10 @@ for stat in plot_stats_list:
                                  +model_name+" with plot name "
                                  +model_plot_name+" file: "
                                  +model_mean_file+" exists")
-                    model_mean_file_data = pd.read_csv(model_mean_file, 
-                                                       sep=" ", 
-                                                       header=None, 
-                                                       names=mean_file_cols, 
+                    model_mean_file_data = pd.read_csv(model_mean_file,
+                                                       sep=" ",
+                                                       header=None,
+                                                       names=mean_file_cols,
                                                        dtype=str)
                     if stat == "fbar_obar":
                         model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
@@ -409,14 +409,14 @@ for stat in plot_stats_list:
                     ).min()
                     stat_min_max_dict['ax2_stat_max'] = (
                         model_mean_data[0,:]-model_mean_data[1,:]
-                    ).max() 
+                    ).max()
                 if ci_method != "NONE":
                     model_ci_data = np.empty(len(fcst_var_thresh_list))
                     model_ci_data.fill(np.nan)
                     for vt in range(len(fcst_var_thresh_format_list)):
                         fcst_var_thresh = fcst_var_thresh_format_list[vt]
                         obs_var_thresh = obs_var_thresh_format_list[vt]
-                        model_ci_file = os.path.join(plotting_out_dir_data, 
+                        model_ci_file = os.path.join(plotting_out_dir_data,
                                                      model_plot_name
                                                      +"_"+stat
                                                      #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -440,10 +440,10 @@ for stat in plot_stats_list:
                                              +model_name+" with plot name "
                                              +model_plot_name+" file: "
                                              +model_ci_file+" exists")
-                                model_ci_file_data = pd.read_csv(model_ci_file, 
-                                                                 sep=" ", 
-                                                                 header=None, 
-                                                                 names=ci_file_cols, 
+                                model_ci_file_data = pd.read_csv(model_ci_file,
+                                                                 sep=" ",
+                                                                 header=None,
+                                                                 names=ci_file_cols,
                                                                  dtype=str)
                                 model_ci_file_data_leads = model_ci_file_data.loc[:]['LEADS'].tolist()
                                 model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
@@ -479,7 +479,7 @@ for stat in plot_stats_list:
                                 bottom = -1*np.absolute(model_ci_data[index]),
                                 color = 'None',
                                 width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index),
-                                edgecolor = model_plot_settings_dict['color'], 
+                                edgecolor = model_plot_settings_dict['color'],
                                 linewidth = '1.5')
             else:
                 model1_mean_data = model_mean_data
@@ -638,7 +638,7 @@ for stat in plot_stats_list:
                 for vt in range(len(fcst_var_thresh_format_list)):
                     fcst_var_thresh = fcst_var_thresh_format_list[vt]
                     obs_var_thresh = obs_var_thresh_format_list[vt]
-                    model_ci_file = os.path.join(plotting_out_dir_data, 
+                    model_ci_file = os.path.join(plotting_out_dir_data,
                                                  model_plot_name
                                                  +"_"+stat
                                                  #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -662,10 +662,10 @@ for stat in plot_stats_list:
                                      +model_name+" with plot name "
                                      +model_plot_name+" file: "
                                      +model_ci_file+" exists")
-                            model_ci_file_data = pd.read_csv(model_ci_file, 
-                                                             sep=" ", 
-                                                             header=None, 
-                                                             names=ci_file_cols, 
+                            model_ci_file_data = pd.read_csv(model_ci_file,
+                                                             sep=" ",
+                                                             header=None,
+                                                             names=ci_file_cols,
                                                              dtype=str)
                             model_ci_file_data_leads = model_ci_file_data.loc[:]['LEADS'].tolist()
                             model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
@@ -697,15 +697,15 @@ for stat in plot_stats_list:
                              )
                 for ft in fcst_var_thresh_val_array:
                     index = np.where(fcst_var_thresh_val_array == ft)[0][0]
-                    ax2.bar(fcst_var_thresh_counts[index], 2*np.absolute(model_ci_data[index]), 
-                            bottom = -1*np.absolute(model_ci_data[index]), 
+                    ax2.bar(fcst_var_thresh_counts[index], 2*np.absolute(model_ci_data[index]),
+                            bottom = -1*np.absolute(model_ci_data[index]),
                             color = 'None',
-                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index), 
-                            edgecolor = model_plot_settings_dict['color'], 
+                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index),
+                            edgecolor = model_plot_settings_dict['color'],
                             linewidth = '1')
     subplot_num = 1
     for ax in fig.get_axes():
-       # Adjust y axis limits and ticks 
+       # Adjust y axis limits and ticks
        stat_min = stat_min_max_dict['ax'+str(subplot_num)+'_stat_min']
        stat_max = stat_min_max_dict['ax'+str(subplot_num)+'_stat_max']
        preset_y_axis_tick_min = ax.get_yticks()[0]

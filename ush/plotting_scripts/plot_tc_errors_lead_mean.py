@@ -154,7 +154,7 @@ if os.path.exists(summary_tcst_filename):
             print("Creating plot for "+COLUMN_group)
             if COLUMN_group == 'ABS(AMAX_WIND-BMAX_WIND)':
                 formal_stat_name = 'Absolute Intensity Error (knots)'
-            elif COLUMN_group == 'ABS(TK_ERR)': 
+            elif COLUMN_group == 'ABS(TK_ERR)':
                 formal_stat_name =  'Absolute Track Error (nm)'
             else:
                 formal_stat_name = COLUMN_group
@@ -171,7 +171,7 @@ if os.path.exists(summary_tcst_filename):
             if len(fhrs) > 15:
                 ax.set_xticks(fhrs[::2])
                 ax.set_xticks(fhrs, minor=True)
-            else: 
+            else:
                 ax.set_xticks(fhrs)
             ax.set_xlim([fhrs[0], fhrs[-1]])
             ax.set_ylabel(formal_stat_name)
@@ -310,7 +310,7 @@ if os.path.exists(summary_tcst_filename):
                         stat_max = fhrs_column_amodel_mean.max()
                 for fhr in fhrs:
                     fhr_idx = np.where(fhr == fhrs)[0][0]
-                    ax.bar(fhrs[fhr_idx], 
+                    ax.bar(fhrs[fhr_idx],
                            (fhrs_column_amodel_mean_ncu[fhr_idx]
                             - fhrs_column_amodel_mean_ncl[fhr_idx]),
                            bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
@@ -320,7 +320,7 @@ if os.path.exists(summary_tcst_filename):
                            linewidth='1')
                     if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
                             or np.ma.is_masked(stat_max):
-                        if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):    
+                        if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
                             stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
             # Adjust y axis limits and ticks
             preset_y_axis_tick_min = ax.get_yticks()[0]

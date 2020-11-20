@@ -421,7 +421,7 @@ if SEND2WEB == 'YES':
                                                   'scorecard/'
                                                   +scorecard2web)
                            +' '+webhostid+'@'+webhost+':'
-                           +os.path.join(webdir, 'scorecard', 'images', 
+                           +os.path.join(webdir, 'scorecard', 'images',
                                          'scorecard.png'))
     # Submit job card
     os.chmod(web_job_filename, 0o755)

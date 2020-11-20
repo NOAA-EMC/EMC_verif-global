@@ -187,7 +187,7 @@ CI_bar_min_widths = CI_bar_min_widths/3600.
 # Read and plot data
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_plot_name = plot_util.get_stat_plot_name(logger, 
+    stat_plot_name = plot_util.get_stat_plot_name(logger,
                                                   stat)
     stat_min_max_dict = {
         'ax1_stat_min': np.ma.masked_invalid(np.nan),
@@ -209,7 +209,7 @@ for stat in plot_stats_list:
         else:
             model_mean_data = np.empty(len(lead_list))
         model_mean_data.fill(np.nan)
-        model_mean_file = os.path.join(plotting_out_dir_data, 
+        model_mean_file = os.path.join(plotting_out_dir_data,
                                        model_plot_name
                                        +"_"+stat
                                        #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -222,7 +222,7 @@ for stat in plot_stats_list:
                                        +"_LEAD_MEAN.txt")
         if os.path.exists(model_mean_file):
             nrow = sum(1 for line in open(model_mean_file))
-            if nrow == 0: 
+            if nrow == 0:
                 logger.warning("Model "+str(model_num)+" "
                                +model_name+" with plot name "
                                +model_plot_name+" file: "
@@ -232,10 +232,10 @@ for stat in plot_stats_list:
                              +model_name+" with plot name "
                              +model_plot_name+" file: "
                              +model_mean_file+" exists")
-                model_mean_file_data = pd.read_csv(model_mean_file, 
-                                                   sep=" ", 
-                                                   header=None, 
-                                                   names=mean_file_cols, 
+                model_mean_file_data = pd.read_csv(model_mean_file,
+                                                   sep=" ",
+                                                   header=None,
+                                                   names=mean_file_cols,
                                                    dtype=str)
                 if stat == "fbar_obar":
                     model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
@@ -294,11 +294,11 @@ for stat in plot_stats_list:
             }
             ax2.text(0.995, 1.05,
                      "Note: differences outside the outline bars "
-                     +"are significant at the 95% confidence level", 
-                     ha='right', 
-                     va='center', 
-                     fontsize=13, 
-                     bbox=props, 
+                     +"are significant at the 95% confidence level",
+                     ha='right',
+                     va='center',
+                     fontsize=13,
+                     bbox=props,
                      transform=ax2.transAxes)
             ax2.plot(leads, np.zeros_like(leads),
                      color='black',
@@ -321,7 +321,7 @@ for stat in plot_stats_list:
                              linestyle = model_plot_settings_dict['linestyle'],
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
-                             markersize = model_plot_settings_dict['markersize'], 
+                             markersize = model_plot_settings_dict['markersize'],
                              label = model_plot_name,
                              zorder = (nmodels-model_index)+4)
                     stat_min_max_dict['ax1_stat_min'] = model_mean_data[0,:].min()
@@ -390,7 +390,7 @@ for stat in plot_stats_list:
                 if ci_method != "NONE":
                     model_ci_data = np.empty(len(lead_list))
                     model_ci_data.fill(np.nan)
-                    model_ci_file = os.path.join(plotting_out_dir_data, 
+                    model_ci_file = os.path.join(plotting_out_dir_data,
                                                  model_plot_name
                                                  +"_"+stat
                                                  #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -414,10 +414,10 @@ for stat in plot_stats_list:
                                          +model_name+" with plot name "
                                          +model_plot_name+" file: "
                                          +model_ci_file+" exists")
-                            model_ci_file_data = pd.read_csv(model_ci_file, 
-                                                             sep=" ", 
-                                                             header=None, 
-                                                             names=ci_file_cols, 
+                            model_ci_file_data = pd.read_csv(model_ci_file,
+                                                             sep=" ",
+                                                             header=None,
+                                                             names=ci_file_cols,
                                                              dtype=str)
                             model_ci_file_data_leads = model_ci_file_data.loc[:]['LEADS'].tolist()
                             model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
@@ -474,7 +474,7 @@ for stat in plot_stats_list:
                              linestyle = model_plot_settings_dict['linestyle'],
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
-                             markersize = model_plot_settings_dict['markersize'], 
+                             markersize = model_plot_settings_dict['markersize'],
                              label = model_plot_name,
                              zorder = (nmodels-model_index)+4)
                     stat_min_max_dict['ax1_stat_min'] = model_mean_data.min()
@@ -498,7 +498,7 @@ for stat in plot_stats_list:
                              linestyle = model_plot_settings_dict['linestyle'],
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
-                             markersize = model_plot_settings_dict['markersize'], 
+                             markersize = model_plot_settings_dict['markersize'],
                              label = model_plot_name,
                              zorder = (nmodels-model_index)+4)
                     if model_mean_data[0,:].min() \
@@ -532,7 +532,7 @@ for stat in plot_stats_list:
                              linestyle = model_plot_settings_dict['linestyle'],
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
-                             markersize = model_plot_settings_dict['markersize'], 
+                             markersize = model_plot_settings_dict['markersize'],
                             zorder = (nmodels-model_index)+4)
                     if (model_mean_data[0,:]-model_mean_data[1,:]).min() \
                             < stat_min_max_dict['ax2_stat_min'] \
@@ -563,7 +563,7 @@ for stat in plot_stats_list:
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
                              markersize = model_plot_settings_dict['markersize'],
-                             label = model_plot_name, 
+                             label = model_plot_name,
                              zorder = (nmodels-model_index)+4)
                     if model_mean_data.min() \
                             < stat_min_max_dict['ax1_stat_min'] \
@@ -594,7 +594,7 @@ for stat in plot_stats_list:
                              linestyle = model_plot_settings_dict['linestyle'],
                              linewidth = model_plot_settings_dict['linewidth'],
                              marker = model_plot_settings_dict['marker'],
-                             markersize = model_plot_settings_dict['markersize'], 
+                             markersize = model_plot_settings_dict['markersize'],
                              zorder = (nmodels-model_index)+4)
                     if (model_mean_data-model1_mean_data).min() \
                             < stat_min_max_dict['ax2_stat_min'] \
@@ -611,7 +611,7 @@ for stat in plot_stats_list:
             if ci_method != "NONE":
                 model_ci_data = np.empty(len(lead_list))
                 model_ci_data.fill(np.nan)
-                model_ci_file = os.path.join(plotting_out_dir_data, 
+                model_ci_file = os.path.join(plotting_out_dir_data,
                                              model_plot_name
                                              +"_"+stat
                                              #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -635,10 +635,10 @@ for stat in plot_stats_list:
                                      +model_name+" with plot name "
                                      +model_plot_name+" file: "
                                      +model_ci_file+" exists")
-                        model_ci_file_data = pd.read_csv(model_ci_file, 
-                                                         sep=" ", 
-                                                         header=None, 
-                                                         names=ci_file_cols, 
+                        model_ci_file_data = pd.read_csv(model_ci_file,
+                                                         sep=" ",
+                                                         header=None,
+                                                         names=ci_file_cols,
                                                          dtype=str)
                         model_ci_file_data_leads = model_ci_file_data.loc[:]['LEADS'].tolist()
                         model_ci_file_data_vals = model_ci_file_data.loc[:]['VALS'].tolist()
@@ -672,15 +672,15 @@ for stat in plot_stats_list:
                              )
                 for lead in leads:
                     index = np.where(leads == lead)[0][0]
-                    ax2.bar(leads[index], 2*np.absolute(model_ci_data[index]), 
-                            bottom = -1*np.absolute(model_ci_data[index]), 
+                    ax2.bar(leads[index], 2*np.absolute(model_ci_data[index]),
+                            bottom = -1*np.absolute(model_ci_data[index]),
                             color = 'None',
-                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index), 
-                            edgecolor = model_plot_settings_dict['color'], 
+                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index),
+                            edgecolor = model_plot_settings_dict['color'],
                             linewidth = '1')
     subplot_num = 1
     for ax in fig.get_axes():
-       # Adjust y axis limits and ticks 
+       # Adjust y axis limits and ticks
        stat_min = stat_min_max_dict['ax'+str(subplot_num)+'_stat_min']
        stat_max = stat_min_max_dict['ax'+str(subplot_num)+'_stat_max']
        preset_y_axis_tick_min = ax.get_yticks()[0]
@@ -802,7 +802,7 @@ for stat in plot_stats_list:
                  zorder=1, alpha=noaa_logo_alpha)
     fig.figimage(nws_logo_img_array,
                  nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                 zorder=1, alpha=nws_logo_alpha) 
+                 zorder=1, alpha=nws_logo_alpha)
     # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'grid2obs':
@@ -822,7 +822,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion
                                         +".png")
         elif verif_case == 'satellite':
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_valid"+valid_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name+"_"+fcst_var_level
@@ -830,7 +830,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion+"_"+verif_type
                                         +".png")
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_valid"+valid_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name+"_"+fcst_var_level

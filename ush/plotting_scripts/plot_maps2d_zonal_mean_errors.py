@@ -90,7 +90,7 @@ def read_series_analysis_file(series_analysis_file, var_scale):
 def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
                      var_levels):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -127,16 +127,16 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
-    ax_tmp.set_title(subplot_title, loc='left') 
+    ax_tmp.set_title(subplot_title, loc='left')
     return ax_tmp
 
 def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                       plot_levels, plot_cmap, latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp           - subplot axis object
-                plot_data        - array of the data to plot  
+                plot_data        - array of the data to plot
                 plot_data_lat    - array of the data latitudes
                 plot_data_levels - array of the data levels
                 plot_levels      - array of the contour levels
@@ -387,7 +387,7 @@ else:
     logger.error("Too many subplots selected, max. is 10")
     exit(1)
 suptitle_x_loc = (
-    plt.rcParams['figure.subplot.left'] 
+    plt.rcParams['figure.subplot.left']
     +plt.rcParams['figure.subplot.right']
 )/2.
 fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -420,7 +420,7 @@ for env_var_model in env_var_model_list:
         obs_subplot_num = 0
         obs_subplot_title = maps2d_plot_util.get_obs_subplot_title(
             model_obtype, use_monthly_mean
-        ) 
+        )
         ax_obs = draw_subplot_map(
             obs_subplot_num, obs_subplot_title, nsubplots, latlon_area,
             var_level_num_list
@@ -571,7 +571,7 @@ if len(list(subplot_CF_dict.keys())) > 1:
                                 .levels)
         if nsubplots == 2:
             cbar.ax.set_ylabel('Difference', labelpad = 5)
-            cbar.ax.yaxis.set_tick_params(pad=0) 
+            cbar.ax.yaxis.set_tick_params(pad=0)
         else:
             cbar.ax.set_xlabel('Difference', labelpad = 0)
             cbar.ax.xaxis.set_tick_params(pad=0)

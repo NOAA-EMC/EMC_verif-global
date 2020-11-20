@@ -182,7 +182,7 @@ else:
 # Read and plot data
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_plot_name = plot_util.get_stat_plot_name(logger, 
+    stat_plot_name = plot_util.get_stat_plot_name(logger,
                                                   stat)
     stat_min = np.ma.masked_invalid(np.nan)
     stat_max = np.ma.masked_invalid(np.nan)
@@ -205,7 +205,7 @@ for stat in plot_stats_list:
             fcst_var_level = fcst_var_level_list[vl]
             obs_var_level = obs_var_level_list[vl]
             logger.debug("Processing data for VAR_LEVEL "+fcst_var_level)
-            model_mean_file = os.path.join(plotting_out_dir_data, 
+            model_mean_file = os.path.join(plotting_out_dir_data,
                                            model_plot_name
                                            +"_"+stat
                                            #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -218,7 +218,7 @@ for stat in plot_stats_list:
                                            +"_LEAD_MEAN.txt")
             if os.path.exists(model_mean_file):
                 nrow = sum(1 for line in open(model_mean_file))
-                if nrow == 0: 
+                if nrow == 0:
                     logger.warning("Model "+str(model_num)+" "
                                    +model_name+" with plot name "
                                    +model_plot_name+" file: "
@@ -228,10 +228,10 @@ for stat in plot_stats_list:
                                  +model_name+" with plot name "
                                  +model_plot_name+" file: "
                                  +model_mean_file+" exists")
-                    model_mean_file_data = pd.read_csv(model_mean_file, 
-                                                       sep=" ", 
-                                                       header=None, 
-                                                       names=mean_file_cols, 
+                    model_mean_file_data = pd.read_csv(model_mean_file,
+                                                       sep=" ",
+                                                       header=None,
+                                                       names=mean_file_cols,
                                                        dtype=str)
                     model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
@@ -251,7 +251,7 @@ for stat in plot_stats_list:
                            else:
                                 obs_level_mean_data[vl] = float(
                                      obs_mean_file_data_vals[model_mean_file_data_lead_index]
-                                )    
+                                )
             else:
                 logger.warning("Model "+str(model_num)+" "
                                 +model_name+" with plot name "
@@ -310,7 +310,7 @@ for stat in plot_stats_list:
                     linestyle = model_plot_settings_dict['linestyle'],
                     linewidth = model_plot_settings_dict['linewidth'],
                     marker = model_plot_settings_dict['marker'],
-                    markersize = model_plot_settings_dict['markersize'], 
+                    markersize = model_plot_settings_dict['markersize'],
                     label=model_plot_name,
                     zorder=(nmodels-model_index)+4)
             if model_level_mean_data.min() < stat_min \

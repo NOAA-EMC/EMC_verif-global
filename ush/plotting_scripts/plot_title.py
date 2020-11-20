@@ -1,11 +1,11 @@
 def get_date_info_title(plot_time, valid_hours, init_hours,
                         start_date, end_date, verif_case):
     """! Get a formalized version of the
-         verification date information to 
+         verification date information to
          use in plot title
- 
+
              Args:
-                 plot_time   - string of verification date 
+                 plot_time   - string of verification date
                                types: valid or init
                  valid_hours - array of valid hours
                  init_hours  - array of initialzation hours
@@ -55,7 +55,7 @@ def get_date_info_title(plot_time, valid_hours, init_hours,
 def get_lead_title(lead_hour_str):
     """! Get a formalized version of the
          forecast lead to use in plot title
- 
+
              Args:
                  lead - string of the forecast lead [hour]
 
@@ -76,7 +76,7 @@ def get_lead_title(lead_hour_str):
 def get_region_title(region):
     """! Get a formalized version of the
          verification region to use in plot title
- 
+
              Args:
                  region - string of the verification
                           region abbrevation used for
@@ -91,7 +91,7 @@ def get_region_title(region):
         'G002': 'Global',
         'NHX': 'Northern Hemisphere 20N-80N',
         'SHX': 'Southern Hemisphere 20S-80S',
-        'TRO': 'Tropics 20S-20N', 
+        'TRO': 'Tropics 20S-20N',
         'PNA': 'Pacific North America',
         'N60': '60N-90N',
         'S60': '60S-90S',
@@ -132,7 +132,7 @@ def get_region_title(region):
         'SEA_ICE_FREE_POLAR': 'Polar - Sea Ice Free'
     }
     if region in list(region_title_dict.keys()):
-        region_title = region_title_dict[region] 
+        region_title = region_title_dict[region]
     else:
         region_title = region
     return region_title
@@ -140,7 +140,7 @@ def get_region_title(region):
 def get_var_info_title(var_name, var_level, var_extra, var_thresh):
     """! Get a formalized version of the
          variable information to use in plot title
- 
+
              Args:
                  var_name   - string of the variable GRIB name
                  var_level  - string of the variable level used
@@ -221,7 +221,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
             var_extra_title = 'Cloud Ceiling'
     else:
         var_extra_title = var_extra
-    # Build variable threshold title 
+    # Build variable threshold title
     if var_thresh == '':
         var_thresh_title = ''
     elif var_thresh == 'all':

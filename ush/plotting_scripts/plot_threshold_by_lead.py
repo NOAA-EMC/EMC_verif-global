@@ -158,7 +158,7 @@ xx, yy = np.meshgrid(fcst_var_thresh_counts,leads)
 # Read and plot data
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_plot_name = plot_util.get_stat_plot_name(logger, 
+    stat_plot_name = plot_util.get_stat_plot_name(logger,
                                                   stat)
     logger.info("Reading in model data")
     for model in model_info:
@@ -176,7 +176,7 @@ for stat in plot_stats_list:
             fcst_var_thresh = fcst_var_thresh_format_list[vt]
             obs_var_thresh = obs_var_thresh_format_list[vt]
             logger.debug("Processing data for VAR_THRESH "+fcst_var_thresh)
-            model_mean_file = os.path.join(plotting_out_dir_data, 
+            model_mean_file = os.path.join(plotting_out_dir_data,
                                            model_plot_name
                                            +"_"+stat
                                            #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -189,7 +189,7 @@ for stat in plot_stats_list:
                                            +"_LEAD_MEAN.txt")
             if os.path.exists(model_mean_file):
                 nrow = sum(1 for line in open(model_mean_file))
-                if nrow == 0: 
+                if nrow == 0:
                     logger.warning("Model "+str(model_num)+" "
                                    +model_name+" with plot name "
                                    +model_plot_name+" file: "
@@ -199,10 +199,10 @@ for stat in plot_stats_list:
                                  +model_name+" with plot name "
                                  +model_plot_name+" file: "
                                  +model_mean_file+" exists")
-                    model_mean_file_data = pd.read_csv(model_mean_file, 
-                                                       sep=" ", 
-                                                       header=None, 
-                                                       names=mean_file_cols, 
+                    model_mean_file_data = pd.read_csv(model_mean_file,
+                                                       sep=" ",
+                                                       header=None,
+                                                       names=mean_file_cols,
                                                        dtype=str)
                     model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
@@ -224,7 +224,7 @@ for stat in plot_stats_list:
                                 else:
                                     obs_thresh_mean_data[lead_index,vt] = float(
                                         obs_mean_file_data_vals[model_mean_file_data_lead_index]
-                                    )                        
+                                    )
             else:
                 logger.warning("Model "+str(model_num)+" "
                                +model_name+" with plot name "

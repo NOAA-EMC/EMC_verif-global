@@ -94,11 +94,11 @@ def read_series_analysis_file(series_analysis_file, var_scale):
     return (series_analysis_data_series_cnt_FBAR,
             series_analysis_data_series_cnt_OBAR,
             series_analysis_data_lat, series_analysis_data_lon)
-            
+
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                      py_map_pckg, latlon_area):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -175,11 +175,11 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                       plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
                       latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp        - subplot axis object
                 map_ax_tmp    - subplot map information
-                plot_data     - array of the data to plot  
+                plot_data     - array of the data to plot
                 plot_data_lat - array of the data latitudes
                 plot_data_lon - array of the data longitudes
                 plot_levels   - array of the contour levels
@@ -264,7 +264,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     else:
         CF_tmp = None
     return CF_tmp
-    
+
 # Read in environment variables
 machine = os.environ['machine']
 DATA = os.environ['DATA']
@@ -291,7 +291,7 @@ var_group_name = 'cloudsrad'
 if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
     py_map_pckg = 'cartopy'
 else:
-    py_map_pckg = 'basemap' 
+    py_map_pckg = 'basemap'
 if py_map_pckg == 'cartopy':
     import cartopy.crs as ccrs
     from cartopy.util import add_cyclic_point
@@ -362,7 +362,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         cbar00_title = 'Atmospheric Absorbed Shortwave'
         files_needed_list = [
            forecast_to_plot+'_DSWRF_toa_obsonly.nc',
-           forecast_to_plot+'_DSWRF_sfc.nc', 
+           forecast_to_plot+'_DSWRF_sfc.nc',
            forecast_to_plot+'_USWRF_toa.nc',
            forecast_to_plot+'_USWRF_sfc.nc',
         ]
@@ -376,7 +376,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         var_scale = 1
         cbar00_title = 'Atmospheric Emitted Longwave'
         files_needed_list = [
-           forecast_to_plot+'_DLWRF_sfc.nc',        
+           forecast_to_plot+'_DLWRF_sfc.nc',
            forecast_to_plot+'_ULWRF_toa.nc',
            forecast_to_plot+'_ULWRF_sfc.nc',
         ]
@@ -390,7 +390,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         var_scale = 1
         cbar00_title = 'Albedo'
         files_needed_list = [
-           forecast_to_plot+'_DSWRF_sfc.nc',        
+           forecast_to_plot+'_DSWRF_sfc.nc',
            forecast_to_plot+'_USWRF_sfc.nc',
         ]
     subplot_CF_dict = {}
@@ -415,7 +415,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.05 
+                cbar00_left_adjust = 0.05
                 cbar_bottom = 0.06
                 cbar_height = 0.02
             elif nsubplots == 2:
@@ -482,7 +482,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 logger.error("Too many subplots selected, max. is 10")
                 exit(1)
             suptitle_x_loc = (
-                plt.rcParams['figure.subplot.left'] 
+                plt.rcParams['figure.subplot.left']
                 +plt.rcParams['figure.subplot.right']
             )/2.
             fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -507,7 +507,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             obs_subplot_num = 0
             obs_subplot_title = maps2d_plot_util.get_obs_subplot_title(
                 model_obtype, use_monthly_mean
-            ) 
+            )
             ax_obs, map_ax_obs = draw_subplot_map(
                 obs_subplot_num, obs_subplot_title, nsubplots,
                 py_map_pckg, latlon_area
@@ -645,7 +645,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     read_series_analysis_file(USWRF_sfc_file, var_scale)
                 )
                 obs_calc_var = (
-                    USWRF_sfc_data_series_cnt_OBAR 
+                    USWRF_sfc_data_series_cnt_OBAR
                     / DSWRF_sfc_data_series_cnt_OBAR
                 )
                 model_calc_var = (
@@ -760,10 +760,10 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                                     .levels)
             if nsubplots == 2:
                 cbar.ax.set_ylabel('Difference', labelpad = 5)
-                cbar.ax.yaxis.set_tick_params(pad=0) 
+                cbar.ax.yaxis.set_tick_params(pad=0)
             else:
                 cbar.ax.set_xlabel('Difference', labelpad = 0)
-                cbar.ax.xaxis.set_tick_params(pad=0) 
+                cbar.ax.xaxis.set_tick_params(pad=0)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 verif_case_type+'_'+var_group_name

@@ -151,7 +151,7 @@ for stat in plot_stats_list:
             fcst_var_level = fcst_var_level_list[vl]
             obs_var_level = obs_var_level_list[vl]
             logger.debug("Processing data for VAR_LEVEL "+fcst_var_level)
-            model_mean_file = os.path.join(plotting_out_dir_data, 
+            model_mean_file = os.path.join(plotting_out_dir_data,
                                            model_plot_name
                                            +"_"+stat
                                            #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -164,7 +164,7 @@ for stat in plot_stats_list:
                                            +"_LEAD_MEAN.txt")
             if os.path.exists(model_mean_file):
                 nrow = sum(1 for line in open(model_mean_file))
-                if nrow == 0: 
+                if nrow == 0:
                     logger.warning("Model "+str(model_num)+" "
                                    +model_name+" with plot name "
                                    +model_plot_name+" file: "
@@ -174,10 +174,10 @@ for stat in plot_stats_list:
                                  +model_name+" with plot name "
                                  +model_plot_name+" file: "
                                  +model_mean_file+" exists")
-                    model_mean_file_data = pd.read_csv(model_mean_file, 
-                                                       sep=" ", 
-                                                       header=None, 
-                                                       names=mean_file_cols, 
+                    model_mean_file_data = pd.read_csv(model_mean_file,
+                                                       sep=" ",
+                                                       header=None,
+                                                       names=mean_file_cols,
                                                        dtype=str)
                     model_mean_file_data_leads = model_mean_file_data.loc[:]['LEADS'].tolist()
                     model_mean_file_data_vals = model_mean_file_data.loc[:]['VALS'].tolist()
@@ -199,7 +199,7 @@ for stat in plot_stats_list:
                                 else:
                                     obs_level_mean_data[vl,lead_index] = float(
                                         obs_mean_file_data_vals[model_mean_file_data_lead_index]
-                                    ) 
+                                    )
             else:
                 logger.warning("Model "+str(model_num)+" "
                                +model_name+" with plot name "
@@ -398,33 +398,33 @@ for stat in plot_stats_list:
             ax.set_title(model_plot_name, loc='left')
             if model_num == 1:
                 clevels_bias = plot_util.get_clevels(model_level_mean_data)
-                CF1 = ax.contourf(xx, yy, model_level_mean_data, 
-                                  levels=clevels_bias, 
-                                  cmap=cmap_bias, 
-                                  locator=matplotlib.ticker.MaxNLocator(symmetric=True), 
+                CF1 = ax.contourf(xx, yy, model_level_mean_data,
+                                  levels=clevels_bias,
+                                  cmap=cmap_bias,
+                                  locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                   extend='both')
-                C1 = ax.contour(xx, yy, model_level_mean_data, 
-                                levels=CF1.levels, 
-                                colors='k', 
+                C1 = ax.contour(xx, yy, model_level_mean_data,
+                                levels=CF1.levels,
+                                colors='k',
                                 linewidths=1.0)
-                ax.clabel(C1, 
-                          C1.levels, 
-                          fmt='%1.2f', 
-                          inline=True, 
+                ax.clabel(C1,
+                          C1.levels,
+                          fmt='%1.2f',
+                          inline=True,
                           fontsize=12.5)
             else:
-                CF = ax.contourf(xx, yy, model_level_mean_data, 
-                                 levels=CF1.levels, 
-                                 cmap=cmap_bias, 
+                CF = ax.contourf(xx, yy, model_level_mean_data,
+                                 levels=CF1.levels,
+                                 cmap=cmap_bias,
                                  extend='both')
-                C = ax.contour(xx, yy, model_level_mean_data, 
-                               levels=CF1.levels, 
-                               colors='k', 
+                C = ax.contour(xx, yy, model_level_mean_data,
+                               levels=CF1.levels,
+                               colors='k',
                                linewidths=1.0)
-                ax.clabel(C, 
-                          C.levels, 
-                          fmt='%1.2f', 
-                          inline=True, 
+                ax.clabel(C,
+                          C.levels,
+                          fmt='%1.2f',
+                          inline=True,
                           fontsize=12.5)
         else:
             if model_num == 1:
@@ -435,17 +435,17 @@ for stat in plot_stats_list:
                 model1_plot_name = model_plot_name
                 model1_level_mean_data = model_level_mean_data
                 ax.set_title(model_plot_name, loc='left')
-                CF1 = ax.contourf(xx, yy, model_level_mean_data, 
-                                  cmap=cmap, 
+                CF1 = ax.contourf(xx, yy, model_level_mean_data,
+                                  cmap=cmap,
                                   extend='both')
-                C1 = ax.contour(xx, yy, model_level_mean_data, 
-                                levels=CF1.levels, 
-                                colors='k', 
+                C1 = ax.contour(xx, yy, model_level_mean_data,
+                                levels=CF1.levels,
+                                colors='k',
                                 linewidths=1.0)
-                ax.clabel(C1, 
-                          C1.levels, 
-                          fmt='%1.2f', 
-                          inline=True, 
+                ax.clabel(C1,
+                          C1.levels,
+                          fmt='%1.2f',
+                          inline=True,
                           fontsize=12.5)
             else:
                 logger.debug("Plotting model "+str(model_num)+" "
@@ -455,34 +455,34 @@ for stat in plot_stats_list:
                 model_model1_diff = model_level_mean_data - model1_level_mean_data
                 if model_num == 2:
                     clevels_diff = plot_util.get_clevels(model_model1_diff)
-                    CF2 = ax.contourf(xx, yy, model_model1_diff, 
-                                      levels=clevels_diff, 
-                                      cmap=cmap_diff, 
+                    CF2 = ax.contourf(xx, yy, model_model1_diff,
+                                      levels=clevels_diff,
+                                      cmap=cmap_diff,
                                       locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                       extend='both')
-                    #C2 = ax.contour(xx, yy, model_model1_diff, 
-                    #                levels=CF2.levels, 
-                    #                colors='k', 
+                    #C2 = ax.contour(xx, yy, model_model1_diff,
+                    #                levels=CF2.levels,
+                    #                colors='k',
                     #                linewidths=1.0)
-                    #ax.clabel(C2, 
-                    #          C2.levels, 
-                    #          fmt='%1.2f', 
-                    #          inline=True, 
+                    #ax.clabel(C2,
+                    #          C2.levels,
+                    #          fmt='%1.2f',
+                    #          inline=True,
                     #          fontsize=12.5)
                 else:
-                    CF = ax.contourf(xx, yy, model_model1_diff, 
-                                     levels=CF2.levels, 
-                                     cmap=cmap_diff, 
+                    CF = ax.contourf(xx, yy, model_model1_diff,
+                                     levels=CF2.levels,
+                                     cmap=cmap_diff,
                                      locator=matplotlib.ticker.MaxNLocator(symmetric=True),
                                      extend='both')
-                    #C = ax.contour(xx, yy, model_model1_diff, 
-                    #               levels=CF2.levels, 
-                    #               colors='k', 
+                    #C = ax.contour(xx, yy, model_model1_diff,
+                    #               levels=CF2.levels,
+                    #               colors='k',
                     #               linewidths=1.0)
-                    #ax.clabel(C, 
-                    #          C.levels, 
-                    #          fmt='%1.2f', 
-                    #          inline=True, 
+                    #ax.clabel(C,
+                    #          C.levels,
+                    #          fmt='%1.2f',
+                    #          inline=True,
                     #          fontsize=12.5)
     # Build formal plot title
     if grid == region:
@@ -559,7 +559,7 @@ for stat in plot_stats_list:
     # Build savefig name
     if plot_time == 'valid':
         if verif_case == 'grid2obs':
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_init"+init_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name
@@ -567,7 +567,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion
                                         +".png")
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_valid"+valid_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name
@@ -584,7 +584,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion
                                         +".png")
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_init"+init_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name

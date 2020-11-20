@@ -89,7 +89,7 @@ def read_series_analysis_file(series_analysis_file, var_scale):
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                      py_map_pckg, latlon_area):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -166,11 +166,11 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                       plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
                       latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp        - subplot axis object
                 map_ax_tmp    - subplot map information
-                plot_data     - array of the data to plot  
+                plot_data     - array of the data to plot
                 plot_data_lat - array of the data latitudes
                 plot_data_lon - array of the data longitudes
                 plot_levels   - array of the contour levels
@@ -259,7 +259,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     else:
         CF_tmp = None
     return CF_tmp
-    
+
 # Read in environment variables
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
@@ -349,7 +349,7 @@ for var_level in var_levels:
     if var_name == 'DSWRF' and var_level == 'toa':
         continue
     var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
-        maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level) 
+        maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
     )
     model_num = 0
     subplot_CF_dict = {}
@@ -382,7 +382,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.05 
+                cbar00_left_adjust = 0.05
                 cbar_bottom = 0.06
                 cbar_height = 0.02
             elif nsubplots == 2:
@@ -449,7 +449,7 @@ for var_level in var_levels:
                 logger.error("Too many subplots selected, max. is 10")
                 exit(1)
             suptitle_x_loc = (
-                plt.rcParams['figure.subplot.left'] 
+                plt.rcParams['figure.subplot.left']
                 +plt.rcParams['figure.subplot.right']
             )/2.
             fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -475,7 +475,7 @@ for var_level in var_levels:
                 obs_subplot_num = 0
                 obs_subplot_title = maps2d_plot_util.get_obs_subplot_title(
                     model_obtype, use_monthly_mean
-                ) 
+                )
                 ax_obs, map_ax_obs = draw_subplot_map(
                     obs_subplot_num, obs_subplot_title, nsubplots,
                     py_map_pckg, latlon_area
@@ -678,10 +678,10 @@ for var_level in var_levels:
                                     .levels)
             if nsubplots == 2:
                 cbar.ax.set_ylabel('Difference', labelpad = 5)
-                cbar.ax.yaxis.set_tick_params(pad=0) 
+                cbar.ax.yaxis.set_tick_params(pad=0)
             else:
                 cbar.ax.set_xlabel('Difference', labelpad = 0)
-                cbar.ax.xaxis.set_tick_params(pad=0) 
+                cbar.ax.xaxis.set_tick_params(pad=0)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 verif_case_type+'_'+var_group_name

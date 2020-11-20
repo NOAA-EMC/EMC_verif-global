@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def get_obs_subplot_title(obtype, use_monthly_mean):
     """ Get title for observations subplot.
-            
+
             Args:
                 obtype           - string of the reference
                                    observation type used
@@ -41,14 +41,14 @@ def get_obs_subplot_title(obtype, use_monthly_mean):
 def calculate_area_average(var_data, lat, lon, lat_min, lat_max,
                            lon_min, lon_max):
     """! Calculate area average of dataset,
-         weighting in the latitude dimension by the difference 
+         weighting in the latitude dimension by the difference
          between the sines of the latitude at the northern and
          southern edges of the grid box. Trying to mimic
          GrADS function aave.
-        
+
              Args:
                  var_data     - array of variable values
-                 lat          - array of latitude values 
+                 lat          - array of latitude values
                  lon          - array of longitude values
                  lat_max      - float of maximum latitude
                                 to include in averaging
@@ -117,13 +117,13 @@ def calculate_area_average(var_data, lat, lon, lat_min, lat_max,
 
 def get_maps2d_plot_settings(var_name, var_level):
     """! Get plot settings specific for variable name and level
- 
+
              Args:
                  var_name  - string of variable GRIB name
                  var_level - string of the variable level
 
              Returns:
-                 
+
     """
     # Define GRIB level type
     if var_level[-3:] == 'hPa':
@@ -495,7 +495,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [-3,-2,-1,-0.5,-0.1,-0.01,0,0.01,0.1,0.5,1,2,3]
             )
             var_scale = 1
-            var_units = '' 
+            var_units = ''
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
@@ -696,7 +696,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             )
             levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
             var_scale = 0.01
-            var_units = 'hPa'  
+            var_units = 'hPa'
         elif var_GRIB_lvl_typ == '232': #high cloud bottom level
             levels = np.array(
                 [180,200,220,240,260,280,300,320,340,360,380,400,420]
@@ -870,7 +870,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.Blues
         if var_GRIB_lvl_typ == '200': #entire atmosphere/column
             levels = np.array([0,10,20,30,40,50,60,80,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30]) 
+            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '211': #boundary layer cloud layer

@@ -8,9 +8,9 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-##### List of previously set environment varirables in 
+##### List of previously set environment varirables in
 ##### global workflow
-##### Settings from rocoto 
+##### Settings from rocoto
 ## RUN_ENVIR, HOMEgfs, EXPDIR,
 ## CDATE, CDUMP, PDY, cyc, METPCASE
 ##### Settings from config.base
@@ -94,7 +94,7 @@ elif [ $gfs_cyc = 4 ]; then
     export vhr_list="00 06 12 18"
     export cyc2run=00
 else
-    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4."                                          
+    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4."
     exit 1
 fi
 export start_date="$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)"
@@ -271,9 +271,9 @@ if [ $METPCASE = pcp1 ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
 fi
-if [ $cyc != $cyc2run ]; then 
-    RUN_GRID2GRID_STEP1=NO 
-    RUN_GRID2OBS_STEP1=NO 
+if [ $cyc != $cyc2run ]; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
 if [ ${start_date}${cyc2run} -le $SDATE ]; then
@@ -307,7 +307,7 @@ if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-grid verifcation using METplus ====="
     export RUN="grid2grid_step1"
     $HOMEverif_global/scripts/exgrid2grid_step1.sh
-fi 
+fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo
@@ -315,7 +315,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step1"
     $HOMEverif_global/scripts/exgrid2obs_step1.sh
-fi  
+fi
 
 if [ $RUN_PRECIP_STEP1 = YES ] ; then
     echo

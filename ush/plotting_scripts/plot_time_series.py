@@ -142,12 +142,12 @@ region = os.environ['REGION']
 lead = os.environ['LEAD']
 stat_file_input_dir_base = os.environ['STAT_FILES_INPUT_DIR']
 plotting_out_dir = os.environ['PLOTTING_OUT_DIR_FULL']
-plotting_out_dir_data = os.path.join(plotting_out_dir, 
-                                     "data", 
+plotting_out_dir_data = os.path.join(plotting_out_dir,
+                                     "data",
                                      plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
                                      +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
                                      +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z")
-plotting_out_dir_imgs = os.path.join(plotting_out_dir, 
+plotting_out_dir_imgs = os.path.join(plotting_out_dir,
                                      "imgs")
 if not os.path.exists(plotting_out_dir_data):
     os.makedirs(plotting_out_dir_data)
@@ -172,11 +172,11 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)
 file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time, 
-                                                                      start_date_YYYYmmdd, 
-                                                                      end_date_YYYYmmdd, 
-                                                                      valid_time_info, 
-                                                                      init_time_info, 
+plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time,
+                                                                      start_date_YYYYmmdd,
+                                                                      end_date_YYYYmmdd,
+                                                                      valid_time_info,
+                                                                      init_time_info,
                                                                       lead)
 total_days = len(plot_time_dates)
 stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
@@ -189,7 +189,7 @@ for model in model_info:
     model_plot_name = model[1]
     if ci_method == "EMC_MONTE_CARLO":
         randx_model = np.loadtxt(
-            os.path.join(plotting_out_dir_data, 
+            os.path.join(plotting_out_dir_data,
                          model_plot_name+"_randx.txt")
         )
     else:
@@ -204,13 +204,13 @@ for model in model_info:
         [[model_plot_name], expected_stat_file_dates],
         names=['model_plot_name', 'dates']
     )
-    model_stat_file = os.path.join(stat_file_input_dir_base, 
-                                   verif_case, 
-                                   verif_type, 
-                                   model_plot_name, 
+    model_stat_file = os.path.join(stat_file_input_dir_base,
+                                   verif_case,
+                                   verif_type,
+                                   model_plot_name,
                                    plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
                                    +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                   +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z", 
+                                   +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z",
                                    model_plot_name
                                    +"_f"+lead
                                    +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
@@ -225,42 +225,42 @@ for model in model_info:
                            +model_name+" with plot name "
                            +model_plot_name+" file: "
                            +model_stat_file+" empty")
-            model_now_data = pd.DataFrame(np.nan, 
-                                          index=model_data_now_index, 
+            model_now_data = pd.DataFrame(np.nan,
+                                          index=model_data_now_index,
                                           columns=[ 'TOTAL' ])
         else:
             logger.info("Model "+str(model_num)+" "
                          +model_name+" with plot name "
                          +model_plot_name+" file: "
                          +model_stat_file+" exists")
-            model_now_stat_file_data = pd.read_csv(model_stat_file, 
+            model_now_stat_file_data = pd.read_csv(model_stat_file,
                                                    sep=" ",
                                                    skiprows=1,
                                                    skipinitialspace=True,
                                                    header=None)
             model_now_stat_file_data.rename(
                 columns=dict(
-                    zip(model_now_stat_file_data.columns[:len(stat_file_base_columns)], 
+                    zip(model_now_stat_file_data.columns[:len(stat_file_base_columns)],
                         stat_file_base_columns)
-                ), 
+                ),
                 inplace=True
             )
             line_type = model_now_stat_file_data['LINE_TYPE'][0]
-            stat_file_line_type_columns = plot_util.get_stat_file_line_type_columns(logger, 
-                                                                                    met_version, 
+            stat_file_line_type_columns = plot_util.get_stat_file_line_type_columns(logger,
+                                                                                    met_version,
                                                                                     line_type)
             model_now_stat_file_data.rename(
                 columns=dict(
                     zip(model_now_stat_file_data.columns[len(stat_file_base_columns):],
                         stat_file_line_type_columns)
-                ), 
+                ),
                 inplace=True
             )
             model_now_stat_file_data_fcst_valid_dates = (
                 model_now_stat_file_data.loc[:]['FCST_VALID_BEG'].values
             )
-            model_now_data = pd.DataFrame(np.nan, 
-                                          index=model_data_now_index, 
+            model_now_data = pd.DataFrame(np.nan,
+                                          index=model_data_now_index,
                                           columns=stat_file_line_type_columns)
             for expected_date in expected_stat_file_dates:
                 if expected_date in model_now_stat_file_data_fcst_valid_dates:
@@ -289,7 +289,7 @@ for model in model_info:
                        +model_name+" with plot name "
                        +model_plot_name+" file: "
                        +model_stat_file+" does not exist")
-        model_now_data = pd.DataFrame(np.nan, 
+        model_now_data = pd.DataFrame(np.nan,
                                       index=model_data_now_index,
                                       columns=[ 'TOTAL' ])
     if model_num > 1:
@@ -301,8 +301,8 @@ nmodels = len(model_info)
 logger.info("Calculating and plotting statistics")
 for stat in plot_stats_list:
     logger.debug("Working on "+stat)
-    stat_values, stat_values_array, stat_plot_name = plot_util.calculate_stat(logger, 
-                                                                              model_data, 
+    stat_values, stat_values_array, stat_plot_name = plot_util.calculate_stat(logger,
+                                                                              model_data,
                                                                               stat)
     if event_equalization == "True":
         logger.debug("Doing event equalization")
@@ -333,7 +333,7 @@ for stat in plot_stats_list:
             obs_stat_values_array = stat_values_array[1,model_index,:]
         else:
             model_stat_values_array = stat_values_array[model_index,:]
-        lead_mean_filename = os.path.join(plotting_out_dir_data, 
+        lead_mean_filename = os.path.join(plotting_out_dir_data,
                                           model_plot_name
                                           +"_"+stat
                                           #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
@@ -381,10 +381,10 @@ for stat in plot_stats_list:
                                    +"done for fbar_obar")
                     stat_CI = '--'
                 else:
-                    stat_CI = plot_util.calculate_ci(logger, 
-                                                     ci_method, 
-                                                     model_stat_values_array, 
-                                                     obs_stat_values_array, 
+                    stat_CI = plot_util.calculate_ci(logger,
+                                                     ci_method,
+                                                     model_stat_values_array,
+                                                     obs_stat_values_array,
                                                      total_days,
                                                      stat, average_method,
                                                      randx[model_index,:,:])
@@ -410,12 +410,12 @@ for stat in plot_stats_list:
                                                          stat, average_method,
                                                          randx[model_index,:,:])
                     else:
-                        stat_CI = plot_util.calculate_ci(logger, 
-                                                         ci_method, 
-                                                         model_stat_values_array, 
-                                                         model1_stat_values_array, 
+                        stat_CI = plot_util.calculate_ci(logger,
+                                                         ci_method,
+                                                         model_stat_values_array,
+                                                         model1_stat_values_array,
                                                          total_days,
-                                                         stat, average_method, 
+                                                         stat, average_method,
                                                          randx[model_index,:,:])
                     logger.debug("Writing "+ci_method
                                  +" confidence intervals for difference between model "
@@ -445,7 +445,7 @@ for stat in plot_stats_list:
                 obs_plot_settings_dict = (
                     model_obs_plot_settings_dict['obs']
                 )
-                obs_count = (len(obs_stat_values_array) 
+                obs_count = (len(obs_stat_values_array)
                              - np.ma.count_masked(obs_stat_values_array))
                 mplot_time_dates = np.ma.array(
                     plot_time_dates,
@@ -463,7 +463,7 @@ for stat in plot_stats_list:
                                  color = obs_plot_settings_dict['color'],
                                  linestyle = obs_plot_settings_dict['linestyle'],
                                  linewidth = obs_plot_settings_dict['linewidth'],
-                                 marker = obs_plot_settings_dict['marker'], 
+                                 marker = obs_plot_settings_dict['marker'],
                                  markersize = obs_plot_settings_dict['markersize'],
                                  label=('obs. '
                                         +str(obs_mean_for_label)
@@ -489,11 +489,11 @@ for stat in plot_stats_list:
                 mean_for_label = format(mean_for_label, '.3f')
             ax.plot_date(mplot_time_dates.compressed(),
                          model_stat_values_array.compressed(),
-                         color = model_plot_settings_dict['color'], 
-                         linestyle = model_plot_settings_dict['linestyle'], 
-                         linewidth = model_plot_settings_dict['linewidth'], 
-                         marker = model_plot_settings_dict['marker'], 
-                         markersize = model_plot_settings_dict['markersize'], 
+                         color = model_plot_settings_dict['color'],
+                         linestyle = model_plot_settings_dict['linestyle'],
+                         linewidth = model_plot_settings_dict['linewidth'],
+                         marker = model_plot_settings_dict['marker'],
+                         markersize = model_plot_settings_dict['markersize'],
                          label=(model_plot_name
                                 +' '+str(mean_for_label)
                                 +' '+str(count)+' days'),
@@ -641,7 +641,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion+"_"+verif_type
                                         +".png")
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_valid"+valid_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name+"_"+fcst_var_level
@@ -674,7 +674,7 @@ for stat in plot_stats_list:
                                         +"_"+gridregion+"_"+verif_type
                                         +".png")
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs, 
+            savefig_name = os.path.join(plotting_out_dir_imgs,
                                         stat
                                         +"_init"+init_time_info[0][0:2]+"Z"
                                         +"_"+fcst_var_name+"_"+fcst_var_level

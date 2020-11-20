@@ -26,11 +26,11 @@ obtype_file_list = glob.glob(
     os.path.join(obtype_data_dir, obtype+'.'+DATE+'*')
 )
 
-def write_vx_mask_nc_file(obtype, obtype_file, 
+def write_vx_mask_nc_file(obtype, obtype_file,
                           vx_mask_name, vx_mask_values, vx_mask_ncattrs_dict):
     """! This sets up the basic netCDF file information for
          the vx masking file
-        
+
          Args:
              obtype               - string of observation type/name
              obtype_file          - string of full path to
@@ -40,7 +40,7 @@ def write_vx_mask_nc_file(obtype, obtype_file,
              vx_mask_values       - array of 0s and 1s defining the vx mask
              vx_mask_ncattrs_dict - dictionary with attributes for vx mask
                                     variable
-             
+
          Returns:
     """
     vx_mask_file = obtype_file+'_'+vx_mask_name.lower()+'_vx_mask.nc'

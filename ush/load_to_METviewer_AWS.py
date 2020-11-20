@@ -5,8 +5,8 @@ Abstract: This is run at the end of all step1 scripts
           in scripts/.
           This scripts loads data to the METviewer AWS
           server.
-              1) Create a temporary directory and 
-                 link the files that are to be 
+              1) Create a temporary directory and
+                 link the files that are to be
                  loaded
               2) Create XML that will load files
               3) Create database on AWS server
@@ -16,7 +16,7 @@ Abstract: This is run at the end of all step1 scripts
 import sys
 import datetime
 import shutil
-import os 
+import os
 import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
@@ -58,7 +58,7 @@ elif RUN == 'precip_step1':
     mv_desc = os.environ['precip1_mv_database_desc']
     gather_by = os.environ['precip1_gather_by']
     subdir_list = os.environ['precip1_type_list'].split(' ')
-data_dir = os.path.join(os.getcwd(), 'metplus_output', 
+data_dir = os.path.join(os.getcwd(), 'metplus_output',
                         'gather_by_'+gather_by, 'stat_analysis')
 METviewer_AWS_scripts_dir = os.path.join(USHverif_global,
                                          'METviewer_AWS_scripts')
@@ -117,7 +117,7 @@ for subdir in subdir_list:
     for model in model_list:
         for file_name in os.listdir(os.path.join(data_dir, subdir, model)):
             os.link(
-                os.path.join(data_dir, subdir, model, file_name), 
+                os.path.join(data_dir, subdir, model, file_name),
                 os.path.join(link_file_dir, subdir+'_'+file_name)
             )
             with open(load_xml_file, 'a') as xml:

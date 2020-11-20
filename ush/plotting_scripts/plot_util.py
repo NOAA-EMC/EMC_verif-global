@@ -9,13 +9,13 @@ import pandas as pd
 def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
                     valid_time_info, init_time_info, lead):
     """! Create arrays of dates for requested plotting
- 
+
             Args:
                 plot_time - string of describing the treatment
                             of dates, either valid or init
                 start_date_YYYYmmdd - string of start date formatted
                                       in %Y%m%d
-                end_date_YYYYmmdd - string of the end date formatted 
+                end_date_YYYYmmdd - string of the end date formatted
                                     in %Y%m%d
                 valid_time_info - list of valid hour information
                 init_time_info - list of initialization hour information
@@ -51,7 +51,7 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
              else:
                  init_min_seconds = 0
              lead_init_offset = datetime.timedelta(seconds=lead_hour_seconds
-                                                   + lead_min_seconds 
+                                                   + lead_min_seconds
                                                    + init_hour_seconds
                                                    + init_min_seconds)
              totsec = lead_init_offset.total_seconds()
@@ -77,8 +77,8 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
             datetime.datetime.strptime(end_date_YYYYmmdd+ \
                                        valid_end_hour, "%Y%m%d%H%M%S") \
             + delta_t
-        dates = np.arange(plot_start_date_YYYYmmddHHMMSS, 
-                          plot_end_date_YYYYmmddHHMMSS, 
+        dates = np.arange(plot_start_date_YYYYmmddHHMMSS,
+                          plot_end_date_YYYYmmddHHMMSS,
                           delta_t).astype(datetime.datetime)
         for date in dates:
             dt = date.time()
@@ -148,7 +148,7 @@ def get_date_arrays(plot_time, start_date_YYYYmmdd, end_date_YYYYmmdd,
 def get_stat_file_base_columns(met_version):
     """! Standard MET .stat file columns based on
          version number
- 
+
              Args:
                  met_version - string of MET version number
                                being used to run stat_analysis
@@ -160,11 +160,11 @@ def get_stat_file_base_columns(met_version):
     """
     met_version = float(met_version)
     if met_version < 8.1:
-        stat_file_base_columns = [ 
+        stat_file_base_columns = [
             "VERSION", "MODEL", "DESC", "FCST_LEAD", "FCST_VALID_BEG",
             "FCST_VALID_END", "OBS_LEAD", "OBS_VALID_BEG", "OBS_VALID_END",
             "FCST_VAR", "FCST_LEV", "OBS_VAR", "OBS_LEV", "OBTYPE", "VX_MASK",
-            "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH", 
+            "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH",
             "COV_THRESH", "ALPHA", "LINE_TYPE"
             ]
     else:
@@ -180,7 +180,7 @@ def get_stat_file_base_columns(met_version):
 def get_stat_file_line_type_columns(logger, met_version, line_type):
     """! Line type MET .stat file columns based on
          version number
- 
+
              Args:
                  met_version - string of MET version number
                                being used to run stat_analysis
@@ -193,7 +193,7 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
     met_version = float(met_version)
     if line_type == "SL1L2":
         if met_version >= 6.0:
-            stat_file_line_type_columns = [ 
+            stat_file_line_type_columns = [
                 "TOTAL", "FBAR", "OBAR", "FOBAR", "FFBAR", "OOBAR", "MAE"
                  ]
     elif line_type == "SAL1L2":
@@ -204,12 +204,12 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
     elif line_type == "VL1L2":
         if met_version == 6.0 or met_version == 6.1:
             stat_file_line_type_columns = [
-                "TOTAL", "UFBAR", "VFBAR", "UOBAR", "VOBAR", "UVFOBAR", 
+                "TOTAL", "UFBAR", "VFBAR", "UOBAR", "VOBAR", "UVFOBAR",
                 "UVFFBAR", "UVOOBAR"
                  ]
         elif met_version >= 7.0:
             stat_file_line_type_columns = [
-                "TOTAL", "UFBAR", "VFBAR", "UOBAR", "VOBAR", "UVFOBAR", 
+                "TOTAL", "UFBAR", "VFBAR", "UOBAR", "VOBAR", "UVFOBAR",
                 "UVFFBAR", "UVOOBAR", "F_SPEED_BAR", "O_SPEED_BAR"
                 ]
     elif line_type == "VAL1L2":
@@ -220,7 +220,7 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
                 ]
     elif line_type == "VCNT":
         if met_version >= 7.0:
-            stat_file_line_type_columns = [ 
+            stat_file_line_type_columns = [
                 "TOTAL", "FBAR", "FBAR_NCL", "FBAR_NCU", "OBAR", "OBAR_NCL",
                 "OBAR_NCU", "FS_RMS", "FS_RMS_NCL", "FS_RMS_NCU", "OS_RMS",
                 "OS_RMS_NCL", "OS_RMS_NCU", "MSVE", "MSVE_NCL", "MSVE_NCU",
@@ -229,10 +229,10 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
                 "FDIR_NCL", "FDIR_NCU", "ODIR", "ODIR_NCL", "ODIR_NCU",
                 "FBAR_SPEED", "FBAR_SPEED_NCL", "FBAR_SPEED_NCU", "OBAR_SPEED",
                 "OBAR_SPEED_NCL", "OBAR_SPEED_NCU", "VDIFF_SPEED",
-                "VDIFF_SPEED_NCL", "VDIFF_SPEED_NCU", "VDIFF_DIR", 
+                "VDIFF_SPEED_NCL", "VDIFF_SPEED_NCU", "VDIFF_DIR",
                 "VDIFF_DIR_NCL", "VDIFF_DIR_NCU", "SPEED_ERR", "SPEED_ERR_NCL",
-                "SPEED_ERR_NCU", "SPEED_ABSERR", "SPEED_ABSERR_NCL", 
-                "SPEED_ABSERR_NCU", "DIR_ERR", "DIR_ERR_NCL", "DIR_ERR_NCU", 
+                "SPEED_ERR_NCU", "SPEED_ABSERR", "SPEED_ABSERR_NCL",
+                "SPEED_ABSERR_NCU", "DIR_ERR", "DIR_ERR_NCL", "DIR_ERR_NCU",
                 "DIR_ABSERR", "DIR_ABSERR_NCL", "DIR_ABSERR_NCU"
                 ]
         else:
@@ -247,10 +247,10 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
 
 def get_clevels(data):
     """! Get contour levels for plotting
-  
+
               Args:
                   data - array of data to be contoured
- 
+
               Returns:
                   clevles - array of contoure levels
     """
@@ -272,10 +272,10 @@ def get_clevels(data):
 def calculate_average(logger, average_method, stat, model_dataframe,
                       model_stat_values):
     """! Calculate average of dataset
-        
+
              Args:
                  logger               - logging file
-                 average_method       - string of the method to 
+                 average_method       - string of the method to
                                         use to calculate the
                                         average
                  stat                 - string of the statistic the
@@ -283,7 +283,7 @@ def calculate_average(logger, average_method, stat, model_dataframe,
                  model_dataframe      - dataframe of model .stat
                                         columns
                  model_stat_values    - array of statistic values
- 
+
              Returns:
                  average_array        - array of average value(s)
     """
@@ -324,19 +324,19 @@ def calculate_average(logger, average_method, stat, model_dataframe,
 def calculate_ci(logger, ci_method, modelB_values, modelA_values, total_days,
                  stat, average_method, randx):
     """! Calculate confidence intervals between two sets of data
- 
+
              Args:
                  logger         - logging file
-                 ci_method      - string of the method to use to 
+                 ci_method      - string of the method to use to
                                   calculate the confidence intervals
                  modelB_values  - array of values
                  modelA_values  - array of values
-                 total_days     - float of total number of days 
+                 total_days     - float of total number of days
                                   being considered, sample size
                  stat           - string of the statistic the
                                   confidence intervals are being
                                   calculated for
-                 average_method - string of the method to 
+                 average_method - string of the method to
                                   use to calculate the
                                   average
                  randx          - 2D array of random numbers [0,1)
@@ -431,7 +431,7 @@ def calculate_ci(logger, ci_method, modelB_values, modelA_values, total_days,
 
 def get_stat_plot_name(logger, stat):
     """! Get the formalized name of the statistic being plotted
- 
+
              Args:
                  stat - string of the simple statistic name
                         being plotted
@@ -490,7 +490,7 @@ def get_stat_plot_name(logger, stat):
 def calculate_stat(logger, model_data, stat):
     """! Calculate the statistic from the data from the
          read in MET .stat file(s)
- 
+
              Args:
                  model_data - Dataframe containing the model(s)
                               information from the MET .stat files
@@ -604,7 +604,7 @@ def calculate_stat(logger, model_data, stat):
             stat_values = 1 - mse/var_o
         elif line_type == "VL1L2":
             mse = uvffbar + uvoobar - 2*uvfobar
-            var_o = uvoobar - uobar*uobar - vobar*vobar 
+            var_o = uvoobar - uobar*uobar - vobar*vobar
             stat_values = 1 - mse/var_o
         else:
             logger.error(stat+" cannot be computed from line type "+line_type)
@@ -800,7 +800,7 @@ def calculate_stat(logger, model_data, stat):
             stat_values_array_obar = \
                 np.ma.masked_invalid(stat_values_obar.values.reshape(
                 index0,index1,index2))
-        stat_values_array = np.ma.array([stat_values_array_fbar, 
+        stat_values_array = np.ma.array([stat_values_array_fbar,
                                          stat_values_array_obar
                                         ])
     else:

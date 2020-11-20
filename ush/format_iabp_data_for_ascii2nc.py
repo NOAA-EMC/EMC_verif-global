@@ -1,7 +1,7 @@
 '''
 Program Name: format_iabp_data_for_ascii2nc.py
 Contact(s): Mallory Row
-Abstract: This script format IABP data into a 
+Abstract: This script format IABP data into a
           ascii2nc compliant text file
 '''
 

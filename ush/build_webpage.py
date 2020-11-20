@@ -5,7 +5,7 @@ Abstract: This is run at the end of all step2 scripts
           in scripts/.
           This creates a job card to:
               1) if needed, create website from
-                 EMC_verif-global template (webpage.tar) 
+                 EMC_verif-global template (webpage.tar)
                  at specified user location on web server
               2) send images to web server
           It then submits to the transfer queue.

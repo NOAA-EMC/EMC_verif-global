@@ -8,11 +8,11 @@ Abstract: This script is run by the maps2d and mapsda jobs scripts.
 
 from __future__ import (print_function, division)
 import os
-import re 
+import re
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in environment variables 
+# Read in environment variables
 HOMEMET = os.environ['HOMEMET']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
@@ -94,7 +94,7 @@ def get_var_grib1_info(var_name, var_level):
                                  name
              var_level         - string of the description for
                                  the variable GRIB level
-             
+
          Returns:
              var_GRIB_lvl_typ  - string of the GRIB level type number
              var_GRIB_lvl_val1 - string of the GRIB level 1 number
@@ -240,7 +240,7 @@ for model in model_list:
         )
         series_analysis_obs_files = (
             '-obs '+os.path.join (DATA, RUN, 'data', 'obs',
-                                  model_obtype, 
+                                  model_obtype,
                                   model_obtype+'_'+forecast_to_plot
                                   +'_file_list.txt')
         )
@@ -258,7 +258,7 @@ for model in model_list:
                                   +'_anl_file_list.txt')
         )
         series_analysis_files = (series_analysis_fcst_files
-                                 +' '+series_analysis_obs_files) 
+                                 +' '+series_analysis_obs_files)
     # Set up shell script for series_analysis job
     series_analysis_job_filename = os.path.join (DATA, RUN,
                                                  'metplus_job_scripts',

@@ -14,11 +14,11 @@ print("BEGIN: "+os.path.basename(__file__))
 def write_template_header(template_filename):
     """! Writes common webpage header information to
          template
-        
+
          Args:
              template_filename - string of the full
                                  file path to write to
- 
+
          Returns:
     """
     template_type = template_filename.split('/')[-1].split('_')[0]
@@ -81,18 +81,18 @@ def write_template_body1(template_filename):
     """! Writes common webpage body information to
          template before the javascript domain
          assignment portion
-        
+
          Args:
              template_filename - string of the full
                                  file path to write to
- 
+
          Returns:
     """
     template_type = template_filename.split('/')[-1].split('_')[0]
     template_file = open(template_filename, 'a')
-    template_file.write('<body>\n') 
+    template_file.write('<body>\n')
     template_file.write('<div id="pageTitle">\n')
-    template_file.write('<?php echo $stat_title; ?>\n') 
+    template_file.write('<?php echo $stat_title; ?>\n')
     template_file.write('</div>\n')
     template_file.write('<div class="page-menu"><div class="table">\n')
     template_file.write('        <div class="element">\n')
@@ -252,11 +252,11 @@ def write_template_body2(template_filename):
     """! Writes common webpage body information to
          template after the javascript domain
          assignment portion
-        
+
          Args:
              template_filename - string of the full
                                  file path to write to
- 
+
          Returns:
     """
     template_type = template_filename.split('/')[-1].split('_')[0]
@@ -475,11 +475,11 @@ for storm in storm_list:
     if basin == 'AL':
         AL_storm_list.append(storm)
     elif basin == 'CP':
-        CP_storm_list.append(storm) 
+        CP_storm_list.append(storm)
     elif basin == 'EP':
         EP_storm_list.append(storm)
     elif basin == 'WP':
-        WP_storm_list.append(storm) 
+        WP_storm_list.append(storm)
 basin_storms_dict = {
     'AL': AL_storm_list,
     'CP': CP_storm_list,
@@ -526,7 +526,7 @@ for basin in list(basin_storms_dict.keys()):
         basin_intensityerr_file.write('});\n')
     basin_trackerr_file.close()
     basin_intensityerr_file.close()
-    write_template_body2(basin_trackerr_filename) 
-    write_template_body2(basin_intensityerr_filename)   
- 
+    write_template_body2(basin_trackerr_filename)
+    write_template_body2(basin_intensityerr_filename)
+
 print("END: "+os.path.basename(__file__))

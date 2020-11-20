@@ -90,7 +90,7 @@ def read_series_analysis_file(series_analysis_file, var_scale):
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                      py_map_pckg, latlon_area):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -167,11 +167,11 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                       plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
                       latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp        - subplot axis object
                 map_ax_tmp    - subplot map information
-                plot_data     - array of the data to plot  
+                plot_data     - array of the data to plot
                 plot_data_lat - array of the data latitudes
                 plot_data_lon - array of the data longitudes
                 plot_levels   - array of the contour levels
@@ -262,7 +262,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     else:
         CF_tmp = None
     return CF_tmp
-    
+
 # Read in environment variables
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
@@ -409,7 +409,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.05 
+                    cbar00_left_adjust = 0.05
                     cbar_bottom = 0.06
                     cbar_height = 0.02
                 elif nsubplots == 2:
@@ -476,7 +476,7 @@ for stat in plot_stats_list:
                     logger.error("Too many subplots selected, max. is 10")
                     exit(1)
                 suptitle_x_loc = (
-                    plt.rcParams['figure.subplot.left'] 
+                    plt.rcParams['figure.subplot.left']
                     +plt.rcParams['figure.subplot.right']
                 )/2.
                 fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -532,7 +532,7 @@ for stat in plot_stats_list:
                 print("WARNING: "+input_file+" "
                       +"does not exist")
                 if verif_case_type == 'gdas' and model_num == 1:
-                    ax_cntrl.set_title('--', loc='right') 
+                    ax_cntrl.set_title('--', loc='right')
                 ax.set_title('--', loc='right')
             else:
                 if verif_case_type == 'gdas':
@@ -786,7 +786,7 @@ for stat in plot_stats_list:
                                             [cbar_subplot_loc].levels)
                     if nsubplots == 2:
                         cbar.ax.set_ylabel(cbar_title, labelpad = 5)
-                        cbar.ax.yaxis.set_tick_params(pad=0) 
+                        cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                         cbar.ax.xaxis.set_tick_params(pad=0)

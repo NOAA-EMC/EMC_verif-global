@@ -5,21 +5,21 @@
 #           to produce SL1L2 and VL1L2 stats
 # History Log:
 #   2/2019: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
-set -x 
+set -x
 
 export RUN_abbrev="g2g1"
 
@@ -108,7 +108,7 @@ while [ $DATE -le ${end_date} ] ; do
     arch_dirs=($model_arch_dir_list)
     for model in $model_list; do
         export model=$model
-        export arch_dir=${arch_dirs[m]} 
+        export arch_dir=${arch_dirs[m]}
         arch_dir_strlength=$(echo -n $arch_dir | wc -m)
         if [ $arch_dir_strlength = 0 ]; then
             arch_dir=${arch_dirs[0]}

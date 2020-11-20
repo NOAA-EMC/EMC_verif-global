@@ -5,21 +5,21 @@
 #           between model-to-model and model to observations
 # History Log:
 #   02/2020: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
-set -x 
+set -x
 
 export RUN_abbrev="$RUN"
 
@@ -102,7 +102,7 @@ fi
 
 # Send images to web
 if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
-   module switch python/2.7.14 
+   module switch python/2.7.14
 fi
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py

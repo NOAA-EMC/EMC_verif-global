@@ -5,18 +5,18 @@
 #           to produce SL1L2 and VL1L2 stats
 # History Log:
 #   2/2019: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
 set -x
@@ -56,7 +56,7 @@ echo
 python $USHverif_global/create_METplus_output_dirs.py
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
-echo 
+echo
 
 # Create job scripts to run METplus
 python $USHverif_global/create_METplus_job_scripts.py

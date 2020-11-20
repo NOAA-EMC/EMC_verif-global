@@ -1,25 +1,25 @@
 #!/bin/sh
 # Program Name: satellite_step2
 # Author(s)/Contact(s): Mallory Row
-# Abstract: Run METplus for global satellite verification 
+# Abstract: Run METplus for global satellite verification
 #           to create plots from step 1
 # History Log:
 #   9/2020: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
-set -x 
+set -x
 
 export RUN_abbrev="sat2"
 

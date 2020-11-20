@@ -6,21 +6,21 @@
 #
 # History Log:
 #   03/2020: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
-set -x 
+set -x
 
 export RUN_abbrev="$RUN"
 

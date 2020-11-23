@@ -76,8 +76,10 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
         for case_type in case_type_list:
             case_abbrev_type = case_abbrev+'_'+case_type
             case_type_env_list = ['gather_by', 'grid', 'fhr_list',
-                                  'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                                  'init_hr_beg', 'init_hr_end', 'init_hr_inc']
+                                  'valid_hr_list', 'valid_hr_beg',
+                                  'valid_hr_end', 'valid_hr_inc',
+                                  'init_hr_list', 'init_hr_beg',
+                                  'init_hr_end', 'init_hr_inc']
             for case_type_env in case_type_env_list:
                 job_env_dict[case_type_env] = (
                     os.environ[case_abbrev_type+'_'+case_type_env]
@@ -786,9 +788,10 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
             elif case == 'satellite':
                 job_env_dict['model'+str(model_num)+'_obtype'] = case
         job_env_dict['case_type'] = case_type
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list',
+        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
                               'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_beg', 'init_hr_end', 'init_hr_inc']
+                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
+                              'init_hr_inc']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[case_abbrev_type+'_'+case_type_env]

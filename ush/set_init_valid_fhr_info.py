@@ -86,6 +86,9 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
          RUN_abbrev_type_fcyc_end,
          RUN_abbrev_type_fcyc_inc) = \
             get_hr_list_info(RUN_abbrev_type_fcyc_list)
+        env_var_dict[RUN_abbrev_type+'_init_hr_list'] = ', '.join(
+            RUN_abbrev_type_fcyc_list
+        )
         env_var_dict[RUN_abbrev_type+'_init_hr_beg'] = RUN_abbrev_type_fcyc_beg
         env_var_dict[RUN_abbrev_type+'_init_hr_end'] = RUN_abbrev_type_fcyc_end
         env_var_dict[RUN_abbrev_type+'_init_hr_inc'] = RUN_abbrev_type_fcyc_inc
@@ -107,7 +110,7 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
         (RUN_abbrev_type_vhr_beg,
          RUN_abbrev_type_vhr_end,
          RUN_abbrev_type_vhr_inc) = get_hr_list_info(RUN_abbrev_type_vhr_list)
-        env_var_dict[RUN_abbrev_type+'_vhr_list'] = ' '.join(
+        env_var_dict[RUN_abbrev_type+'_valid_hr_list'] = ', '.join(
             RUN_abbrev_type_vhr_list
         )
         env_var_dict[RUN_abbrev_type+'_valid_hr_beg'] = RUN_abbrev_type_vhr_beg

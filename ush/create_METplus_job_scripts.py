@@ -41,7 +41,8 @@ def init_env_dict():
     return env_var_dict
 
 def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
-                             case_type_list):
+                             case_type_list, master_metplus, machine_conf,
+                             conf_dir):
     """! Writes out individual job scripts based on requested verification
          for step 1 RUN
 
@@ -54,7 +55,9 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
              case_abbrev    - string of case abbrevation
              case_type_list - list of strings of the types of the
                               verification use case
-
+             master_metplus - string of path to master_metplus.py
+             machine_conf   - string of path to machine METplus conf
+             conf_dir       - string of path to base METplus conf directory
          Returns:
     """
     njob = 0
@@ -62,16 +65,8 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
     job_env_dict = init_env_dict()
     job_env_dict['make_met_data_by'] = os.environ['make_met_data_by']
     # Set important METplus paths
-    master_metplus = os.path.join(
-        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
-    )
-    machine_conf = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
-    )
     make_met_data_by_conf_dir = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config',
-        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
-        case, 'make_met_data_by_'+job_env_dict['make_met_data_by']
+        conf_dir, case, 'make_met_data_by_'+job_env_dict['make_met_data_by']
     )
     # Set up model environment variables in dictionary
     for model in os.environ['model_list'].split(' '):
@@ -88,10 +83,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                     os.environ[case_abbrev_type+'_'+case_type_env]
                 )
             gather_by_conf_dir = os.path.join(
-                job_env_dict['PARMverif_global'], 'metplus_config',
-                'metplus_use_cases',
-                'METplusV'+job_env_dict['METplus_version'],
-                case, 'gather_by_'+job_env_dict['gather_by']
+                conf_dir, case, 'gather_by_'+job_env_dict['gather_by']
             )
             if case == 'grid2grid':
                 obtype = os.environ[
@@ -205,7 +197,8 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 date_dt = date_dt + datetime.timedelta(days=1)
 
 def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
-                             case_type_list):
+                             case_type_list, master_metplus, machine_conf,
+                             conf_dir):
     """! Writes out individual job scripts based on requested verification
          for step 2 RUN
 
@@ -218,6 +211,9 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
              case_abbrev    - string of case abbrevation
              case_type_list - list of strings of the types of the
                               verification use case
+             master_metplus - string of path to master_metplus.py
+             machine_conf   - string of path to machine METplus conf
+             conf_dir       - string of path to base METplus conf directory
 
          Returns:
     """
@@ -739,16 +735,8 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
     job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
     job_env_dict['plot_by'] = os.environ['plot_by']
     # Set important METplus paths
-    master_metplus = os.path.join(
-        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
-    )
-    machine_conf = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
-    )
     plot_by_conf_dir = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config',
-        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
-        case, 'plot_by_'+job_env_dict['plot_by']
+        conf_dir, case, 'plot_by_'+job_env_dict['plot_by']
     )
     # Set up model environment variables in dictionary
     model_list = os.environ['model_list'].split(' ')
@@ -886,7 +874,8 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                     job_file.close()
 
 def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
-                               tc_list):
+                               tc_list, master_metplus, machine_conf,
+                               conf_dir):
     """! Writes out individual job scripts based on requested tropical
          cyclone verification
 
@@ -898,6 +887,9 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
              case           - string of the verification use case
              case_abbrev    - string of case abbrevation
              tc_list        - list of strings of the basin_year_name
+             master_metplus - string of path to master_metplus.py
+             machine_conf   - string of path to machine METplus conf
+             conf_dir       - string of path to base METplus conf directory
 
          Returns:
     """
@@ -928,22 +920,8 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         os.environ['tropcyc_vhr_list'].split(' ')
     )
     # Set important METplus paths
-    master_metplus = os.path.join(
-        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
-    )
-    machine_conf = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
-    )
-    make_met_data_conf_dir = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config',
-        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
-        case, 'make_met_data'
-    )
-    gather_conf_dir = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config',
-        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
-        case, 'gather'
-    )
+    make_met_data_conf_dir = os.path.join(conf_dir, case, 'make_met_data')
+    gather_conf_dir = os.path.join(conf_dir, case, 'gather')
     # Set up model environment varibles in dictionary
     model_list = os.environ['model_list'].split(' ')
     model_atcf_name_list = (
@@ -1109,7 +1087,8 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file.close()
 
 def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
-                            case_type_list):
+                            case_type_list, master_metplus, machine_conf,
+                            conf_dir):
     """! Writes out individual job scripts based on requested verification
          for maps2d or mapdsda RUN
 
@@ -1122,6 +1101,9 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
              case_abbrev    - string of case abbrevation
              case_type_list - list of strings of the types of the
                               verification use case
+             master_metplus - string of path to master_metplus.py
+             machine_conf   - string of path to machine METplus conf
+             conf_dir       - string of path to base METplus conf directory
 
          Returns:
     """
@@ -1318,17 +1300,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
     job_env_dict['latlon_area'] = os.environ[case_abbrev+'_latlon_area']
     job_env_dict['plot_diff'] = os.environ[case_abbrev+'_plot_diff']
     # Set important METplus paths
-    master_metplus = os.path.join(
-        job_env_dict['USHMETplus'], 'metplus', 'master_metplus.py'
-    )
-    machine_conf = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config', 'machine.conf'
-    )
-    case_conf_dir = os.path.join(
-        job_env_dict['PARMverif_global'], 'metplus_config',
-        'metplus_use_cases', 'METplusV'+job_env_dict['METplus_version'],
-        case
-    )
+    case_conf_dir = os.path.join(conf_dir, case)
     # Set up model environment variables in dictionary
     model_list = os.environ['model_list'].split(' ')
     model_plot_name_list = os.environ[
@@ -1543,19 +1515,34 @@ sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]),
                           int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]),
                           int(end_date[6:]))
+# Set important METplus paths
+USHMETplus_master_metplus = os.path.join(
+    os.environ['USHMETplus'], 'master_metplus.py'
+)
+PARMverif_global_machine_conf = os.path.join(
+    os.environ['PARMverif_global'], 'metplus_config', 'machine.conf'
+)
+PARMverif_global_METplus_version_conf_dir = os.path.join(
+    os.environ['PARMverif_global'], 'metplus_config', 'metplus_use_cases',
+    'METplusV'+os.environ['METplus_version']
+)
 
 # Run job creation function
 if RUN in ['grid2grid_step1', 'grid2obs_step1', 'precip_step1',
            'satellite_step1']:
     create_job_scripts_step1(
         sdate, edate, RUN.split('_')[0], RUN_abbrev,
-        os.environ[RUN_abbrev+'_type_list'].split(' ')
+        os.environ[RUN_abbrev+'_type_list'].split(' '),
+        USHMETplus_master_metplus, PARMverif_global_machine_conf,
+        PARMverif_global_METplus_version_conf_dir
     )
 elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
              'satellite_step2']:
     create_job_scripts_step2(
         sdate, edate, RUN.split('_')[0], RUN_abbrev,
-        os.environ[RUN_abbrev+'_type_list'].split(' ')
+        os.environ[RUN_abbrev+'_type_list'].split(' '),
+        USHMETplus_master_metplus, PARMverif_global_machine_conf,
+        PARMverif_global_METplus_version_conf_dir
     )
 elif RUN in ['tropcyc']:
     import get_tc_info
@@ -1575,12 +1562,16 @@ elif RUN in ['tropcyc']:
         else:
             RUN_abbrev_tc_list.append(config_storm)
     create_job_scripts_tropcyc(
-        sdate, edate, RUN, RUN_abbrev, RUN_abbrev_tc_list
+        sdate, edate, RUN, RUN_abbrev, RUN_abbrev_tc_list,
+        USHMETplus_master_metplus, PARMverif_global_machine_conf,
+        PARMverif_global_METplus_version_conf_dir
     )
 elif RUN in ['maps2d', 'mapsda']:
     create_job_scripts_maps(
         sdate, edate, RUN, RUN_abbrev,
-        os.environ[RUN_abbrev+'_type_list'].split(' ')
+        os.environ[RUN_abbrev+'_type_list'].split(' '),
+        USHMETplus_master_metplus, PARMverif_global_machine_conf,
+        PARMverif_global_METplus_version_conf_dir
     )
 
 # If running MPMD, create POE scripts

@@ -97,27 +97,26 @@ else
 fi
 
 # Copy data to user archive or to COMOUT
-gather_by=$g2g1_gather_by
-if [ $gather_by = INIT ]; then
-    gather_by_hour_list=$g2g1_fcyc_list
-else
-    gather_by_hour_list=$g2g1_vhr_list
-fi
 DATE=${start_date}
 while [ $DATE -le ${end_date} ] ; do
     export DATE=$DATE
     export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
     export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
     m=0
-    arch_dirs=($model_arch_dir_list)
+    arch_dirs=($model_stat_dir_list)
     for model in $model_list; do
         export model=$model
         export arch_dir=${arch_dirs[m]}
-        arch_dir_strlength=$(echo -n $arch_dir | wc -m)
-        if [ $arch_dir_strlength = 0 ]; then
-            arch_dir=${arch_dirs[0]}
-        fi
         for type in $g2g1_type_list; do
+            RUN_abbrev_type_gather_by_name=${RUN_abbrev}_${type}_gather_by
+            RUN_abbrev_type_fcyc_list_name=${RUN_abbrev}_${type}_fcyc_list
+            RUN_abbrev_type_vhr_list_name=${RUN_abbrev}_${type}_vhr_list
+            gather_by=${!RUN_abbrev_type_gather_by_name}
+            if [ $gather_by = INIT ]; then
+                gather_by_hour_list=${!RUN_abbrev_type_fcyc_list_name}
+            else
+                gather_by_hour_list=${!RUN_abbrev_type_vhr_list_name}
+            fi
             # Copy to requested locations
             for gather_by_hour in $gather_by_hour_list; do
                 verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${gather_by_hour}.stat"

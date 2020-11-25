@@ -65,8 +65,11 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
     job_env_dict = init_env_dict()
     job_env_dict['make_met_data_by'] = os.environ['make_met_data_by']
     # Set important METplus paths
-    make_met_data_by_conf_dir = os.path.join(
-        conf_dir, case, 'make_met_data_by_'+job_env_dict['make_met_data_by']
+    make_met_data_conf_dir = os.path.join(
+        conf_dir, case, 'make_met_data'
+    )
+    gather_conf_dir = os.path.join(
+        conf_dir, case, 'gather'
     )
     # Set up model environment variables in dictionary
     for model in os.environ['model_list'].split(' '):
@@ -74,6 +77,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
         model_idx = os.environ['model_list'].split(' ').index(model)
         # Set up case_type environment variables in dictionary
         for case_type in case_type_list:
+            job_env_dict['RUN_type'] = case_type
             case_abbrev_type = case_abbrev+'_'+case_type
             case_type_env_list = ['gather_by', 'grid', 'fhr_list',
                                   'valid_hr_list', 'valid_hr_beg',
@@ -84,9 +88,6 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_env_dict[case_type_env] = (
                     os.environ[case_abbrev_type+'_'+case_type_env]
                 )
-            gather_by_conf_dir = os.path.join(
-                conf_dir, case, 'gather_by_'+job_env_dict['gather_by']
-            )
             if case == 'grid2grid':
                 obtype = os.environ[
                     case_abbrev_type+'_truth_name'
@@ -163,16 +164,8 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
-                # Write METplus commands
+                # Write pre-process scripts
                 job_file.write('\n')
-                metplus_conf_list = [
-                    os.path.join(make_met_data_by_conf_dir, case_type+'.conf')
-                ]
-                if case == 'grid2grid' and case_type == 'anom':
-                    metplus_conf_list.append(
-                        os.path.join(make_met_data_by_conf_dir,
-                                     case_type+'_height.conf')
-                    )
                 if case == 'grid2obs' and case_type == 'polar_sfc':
                     job_file.write(
                         'python '
@@ -187,8 +180,25 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                                       'gen_satellite_ice_vx_mask.py')+'\n'
                     )
                     job_file.write('\n')
+                # Write METplus commmands
+                metplus_conf_list = [
+                    os.path.join(
+                        make_met_data_conf_dir,
+                        case_type+'_'+job_env_dict['make_met_data_by']+'.conf'
+                    )
+                ]
+                if case == 'grid2grid' and case_type == 'anom':
+                    metplus_conf_list.append(
+                        os.path.join(
+                            make_met_data_conf_dir,
+                            case_type+'_height_'
+                            +job_env_dict['make_met_data_by']+'.conf'
+                        )
+                    )
                 metplus_conf_list.append(
-                    os.path.join(gather_by_conf_dir, case_type+'.conf')
+                    os.path.join(
+                        gather_conf_dir, job_env_dict['gather_by']+'.conf'
+                    )
                 )
                 for metplus_conf in metplus_conf_list:
                     job_file.write(

@@ -150,6 +150,7 @@ if [ $machine = "HERA" ]; then
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export obdata_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/scratch1/NCEPDEV/global/Mallory.Row/VRFY/METviewer_AWS"
 elif [ $machine = "ORION" ]; then
     export NWROOT=${NWROOT:-"/work/noaa/global/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
@@ -160,6 +161,7 @@ elif [ $machine = "ORION" ]; then
     export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
     export obdata_dir="/work/noaa/ovp/mrow/obdata"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/work/noaa/ovp/mrow/VRFY/METviewer_AWS"
 elif [ $machine = "WCOSS_C" ]; then
     export NWROOT=${NWROOT:-"/gpfs/hps/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/hps3/emc/global/noscrub/$USER"
@@ -170,6 +172,7 @@ elif [ $machine = "WCOSS_C" ]; then
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
     export obdata_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
     export NWROOT=${NWROOT:-"/gpfs/dell1/nco/ops/nwprod"}
     export HOMEDIR="/gpfs/dell2/emc/modeling/noscrub/$USER"
@@ -180,6 +183,7 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
     export obdata_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
 fi
 
 ## Set operational directories

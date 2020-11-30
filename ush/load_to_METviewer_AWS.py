@@ -26,47 +26,30 @@ machine = os.environ['machine']
 DATA = os.environ['DATA']
 NET = os.environ['NET']
 RUN = os.environ['RUN']
-RUN_type = RUN.split('_')[0]
+RUN_abbrev = os.environ['RUN_abbrev']
+RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 USHverif_global = os.environ['USHverif_global']
 QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
 MET_version = os.environ['MET_version']
 model_list = os.environ['model_list'].split(' ')
-web_walltime = '180'
-walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
+METviewer_AWS_scripts_dir = os.environ['METviewer_AWS_scripts_dir']
+mv_database = os.environ[RUN_abbrev+'_mv_database_name']
+mv_group = os.environ[RUN_abbrev+'_mv_database_group']
+mv_desc = os.environ[RUN_abbrev+'_mv_database_desc']
+
+# Set up walltime
+transfer_walltime = '180'
+walltime_seconds = datetime.timedelta(minutes=int(transfer_walltime)) \
         .total_seconds()
 walltime = (datetime.datetime.min
-           + datetime.timedelta(minutes=int(web_walltime))).time()
-
-# Get database information
-if RUN == 'grid2grid_step1':
-    mv_database = os.environ['g2g1_mv_database_name']
-    mv_group = os.environ['g2g1_mv_database_group']
-    mv_desc = os.environ['g2g1_mv_database_desc']
-    gather_by = os.environ['g2g1_gather_by']
-    subdir_list = os.environ['g2g1_type_list'].split(' ')
-elif RUN == 'grid2obs_step1':
-    mv_database = os.environ['g2o1_mv_database_name']
-    mv_group = os.environ['g2o1_mv_database_group']
-    mv_desc = os.environ['g2o1_mv_database_desc']
-    gather_by = os.environ['g2o1_gather_by']
-    subdir_list = os.environ['g2o1_type_list'].split(' ')
-elif RUN == 'precip_step1':
-    mv_database = os.environ['precip1_mv_database_name']
-    mv_group = os.environ['precip1_mv_database_group']
-    mv_desc = os.environ['precip1_mv_database_desc']
-    gather_by = os.environ['precip1_gather_by']
-    subdir_list = os.environ['precip1_type_list'].split(' ')
-data_dir = os.path.join(os.getcwd(), 'metplus_output',
-                        'gather_by_'+gather_by, 'stat_analysis')
-METviewer_AWS_scripts_dir = os.path.join(USHverif_global,
-                                         'METviewer_AWS_scripts')
+           + datetime.timedelta(minutes=int(transfer_walltime))).time()
 
 # Check current databases to see if it exists
 current_database_info = subprocess.check_output(
-    [os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh'),
-     os.environ['USER'].lower()]
+    os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh')+' '
+    +os.environ['USER'].lower(), shell=True, encoding='UTF-8'
 )
 if mv_database in current_database_info:
     new_or_add = 'add'
@@ -74,8 +57,8 @@ else:
     new_or_add = 'new'
 
 # Create linking file dir
-link_file_dir = os.path.join(os.getcwd(), 'metviewerAWS_files')
-os.makedirs(link_file_dir, mode=0775)
+link_file_dir = os.path.join(os.getcwd(), 'METviewer_AWS_files')
+os.makedirs(link_file_dir, mode=0o755)
 
 # Create load XML
 load_xml_file = os.path.join(os.getcwd(), 'load_'+mv_database+'.xml')
@@ -113,16 +96,21 @@ with open(load_xml_file, 'a') as xml:
     xml.write('  <group>'+mv_group+'</group>\n')
     xml.write('  <description>'+mv_desc+'</description>\n')
     xml.write('  <load_files>\n')
-for subdir in subdir_list:
+for RUN_type in RUN_type_list:
+    gather_by = os.environ[RUN_abbrev+'_'+RUN_type+'_gather_by']
     for model in model_list:
-        for file_name in os.listdir(os.path.join(data_dir, subdir, model)):
+        gather_by_RUN_type_model_dir = os.path.join(
+            DATA, RUN, 'metplus_output', 'gather_by_'+gather_by,
+            'stat_analysis', RUN_type, model
+        )
+        for file_name in os.listdir(gather_by_RUN_type_model_dir):
             os.link(
-                os.path.join(data_dir, subdir, model, file_name),
-                os.path.join(link_file_dir, subdir+'_'+file_name)
+                os.path.join(gather_by_RUN_type_model_dir, file_name),
+                os.path.join(link_file_dir, RUN_type+'_'+file_name)
             )
             with open(load_xml_file, 'a') as xml:
                 xml.write('    <file>/base_dir/'
-                          +subdir+'_'+file_name+'</file>\n')
+                          +RUN_type+'_'+file_name+'</file>\n')
 with open(load_xml_file, 'a') as xml:
     xml.write('  </load_files>\n')
     xml.write('\n')

@@ -79,7 +79,8 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
         for case_type in case_type_list:
             job_env_dict['RUN_type'] = case_type
             case_abbrev_type = case_abbrev+'_'+case_type
-            case_type_env_list = ['gather_by', 'grid', 'fhr_list',
+            case_type_env_list = ['gather_by', 'grid',
+                                  'fhr_list', 'fhr_beg', 'fhr_end',
                                   'valid_hr_list', 'valid_hr_beg',
                                   'valid_hr_end', 'valid_hr_inc',
                                   'init_hr_list', 'init_hr_beg',

@@ -86,6 +86,9 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
          RUN_abbrev_type_fcyc_end,
          RUN_abbrev_type_fcyc_inc) = \
             get_hr_list_info(RUN_abbrev_type_fcyc_list)
+        env_var_dict[RUN_abbrev_type+'_fcyc_list'] = (
+            os.environ[RUN_abbrev_type+'_fcyc_list']
+        )
         env_var_dict[RUN_abbrev_type+'_init_hr_list'] = ', '.join(
             RUN_abbrev_type_fcyc_list
         )
@@ -110,6 +113,9 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
         (RUN_abbrev_type_vhr_beg,
          RUN_abbrev_type_vhr_end,
          RUN_abbrev_type_vhr_inc) = get_hr_list_info(RUN_abbrev_type_vhr_list)
+        env_var_dict[RUN_abbrev_type+'_vhr_list'] = ' '.join(
+            RUN_abbrev_type_vhr_list
+        )
         env_var_dict[RUN_abbrev_type+'_valid_hr_list'] = ', '.join(
             RUN_abbrev_type_vhr_list
         )
@@ -157,6 +163,12 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
         )
         env_var_dict[RUN_abbrev_type+'_fhr_list'] = (
             RUN_abbrev_type_fhr_list_str
+        )
+        env_var_dict[RUN_abbrev_type+'_fhr_beg'] = (
+            RUN_abbrev_type_fhr_list_str.split(', ')[0]
+        )
+        env_var_dict[RUN_abbrev_type+'_fhr_end'] = (
+            RUN_abbrev_type_fhr_list_str.split(', ')[-1]
         )
 elif RUN == 'tropcyc':
     # Process forecast initialization cycles

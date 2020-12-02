@@ -9,6 +9,7 @@ from __future__ import (print_function, division)
 import os
 import datetime
 import pandas as pd
+import glob
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -21,9 +22,8 @@ DATE_YYYY = DATE_dt.strftime('%Y')
 DATE_DOY = DATE_dt.strftime('%j')
 
 # Set up information
-iabp_DATE_data_dir = os.path.join(DATA, RUN, 'data',
-                                  'iabp', DATE)
-iabp_DATE_file = os.path.join(iabp_DATE_data_dir, '..', 'iabp.'+DATE)
+iabp_data_dir = os.path.join(DATA, RUN, 'data', 'iabp')
+iabp_DATE_file = os.path.join(iabp_data_dir, 'iabp.'+DATE+'.txt')
 iabp_var_list = ['BP', 'Ts', 'Ta']
 ascii2nc_file_cols = ['Message_Type', 'Station_ID', 'Valid_Time', 'Lat', 'Lon',
                       'Elevation', 'Variable_Name', 'Level', 'Height',
@@ -31,10 +31,11 @@ ascii2nc_file_cols = ['Message_Type', 'Station_ID', 'Valid_Time', 'Lat', 'Lon',
 
 # Combine and format for ascii2nc
 iabp_DATE_ascii2nc_data = pd.DataFrame(columns=ascii2nc_file_cols)
-nfiles_iabp_DATE_data_dir = len(os.listdir(iabp_DATE_data_dir))
-if nfiles_iabp_DATE_data_dir != 0:
-    for iabp_region_DATE_filename in os.listdir(iabp_DATE_data_dir):
-        iabp_region_DATE_file = os.path.join(iabp_DATE_data_dir,
+iabp_region_DATE_file_list = glob.glob(os.path.join(iabp_data_dir,
+                                                    '*'+DATE+'.dat'))
+if len(iabp_region_DATE_file_list) != 0:
+    for iabp_region_DATE_filename in iabp_region_DATE_file_list:
+        iabp_region_DATE_file = os.path.join(iabp_data_dir,
                                              iabp_region_DATE_filename)
         iabp_region_DATE_data = pd.read_csv(iabp_region_DATE_file, sep=";",
                                             skipinitialspace=True, header=0,
@@ -145,6 +146,8 @@ if nfiles_iabp_DATE_data_dir != 0:
 iabp_DATE_ascii2nc_data_string = (
     iabp_DATE_ascii2nc_data.to_string(header=False, index=False)
 )
+if os.path.exists(iabp_DATE_file):
+    os.remove(iabp_DATE_file)
 with open(iabp_DATE_file,'a') as output_file:
     output_file.write(iabp_DATE_ascii2nc_data_string)
 

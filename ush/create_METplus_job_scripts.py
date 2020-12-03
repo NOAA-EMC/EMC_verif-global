@@ -121,6 +121,10 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_env_dict['model_file_format'] = os.environ[
                     case_abbrev_type+'_model_file_format_list'
                 ].split(' ')[model_idx][0:4]
+                if job_env_dict['model_bucket'] == 'continuous':
+                    job_env_dict['pcp_combine_method'] = 'SUBTRACT'
+                else:
+                    job_env_dict['pcp_combine_method'] = 'SUM'
             elif case == 'satellite':
                 job_env_dict['obtype'] = case_type
                 job_env_dict['sea_ice_thresh'] = os.environ[

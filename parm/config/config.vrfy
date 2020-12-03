@@ -285,7 +285,7 @@ fi
 
 if [ $RUN_PRECIP_STEP1 = YES ]; then
     #precip1_type_list: precip observation type/name and accumulation length: ccpa_accum24hr
-    #precip1_model_bucket_list: model file accumulation bucket in HH, support continuous bucket in future
+    #precip1_model_bucket_list: model file accumulation bucket in HH, use "continuous" for accumulating bucket
     #precip1_model_varname_list: model file precip variable to use: APCP or PRATE
     #precip1_model_file_format_list: file format of model files [overrides model_file_format_list]
     #### For each type the followings can be set, where [type] is ccpa_accum24hr

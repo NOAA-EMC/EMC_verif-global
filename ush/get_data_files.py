@@ -1251,7 +1251,7 @@ elif RUN == 'precip_step1':
                         nf = 1
                         while nf <= nfiles_in_accum:
                             lead_now = int(lead_end)-((nf-1)*int(model_bucket))
-                            if lead_now > 0:
+                            if lead_now >= 0:
                                 lead_in_accum_list.append(str(lead_now))
                             nf+=1
                     if len(lead_in_accum_list) == nfiles_in_accum:
@@ -1505,7 +1505,7 @@ elif RUN == 'satellite_step1':
                         nf = 1
                         while nf <= nfiles_in_mean:
                             lead_now = int(lead_end)-((nf-1)*lead_intvl)
-                            if lead_now > 0:
+                            if lead_now >= 0:
                                 lead_in_mean_list.append(str(lead_now))
                             nf+=1
                     if len(lead_in_mean_list) == nfiles_in_mean:

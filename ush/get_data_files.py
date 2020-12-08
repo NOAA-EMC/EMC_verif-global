@@ -1575,6 +1575,71 @@ elif RUN == 'satellite_step1':
                         os.system(ncap2+' -s "'
                                   +'sea_ice_fraction=float(sea_ice_fraction) " '
                                   +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
+                        os.system(ncap2+' -s "'
+                                  +'mask=float(mask) " '
+                                  +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
+                        gen_vx_mask = subprocess.check_output(
+                            'which gen_vx_mask', shell=True, encoding='UTF-8'
+                        ).replace('\n', '')
+                        os.system(
+                            gen_vx_mask+' '+link_RUN_type_file+' '
+                            +link_RUN_type_file+' '
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
+                            +'-type data -thresh ==1 -mask_field '
+                            +"'name="+'"mask"; level="(0,*,*)";'+"' "
+                            +'-name WATER'
+                        )
+                        os.system(
+                            gen_vx_mask+' '+link_RUN_type_file+' '
+                            +link_RUN_type_file+' '
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
+                            +'-type data -thresh '+'">=0.15"'+' -mask_field '
+                            +"'name="+'"sea_ice_fraction"; level="(0,*,*)";'
+                            +"' "+'-name SEA_ICE'
+                        )
+                        os.system(
+                            gen_vx_mask+' '
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH
+                                          +'.vx_mask.SEA_ICE_POLAR.nc ')
+                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
+                            +"'name="+'"SEA_ICE"; level="(*,*)";'+"' "
+                            +'-name SEA_ICE_POLAR -value "0"'
+                        )
+                        os.system(
+                            gen_vx_mask+' '
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH
+                                          +'.vx_mask.SEA_ICE_FREE.nc ')
+                            +'-type data -thresh '+"'==0'"+' -intersection '
+                            +'-mask_field '+"'name="+'"SEA_ICE"; '
+                            +'level="(*,*)";'+"' "+'-name SEA_ICE_FREE'
+                        )
+                        os.system(
+                            gen_vx_mask+' '
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH
+                                          +'.vx_mask.SEA_ICE_FREE.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH
+                                          +'.vx_mask.SEA_ICE_FREE.nc ')
+                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH
+                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc ')
+                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
+                            +"'name="+'"SEA_ICE_FREE"; level="(*,*)";'+"' "
+                            +'-name SEA_ICE_FREE_POLAR -value "0"'
+                        )
                     else:
                         print("WARNING: could not get "+RUN_type_ftp_file)
 elif RUN == 'satellite_step2':

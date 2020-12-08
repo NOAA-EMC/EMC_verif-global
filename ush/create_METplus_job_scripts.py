@@ -178,13 +178,6 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                                       'format_iabp_data_for_ascii2nc.py')+'\n'
                     )
                     job_file.write('\n')
-                if case == 'satellite':
-                    job_file.write(
-                        'python '
-                        +os.path.join(job_env_dict['USHverif_global'],
-                                      'gen_satellite_ice_vx_mask.py')+'\n'
-                    )
-                    job_file.write('\n')
                 # Write METplus commmands
                 metplus_conf_list = [
                     os.path.join(

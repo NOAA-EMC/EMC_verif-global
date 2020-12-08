@@ -40,7 +40,7 @@ obs_units  = [${OBS_UNITS}];
 fcst_lev = [${FCST_LEVEL}];
 obs_lev  = [${OBS_LEVEL}];
 
-obtype = [${OBTYPE}];
+//obtype = [${OBTYPE}];
 
 vx_mask = [${VX_MASK}];
 

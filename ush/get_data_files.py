@@ -859,7 +859,8 @@ elif RUN == 'grid2obs_step1':
                 elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                     continue
                 else:
-                    RUN_abbrev_type_valid_time_list.append(valid_time)
+                    if valid_time not in RUN_abbrev_type_valid_time_list:
+                        RUN_abbrev_type_valid_time_list.append(valid_time)
                     get_model_file(valid_time, init_time, lead,
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
@@ -1234,7 +1235,8 @@ elif RUN == 'precip_step1':
                 elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                     continue
                 else:
-                    RUN_abbrev_type_valid_time_list.append(valid_time)
+                    if valid_time not in RUN_abbrev_type_valid_time_list:
+                        RUN_abbrev_type_valid_time_list.append(valid_time)
                     lead_in_accum_list = []
                     if model_bucket == 'continuous':
                         nfiles_in_accum = 2
@@ -1496,7 +1498,8 @@ elif RUN == 'satellite_step1':
                 elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                     continue
                 else:
-                    RUN_abbrev_type_valid_time_list.append(valid_time)
+                    if valid_time not in RUN_abbrev_type_valid_time_list:
+                        RUN_abbrev_type_valid_time_list.append(valid_time)
                     if RUN_type in ['ghrsst_ncei_avhrr_anl',
                                     'ghrsst_ospo_geopolar_anl']:
                         lead_intvl = 6
@@ -1999,7 +2002,8 @@ elif RUN == 'maps2d':
                     if hour not in RUN_abbrev_type_hour_list:
                         continue
                     else:
-                        RUN_abbrev_type_valid_time_list.append(valid_time)
+                        if valid_time not in RUN_abbrev_type_valid_time_list:
+                            RUN_abbrev_type_valid_time_list.append(valid_time)
                         if forecast_to_plot == 'anl':
                             ftp_file_format = anl_file_format
                             ftp_link_file_format = (

@@ -169,15 +169,6 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
-                # Write pre-process scripts
-                job_file.write('\n')
-                if case == 'grid2obs' and case_type == 'polar_sfc':
-                    job_file.write(
-                        'python '
-                        +os.path.join(job_env_dict['USHverif_global'],
-                                      'format_iabp_data_for_ascii2nc.py')+'\n'
-                    )
-                    job_file.write('\n')
                 # Write METplus commmands
                 metplus_conf_list = [
                     os.path.join(

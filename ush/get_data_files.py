@@ -11,6 +11,7 @@ import subprocess
 import datetime
 from time import sleep
 import pandas as pd
+import glob
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -875,28 +876,137 @@ elif RUN == 'grid2obs_step1':
             mm = valid_time.strftime('%m')
             dd = valid_time.strftime('%d')
             HH = valid_time.strftime('%H')
+            DOY = valid_time.strftime('%j')
             if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                 continue
             else:
                 if RUN_type == 'polar_sfc':
+                    print(valid_time)
                     iabp_dir = os.path.join(cwd, 'data', 'iabp')
                     if not os.path.exists(iabp_dir):
                         os.makedirs(iabp_dir)
-                    # Get IABP data from web
-                    for iabp_region in ['Arctic', 'Antarctic']:
-                        iabp_region_YYYYmmdd_file = os.path.join(
-                            iabp_dir, iabp_region+'_FR_'+YYYYmmdd+'.dat'
-                        )
-                        if not os.path.exists(iabp_region_YYYYmmdd_file):
-                            iabp_ftp_region_YYYYmmdd_file = os.path.join(
-                                iabp_ftp, iabp_region,'FR_'+YYYYmmdd+'.dat'
+                    iabp_YYYYmmdd_file = os.path.join(iabp_dir, 'iabp.'+YYYYmmdd)
+                    iabp_region_list = ['Arctic', 'Antarctic']
+                    iabp_var_list = ['BP', 'Ts', 'Ta']
+                    ascii2nc_file_cols = [
+                      'Message_Type', 'Station_ID', 'Valid_Time', 'Lat', 'Lon',
+                      'Elevation', 'Variable_Name', 'Level', 'Height',
+                      'QC_String', 'Observation_Value'
+                    ]
+                    if not os.path.exists(iabp_YYYYmmdd_file):
+                        # Get IABP data from web
+                        for iabp_region in iabp_region_list:
+                            iabp_region_YYYYmmdd_file = os.path.join(
+                                iabp_dir, iabp_region+'_FR_'+YYYYmmdd+'.dat'
                             )
-                            os.system('wget '+iabp_ftp_region_YYYYmmdd_file+' '
-                                      +'--no-check-certificate -O '
-                                      +iabp_region_YYYYmmdd_file)
-                        if not os.path.exists(iabp_region_YYYYmmdd_file):
-                            print("WARNING: Could not get IABP files from FTP "
-                                  +"for "+iabp_region+" on "+YYYYmmdd)
+                            if not os.path.exists(iabp_region_YYYYmmdd_file):
+                                iabp_ftp_region_YYYYmmdd_file = os.path.join(
+                                    iabp_ftp, iabp_region,'FR_'+YYYYmmdd+'.dat'
+                                )
+                                os.system('wget -q '
+                                          +iabp_ftp_region_YYYYmmdd_file+' '
+                                          +'--no-check-certificate -O '
+                                          +iabp_region_YYYYmmdd_file)
+                            if not os.path.exists(iabp_region_YYYYmmdd_file):
+                                print("WARNING: Could not get IABP files from "
+                                      +"FTP for "+iabp_region+" on "+YYYYmmdd)
+                        iabp_reg_YYYYmmdd_file_list = glob.glob(
+                            os.path.join(iabp_dir, '*'+YYYYmmdd+'.dat')
+                        )
+                        if len(iabp_reg_YYYYmmdd_file_list) != 0:
+                            iabp_ascii2nc_data = pd.DataFrame(
+                                columns=ascii2nc_file_cols
+                            )
+                            idx_ascii2nc = 0
+                            for iabp_reg_YYYYmmdd_file \
+                                    in iabp_reg_YYYYmmdd_file_list:
+                                print(iabp_reg_YYYYmmdd_file)
+                                iabp_reg_YYYYmmdd_data = pd.read_csv(
+                                    iabp_reg_YYYYmmdd_file, sep=";",
+                                    skipinitialspace=True, header=0, dtype=str
+                                )
+                                for idx in iabp_reg_YYYYmmdd_data.index:
+                                    idx_data = (
+                                        iabp_reg_YYYYmmdd_data.loc[idx,:]
+                                    )
+                                    idx_Year = idx_data.loc['Year']
+                                    idx_DOY = idx_data.loc['DOY']
+                                    idx_Hour = idx_data.loc['Hour']
+                                    idx_Min = idx_data.loc['Min']
+                                    idx_BuoyID = idx_data.loc['BuoyID']
+                                    idx_Lat = idx_data.loc['Lat']
+                                    idx_Lon = idx_data.loc['Lon']
+                                    idx_datetime = datetime.datetime.strptime(
+                                        idx_Year+' '
+                                        +str(int(float(idx_DOY)))+' '
+                                        +idx_Hour+' '+idx_Min, '%Y %j %H %M'
+                                    )
+                                    for iabp_var in iabp_var_list:
+                                        idx_iabp_var_val_str = (
+                                            idx_data.loc[iabp_var]
+                                        )
+                                        if iabp_var == 'BP':
+                                            iabp_var_grib_name = 'PRES'
+                                            iabp_var_grib_level = '0'
+                                        elif iabp_var == 'Ts':
+                                            iabp_var_grib_name = 'TMP'
+                                            iabp_var_grib_level = '0'
+                                        elif iabp_var == 'Ta':
+                                            iabp_var_grib_name = 'TMP'
+                                            iabp_var_grib_level = '2'
+                                        if idx_iabp_var_val_str == '-999.00':
+                                            idx_col_val = 'NA'
+                                        else:
+                                            if iabp_var == 'BP':
+                                                idx_col_val = str(
+                                                    float(idx_iabp_var_val_str)
+                                                    * 100.
+                                                )
+                                            else:
+                                                idx_col_val = str(
+                                                    float(idx_iabp_var_val_str)
+                                                    + 273.15
+                                                )
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Message_Type'
+                                        ] = 'IABP'
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Station_ID'
+                                        ] = idx_BuoyID
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Valid_Time'
+                                        ] = (idx_datetime \
+                                             .strftime('%Y%m%d_%H%M%S'))
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Lat'
+                                        ] = idx_Lat
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Lon'
+                                        ] = idx_Lon
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Elevation'
+                                        ] = '0'
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Variable_Name'
+                                        ] = iabp_var_grib_name
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Height'
+                                        ] = iabp_var_grib_level
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'QC_String'
+                                        ] = 'NA'
+                                        iabp_ascii2nc_data.loc[
+                                            idx_ascii2nc, 'Observation_Value'
+                                        ] = idx_col_val
+                                        idx_ascii2nc+=1
+                            iabp_ascii2nc_data_string = (
+                                iabp_ascii2nc_data.to_string(header=False,
+                                                             index=False)
+                            )
+                            if os.path.exists(iabp_YYYYmmdd_file):
+                                os.remove(iabp_YYYYmmdd_file)
+                            with open(iabp_YYYYmmdd_file, 'a') as output_file:
+                                output_file.write(iabp_ascii2nc_data_string)
                 elif RUN_type in ['upper_air', 'conus_sfc']:
                     link_prepbufr_dir = os.path.join(cwd, 'data', 'prepbufr')
                     if not os.path.exists(link_prepbufr_dir):

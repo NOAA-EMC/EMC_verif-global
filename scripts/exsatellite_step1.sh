@@ -96,58 +96,18 @@ else
     done
 fi
 
-# Copy data to user archive or to COMOUT
-gather_by=$sat1_gather_by
-if [ $gather_by = INIT ]; then
-    gather_by_hour_list=$sat1_fcyc_list
-else
-    gather_by_hour_list=$sat1_vhr_list
-fi
-DATE=${start_date}
-while [ $DATE -le ${end_date} ] ; do
-    export DATE=$DATE
-    export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    m=0
-    arch_dirs=($model_arch_dir_list)
-    for model in $model_list; do
-        export model=$model
-        export arch_dir=${arch_dirs[m]}
-        arch_dir_strlength=$(echo -n $arch_dir | wc -m)
-        if [ $arch_dir_strlength = 0 ]; then
-            arch_dir=${arch_dirs[0]}
-        fi
-        for type in $sat1_type_list; do
-            # Copy to requested locations
-            for gather_by_hour in $gather_by_hour_list; do
-                verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${gather_by_hour}.stat"
-                arch_filename="$arch_dir/metplus_data/by_$gather_by/satellite/$type/${gather_by_hour}Z/$model/${model}_${DATE}.stat"
-                comout_filename="$COMOUT/${model}_satellite_${type}_${DATE}_${gather_by_hour}Z_${gather_by}.stat"
-                if [ -s $verif_global_filename ]; then
-                   if [ $SENDARCH = YES ]; then
-                       mkdir -p $arch_dir/metplus_data/by_$gather_by/satellite/$type/${gather_by_hour}Z/$model
-                       cpfs $verif_global_filename $arch_filename
-                   fi
-                   if [ $SENDCOM = YES ]; then
-                       mkdir -p $COMOUT
-                       cpfs $verif_global_filename $comout_filename
-                       if [ "${SENDDBN^^}" = YES ]; then
-                           $DBNROOT/bin/dbn_alert MODEL VERIF_GLOBAL $job $veif_global_filename
-                       fi
-                   fi
-                else
-                   echo "*************************************************************"
-                   echo "** WARNING: $verif_global_filename was not generated or zero size"
-                   echo "*************************************************************"
-                fi
-            done
-        done
-        m=$((m+1))
-    done
-    DATE=$(echo $($NDATE +24 ${DATE}00 ) |cut -c 1-8 )
-done
+# Copy stat files to desired location
+python $USHverif_global/copy_stat_files.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
+echo
 
 # Send data to METviewer AWS server
 if [ $SENDMETVIEWER = YES ]; then
     python $USHverif_global/load_to_METviewer_AWS.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran load_to_METviewer_AWS.py"
+    echo
 fi

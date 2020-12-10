@@ -96,57 +96,18 @@ else
     done
 fi
 
-# Copy data to user archive or to COMOUT
-DATE=${start_date}
-while [ $DATE -le ${end_date} ] ; do
-    export DATE=$DATE
-    export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    m=0
-    arch_dirs=($model_stat_dir_list)
-    for model in $model_list; do
-        export model=$model
-        export arch_dir=${arch_dirs[m]}
-        for type in $g2g1_type_list; do
-            RUN_abbrev_type_gather_by_name=${RUN_abbrev}_${type}_gather_by
-            RUN_abbrev_type_fcyc_list_name=${RUN_abbrev}_${type}_fcyc_list
-            RUN_abbrev_type_vhr_list_name=${RUN_abbrev}_${type}_vhr_list
-            gather_by=${!RUN_abbrev_type_gather_by_name}
-            if [ $gather_by = INIT ]; then
-                gather_by_hour_list=${!RUN_abbrev_type_fcyc_list_name}
-            else
-                gather_by_hour_list=${!RUN_abbrev_type_vhr_list_name}
-            fi
-            # Copy to requested locations
-            for gather_by_hour in $gather_by_hour_list; do
-                verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${gather_by_hour}.stat"
-                arch_filename="$arch_dir/metplus_data/by_$gather_by/grid2grid/$type/${gather_by_hour}Z/$model/${model}_${DATE}.stat"
-                comout_filename="$COMOUT/${model}_grid2grid_${type}_${DATE}_${gather_by_hour}Z_${gather_by}.stat"
-                if [ -s $verif_global_filename ]; then
-                   if [ $SENDARCH = YES ]; then
-                       mkdir -p $arch_dir/metplus_data/by_$gather_by/grid2grid/$type/${gather_by_hour}Z/$model
-                       cpfs $verif_global_filename $arch_filename
-                   fi
-                   if [ $SENDCOM = YES ]; then
-                       mkdir -p $COMOUT
-                       cpfs $verif_global_filename $comout_filename
-                       if [ "${SENDDBN^^}" = YES ]; then
-                           $DBNROOT/bin/dbn_alert MODEL VERIF_GLOBAL $job $veif_global_filename
-                       fi
-                   fi
-                else
-                   echo "*************************************************************"
-                   echo "** WARNING: $verif_global_filename was not generated or zero size"
-                   echo "*************************************************************"
-                fi
-            done
-        done
-        m=$((m+1))
-    done
-    DATE=$(echo $($NDATE +24 ${DATE}00 ) |cut -c 1-8 )
-done
+# Copy stat files to desired location
+python $USHverif_global/copy_stat_files.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
+echo
 
 # Send data to METviewer AWS server
 if [ $SENDMETVIEWER = YES ]; then
     python $USHverif_global/load_to_METviewer_AWS.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran load_to_METviewer_AWS.py"
+    echo
 fi

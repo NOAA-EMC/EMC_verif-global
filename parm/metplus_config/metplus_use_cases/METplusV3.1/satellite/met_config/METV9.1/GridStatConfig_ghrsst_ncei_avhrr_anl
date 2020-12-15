@@ -190,7 +190,7 @@ distance_map = {
 //
 output_flag = {
    fho    = NONE;
-   ctc    = NONE;
+   ctc    = STAT;
    cts    = NONE;
    mctc   = NONE;
    mcts   = NONE;

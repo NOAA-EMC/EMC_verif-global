@@ -12,6 +12,7 @@ import datetime
 from time import sleep
 import pandas as pd
 import glob
+import numpy as np
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -881,13 +882,18 @@ elif RUN == 'grid2obs_step1':
                 continue
             else:
                 if RUN_type == 'polar_sfc':
-                    print(valid_time)
                     iabp_dir = os.path.join(cwd, 'data', 'iabp')
                     if not os.path.exists(iabp_dir):
                         os.makedirs(iabp_dir)
-                    iabp_YYYYmmdd_file = os.path.join(iabp_dir, 'iabp.'+YYYYmmdd)
+                    iabp_YYYYmmdd_file = os.path.join(iabp_dir,
+                                                      'iabp.'+YYYYmmdd)
                     iabp_region_list = ['Arctic', 'Antarctic']
-                    iabp_var_list = ['BP', 'Ts', 'Ta']
+                    iabp_var_dict = {
+                        'BP': ('PRES', '0'),
+                        'Ts': ('TMP', '0'),
+                        'Ta': ('TMP', '2')
+                    }
+                    niabp_vars = len(list(iabp_var_dict.keys()))
                     ascii2nc_file_cols = [
                       'Message_Type', 'Station_ID', 'Valid_Time', 'Lat', 'Lon',
                       'Elevation', 'Variable_Name', 'Level', 'Height',
@@ -913,6 +919,7 @@ elif RUN == 'grid2obs_step1':
                         iabp_reg_YYYYmmdd_file_list = glob.glob(
                             os.path.join(iabp_dir, '*'+YYYYmmdd+'.dat')
                         )
+                        # Combine and reformat files for ascii2nc
                         if len(iabp_reg_YYYYmmdd_file_list) != 0:
                             iabp_ascii2nc_data = pd.DataFrame(
                                 columns=ascii2nc_file_cols
@@ -920,85 +927,110 @@ elif RUN == 'grid2obs_step1':
                             idx_ascii2nc = 0
                             for iabp_reg_YYYYmmdd_file \
                                     in iabp_reg_YYYYmmdd_file_list:
-                                print(iabp_reg_YYYYmmdd_file)
                                 iabp_reg_YYYYmmdd_data = pd.read_csv(
                                     iabp_reg_YYYYmmdd_file, sep=";",
                                     skipinitialspace=True, header=0, dtype=str
                                 )
+                                niabp_reg_YYYYmmdd_data = len(
+                                    iabp_reg_YYYYmmdd_data.index
+                                )
+                                dates = []
                                 for idx in iabp_reg_YYYYmmdd_data.index:
-                                    idx_data = (
-                                        iabp_reg_YYYYmmdd_data.loc[idx,:]
+                                    dates.append(
+                                        datetime.datetime.strptime(
+                                            iabp_reg_YYYYmmdd_data.loc[
+                                                idx,'Year'
+                                            ]+' '
+                                            +iabp_reg_YYYYmmdd_data.loc[
+                                                idx,'DOY'
+                                            ][0:3]+' '
+                                            +iabp_reg_YYYYmmdd_data.loc[
+                                                idx,'Hour'
+                                            ]+' '
+                                            +iabp_reg_YYYYmmdd_data.loc[
+                                                idx,'Min'
+                                            ],
+                                            '%Y %j %H %M'
+                                        ).strftime('%Y%m%d_%H%M%S')
                                     )
-                                    idx_Year = idx_data.loc['Year']
-                                    idx_DOY = idx_data.loc['DOY']
-                                    idx_Hour = idx_data.loc['Hour']
-                                    idx_Min = idx_data.loc['Min']
-                                    idx_BuoyID = idx_data.loc['BuoyID']
-                                    idx_Lat = idx_data.loc['Lat']
-                                    idx_Lon = idx_data.loc['Lon']
-                                    idx_datetime = datetime.datetime.strptime(
-                                        idx_Year+' '
-                                        +str(int(float(idx_DOY)))+' '
-                                        +idx_Hour+' '+idx_Min, '%Y %j %H %M'
+                                iabp_ascii2nc_reg_data = pd.DataFrame(
+                                    index=pd.RangeIndex(
+                                        0,
+                                        niabp_reg_YYYYmmdd_data * niabp_vars,
+                                        1
+                                    ),
+                                    columns=ascii2nc_file_cols
+                                )
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Message_Type'
+                                ] = 'IABP'
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Station_ID'
+                                ] = iabp_reg_YYYYmmdd_data.loc[:, 'BuoyID'] \
+                                    .tolist() * niabp_vars
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Valid_Time'
+                                ] = dates * 3
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Lat'
+                                ] = iabp_reg_YYYYmmdd_data.loc[:, 'Lat'] \
+                                    .tolist() * niabp_vars
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Lon'
+                                ] = iabp_reg_YYYYmmdd_data.loc[:, 'Lon'] \
+                                    .tolist() * niabp_vars
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Elevation'
+                                ] = '0'
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'Level'
+                                ] = '0'
+                                iabp_ascii2nc_reg_data.loc[
+                                    :, 'QC_String'
+                                ] = 'NA'
+                                for iabp_var in list(iabp_var_dict.keys()):
+                                    start_var_idx = (
+                                        niabp_reg_YYYYmmdd_data
+                                        * list(iabp_var_dict.keys()) \
+                                        .index(iabp_var)
                                     )
-                                    for iabp_var in iabp_var_list:
-                                        idx_iabp_var_val_str = (
-                                            idx_data.loc[iabp_var]
-                                        )
-                                        if iabp_var == 'BP':
-                                            iabp_var_grib_name = 'PRES'
-                                            iabp_var_grib_level = '0'
-                                        elif iabp_var == 'Ts':
-                                            iabp_var_grib_name = 'TMP'
-                                            iabp_var_grib_level = '0'
-                                        elif iabp_var == 'Ta':
-                                            iabp_var_grib_name = 'TMP'
-                                            iabp_var_grib_level = '2'
-                                        if idx_iabp_var_val_str == '-999.00':
-                                            idx_col_val = 'NA'
-                                        else:
-                                            if iabp_var == 'BP':
-                                                idx_col_val = str(
-                                                    float(idx_iabp_var_val_str)
-                                                    * 100.
-                                                )
-                                            else:
-                                                idx_col_val = str(
-                                                    float(idx_iabp_var_val_str)
-                                                    + 273.15
-                                                )
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Message_Type'
-                                        ] = 'IABP'
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Station_ID'
-                                        ] = idx_BuoyID
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Valid_Time'
-                                        ] = (idx_datetime \
-                                             .strftime('%Y%m%d_%H%M%S'))
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Lat'
-                                        ] = idx_Lat
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Lon'
-                                        ] = idx_Lon
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Elevation'
-                                        ] = '0'
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Variable_Name'
-                                        ] = iabp_var_grib_name
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Height'
-                                        ] = iabp_var_grib_level
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'QC_String'
-                                        ] = 'NA'
-                                        iabp_ascii2nc_data.loc[
-                                            idx_ascii2nc, 'Observation_Value'
-                                        ] = idx_col_val
-                                        idx_ascii2nc+=1
+                                    end_var_idx = (
+                                        niabp_reg_YYYYmmdd_data
+                                        * (list(iabp_var_dict.keys()) \
+                                        .index(iabp_var)+1) - 1
+                                    )
+                                    iabp_ascii2nc_reg_data.loc[
+                                       start_var_idx:end_var_idx,
+                                       'Variable_Name'
+                                    ] = iabp_var_dict[iabp_var][0]
+                                    iabp_ascii2nc_reg_data.loc[
+                                        start_var_idx:end_var_idx,
+                                        'Height'
+                                    ] = iabp_var_dict[iabp_var][1]
+                                    iabp_var_vals = np.array(
+                                        iabp_reg_YYYYmmdd_data \
+                                        .loc[:, iabp_var].tolist(),
+                                        dtype=float
+                                    )
+                                    iabp_var_vals = np.ma.masked_where(
+                                        iabp_var_vals <= -999.00,
+                                        iabp_var_vals
+                                    )
+                                    if iabp_var == 'BP':
+                                        iabp_var_vals = iabp_var_vals * 100.
+                                    else:
+                                        iabp_var_vals = iabp_var_vals + 273.15
+                                    iabp_var_vals = iabp_var_vals.astype(str)
+                                    iabp_var_vals.set_fill_value('NA')
+                                    iabp_ascii2nc_reg_data.loc[
+                                        start_var_idx:end_var_idx,
+                                        'Observation_Value'
+                                    ] = iabp_var_vals.filled()
+                                iabp_ascii2nc_data = (
+                                    iabp_ascii2nc_data.append(
+                                        iabp_ascii2nc_reg_data
+                                    ).reset_index(drop=True)
+                                )
                             iabp_ascii2nc_data_string = (
                                 iabp_ascii2nc_data.to_string(header=False,
                                                              index=False)

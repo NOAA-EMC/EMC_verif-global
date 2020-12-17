@@ -166,6 +166,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                                             'job'+str(njob))
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
+                job_file.write('set -x\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
@@ -825,6 +826,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                 'job'+str(njob))
                     job_file = open(job_filename, 'w')
                     job_file.write('#!/bin/sh\n')
+                    job_file.write('set -x\n')
                     # Write environment variables
                     for name, value in job_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')
@@ -960,6 +962,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                                         'job'+str(njob))
             job_file = open(job_filename, 'w')
             job_file.write('#!/bin/sh\n')
+            job_file.write('set -x\n')
             # Write environment variables
             for name, value in job_env_dict.items():
                 job_file.write('export '+name+'="'+value+'"\n')
@@ -1039,6 +1042,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                                             'job'+str(njob))
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
+                job_file.write('set -x\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
@@ -1057,6 +1061,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                                         'job'+str(njob))
             job_file = open(job_filename, 'w')
             job_file.write('#!/bin/sh\n')
+            job_file.write('set -x\n')
             # Write environment variables
             for name, value in job_env_dict.items():
                 job_file.write('export '+name+'="'+value+'"\n')
@@ -1457,6 +1462,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                 'job'+str(njob))
                     job_file = open(job_filename, 'w')
                     job_file.write('#!/bin/sh\n')
+                    job_file.write('set -x\n')
                     # Write environment variables
                     for name, value in job_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')

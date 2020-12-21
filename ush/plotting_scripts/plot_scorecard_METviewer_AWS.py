@@ -28,6 +28,7 @@ QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
 SEND2WEB = os.environ['SEND2WEB']
+METviewer_AWS_scripts_dir = os.environ['METviewer_AWS_scripts_dir']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
@@ -43,8 +44,6 @@ walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
         .total_seconds()
 walltime = (datetime.datetime.min
            + datetime.timedelta(minutes=int(web_walltime))).time()
-METviewer_AWS_scripts_dir = os.path.join(USHverif_global,
-                                         'METviewer_AWS_scripts')
 
 # Do some formatting for XML variables
 valid_beg_dt = datetime.datetime.strptime(valid_beg+vhr_list[0], '%Y%m%d%H')

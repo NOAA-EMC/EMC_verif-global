@@ -167,9 +167,11 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
                 job_file.write('set -x\n')
+                job_file.write('\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
+                job_file.write('\n')
                 # Write METplus commmands
                 metplus_conf_list = [
                     os.path.join(
@@ -230,34 +232,84 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                     'HGT': {'fcst_var_name': 'HGT',
                             'fcst_var_levels': ['P1000', 'P700', 'P500',
                                                 'P250'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'HGT',
                             'obs_var_levels': ['P1000', 'P700', 'P500',
                                                'P250'],
+                            'obs_var_thresholds': '',
                             'obs_var_options': ''},
+                    'HGT_WV0-20': {'fcst_var_name': 'HGT',
+                                   'fcst_var_levels': ['P1000', 'P700', 'P500',
+                                                       'P250'],
+                                   'fcst_var_thresholds': '',
+                                   'fcst_var_options': '',
+                                   'obs_var_name': 'HGT',
+                                   'obs_var_levels': ['P1000', 'P700', 'P500',
+                                                      'P250'],
+                                   'obs_var_thresholds': '',
+                                   'obs_var_options': ''},
+                    'HGT_WV0-3': {'fcst_var_name': 'HGT',
+                                  'fcst_var_levels': ['P1000', 'P700', 'P500',
+                                                      'P250'],
+                                  'fcst_var_thresholds': '',
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'HGT',
+                                  'obs_var_levels': ['P1000', 'P700', 'P500',
+                                                     'P250'],
+                                  'obs_var_thresholds': '',
+                                  'obs_var_options': ''},
+                    'HGT_WV4-9': {'fcst_var_name': 'HGT',
+                                  'fcst_var_levels': ['P1000', 'P700', 'P500',
+                                                      'P250'],
+                                  'fcst_var_thresholds': '',
+                                  'fcst_var_options': '',
+                                  'obs_var_name': 'HGT',
+                                  'obs_var_levels': ['P1000', 'P700', 'P500',
+                                                     'P250'],
+                                  'obs_var_thresholds': '',
+                                  'obs_var_options': ''},
+                    'HGT_WV10-20': {'fcst_var_name': 'HGT',
+                                    'fcst_var_levels': ['P1000', 'P700',
+                                                        'P500', 'P250'],
+                                    'fcst_var_thresholds': '',
+                                    'fcst_var_options': '',
+                                    'obs_var_name': 'HGT',
+                                    'obs_var_levels': ['P1000', 'P700',
+                                                       'P500', 'P250'],
+                                    'obs_var_thresholds': '',
+                                    'obs_var_options': ''},
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P850', 'P500', 'P250'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'TMP',
                             'obs_var_levels': ['P850', 'P500', 'P250'],
+                            'obs_var_thresholds': '',
                             'obs_var_options': ''},
                     'UGRD': {'fcst_var_name': 'UGRD',
                              'fcst_var_levels': ['P850', 'P500', 'P250'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'UGRD',
                              'obs_var_levels': ['P850', 'P500', 'P250'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'VGRD': {'fcst_var_name': 'VGRD',
                              'fcst_var_levels': ['P850', 'P500', 'P250'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'VGRD',
                              'obs_var_levels': ['P850', 'P500', 'P250'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
                               'fcst_var_levels': ['Z0'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'PRMSL',
                               'obs_var_levels': ['Z0'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''}
                  }
             },
@@ -268,9 +320,11 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'UGRD_VGRD': {'fcst_var_name': 'UGRD_VGRD',
                                   'fcst_var_levels': ['P850', 'P500', 'P250'],
+                                  'fcst_var_thresholds': '',
                                   'fcst_var_options': '',
                                   'obs_var_name': 'UGRD_VGRD',
                                   'obs_var_levels': ['P850', 'P500', 'P250'],
+                                  'obs_var_thresholds': '',
                                   'obs_var_options': ''}
                 }
             }
@@ -286,58 +340,68 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'HGT',
                             'obs_var_levels': ['P1000', 'P850', 'P700',
                                                'P500', 'P200', 'P100',
                                                'P50', 'P20', 'P10',
                                                'P5', 'P1'],
+                            'obs_var_thresholds': '',
                             'obs_var_options': ''},
                     'TMP': {'fcst_var_name': 'TMP',
                             'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'TMP',
                             'obs_var_levels': ['P1000', 'P850', 'P700',
                                                'P500', 'P200', 'P100',
                                                'P50', 'P20', 'P10',
                                                'P5', 'P1'],
+                            'obs_var_thresholds': '',
                             'obs_var_options': ''},
                     'UGRD': {'fcst_var_name': 'UGRD',
                              'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                  'P500', 'P200', 'P100',
                                                  'P50', 'P20', 'P10',
                                                  'P5', 'P1'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'UGRD',
                              'obs_var_levels': ['P1000', 'P850', 'P700',
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'VGRD': {'fcst_var_name': 'VGRD',
                              'fcst_var_levels': ['P1000', 'P850', 'P700',
                                                  'P500', 'P200', 'P100',
                                                  'P50', 'P20', 'P10',
                                                  'P5', 'P1'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'VGRD',
                              'obs_var_levels': ['P1000', 'P850', 'P700',
                                                 'P500', 'P200', 'P100',
                                                 'P50', 'P20', 'P10',
                                                 'P5', 'P1'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'O3MR': {'fcst_var_name': 'O3MR',
                              'fcst_var_levels': ['P100', 'P70', 'P50',
                                                  'P30', 'P20', 'P10',
                                                  'P5', 'P1'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'O3MR',
                              'obs_var_levels': ['P100', 'P70', 'P50',
                                                 'P30', 'P20', 'P10',
                                                 'P5', 'P1'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''}
                 }
             },
@@ -351,12 +415,14 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                       'P500', 'P200', 'P100',
                                                       'P50', 'P20', 'P10',
                                                       'P5', 'P1'],
+                                  'fcst_var_thresholds': '',
                                   'fcst_var_options': '',
                                   'obs_var_name': 'UGRD_VGRD',
                                   'obs_var_levels': ['P1000', 'P850', 'P700',
                                                      'P500', 'P200', 'P100',
                                                      'P50', 'P20', 'P10',
                                                      'P5', 'P1'],
+                                  'obs_var_thresholds': '',
                                   'obs_var_options': ''}
                 }
             }
@@ -370,117 +436,155 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'TMPsfc': {'fcst_var_name': 'TMP',
                                'fcst_var_levels': ['Z0'],
+                               'fcst_var_thresholds': '',
                                'fcst_var_options': '',
                                'obs_var_name': 'TMP',
                                'obs_var_levels': ['Z0'],
+                               'obs_var_thresholds': '',
                                'obs_var_options': ''},
                     'TMPtrops': {'fcst_var_name': 'TMP',
                                  'fcst_var_levels': ['L0'],
+                                 'fcst_var_thresholds': '',
                                  'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                  'obs_var_name': 'TMP',
                                  'obs_var_levels': ['L0'],
+                                 'obs_var_thresholds': '',
                                  'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'RH2m': {'fcst_var_name': 'RH',
                              'fcst_var_levels': ['Z2'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'RH',
                              'obs_var_levels': ['Z2'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'SPFH2m': {'fcst_var_name': 'SPFH',
                                'fcst_var_levels': ['Z2'],
+                               'fcst_var_thresholds': '',
                                'fcst_var_options': '',
                                'obs_var_name': 'SPFH',
                                'obs_var_levels': ['Z2'],
+                               'obs_var_thresholds': '',
                                'obs_var_options': ''},
                     'HPBL': {'fcst_var_name': 'HPBL',
                              'fcst_var_levels': ['L0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'HPBL',
                              'obs_var_levels': ['L0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'PRESsfc': {'fcst_var_name': 'PRES',
                                 'fcst_var_levels': ['Z0'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'PRES',
                                 'obs_var_levels': ['Z0'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''},
                     'PREStrops': {'fcst_var_name': 'PRES',
                                   'fcst_var_levels': ['L0'],
+                                  'fcst_var_thresholds': '',
                                   'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                   'obs_var_name': 'PRES',
                                   'obs_var_levels': ['L0'],
+                                  'obs_var_thresholds': '',
                                   'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
                               'fcst_var_levels': ['Z0'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'PRMSL',
                               'obs_var_levels': ['Z0'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'UGRD10m': {'fcst_var_name': 'UGRD',
                                 'fcst_var_levels': ['Z10'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'UGRD',
                                 'obs_var_levels': ['Z10'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''},
                     'VGRD10m': {'fcst_var_name': 'VGRD',
                                 'fcst_var_levels': ['Z10'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'VGRD',
                                 'obs_var_levels': ['Z10'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''},
                     'TSOILtop': {'fcst_var_name': 'TSOIL',
                                  'fcst_var_levels': ['Z10-0'],
+                                 'fcst_var_thresholds': '',
                                  'fcst_var_options': '',
                                  'obs_var_name': 'TSOIL',
                                  'obs_var_levels': ['Z10-0'],
+                                 'obs_var_thresholds': '',
                                  'obs_var_options': ''},
                     'SOILWtop': {'fcst_var_name': 'SOILW',
                                  'fcst_var_levels': ['Z10-0'],
+                                 'fcst_var_thresholds': '',
                                  'fcst_var_options': '',
                                  'obs_var_name': 'SOILW',
                                  'obs_var_levels': ['Z10-0'],
+                                 'obs_var_thresholds': '',
                                  'obs_var_options': ''},
                     'WEASD': {'fcst_var_name': 'WEASD',
                               'fcst_var_levels': ['Z0'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'WEASD',
                               'obs_var_levels': ['Z0'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'CAPE': {'fcst_var_name': 'CAPE',
                              'fcst_var_levels': ['Z0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'CAPE',
                              'obs_var_levels': ['Z0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'PWAT': {'fcst_var_name': 'PWAT',
                              'fcst_var_levels': ['L0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'PWAT',
                              'obs_var_levels': ['L0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'CWAT': {'fcst_var_name': 'CWAT',
                              'fcst_var_levels': ['L0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'CWAT',
                              'obs_var_levels': ['L0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'HGTtrops': {'fcst_var_name': 'HGT',
                                  'fcst_var_levels': ['L0'],
+                                 'fcst_var_thresholds': '',
                                  'fcst_var_options': 'GRIB_lvl_typ = 7;',
                                  'obs_var_name': 'HGT',
                                  'obs_var_levels': ['L0'],
+                                 'obs_var_thresholds': '',
                                  'obs_var_options': 'GRIB_lvl_typ = 7;'},
                     'TOZNEclm': {'fcst_var_name': 'TOZNE',
                                  'fcst_var_levels': ['L0'],
+                                 'fcst_var_thresholds': '',
                                  'fcst_var_options': '',
                                  'obs_var_name': 'TOZNE',
                                  'obs_var_levels': ['L0'],
+                                 'obs_var_thresholds': '',
                                  'obs_var_options': ''}
                 }
             }
@@ -498,6 +602,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
                                                 'P10', 'P5', 'P1'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'TMP',
                             'obs_var_levels': ['P1000', 'P925', 'P850',
@@ -505,6 +610,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
                                                 'P10', 'P5', 'P1'],
+                            'obs_var_thresholds': '',
                             'obs_var_options': ''},
                     'RH': {'fcst_var_name': 'RH',
                            'fcst_var_levels': ['P1000', 'P925', 'P850',
@@ -512,6 +618,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                'P300', 'P250', 'P200',
                                                'P150', 'P100', 'P50',
                                                'P10', 'P5', 'P1'],
+                           'fcst_var_thresholds': '',
                            'fcst_var_options': '',
                            'obs_var_name': 'RH',
                            'obs_var_levels': ['P1000', 'P925', 'P850',
@@ -519,6 +626,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                'P300', 'P250', 'P200',
                                                'P150', 'P100', 'P50',
                                                'P10', 'P5', 'P1'],
+                           'obs_var_thresholds': '',
                            'obs_var_options': ''}
                 }
             },
@@ -534,6 +642,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                       'P300', 'P250', 'P200',
                                                       'P150', 'P100', 'P50',
                                                       'P10', 'P5', 'P1'],
+                                  'fcst_var_thresholds': '',
                                   'fcst_var_options': '',
                                   'obs_var_name': 'UGRD_VGRD',
                                   'obs_var_levels': ['P1000', 'P925', 'P850',
@@ -541,6 +650,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                      'P300', 'P250', 'P200',
                                                      'P150', 'P100', 'P50',
                                                      'P10', 'P5', 'P1'],
+                                  'obs_var_thresholds': '',
                                   'obs_var_options': ''}
                 }
             }
@@ -555,63 +665,83 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'RH2m': {'fcst_var_name': 'RH',
                              'fcst_var_levels': ['Z2'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'RH',
                              'obs_var_levels': ['Z2'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'DPT2m': {'fcst_var_name': 'DPT',
                               'fcst_var_levels': ['Z2'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'DPT',
                               'obs_var_levels': ['Z2'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'TCDC': {'fcst_var_name': 'TCDC',
                              'fcst_var_levels': ['L0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': 'GRIB_lvl_typ = 200;',
                              'obs_var_name': 'TCDC',
                              'obs_var_levels': ['L0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''},
                     'PRMSL': {'fcst_var_name': 'PRMSL',
                               'fcst_var_levels': ['Z0'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'PRMSL',
                               'obs_var_levels': ['Z0'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'VISsfc': {'fcst_var_name': 'VIS',
                                'fcst_var_levels': ['Z0'],
+                               'fcst_var_thresholds': '',
                                'fcst_var_options': '',
                                'obs_var_name': 'VIS',
                                'obs_var_levels': ['Z0'],
+                               'obs_var_thresholds': '',
                                'obs_var_options': ''},
                     'HGTcldceil': {'fcst_var_name': 'HGT',
                                    'fcst_var_levels': ['L0'],
+                                   'fcst_var_thresholds': '',
                                    'fcst_var_options': 'GRIB_lvl_typ = 215;',
                                    'obs_var_name': 'HGT',
                                    'obs_var_levels': ['L0'],
+                                   'obs_var_thresholds': '',
                                    'obs_var_options': ''},
                     'CAPEsfc': {'fcst_var_name': 'CAPE',
                                 'fcst_var_levels': ['Z0'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'CAPE',
                                 'obs_var_levels': ['L100000-0'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''},
                     'GUSTsfc': {'fcst_var_name': 'GUST',
                                 'fcst_var_levels': ['Z0'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'GUST',
                                 'obs_var_levels': ['Z0'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''},
                     'HPBL': {'fcst_var_name': 'HPBL',
                              'fcst_var_levels': ['L0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'HPBL',
                              'obs_var_levels': ['L0'],
+                             'obs_var_thresholds': '',
                              'obs_var_options': ''}
                 }
             },
@@ -624,9 +754,11 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'UGRD_VGRD10m': {'fcst_var_name': 'UGRD_VGRD',
                                      'fcst_var_levels': ['Z10'],
+                                     'fcst_var_thresholds': '',
                                      'fcst_var_options': '',
                                      'obs_var_name': 'UGRD_VGRD',
                                      'obs_var_levels': ['Z10'],
+                                     'obs_var_thresholds': '',
                                      'obs_var_options': ''},
                 }
             }
@@ -639,21 +771,27 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'TMP2m': {'fcst_var_name': 'TMP',
                               'fcst_var_levels': ['Z2'],
+                              'fcst_var_thresholds': '',
                               'fcst_var_options': '',
                               'obs_var_name': 'TMP',
                               'obs_var_levels': ['Z2'],
+                              'obs_var_thresholds': '',
                               'obs_var_options': ''},
                     'TMPsfc': {'fcst_var_name': 'TMP',
                                'fcst_var_levels': ['Z0'],
+                               'fcst_var_thresholds': '',
                                'fcst_var_options': '',
                                'obs_var_name': 'TMP',
                                'obs_var_levels': ['Z0'],
+                               'obs_var_thresholds': '',
                                'obs_var_options': ''},
                     'PRESsfc': {'fcst_var_name': 'PRES',
                                 'fcst_var_levels': ['Z0'],
+                                'fcst_var_thresholds': '',
                                 'fcst_var_options': '',
                                 'obs_var_name': 'PRES',
                                 'obs_var_levels': ['Z0'],
+                                'obs_var_thresholds': '',
                                 'obs_var_options': ''}
                 }
             }
@@ -665,17 +803,17 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'vx_mask_list' : ['EAST', 'WEST'],
                 'var_dict': {
                    'APCP_24': {'fcst_var_name': 'APCP_24',
-                                'fcst_var_levels': ['A24'],
-                                'fcst_var_options': '',
-                                'fcst_var_thresholds': ('ge0.2, ge2, ge5, '
-                                                        +'ge10, ge15, ge25, '
-                                                        +'ge35, ge50, ge75'),
-                                'obs_var_name': 'APCP_24',
-                                'obs_var_levels': ['A24'],
-                                'obs_var_options': '',
-                                'obs_var_thresholds': ('ge0.2, ge2, ge5, '
+                               'fcst_var_levels': ['A24'],
+                               'fcst_var_thresholds': ('ge0.2, ge2, ge5, '
                                                        +'ge10, ge15, ge25, '
-                                                       +'ge35, ge50, ge75')}
+                                                       +'ge35, ge50, ge75'),
+                               'fcst_var_options': '',
+                               'obs_var_name': 'APCP_24',
+                               'obs_var_levels': ['A24'],
+                               'obs_var_thresholds': ('ge0.2, ge2, ge5, '
+                                                      +'ge10, ge15, ge25, '
+                                                      +'ge35, ge50, ge75'),
+                               'obs_var_options': ''}
                 }
             }
         },
@@ -689,18 +827,20 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'SST': {'fcst_var_name': 'TMP_Z0_mean',
                             'fcst_var_levels': ['Z0'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'analysed_sst',
                             'obs_var_levels': ['Z0'],
-                            'obs_var_options': '',
-                            'obs_var_thresholds': ''},
+                            'obs_var_thresholds': '',
+                            'obs_var_options': ''},
                     'ICEC': {'fcst_var_name': 'ICEC_Z0_mean',
                              'fcst_var_levels': ['Z0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options':  '',
                              'obs_var_name': 'sea_ice_fraction',
                              'obs_var_levels': ['Z0'],
-                             'obs_var_options': '',
-                             'obs_var_thresholds': ''}
+                             'obs_var_thresholds': '',
+                             'obs_var_options': ''}
                 }
             }
         },
@@ -714,18 +854,20 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 'var_dict': {
                     'SST': {'fcst_var_name': 'TMP_Z0_mean',
                             'fcst_var_levels': ['Z0'],
+                            'fcst_var_thresholds': '',
                             'fcst_var_options': '',
                             'obs_var_name': 'analysed_sst',
                             'obs_var_levels': ['Z0'],
-                            'obs_var_options': '',
-                            'obs_var_thresholds': ''},
+                            'obs_var_thresholds': '',
+                            'obs_var_options': ''},
                     'ICEC': {'fcst_var_name': 'ICEC_Z0_mean',
                              'fcst_var_levels': ['Z0'],
+                             'fcst_var_thresholds': '',
                              'fcst_var_options': '',
                              'obs_var_name': 'sea_ice_fraction',
                              'obs_var_levels': ['Z0'],
-                             'obs_var_options': '',
-                             'obs_var_thresholds': ''}
+                             'obs_var_thresholds': '',
+                             'obs_var_options': ''}
                 }
             }
         }
@@ -733,13 +875,25 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
     njob = 0
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
-    job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
-    job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
     job_env_dict['plot_by'] = os.environ['plot_by']
+    if job_env_dict['plot_by'] == 'VALID':
+        job_env_dict['VALID_BEG'] = start_date_dt.strftime('%Y%m%d')
+        job_env_dict['VALID_END'] = end_date_dt.strftime('%Y%m%d')
+        job_env_dict['INIT_BEG'] = ''
+        job_env_dict['INIT_END'] = ''
+        job_env_dict['group_list'] = 'FCST_INIT_HOUR_LIST'
+        job_env_dict['loop_list'] = 'FCST_VALID_HOUR_LIST'
+    elif job_env_dict['plot_by'] == 'INIT':
+        job_env_dict['VALID_BEG'] = ''
+        job_env_dict['VALID_END'] = ''
+        job_env_dict['INIT_BEG'] = start_date_dt.strftime('%Y%m%d')
+        job_env_dict['INIT_END'] = end_date_dt.strftime('%Y%m%d')
+        job_env_dict['group_list'] = 'FCST_VALID_HOUR_LIST'
+        job_env_dict['loop_list'] = 'FCST_INIT_HOUR_LIST'
     # Set important METplus paths
-    plot_by_conf_dir = os.path.join(
-        conf_dir, case, 'plot_by_'+job_env_dict['plot_by']
-    )
+    plot_conf_dir = os.path.join(conf_dir, case, 'plot')
+    # Set case
+    job_env_dict['RUN_case'] = case
     # Set up model environment variables in dictionary
     model_list = os.environ['model_list'].split(' ')
     model_stat_dir_list = os.environ['model_stat_dir_list'].split(' ')
@@ -777,6 +931,11 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 job_env_dict['model'+str(model_num)+'_obtype'] = (
                     os.environ[case_abbrev_type+'_truth_name_list'].split(' ')
                 )[model_idx]
+                if 'self' in job_env_dict['model'+str(model_num)+'_obtype']:
+                    job_env_dict['model'+str(model_num)+'_obtype'] = (
+                        job_env_dict['model'+str(model_num)+'_obtype'] \
+                        .replace('self', model)
+                    )
             elif case == 'grid2obs':
                 job_env_dict['model'+str(model_num)+'_obtype'] = (
                     ', '.join(os.environ[
@@ -787,7 +946,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                 job_env_dict['model'+str(model_num)+'_obtype'] = case
             elif case == 'satellite':
                 job_env_dict['model'+str(model_num)+'_obtype'] = case
-        job_env_dict['case_type'] = case_type
+        job_env_dict['RUN_type'] = case_type
         case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
                               'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
                               'init_hr_list', 'init_hr_beg', 'init_hr_end',
@@ -800,7 +959,6 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
         # Set up plotting environment variables in dictionary
         for line_type in list(plotting_dict.keys()):
             job_env_dict['line_type'] = line_type
-            job_env_dict['interp'] = plotting_dict[line_type]['interp']
             job_env_dict['plot_stats_list'] = (
                 plotting_dict[line_type]['plot_stats_list']
             )
@@ -816,6 +974,19 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                         )
                     else:
                         job_env_dict[var_info] = var_info_val
+                if case == 'grid2grid' and case_type == 'anom' \
+                        and 'HGT_WV' in var_name:
+                    job_env_dict['interp'] = (
+                        'WV1_'+var_name.replace('HGT_WV', '')
+                    )
+                    job_env_dict['fourier_decomp'] = 'True'
+                    job_env_dict['wave_num_list'] = (
+                        var_name.replace('HGT_WV', '')
+                    )
+                else:
+                    job_env_dict['interp'] = plotting_dict[line_type]['interp']
+                    job_env_dict['fourier_decomp'] = 'False'
+                    job_env_dict['wave_num_list'] = ''
                 for vx_mask in vx_mask_list:
                     job_env_dict['vx_mask'] = vx_mask
                     njob+=1
@@ -827,6 +998,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                     job_file = open(job_filename, 'w')
                     job_file.write('#!/bin/sh\n')
                     job_file.write('set -x\n')
+                    job_file.write('\n')
                     # Write environment variables
                     for name, value in job_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')
@@ -838,17 +1010,9 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                       'prune_stat_files.py\n')
                     )
                     job_file.write('\n')
-                    if (case == 'grid2grid' and case_type == 'anom'
-                            and var_name == 'HGT'):
-                        metplus_conf = os.path.join(
-                            plot_by_conf_dir,
-                            case_type+'_height_nmodels'+str(nmodels)+'.conf'
-                        )
-                    else:
-                        metplus_conf = os.path.join(
-                            plot_by_conf_dir,
-                            case_type+'_nmodels'+str(nmodels)+'.conf'
-                        )
+                    metplus_conf = os.path.join(
+                        plot_conf_dir, 'nmodels'+str(nmodels)+'.conf'
+                    )
                     job_file.write(
                         master_metplus+' -c '+machine_conf+' -c '+metplus_conf
                         +'\n'
@@ -963,6 +1127,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file = open(job_filename, 'w')
             job_file.write('#!/bin/sh\n')
             job_file.write('set -x\n')
+            job_file.write('\n')
             # Write environment variables
             for name, value in job_env_dict.items():
                 job_file.write('export '+name+'="'+value+'"\n')
@@ -1043,6 +1208,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
                 job_file.write('set -x\n')
+                job_file.write('\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
@@ -1062,6 +1228,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file = open(job_filename, 'w')
             job_file.write('#!/bin/sh\n')
             job_file.write('set -x\n')
+            job_file.write('\n')
             # Write environment variables
             for name, value in job_env_dict.items():
                 job_file.write('export '+name+'="'+value+'"\n')
@@ -1463,6 +1630,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                     job_file = open(job_filename, 'w')
                     job_file.write('#!/bin/sh\n')
                     job_file.write('set -x\n')
+                    job_file.write('\n')
                     # Write environment variables
                     for name, value in job_env_dict.items():
                         job_file.write('export '+name+'="'+value+'"\n')

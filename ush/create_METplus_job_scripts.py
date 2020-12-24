@@ -1023,7 +1023,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                         'metplus_output',
                         'plot_by_'+job_env_dict['plot_by'], 'make_plots',
                         line_type+'_'+var_name+'_'+vx_mask, case,
-                        case_type, 'imgs'
+                        case_type, 'images'
                     )
                     main_img_dir = os.path.join(
                         job_env_dict['DATA'], job_env_dict['RUN'],

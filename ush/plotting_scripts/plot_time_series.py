@@ -1,23 +1,44 @@
-## Edited from METplus V2.1
-## for EMC purposes
+'''
+Name: plot_time_series.py
+Contact(s): Mallory Row
+Abstract: Reads filtered files from stat_analysis_wrapper
+          run_all_times to make time series plots
+History Log: Third version
+Usage: Called by make_plots_wrapper.py
+Parameters: None
+Input Files: MET .stat files
+Output Files: .png images
+Condition codes: 0 for success, 1 for failure
+'''
 
-from __future__ import (print_function, division)
 import os
 import numpy as np
-import plot_util as plot_util
-import plot_title as plot_title
 import pandas as pd
+pd.plotting.deregister_matplotlib_converters()
+#pd.plotting.register_matplotlib_converters()
+import itertools
 import warnings
 import logging
 import datetime
+import math
+import re
+import sys
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
 
-warnings.filterwarnings('ignore')
+import plot_util as plot_util
+from plot_util import get_ci_file, get_lead_avg_file
 
-# Plot Settings
+# add metplus directory to path so the wrappers and utilities can be found
+sys.path.insert(0, os.path.abspath(os.environ['HOMEMETplus']))
+from metplus.util import do_string_sub
+
+#### EMC-verif_global title creation script
+import plot_title as plot_title
+
+#### EMC-verif_global plot settings
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.titlesize'] = 16
@@ -94,415 +115,586 @@ nws_logo_xpixel_loc = x_figsize*plt.rcParams['figure.dpi']*0.9
 nws_logo_ypixel_loc = y_figsize*plt.rcParams['figure.dpi']*0.865
 nws_logo_alpha = 0.5
 
-# Environment variables set by METplus
+# Read environment variables set in make_plots_wrapper.py
 verif_case = os.environ['VERIF_CASE']
 verif_type = os.environ['VERIF_TYPE']
-plot_time = os.environ['PLOT_TIME']
-start_date_YYYYmmdd = os.environ['START_DATE_YYYYmmdd']
-end_date_YYYYmmdd = os.environ['END_DATE_YYYYmmdd']
-valid_time_info = os.environ['VALID_TIME_INFO'].replace('"','').split(", ")
-init_time_info = os.environ['INIT_TIME_INFO'].replace('"','').split(", ")
-fcst_var_name = os.environ['FCST_VAR_NAME']
-fcst_var_extra = (
-    os.environ['FCST_VAR_EXTRA'].replace(" ", "")
-    .replace("=","").replace(";","").replace('"','')
-    .replace("'","").replace(",","-").replace("_","")
-)
-if fcst_var_extra == "None":
-    fcst_var_extra = ""
-fcst_var_level = os.environ['FCST_VAR_LEVEL']
-fcst_var_thresh = (
-    os.environ['FCST_VAR_THRESH'].replace(" ","")
-    .replace(">=","ge").replace("<=","le")
-    .replace(">","gt").replace("<","lt")
-    .replace("==","eq").replace("!=","ne")
-)
-if fcst_var_thresh == "None":
-    fcst_var_thresh = ""
-obs_var_name = os.environ['OBS_VAR_NAME']
-obs_var_extra = (
-    os.environ['OBS_VAR_EXTRA'].replace(" ", "")
-    .replace("=","").replace(";","")
-    .replace('"','').replace("'","")
-    .replace(",","-").replace("_","")
-)
-if obs_var_extra == "None":
-    obs_var_extra = ""
-obs_var_level = os.environ['OBS_VAR_LEVEL']
-obs_var_thresh = (
-    os.environ['OBS_VAR_THRESH'].replace(" ","")
-    .replace(">=","ge").replace("<=","le")
-    .replace(">","gt").replace("<","lt")
-    .replace("==","eq").replace("!=","ne")
-)
-if obs_var_thresh == "None":
-    obs_var_thresh = ""
-interp = os.environ['INTERP']
-region = os.environ['REGION']
-lead = os.environ['LEAD']
-stat_file_input_dir_base = os.environ['STAT_FILES_INPUT_DIR']
-plotting_out_dir = os.environ['PLOTTING_OUT_DIR_FULL']
-plotting_out_dir_data = os.path.join(plotting_out_dir,
-                                     "data",
-                                     plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                     +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                     +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z")
-plotting_out_dir_imgs = os.path.join(plotting_out_dir,
-                                     "imgs")
-if not os.path.exists(plotting_out_dir_data):
-    os.makedirs(plotting_out_dir_data)
-if not os.path.exists(plotting_out_dir_imgs):
-    os.makedirs(plotting_out_dir_imgs)
-plot_stats_list = os.environ['PLOT_STATS_LIST'].split(", ")
-model_name_list = os.environ['MODEL_NAME_LIST'].split(" ")
-model_plot_name_list = os.environ['MODEL_PLOT_NAME_LIST'].split(" ")
-model_info = zip(model_name_list, model_plot_name_list)
-if verif_case == "precip":
-    average_method = "AGGREGATION"
-else:
-    average_method = "MEAN"
+date_type = os.environ['DATE_TYPE']
+valid_beg = os.environ['VALID_BEG']
+valid_end = os.environ['VALID_END']
+init_beg = os.environ['INIT_BEG']
+init_end = os.environ['INIT_END']
+fcst_valid_hour = os.environ['FCST_VALID_HOUR']
+fcst_init_hour = os.environ['FCST_INIT_HOUR']
+obs_valid_hour = os.environ['OBS_VALID_HOUR']
+obs_init_hour = os.environ['OBS_INIT_HOUR']
+fcst_lead_list = os.environ['FCST_LEAD'].split(', ')
+fcst_var_name = os.environ['FCST_VAR']
+fcst_var_units = os.environ['FCST_UNITS']
+fcst_var_level_list = os.environ['FCST_LEVEL'].split(', ')
+fcst_var_thresh_list = os.environ['FCST_THRESH'].split(', ')
+obs_var_name = os.environ['OBS_VAR']
+obs_var_units = os.environ['OBS_UNITS']
+obs_var_level_list = os.environ['OBS_LEVEL'].split(', ')
+obs_var_thresh_list = os.environ['OBS_THRESH'].split(', ')
+interp_pnts = os.environ['INTERP_PNTS']
+vx_mask = os.environ['VX_MASK']
+alpha = os.environ['ALPHA']
+desc = os.environ['DESC']
+obs_lead = os.environ['OBS_LEAD']
+cov_thresh = os.environ['COV_THRESH']
+stats_list = os.environ['STATS'].split(', ')
+model_list = os.environ['MODEL'].split(', ')
+model_obtype_list = os.environ['MODEL_OBTYPE'].split(', ')
+model_reference_name_list = os.environ['MODEL_REFERENCE_NAME'].split(', ')
+dump_row_filename_template = os.environ['DUMP_ROW_FILENAME']
+average_method = os.environ['AVERAGE_METHOD']
 ci_method = os.environ['CI_METHOD']
-grid = os.environ['VERIF_GRID']
+verif_grid = os.environ['VERIF_GRID']
 event_equalization = os.environ['EVENT_EQUALIZATION']
 met_version = os.environ['MET_VERSION']
-logger = logging.getLogger(os.environ['LOGGING_FILENAME'])
-logger.setLevel(os.environ['LOGGING_LEVEL'])
-formatter = logging.Formatter("%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d)"
-                              +"%(levelname)s: %(message)s","%m/%d %H:%M:%S")
-file_handler = logging.FileHandler(os.environ['LOGGING_FILENAME'], mode='a')
+input_base_dir = os.environ['INPUT_BASE_DIR']
+output_base_dir = os.environ['OUTPUT_BASE_DIR']
+log_metplus = os.environ['LOG_METPLUS']
+log_level = os.environ['LOG_LEVEL']
+#### EMC-verif_global environment variables
+fcst_var_extra = (os.environ['fcst_var_options'].replace(' ', '') \
+                  .replace('=','').replace(';','').replace('"','') \
+                  .replace("'",'').replace(',','-').replace('_',''))
+obs_var_extra = (os.environ['obs_var_options'].replace(' ', '') \
+                 .replace('=','').replace(';','').replace('"','') \
+                 .replace("'",'').replace(',','-').replace('_',''))
+interp_mthd = os.environ['interp']
+
+# General set up and settings
+# Logging
+logger = logging.getLogger(log_metplus)
+logger.setLevel(log_level)
+formatter = logging.Formatter(
+    '%(asctime)s.%(msecs)03d (%(filename)s:%(lineno)d) %(levelname)s: '
+    +'%(message)s',
+    '%m/%d %H:%M:%S'
+    )
+file_handler = logging.FileHandler(log_metplus, mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(plot_time,
-                                                                      start_date_YYYYmmdd,
-                                                                      end_date_YYYYmmdd,
-                                                                      valid_time_info,
-                                                                      init_time_info,
-                                                                      lead)
-total_days = len(plot_time_dates)
-stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
+output_data_dir = os.path.join(output_base_dir, 'data')
+#output_imgs_dir = os.path.join(output_base_dir, 'imgs')
+#### EMC-verif_global image directory
+output_imgs_dir = os.path.join(output_base_dir, 'images')
+# Model info
+model_info_list = list(
+    zip(model_list,
+        model_reference_name_list,
+        model_obtype_list,
+    )
+)
+nmodels = len(model_info_list)
+# Plot info
+plot_info_list = list(
+    itertools.product(*[fcst_lead_list,
+                        fcst_var_level_list,
+                        fcst_var_thresh_list])
+    )
+# Date and time infomation and build title for plot
+date_beg = os.environ[date_type+'_BEG']
+date_end = os.environ[date_type+'_END']
+valid_init_dict = {
+    'fcst_valid_hour_beg': fcst_valid_hour.split(', ')[0],
+    'fcst_valid_hour_end': fcst_valid_hour.split(', ')[-1],
+    'fcst_init_hour_beg': fcst_init_hour.split(', ')[0],
+    'fcst_init_hour_end': fcst_init_hour.split(', ')[-1],
+    'obs_valid_hour_beg': obs_valid_hour.split(', ')[0],
+    'obs_valid_hour_end': obs_valid_hour.split(', ')[-1],
+    'obs_init_hour_beg': obs_init_hour.split(', ')[0],
+    'obs_init_hour_end': obs_init_hour.split(', ')[-1],
+    'valid_hour_beg': '',
+    'valid_hour_end': '',
+    'init_hour_beg': '',
+    'init_hour_end': ''
+}
+valid_init_type_list = [
+    'valid_hour_beg', 'valid_hour_end', 'init_hour_beg', 'init_hour_end'
+]
+for vitype in valid_init_type_list:
+    if (valid_init_dict['fcst_'+vitype] != ''
+            and valid_init_dict['obs_'+vitype] == ''):
+        valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
+    elif (valid_init_dict['obs_'+vitype] != ''
+            and valid_init_dict['fcst_'+vitype] == ''):
+        valid_init_dict[vitype] = valid_init_dict['obs_'+vitype]
+    if valid_init_dict['fcst_'+vitype] == '':
+        if 'beg' in vitype:
+            valid_init_dict['fcst_'+vitype] = '000000'
+        elif 'end' in vitype:
+            valid_init_dict['fcst_'+vitype] = '235959'
+    if valid_init_dict['obs_'+vitype] == '':
+        if 'beg' in vitype:
+            valid_init_dict['obs_'+vitype] = '000000'
+        elif 'end' in vitype:
+            valid_init_dict['obs_'+vitype] = '235959'
+    if valid_init_dict['fcst_'+vitype] == valid_init_dict['obs_'+vitype]:
+        valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
 
-# Read and plot data
-logger.info("Reading in model data")
-for model in model_info:
-    model_num = model_info.index(model) + 1
-    model_name= model[0]
-    model_plot_name = model[1]
-    if ci_method == "EMC_MONTE_CARLO":
-        randx_model = np.loadtxt(
-            os.path.join(plotting_out_dir_data,
-                         model_plot_name+"_randx.txt")
+# MET .stat file formatting
+stat_file_base_columns = plot_util.get_stat_file_base_columns(met_version)
+nbase_columns = len(stat_file_base_columns)
+# Significance testing info
+# need to set up random number array [nmodels, ntests, ndays]
+# for EMC Monte Carlo testing. Each model has its own
+# "series" of random numbers used at all forecast hours
+# and thresholds.
+mc_dates, mc_expected_stat_file_dates = plot_util.get_date_arrays(
+    date_type, date_beg, date_end,
+    fcst_valid_hour, fcst_init_hour,
+    obs_valid_hour, obs_init_hour,
+    '000000'
+)
+ndays = len(mc_expected_stat_file_dates)
+ntests = 10000
+randx = np.random.rand(nmodels,ntests,ndays)
+
+# Start looping to make plots
+for plot_info in plot_info_list:
+    fcst_lead = plot_info[0]
+    fcst_var_level = plot_info[1]
+    obs_var_level = obs_var_level_list[
+        fcst_var_level_list.index(fcst_var_level)
+    ]
+    fcst_var_thresh = plot_info[2]
+    obs_var_thresh = obs_var_thresh_list[
+        fcst_var_thresh_list.index(fcst_var_thresh)
+    ]
+    fcst_var_thresh_symbol, fcst_var_thresh_letter = plot_util.format_thresh(
+        fcst_var_thresh
+    )
+    obs_var_thresh_symbol, obs_var_thresh_letter = plot_util.format_thresh(
+        obs_var_thresh
+    )
+    logger.info("Working on forecast lead "+fcst_lead+" "
+                +"and forecast variable "+fcst_var_name+" "+fcst_var_level+" "
+                +fcst_var_thresh)
+    # Set up base name for file naming convention for MET .stat files,
+    # and output data and images
+    base_name = date_type.lower()+date_beg+'to'+date_end
+    if (valid_init_dict['valid_hour_beg'] != ''
+            and valid_init_dict['valid_hour_end'] != ''):
+        base_name+=(
+            '_valid'+valid_init_dict['valid_hour_beg'][0:4]
+            +'to'+valid_init_dict['valid_hour_end'][0:4]+'Z'
         )
     else:
-        ntests = 10000
-        randx_model = np.ones((ntests, total_days)) * np.nan
-    randx_model = np.array([randx_model])
-    if model_num == 1:
-        randx = randx_model
+        base_name+=(
+            '_fcst_valid'+valid_init_dict['fcst_valid_hour_beg'][0:4]
+            +'to'+valid_init_dict['fcst_valid_hour_end'][0:4]+'Z'
+            +'_obs_valid'+valid_init_dict['obs_valid_hour_beg'][0:4]
+            +'to'+valid_init_dict['obs_valid_hour_end'][0:4]+'Z'
+        )
+    if (valid_init_dict['init_hour_beg'] != ''
+            and valid_init_dict['init_hour_end'] != ''):
+        base_name+=(
+            '_init'+valid_init_dict['init_hour_beg'][0:4]
+            +'to'+valid_init_dict['init_hour_end'][0:4]+'Z'
+        )
     else:
-        randx = np.append(randx, randx_model, axis=0)
-    model_data_now_index = pd.MultiIndex.from_product(
-        [[model_plot_name], expected_stat_file_dates],
-        names=['model_plot_name', 'dates']
+        base_name+=(
+            '_fcst_init'+valid_init_dict['fcst_init_hour_beg'][0:4]
+            +'to'+valid_init_dict['fcst_init_hour_end'][0:4]+'Z'
+            +'_obs_init'+valid_init_dict['obs_init_hour_beg'][0:4]
+            +'to'+valid_init_dict['obs_init_hour_end']+'Z'
+        )
+    base_name+=(
+        '_fcst_lead'+fcst_lead
+        +'_fcst'+fcst_var_name+fcst_var_level
+        +fcst_var_thresh_letter.replace(',', '_')+interp_mthd
+        +'_obs'+obs_var_name+obs_var_level
+        +obs_var_thresh_letter.replace(',', '_')+interp_mthd
+        +'_vxmask'+vx_mask
     )
-    model_stat_file = os.path.join(stat_file_input_dir_base,
-                                   verif_case,
-                                   verif_type,
-                                   model_plot_name,
-                                   plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                   +"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                   +"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z",
-                                   model_plot_name
-                                   +"_f"+lead
-                                   +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
-                                   +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
-                                   +"_interp"+interp
-                                   +"_region"+region
-                                   +".stat")
-    if os.path.exists(model_stat_file):
-        nrow = sum(1 for line in open(model_stat_file))
-        if nrow == 0:
-            logger.warning("Model "+str(model_num)+" "
-                           +model_name+" with plot name "
-                           +model_plot_name+" file: "
-                           +model_stat_file+" empty")
+    if desc != '':
+        base_name+='_desc'+desc
+    if obs_lead != '':
+        base_name+='_obs_lead'+obs_lead
+    if interp_pnts != '':
+        base_name+='_interp_pnts'+interp_pnts
+    if cov_thresh != '':
+        cov_thresh_symbol, cov_thresh_letter = plot_util.format_thresh(
+            cov_thresh
+        )
+        base_name+='_cov_thresh'+cov_thresh_letter.replace(',', '_')
+    if alpha != '':
+        base_name+='_alpha'+alpha
+    # Set up expected date in MET .stat file and date plot information
+    plot_time_dates, expected_stat_file_dates = plot_util.get_date_arrays(
+        date_type, date_beg, date_end,
+        fcst_valid_hour, fcst_init_hour,
+        obs_valid_hour, obs_init_hour,
+        fcst_lead
+    )
+    total_dates = len(plot_time_dates)
+    if len(plot_time_dates) == 0:
+        logger.error("Date array constructed information from METplus "
+                     +"conf file has length of 0. Not enough information "
+                     +"was provided to build date information. Please check "
+                     +"provided VALID/INIT_BEG/END and "
+                     +"OBS/FCST_INIT/VALID_HOUR_LIST")
+        exit(1)
+    #### EMC-verif_global date tick interval
+    if len(plot_time_dates) < nticks:
+        date_tick_intvl = 1
+    else:
+        date_tick_intvl = int(len(plot_time_dates)/nticks)
+    # Reading in model .stat files from stat_analysis
+    logger.info("Reading in model data")
+    for model_info in model_info_list:
+        model_num = model_info_list.index(model_info) + 1
+        model_name = model_info[0]
+        model_plot_name = model_info[1]
+        model_obtype = model_info[2]
+        model_data_now_index = pd.MultiIndex.from_product(
+            [[model_plot_name], expected_stat_file_dates],
+            names=['model_plot_name', 'dates']
+        )
+        model_stat_template = dump_row_filename_template
+        string_sub_dict = {
+            'model': model_name,
+            'model_reference': model_plot_name,
+            'obtype': model_obtype,
+            'fcst_lead': fcst_lead,
+            'fcst_level': fcst_var_level,
+            'obs_level': obs_var_level,
+            'fcst_thresh': fcst_var_thresh,
+            'obs_thresh': obs_var_thresh,
+        }
+        model_stat_file = do_string_sub(model_stat_template,
+                                        **string_sub_dict)
+        if os.path.exists(model_stat_file):
+            nrow = sum(1 for line in open(model_stat_file))
+            if nrow == 0:
+                logger.warning("Model "+str(model_num)+" "+model_name+" "
+                               +"with plot name "+model_plot_name+" "
+                               +"file: "+model_stat_file+" empty")
+                model_now_data = pd.DataFrame(np.nan,
+                                              index=model_data_now_index,
+                                              columns=[ 'TOTAL' ])
+            else:
+                logger.debug("Model "+str(model_num)+" "+model_name+" "
+                             +"with plot name "+model_plot_name+" "
+                             +"file: "+model_stat_file+" exists")
+                model_now_stat_file_data = pd.read_csv(
+                    model_stat_file, sep=" ", skiprows=1,
+                    skipinitialspace=True, header=None
+                )
+                model_now_stat_file_data.rename(
+                    columns=dict(zip(
+                        model_now_stat_file_data.columns[:nbase_columns],
+                        stat_file_base_columns
+                    )), inplace=True
+                )
+                line_type = model_now_stat_file_data['LINE_TYPE'][0]
+                stat_file_line_type_columns = (
+                    plot_util.get_stat_file_line_type_columns(logger,
+                                                              met_version,
+                                                              line_type)
+                )
+                model_now_stat_file_data.rename(
+                    columns=dict(zip(
+                        model_now_stat_file_data.columns[nbase_columns:],
+                        stat_file_line_type_columns
+                    )), inplace=True
+                )
+                model_now_stat_file_data_fcst_valid_dates = (
+                    model_now_stat_file_data.loc[:]['FCST_VALID_BEG'].values
+                )
+                model_now_data = (
+                    pd.DataFrame(np.nan, index=model_data_now_index,
+                                 columns=stat_file_line_type_columns)
+                )
+                #model_now_stat_file_data.fillna(
+                #    {'FCST_UNITS':'NA', 'OBS_UNITS':'NA', 'VX_MASK':'NA'},
+                #    inplace=True
+                #)
+                for expected_date in expected_stat_file_dates:
+                    if expected_date in \
+                            model_now_stat_file_data_fcst_valid_dates:
+                        matching_date_idx = (
+                            model_now_stat_file_data_fcst_valid_dates \
+                            .tolist().index(expected_date)
+                        )
+                        model_now_stat_file_data_indexed = (
+                            model_now_stat_file_data.loc[matching_date_idx][:]
+                        )
+                        for col in stat_file_line_type_columns:
+                            #### EMC-verif_global changes for PRMSL, PRES/Z0
+                            if fcst_var_name == 'PRMSL' \
+                                    or \
+                                    (fcst_var_name == 'PRES' \
+                                     and fcst_var_level == 'Z0'):
+                                if col in ['FBAR', 'OBAR']:
+                                    model_now_data.loc[
+                                        (model_plot_name, expected_date)
+                                    ][col] = (
+                                        model_now_stat_file_data_indexed \
+                                        .loc[:][col]/100.
+                                    )
+                                elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
+                                    model_now_data.loc[
+                                        (model_plot_name, expected_date)
+                                    ][col] = (
+                                        model_now_stat_file_data_indexed \
+                                        .loc[:][col]/(100.*100.)
+                                    )
+                                else:
+                                    model_now_data.loc[
+                                        (model_plot_name, expected_date)
+                                    ][col] = (
+                                        model_now_stat_file_data_indexed \
+                                        .loc[:][col]
+                                    )
+                            else:
+                                model_now_data.loc[
+                                    (model_plot_name, expected_date)
+                                ][col] = (
+                                    model_now_stat_file_data_indexed \
+                                    .loc[:][col]
+                                )
+        else:
+            logger.warning("Model "+str(model_num)+" "+model_name+" "
+                           +"with plot name "+model_plot_name+" "
+                           +"file: "+model_stat_file+" does not exist")
             model_now_data = pd.DataFrame(np.nan,
                                           index=model_data_now_index,
                                           columns=[ 'TOTAL' ])
+        if model_num > 1:
+            model_data = pd.concat([model_data, model_now_data], sort=True)
         else:
-            logger.info("Model "+str(model_num)+" "
-                         +model_name+" with plot name "
-                         +model_plot_name+" file: "
-                         +model_stat_file+" exists")
-            model_now_stat_file_data = pd.read_csv(model_stat_file,
-                                                   sep=" ",
-                                                   skiprows=1,
-                                                   skipinitialspace=True,
-                                                   header=None)
-            model_now_stat_file_data.rename(
-                columns=dict(
-                    zip(model_now_stat_file_data.columns[:len(stat_file_base_columns)],
-                        stat_file_base_columns)
-                ),
-                inplace=True
-            )
-            line_type = model_now_stat_file_data['LINE_TYPE'][0]
-            stat_file_line_type_columns = plot_util.get_stat_file_line_type_columns(logger,
-                                                                                    met_version,
-                                                                                    line_type)
-            model_now_stat_file_data.rename(
-                columns=dict(
-                    zip(model_now_stat_file_data.columns[len(stat_file_base_columns):],
-                        stat_file_line_type_columns)
-                ),
-                inplace=True
-            )
-            model_now_stat_file_data_fcst_valid_dates = (
-                model_now_stat_file_data.loc[:]['FCST_VALID_BEG'].values
-            )
-            model_now_data = pd.DataFrame(np.nan,
-                                          index=model_data_now_index,
-                                          columns=stat_file_line_type_columns)
-            for expected_date in expected_stat_file_dates:
-                if expected_date in model_now_stat_file_data_fcst_valid_dates:
-                     matching_date_index = model_now_stat_file_data_fcst_valid_dates.tolist().index(expected_date)
-                     model_now_stat_file_data_indexed = model_now_stat_file_data.loc[matching_date_index][:]
-                     for column in stat_file_line_type_columns:
-                         if fcst_var_name == 'PRMSL' or (fcst_var_name == 'PRES' and fcst_var_level == 'Z0'):
-                             if column in ['FBAR', 'OBAR']:
-                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
-                                     model_now_stat_file_data_indexed.loc[:][column]/100.
-                                 )
-                             elif column in ['FFBAR', 'FOBAR', 'OOBAR']:
-                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
-                                     model_now_stat_file_data_indexed.loc[:][column]/(100.*100.)
-                                 )
-                             else:
-                                 model_now_data.loc[(model_plot_name, expected_date)][column] = (
-                                     model_now_stat_file_data_indexed.loc[:][column]
-                                 )
-                         else:
-                             model_now_data.loc[(model_plot_name, expected_date)][column] = (
-                                 model_now_stat_file_data_indexed.loc[:][column]
-                             )
-    else:
-        logger.warning("Model "+str(model_num)+" "
-                       +model_name+" with plot name "
-                       +model_plot_name+" file: "
-                       +model_stat_file+" does not exist")
-        model_now_data = pd.DataFrame(np.nan,
-                                      index=model_data_now_index,
-                                      columns=[ 'TOTAL' ])
-    if model_num > 1:
-        model_data = pd.concat([model_data, model_now_data])
-    else:
-        model_data = model_now_data
-
-nmodels = len(model_info)
-logger.info("Calculating and plotting statistics")
-for stat in plot_stats_list:
-    logger.debug("Working on "+stat)
-    stat_values, stat_values_array, stat_plot_name = plot_util.calculate_stat(logger,
-                                                                              model_data,
-                                                                              stat)
-    if event_equalization == "True":
-        logger.debug("Doing event equalization")
-        if stat == "fbar_obar":
-            stat_values_array[0,:,:] = np.ma.mask_cols(stat_values_array[0,:,:])
-            stat_values_array[1,:,:] = np.ma.mask_cols(stat_values_array[1,:,:])
-            stat_values_array4avg = stat_values_array
-        else:
-            stat_values_array = np.ma.mask_cols(stat_values_array)
-            stat_values_array4avg = np.ma.array([stat_values_array])
-    else:
-        if stat == "fbar_obar":
-            stat_values_array4avg = stat_values_array
-        else:
-            stat_values_array4avg = np.ma.array([stat_values_array])
-    stat_min = np.ma.masked_invalid(np.nan)
-    stat_max = np.ma.masked_invalid(np.nan)
-    for model in model_info:
-        model_num = model_info.index(model) + 1
-        model_index = model_info.index(model)
-        model_name = model[0]
-        model_plot_name = model[1]
-        model_plot_settings_dict = (
-            model_obs_plot_settings_dict['model'+str(model_num)]
+            model_data = model_now_data
+    # Calculate statistics and plots
+    logger.info("Calculating and plotting statistics")
+    for stat in stats_list:
+        logger.debug("Working on "+stat)
+        stat_values, stat_values_array, stat_plot_name = (
+            plot_util.calculate_stat(logger, model_data, stat)
         )
-        if stat == "fbar_obar":
-            model_stat_values_array = stat_values_array[0,model_index,:]
-            obs_stat_values_array = stat_values_array[1,model_index,:]
-        else:
-            model_stat_values_array = stat_values_array[model_index,:]
-        lead_mean_filename = os.path.join(plotting_out_dir_data,
-                                          model_plot_name
-                                          +"_"+stat
-                                          #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                          #+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                          #+"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z"
-                                          +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
-                                          +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
-                                          +"_interp"+interp
-                                          +"_region"+region
-                                          +"_LEAD_MEAN.txt")
-        logger.debug("Writing model "+str(model_num)+" "
-                     +model_name+" with name on plot "
-                     +model_plot_name+" lead "+lead
-                     +" mean to file: "
-                     +lead_mean_filename)
-        model_stat_average_array = plot_util.calculate_average(
+        if event_equalization == 'True':
+            logger.debug("Doing event equalization")
+            for l in range(len(stat_values_array[:,0,0])):
+                stat_values_array[l,:,:] = (
+                    np.ma.mask_cols(stat_values_array[l,:,:])
+                )
+        np.ma.set_fill_value(stat_values_array, np.nan)
+        stat_min = np.ma.masked_invalid(np.nan)
+        stat_max = np.ma.masked_invalid(np.nan)
+        for model_info in model_info_list:
+            model_num = model_info_list.index(model_info) + 1
+            model_idx = model_info_list.index(model_info)
+            model_name = model_info[0]
+            model_plot_name = model_info[1]
+            model_obtype = model_info[2]
+            #### EMC-verif_global model plot settings
+            model_plot_settings_dict = (
+                model_obs_plot_settings_dict['model'+str(model_num)]
+            )
+            model_stat_values_array = stat_values_array[:,model_idx,:]
+            # Write model forecast lead average to file
+            model_stat_template = dump_row_filename_template
+            string_sub_dict = {
+                'model': model_name,
+                'model_reference': model_plot_name,
+                'obtype': model_obtype,
+                'fcst_lead': fcst_lead,
+                'fcst_level': fcst_var_level,
+                'obs_level': obs_var_level,
+                'fcst_thresh': fcst_var_thresh,
+                'obs_thresh': obs_var_thresh,
+            }
+            model_stat_file = do_string_sub(model_stat_template,
+                                            **string_sub_dict)
+            lead_avg_file = get_lead_avg_file(stat,
+                                              model_stat_file,
+                                              fcst_lead,
+                                              output_base_dir)
+            logger.debug("Writing model "+str(model_num)+" "+model_name+" "
+                         +"with name on plot "+model_plot_name+" lead "
+                         +fcst_lead+" average to file: "+lead_avg_file)
+            model_stat_average_array = plot_util.calculate_average(
                 logger, average_method, stat, model_data.loc[[model_plot_name]],
-                stat_values_array4avg[:,model_index,:]
-        )
-        with open(lead_mean_filename, 'a') as lead_mean_file:
-            lead_mean_file.write(lead)
-            for l in range(len(model_stat_average_array)):
-                lead_mean_file.write(
-                    ' '+str(model_stat_average_array[l])
-                )
-            lead_mean_file.write('\n')
-        if ci_method == "NONE":
-            logger.debug("Not calculating confidence intervals")
-        else:
-            CI_filename = os.path.join(plotting_out_dir_data,
-                                       model_plot_name
-                                       +"_"+stat
-                                       #+"_"+plot_time+start_date_YYYYmmdd+"to"+end_date_YYYYmmdd
-                                       #+"_valid"+valid_time_info[0]+"to"+valid_time_info[-1]+"Z"
-                                       #+"_init"+init_time_info[0]+"to"+init_time_info[-1]+"Z"
-                                       +"_fcst"+fcst_var_name+fcst_var_level+fcst_var_extra+fcst_var_thresh
-                                       +"_obs"+obs_var_name+obs_var_level+obs_var_extra+obs_var_thresh
-                                       +"_interp"+interp
-                                       +"_region"+region
-                                       +"_CI_"+ci_method
-                                       +".txt")
-            if stat == "fbar_obar":
-                if ci_method == 'EMC_MONTE_CARLO':
-                    logger.warning("Monte Carlo resampling not "
-                                   +"done for fbar_obar")
-                    stat_CI = '--'
+                model_stat_values_array
+            )
+            with open(lead_avg_file, 'a') as file2write:
+                file2write.write(fcst_lead)
+                for l in range(len(model_stat_average_array)):
+                    file2write.write(
+                        ' '+str(model_stat_average_array[l])
+                    )
+                file2write.write('\n')
+            # Write confidence intervals to file, if requested,
+            # using similar naming to model forecast lead average
+            if ci_method != 'NONE':
+                CI_file = get_ci_file(stat,
+                                      model_stat_file,
+                                      fcst_lead,
+                                      output_base_dir,
+                                      ci_method)
+                if (stat == 'fbar_obar' or stat == 'orate_frate'
+                        or stat == 'baser_frate'):
+                    logger.debug("Writing "+ci_method+" confidence intervals "
+                                 +"for difference between model "
+                                 +str(model_num)+" "+model_name+" with name "
+                                 +"on plot "+model_plot_name+" and the "
+                                 +"observations at lead "+fcst_lead+" to "
+                                 +"file: "+CI_file)
+                    if ci_method == 'EMC_MONTE_CARLO':
+                        logger.warning("Monte Carlo resampling not "
+                                       +"done for fbar_obar, orate_frate, "
+                                       +"or baser_frate.")
+                        stat_CI = '--'
+                    else:
+                        stat_CI = plot_util.calculate_ci(
+                            logger, ci_method, model_stat_values_array[0,:],
+                            model_stat_values_array[1,:],total_dates,
+                            stat, average_method, randx[model_idx,:,:]
+                        )
+                    with open(CI_file, 'a') as file2write:
+                        file2write.write(fcst_lead+' '+str(stat_CI)+'\n')
                 else:
-                    stat_CI = plot_util.calculate_ci(logger,
-                                                     ci_method,
-                                                     model_stat_values_array,
-                                                     obs_stat_values_array,
-                                                     total_days,
-                                                     stat, average_method,
-                                                     randx[model_index,:,:])
-                logger.debug("Writing "+ci_method
-                             +" confidence intervals for difference between model "
-                             +str(model_num)+" "+model_name+" with name on plot "
-                             +model_plot_name+" and the observations at lead "
-                             +lead+" to file: "+CI_filename)
-                with open(CI_filename, 'a') as CI_file:
-                    CI_file.write(lead+' '+str(stat_CI)+ '\n')
-            else:
-                if model_num == 1:
-                    model1_stat_values_array = model_stat_values_array
-                    model1_plot_name = model_plot_name
-                    model1_name = model_name
-                elif model_num > 1:
-                    if ci_method == "EMC_MONTE_CARLO":
-                        stat_CI = plot_util.calculate_ci(logger,
-                                                         ci_method,
-                                                         model_data.loc[[model_plot_name]],
-                                                         model_data.loc[[model1_plot_name]],
-                                                         total_days,
-                                                         stat, average_method,
-                                                         randx[model_index,:,:])
+                    if model_num == 1:
+                        model1_stat_values_array = (
+                            model_stat_values_array[0,:]
+                        )
+                        model1_plot_name = model_plot_name
+                        model1_name = model_name
                     else:
-                        stat_CI = plot_util.calculate_ci(logger,
-                                                         ci_method,
-                                                         model_stat_values_array,
-                                                         model1_stat_values_array,
-                                                         total_days,
-                                                         stat, average_method,
-                                                         randx[model_index,:,:])
-                    logger.debug("Writing "+ci_method
-                                 +" confidence intervals for difference between model "
-                                 +str(model_num)+" "+model_name+" with name on plot "
-                                 +model_plot_name+" and model 1 "+model1_name
-                                 +" with name on plot "+model1_plot_name+" at lead "+lead
-                                 +" to file: "+CI_filename)
-                    with open(CI_filename, 'a') as CI_file:
-                        CI_file.write(lead+' '+str(stat_CI)+ '\n')
-        logger.debug("Plotting model "+str(model_num)+" "
-                     +model_name+" with name on plot "
-                     +model_plot_name)
-        if model_num == 1:
-            fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
-            ax.grid(True)
-            ax.set_xlabel(plot_time.title()+" Date")
-            ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
-            day_interval = int(len(plot_time_dates)/nticks)
-            ax.set_xticks(plot_time_dates[::day_interval])
-            ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
-            if len(plot_time_dates) > 60:
-                ax.xaxis.set_minor_locator(md.MonthLocator())
-            else:
-                ax.xaxis.set_minor_locator(md.DayLocator())
-            ax.set_ylabel(stat_plot_name)
-            if stat == "fbar_obar":
-                obs_plot_settings_dict = (
-                    model_obs_plot_settings_dict['obs']
-                )
-                obs_count = (len(obs_stat_values_array)
-                             - np.ma.count_masked(obs_stat_values_array))
-                mplot_time_dates = np.ma.array(
-                    plot_time_dates,
-                    mask=np.ma.getmaskarray(obs_stat_values_array)
-                )
-                if obs_count != 0:
-                    if np.abs(obs_stat_values_array.mean()) >= 10:
-                        obs_mean_for_label = round(obs_stat_values_array.mean(), 2)
-                        obs_mean_for_label = format(obs_mean_for_label, '.2f')
-                    else:
-                        obs_mean_for_label = round(obs_stat_values_array.mean(), 3)
-                        obs_mean_for_label = format(obs_mean_for_label, '.3f')
-                    ax.plot_date(mplot_time_dates.compressed(),
-                                 obs_stat_values_array.compressed(),
-                                 color = obs_plot_settings_dict['color'],
-                                 linestyle = obs_plot_settings_dict['linestyle'],
-                                 linewidth = obs_plot_settings_dict['linewidth'],
-                                 marker = obs_plot_settings_dict['marker'],
-                                 markersize = obs_plot_settings_dict['markersize'],
-                                 label=('obs. '
-                                        +str(obs_mean_for_label)
-                                        +' '+str(obs_count)+' days'),
-                                 zorder=4)
-                    if obs_stat_values_array.min() < stat_min or np.ma.is_masked(stat_min):
-                        stat_min = obs_stat_values_array.min()
-                    if obs_stat_values_array.max() > stat_max or np.ma.is_masked(stat_max):
-                        stat_max = obs_stat_values_array.max()
-        count = (
-            len(model_stat_values_array)
-            - np.ma.count_masked(model_stat_values_array)
-        )
-        mplot_time_dates = np.ma.array(
-            plot_time_dates, mask=np.ma.getmaskarray(model_stat_values_array)
-        )
-        if count != 0:
-            if np.abs(model_stat_values_array.mean()) >= 10:
-                mean_for_label = round(model_stat_values_array.mean(), 2)
-                mean_for_label = format(mean_for_label, '.2f')
-            else:
-                mean_for_label = round(model_stat_values_array.mean(), 3)
-                mean_for_label = format(mean_for_label, '.3f')
-            ax.plot_date(mplot_time_dates.compressed(),
-                         model_stat_values_array.compressed(),
-                         color = model_plot_settings_dict['color'],
-                         linestyle = model_plot_settings_dict['linestyle'],
-                         linewidth = model_plot_settings_dict['linewidth'],
-                         marker = model_plot_settings_dict['marker'],
-                         markersize = model_plot_settings_dict['markersize'],
-                         label=(model_plot_name
-                                +' '+str(mean_for_label)
-                                +' '+str(count)+' days'),
-                         zorder=(nmodels-model_index)+4)
-            if model_stat_values_array.min() < stat_min or np.ma.is_masked(stat_min):
-                stat_min = model_stat_values_array.min()
-            if model_stat_values_array.max() > stat_max or np.ma.is_masked(stat_max):
-                stat_max = model_stat_values_array.max()
-    # Adjust y axis limits and ticks
+                        logger.debug("Writing "+ci_method+" confidence "
+                                     +"intervals for difference between "
+                                     +"model "+str(model_num)+" "
+                                     +model_name+" with name on plot "
+                                     +model_plot_name+" and model 1 "
+                                     +model1_name+" with name on plot "
+                                     +model1_plot_name+" at lead "
+                                     +fcst_lead+" to file: "+CI_file)
+                        if ci_method == 'EMC_MONTE_CARLO':
+                            stat_CI = plot_util.calculate_ci(
+                                logger, ci_method,
+                                model_data.loc[[model_plot_name]],
+                                model_data.loc[[model1_plot_name]], total_dates,
+                                stat, average_method, randx[model_idx,:,:]
+                            )
+                        else:
+                            stat_CI = plot_util.calculate_ci(
+                                logger, ci_method, model_stat_values_array,
+                                model1_stat_values_array, total_dates,
+                                stat, average_method, randx[model_idx,:,:]
+                            )
+                        with open(CI_file, 'a') as file2write:
+                            file2write.write(fcst_lead+' '+str(stat_CI)+'\n')
+            if model_num == 1:
+                fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
+                ax.grid(True)
+                ax.set_xlabel(date_type.title()+' Date')
+                ax.set_xlim([plot_time_dates[0],plot_time_dates[-1]])
+                ax.set_xticks(plot_time_dates[::date_tick_intvl])
+                ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
+                if len(plot_time_dates) > 60:
+                    ax.xaxis.set_minor_locator(md.MonthLocator())
+                else:
+                    ax.xaxis.set_minor_locator(md.DayLocator())
+                ax.set_ylabel(stat_plot_name)
+                if (stat == 'fbar_obar' or stat == 'orate_frate'
+                        or stat == 'baser_frate'):
+                    obs_plot_settings_dict = (
+                        model_obs_plot_settings_dict['obs']
+                    )
+                    obs_stat_values_array = model_stat_values_array[1,:]
+                    obs_count = (
+                        len(obs_stat_values_array)
+                        - np.ma.count_masked(obs_stat_values_array)
+                    )
+                    plot_time_dates_m = np.ma.masked_where(
+                        np.ma.getmask(obs_stat_values_array), plot_time_dates
+                    )
+                    plot_time_dates_mc = np.ma.compressed(plot_time_dates_m)
+                    obs_stat_values_mc = np.ma.compressed(
+                        obs_stat_values_array
+                    )
+                    #### EMC-verif_global plot observations
+                    if obs_count != 0:
+                        if np.abs(obs_stat_values_array.mean()) >= 10:
+                            obs_mean_for_label = round(
+                                obs_stat_values_array.mean(), 2
+                            )
+                            obs_mean_for_label = format(
+                                obs_mean_for_label, '.2f'
+                            )
+                        else:
+                            obs_mean_for_label = round(
+                                obs_stat_values_array.mean(), 3
+                            )
+                            obs_mean_for_label = format(
+                                obs_mean_for_label, '.3f'
+                            )
+                        ax.plot_date(plot_time_dates_mc,
+                                     obs_stat_values_mc,
+                                     color = obs_plot_settings_dict['color'],
+                                     linestyle = obs_plot_settings_dict \
+                                         ['linestyle'],
+                                     linewidth = obs_plot_settings_dict \
+                                         ['linewidth'],
+                                     marker = obs_plot_settings_dict \
+                                         ['marker'],
+                                     markersize = obs_plot_settings_dict \
+                                         ['markersize'],
+                                     label=('obs. '
+                                            +str(obs_mean_for_label)
+                                            +' '+str(obs_count)+' days'),
+                                     zorder=4)
+                        if obs_stat_values_array.min() < stat_min \
+                                or np.ma.is_masked(stat_min):
+                            stat_min = obs_stat_values_array.min()
+                        if obs_stat_values_array.max() > stat_max \
+                                or np.ma.is_masked(stat_max):
+                            stat_max = obs_stat_values_array.max()
+            count = (
+                len(model_stat_values_array[0,:])
+                - np.ma.count_masked(model_stat_values_array[0,:])
+            )
+            plot_time_dates_m = np.ma.masked_where(
+                np.ma.getmask(model_stat_values_array[0,:]), plot_time_dates
+            )
+            plot_time_dates_mc = np.ma.compressed(plot_time_dates_m)
+            model_stat_values_mc = np.ma.compressed(
+                model_stat_values_array[0,:]
+            )
+            #### EMC-verif_global plot model
+            if count != 0:
+                logger.debug("Plotting model "+str(model_num)+" "
+                             +model_name+" with name on plot "
+                             +model_plot_name)
+                if np.abs(model_stat_values_array.mean()) >= 10:
+                    mean_for_label = round(model_stat_values_array.mean(), 2)
+                    mean_for_label = format(mean_for_label, '.2f')
+                else:
+                    mean_for_label = round(model_stat_values_array.mean(), 3)
+                    mean_for_label = format(mean_for_label, '.3f')
+                ax.plot_date(plot_time_dates_mc, model_stat_values_mc,
+                             color = model_plot_settings_dict['color'],
+                             linestyle = model_plot_settings_dict \
+                                 ['linestyle'],
+                             linewidth = model_plot_settings_dict \
+                                 ['linewidth'],
+                             marker = model_plot_settings_dict['marker'],
+                             markersize = model_plot_settings_dict \
+                                 ['markersize'],
+                             label=(model_plot_name
+                                    +' '+str(mean_for_label)
+                                    +' '+str(count)+' days'),
+                             zorder=(nmodels-model_idx)+4)
+                if model_stat_values_array.min() < stat_min \
+                        or np.ma.is_masked(stat_min):
+                    stat_min = model_stat_values_array.min()
+                if model_stat_values_array.max() > stat_max \
+                        or np.ma.is_masked(stat_max):
+                    stat_max = model_stat_values_array.max()
+    #### EMC-verif_global adjust y axis limits and ticks
     preset_y_axis_tick_min = ax.get_yticks()[0]
     preset_y_axis_tick_max = ax.get_yticks()[-1]
     preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
@@ -534,7 +726,7 @@ for stat in plot_stats_list:
         np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
     )
     ax.set_ylim([y_axis_min, y_axis_max])
-    # Check y axis limits
+    #### EMC-verif_global check y axis limits
     if stat_max >= ax.get_ylim()[1]:
         while stat_max >= ax.get_ylim()[1]:
             y_axis_max = y_axis_max + y_axis_tick_inc
@@ -553,7 +745,7 @@ for stat in plot_stats_list:
                           y_axis_tick_inc)
             )
             ax.set_ylim([y_axis_min, y_axis_max])
-    # Add legend, adjust if points in legend
+    #### EMC-verif_global add legend, adjust if points in legend
     if len(ax.lines) != 0:
         legend = ax.legend(bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
                            loc=legend_loc, ncol=legend_ncol,
@@ -580,19 +772,18 @@ for stat in plot_stats_list:
                     legend.get_window_extent() \
                     .inverse_transformed(ax.transData)
                 )
-    # Build formal plot title
-    if grid == region:
-        gridregion = grid
+    #### EMC-verif_global build formal plot title
+    if verif_grid == vx_mask:
+        grid_vx_mask = verif_grid
     else:
-        gridregion = grid+region
-    if interp[0:2] == 'WV':
-        fcst_var_name = fcst_var_name+"_"+interp
+        grid_vx_mask = verif_grid+vx_mask
     var_info_title = plot_title.get_var_info_title(
         fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
     )
-    region_title = plot_title.get_region_title(region)
+    vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
     date_info_title = plot_title.get_date_info_title(
-        plot_time, valid_time_info, init_time_info,
+        date_type, fcst_valid_hour.split(', '),
+        fcst_init_hour.split(', '),
         str(datetime.date.fromordinal(int(
             plot_time_dates[0])
         ).strftime('%d%b%Y')),
@@ -601,11 +792,11 @@ for stat in plot_stats_list:
         ).strftime('%d%b%Y')),
         verif_case
     )
-    forecast_lead_title = plot_title.get_lead_title(lead)
+    forecast_lead_title = plot_title.get_lead_title(fcst_lead[:-4])
     full_title = (
-        stat_plot_name+"\n"
-        +var_info_title+", "+region_title+"\n"
-        +date_info_title+", "+forecast_lead_title
+        stat_plot_name+'\n'
+        +var_info_title+', '+vx_mask_title+'\n'
+        +date_info_title+', '+forecast_lead_title
     )
     ax.set_title(full_title, loc=title_loc)
     fig.figimage(noaa_logo_img_array,
@@ -614,73 +805,30 @@ for stat in plot_stats_list:
     fig.figimage(nws_logo_img_array,
                  nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                  zorder=1, alpha=nws_logo_alpha)
-    # Build savefig name
-    if plot_time == 'valid':
+    #### EMC-verif_global build savefig name
+    savefig_name = os.path.join(output_imgs_dir, stat)
+    if date_type == 'VALID':
         if verif_case == 'grid2obs':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_init"+init_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
-        elif verif_case == 'precip':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_valid"+valid_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
-        elif verif_case == 'satellite':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_valid"+valid_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion+"_"+verif_type
-                                        +".png")
+            savefig_name = (
+                savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
+            )
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_valid"+valid_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
-    elif plot_time == 'init':
+            savefig_name = (
+                savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
+            )
+    elif date_type == 'INIT':
         if verif_case == 'grid2obs':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_valid"+valid_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
-        elif verif_case == 'precip':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_init"+init_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level+"_"+fcst_var_thresh
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
-        elif verif_case == 'satellite':
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_init"+init_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion+"_"+verif_type
-                                        +".png")
+            savefig_name = (
+                savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
+            )
         else:
-            savefig_name = os.path.join(plotting_out_dir_imgs,
-                                        stat
-                                        +"_init"+init_time_info[0][0:2]+"Z"
-                                        +"_"+fcst_var_name+"_"+fcst_var_level
-                                        +"_fhr"+lead
-                                        +"_"+gridregion
-                                        +".png")
+            savefig_name = (
+                savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
+            )
+    savefig_name = savefig_name+'_'+fcst_var_name+'_'+fcst_var_level
+    if verif_case == 'precip':
+        savefig_name = savefig_name+'_'+fcst_var_thresh
+    savefig_name = savefig_name+'_fhr'+fcst_lead[:-4]+'_'+grid_vx_mask+'.png'
     logger.info("Saving image as "+savefig_name)
     plt.savefig(savefig_name)
     plt.close()

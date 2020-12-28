@@ -621,7 +621,7 @@ for plot_info in plot_info_list:
                              +model_name+" - obs "
                              +"with name on plot "+model_plot_name
                              +" - obs")
-                ax.set_title(model_plot_name+' - obs', loc='left')
+                ax.set_title(model_plot_name+'-obs', loc='left')
                 model_obs_diff = (
                     model_stat_values_array
                     - stat_values_array[1,model_idx,:,:]
@@ -732,7 +732,7 @@ for plot_info in plot_info_list:
                                  +model_name+" - model 1 "+model1_name+" "
                                  +"with name on plot "+model_plot_name+" "
                                  +"- "+model1_plot_name)
-                    ax.set_title(model_plot_name+' - '+model1_plot_name,
+                    ax.set_title(model_plot_name+'-'+model1_plot_name,
                                  loc='left')
                     model_model1_diff = (
                         model_stat_values_array - model1_stat_values_array

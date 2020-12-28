@@ -107,6 +107,7 @@ output_base_dir = os.environ['OUTPUT_BASE_DIR']
 log_metplus = os.environ['LOG_METPLUS']
 log_level = os.environ['LOG_LEVEL']
 #### EMC-verif_global environment variables
+var_name = os.environ['var_name']
 fcst_var_extra = (os.environ['fcst_var_options'].replace(' ', '') \
                   .replace('=','').replace(';','').replace('"','') \
                   .replace("'",'').replace(',','-').replace('_',''))
@@ -859,7 +860,10 @@ for plot_info in plot_info_list:
                 savefig_name = (
                     savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
                 )
-        savefig_name = savefig_name+'_'+fcst_var_name+'_'+fcst_var_level
+        if verif_case == 'grid2grid' and verif_type == 'anom':
+            savefig_name = savefig_name+'_'+var_name+'_'+fcst_var_level
+        else:
+            savefig_name = savefig_name+'_'+fcst_var_name+'_'+fcst_var_level
         if verif_case == 'precip':
             savefig_name = savefig_name+'_'+fcst_var_thresh
         savefig_name = savefig_name+'_leaddate_'+grid_vx_mask+'.png'

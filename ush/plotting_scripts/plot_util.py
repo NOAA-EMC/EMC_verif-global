@@ -3,7 +3,8 @@ import datetime as datetime
 import time
 import numpy as np
 import pandas as pd
-
+import warnings
+warnings.filterwarnings('ignore')
 
 """!@namespace plot_util
  @brief Provides utility functions for METplus plotting use case.

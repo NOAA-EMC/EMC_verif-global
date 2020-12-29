@@ -380,47 +380,35 @@ for plot_info in plot_info_list:
                                 .loc[matching_date_idx][:]
                             )
                             for col in stat_file_line_type_columns:
-                                #### EMC-verif_global changes for PRMSL,PRES/Z0
+                                #### EMC-verif_global changes for PRMSL, PRES/Z0
+                                #### O3MR
                                 if fcst_var_name == 'PRMSL' \
                                         or \
                                         (fcst_var_name == 'PRES' \
-                                        and fcst_var_level == 'Z0'):
+                                         and fcst_var_level == 'Z0'):
                                     if col in ['FBAR', 'OBAR']:
-                                       model_level_now_data.loc[
-                                            (model_plot_name,
-                                             fcst_var_level,
-                                             expected_date)
-                                        ][col] = (
-                                            model_level_now_stat_file_data_idx \
-                                            .loc[:][col]/100.
-                                        )
+                                        scale = 1/100.
                                     elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
-                                        model_level_now_data.loc[
-                                            (model_plot_name,
-                                             fcst_var_level,
-                                             expected_date)
-                                        ][col] = (
-                                            model_level_now_stat_file_data_idx \
-                                            .loc[:][col]/(100.*100.)
-                                        )
-                                    else:
-                                        model_level_now_data.loc[
-                                            (model_plot_name,
-                                             fcst_var_level,
-                                             expected_date)
-                                        ][col] = (
-                                            model_level_now_stat_file_data_idx \
-                                            .loc[:][col]
-                                        )
+                                        scale = 1/(100.*100.)
+                                    else:    
+                                        scale = 1
+                                elif fcst_var_name == 'O3MR':
+                                    if col in ['FBAR', 'OBAR']:
+                                        scale = 1e6
+                                    elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
+                                        scale = 1e6*1e6
+                                    else:   
+                                        scale = 1
                                 else:
-                                    model_level_now_data.loc[
-                                        (model_plot_name,
-                                         fcst_var_level,
-                                         expected_date)
-                                    ][col] = (
-                                        model_level_now_stat_file_data_idx \
-                                        .loc[:][col]
-                                    )
+                                    scale = 1
+                                model_level_now_data.loc[
+                                    (model_plot_name,
+                                     fcst_var_level,
+                                     expected_date)
+                                ][col] = (
+                                    model_level_now_stat_file_data_idx \
+                                    .loc[:][col] * scale
+                                )
             else:
                 logger.warning("Model "+str(model_num)+" "+model_name+" "
                                +"with plot name "+model_plot_name+" "

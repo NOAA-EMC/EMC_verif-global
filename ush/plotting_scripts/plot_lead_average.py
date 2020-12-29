@@ -902,4 +902,5 @@ for plot_info in plot_info_list:
         savefig_name = savefig_name+'_fhrmean_'+grid_vx_mask+'.png'
         logger.info("Saving image as "+savefig_name)
         plt.savefig(savefig_name)
-        plt.close()
+        plt.clf()
+        plt.close('all')

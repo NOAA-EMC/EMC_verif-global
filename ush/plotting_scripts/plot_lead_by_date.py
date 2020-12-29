@@ -429,7 +429,7 @@ for plot_info in plot_info_list:
                                         )
                                 else:
                                     model_lead_now_data.loc[
-                                        (model_plot_name, 
+                                        (model_plot_name,
                                          fcst_lead,
                                          expected_date)
                                     ][col] = (
@@ -869,4 +869,5 @@ for plot_info in plot_info_list:
         savefig_name = savefig_name+'_leaddate_'+grid_vx_mask+'.png'
         logger.info("Saving image as "+savefig_name)
         plt.savefig(savefig_name)
-        plt.close()
+        plt.clf()
+        plt.close('all')

@@ -695,144 +695,149 @@ for plot_info in plot_info_list:
                 if model_stat_values_array.max() > stat_max \
                         or np.ma.is_masked(stat_max):
                     stat_max = model_stat_values_array.max()
-    #### EMC-verif_global adjust y axis limits and ticks
-    preset_y_axis_tick_min = ax.get_yticks()[0]
-    preset_y_axis_tick_max = ax.get_yticks()[-1]
-    preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
-    if stat in ['acc', 'msess', 'ets', 'rsd']:
-        y_axis_tick_inc = 0.1
-    else:
-        y_axis_tick_inc = preset_y_axis_tick_inc
-    if np.ma.is_masked(stat_min):
-        y_axis_min = preset_y_axis_tick_min
-    else:
+        #### EMC-verif_global adjust y axis limits and ticks
+        preset_y_axis_tick_min = ax.get_yticks()[0]
+        preset_y_axis_tick_max = ax.get_yticks()[-1]
+        preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
         if stat in ['acc', 'msess', 'ets', 'rsd']:
-            y_axis_min = round(stat_min,1) - y_axis_tick_inc
+            y_axis_tick_inc = 0.1
         else:
+            y_axis_tick_inc = preset_y_axis_tick_inc
+        if np.ma.is_masked(stat_min):
             y_axis_min = preset_y_axis_tick_min
-            while y_axis_min > stat_min:
-                y_axis_min = y_axis_min - y_axis_tick_inc
-    if np.ma.is_masked(stat_max):
-        y_axis_max = preset_y_axis_tick_max
-    else:
-        if stat in ['acc', 'msess', 'ets']:
-            y_axis_max = 1
-        elif stat in ['rsd']:
-             y_axis_max = round(stat_max,1) + y_axis_tick_inc
         else:
-            y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
-            while y_axis_max < stat_max:
+            if stat in ['acc', 'msess', 'ets', 'rsd']:
+                y_axis_min = round(stat_min,1) - y_axis_tick_inc
+            else:
+                y_axis_min = preset_y_axis_tick_min
+                while y_axis_min > stat_min:
+                    y_axis_min = y_axis_min - y_axis_tick_inc
+        if np.ma.is_masked(stat_max):
+            y_axis_max = preset_y_axis_tick_max
+        else:
+            if stat in ['acc', 'msess', 'ets']:
+                y_axis_max = 1
+            elif stat in ['rsd']:
+                y_axis_max = round(stat_max,1) + y_axis_tick_inc
+            else:
+                y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
+                while y_axis_max < stat_max:
+                    y_axis_max = y_axis_max + y_axis_tick_inc
+        ax.set_yticks(
+            np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
+        )
+        ax.set_ylim([y_axis_min, y_axis_max])
+        #### EMC-verif_global check y axis limits
+        if stat_max >= ax.get_ylim()[1]:
+            while stat_max >= ax.get_ylim()[1]:
                 y_axis_max = y_axis_max + y_axis_tick_inc
-    ax.set_yticks(
-        np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
-    )
-    ax.set_ylim([y_axis_min, y_axis_max])
-    #### EMC-verif_global check y axis limits
-    if stat_max >= ax.get_ylim()[1]:
-        while stat_max >= ax.get_ylim()[1]:
-            y_axis_max = y_axis_max + y_axis_tick_inc
-            ax.set_yticks(
-                np.arange(y_axis_min,
-                          y_axis_max +  y_axis_tick_inc,
-                          y_axis_tick_inc)
-            )
-            ax.set_ylim([y_axis_min, y_axis_max])
-    if stat_min <= ax.get_ylim()[0]:
-        while stat_min <= ax.get_ylim()[0]:
-            y_axis_min = y_axis_min - y_axis_tick_inc
-            ax.set_yticks(
-                np.arange(y_axis_min,
-                          y_axis_max +  y_axis_tick_inc,
-                          y_axis_tick_inc)
-            )
-            ax.set_ylim([y_axis_min, y_axis_max])
-    #### EMC-verif_global add legend, adjust if points in legend
-    if len(ax.lines) != 0:
-        legend = ax.legend(bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
-                           loc=legend_loc, ncol=legend_ncol,
-                           fontsize=legend_fontsize)
-        plt.draw()
-        legend_box = legend.get_window_extent() \
-            .inverse_transformed(ax.transData)
-        if stat_min < legend_box.y1:
-            while stat_min < legend_box.y1:
-                y_axis_min = y_axis_min - y_axis_tick_inc
                 ax.set_yticks(
                     np.arange(y_axis_min,
-                              y_axis_max + y_axis_tick_inc,
+                              y_axis_max +  y_axis_tick_inc,
                               y_axis_tick_inc)
                 )
                 ax.set_ylim([y_axis_min, y_axis_max])
-                legend = ax.legend(
-                    bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
-                    loc=legend_loc, ncol=legend_ncol,
-                    fontsize=legend_fontsize
+        if stat_min <= ax.get_ylim()[0]:
+            while stat_min <= ax.get_ylim()[0]:
+                y_axis_min = y_axis_min - y_axis_tick_inc
+                ax.set_yticks(
+                    np.arange(y_axis_min,
+                              y_axis_max +  y_axis_tick_inc,
+                              y_axis_tick_inc)
                 )
-                plt.draw()
-                legend_box = (
-                    legend.get_window_extent() \
-                    .inverse_transformed(ax.transData)
+                ax.set_ylim([y_axis_min, y_axis_max])
+        #### EMC-verif_global add legend, adjust if points in legend
+        if len(ax.lines) != 0:
+            legend = ax.legend(bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
+                               loc=legend_loc, ncol=legend_ncol,
+                               fontsize=legend_fontsize)
+            plt.draw()
+            legend_box = legend.get_window_extent() \
+                .inverse_transformed(ax.transData)
+            if stat_min < legend_box.y1:
+                while stat_min < legend_box.y1:
+                    y_axis_min = y_axis_min - y_axis_tick_inc
+                    ax.set_yticks(
+                        np.arange(y_axis_min,
+                                  y_axis_max + y_axis_tick_inc,
+                                  y_axis_tick_inc)
+                    )
+                    ax.set_ylim([y_axis_min, y_axis_max])
+                    legend = ax.legend(
+                        bbox_to_anchor=(legend_bbox_x, legend_bbox_y),
+                        loc=legend_loc, ncol=legend_ncol,
+                        fontsize=legend_fontsize
+                    )
+                    plt.draw()
+                    legend_box = (
+                        legend.get_window_extent() \
+                        .inverse_transformed(ax.transData)
+                    )
+        #### EMC-verif_global build formal plot title
+        if verif_grid == vx_mask:
+            grid_vx_mask = verif_grid
+        else:
+            grid_vx_mask = verif_grid+vx_mask
+        var_info_title = plot_title.get_var_info_title(
+            fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
+        )  
+        vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
+        date_info_title = plot_title.get_date_info_title(
+            date_type, fcst_valid_hour.split(', '),
+            fcst_init_hour.split(', '),
+            str(datetime.date.fromordinal(int(
+                plot_time_dates[0])
+            ).strftime('%d%b%Y')),
+            str(datetime.date.fromordinal(int(
+                plot_time_dates[-1])
+            ).strftime('%d%b%Y')),
+            verif_case
+        )
+        forecast_lead_title = plot_title.get_lead_title(fcst_lead[:-4])
+        full_title = (
+            stat_plot_name+'\n'
+            +var_info_title+', '+vx_mask_title+'\n'
+            +date_info_title+', '+forecast_lead_title
+        )
+        ax.set_title(full_title, loc=title_loc)
+        fig.figimage(noaa_logo_img_array,
+                     noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                     zorder=1, alpha=noaa_logo_alpha)
+        fig.figimage(nws_logo_img_array,
+                     nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                     zorder=1, alpha=nws_logo_alpha)
+        #### EMC-verif_global build savefig name
+        savefig_name = os.path.join(output_imgs_dir, stat)
+        if date_type == 'VALID':
+            if verif_case == 'grid2obs':
+                savefig_name = (
+                    savefig_name+'_init'
+                    +fcst_init_hour.split(', ')[0][0:2]+'Z'
                 )
-    #### EMC-verif_global build formal plot title
-    if verif_grid == vx_mask:
-        grid_vx_mask = verif_grid
-    else:
-        grid_vx_mask = verif_grid+vx_mask
-    var_info_title = plot_title.get_var_info_title(
-        fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
-    )
-    vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
-    date_info_title = plot_title.get_date_info_title(
-        date_type, fcst_valid_hour.split(', '),
-        fcst_init_hour.split(', '),
-        str(datetime.date.fromordinal(int(
-            plot_time_dates[0])
-        ).strftime('%d%b%Y')),
-        str(datetime.date.fromordinal(int(
-            plot_time_dates[-1])
-        ).strftime('%d%b%Y')),
-        verif_case
-    )
-    forecast_lead_title = plot_title.get_lead_title(fcst_lead[:-4])
-    full_title = (
-        stat_plot_name+'\n'
-        +var_info_title+', '+vx_mask_title+'\n'
-        +date_info_title+', '+forecast_lead_title
-    )
-    ax.set_title(full_title, loc=title_loc)
-    fig.figimage(noaa_logo_img_array,
-                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                 zorder=1, alpha=noaa_logo_alpha)
-    fig.figimage(nws_logo_img_array,
-                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                 zorder=1, alpha=nws_logo_alpha)
-    #### EMC-verif_global build savefig name
-    savefig_name = os.path.join(output_imgs_dir, stat)
-    if date_type == 'VALID':
-        if verif_case == 'grid2obs':
-            savefig_name = (
-                savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
-            )
+            else:
+                savefig_name = (
+                    savefig_name+'_valid'
+                    +fcst_valid_hour.split(', ')[0][0:2]+'Z'
+                )
+        elif date_type == 'INIT':
+            if verif_case == 'grid2obs':
+                savefig_name = (
+                    savefig_name+'_valid'
+                    +fcst_valid_hour.split(', ')[0][0:2]+'Z'
+                )
+            else:
+                savefig_name = (
+                    savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
+                )
+        if verif_case == 'grid2grid' and verif_type == 'anom':
+            savefig_name = savefig_name+'_'+var_name+'_'+fcst_var_level
         else:
-            savefig_name = (
-                savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
-            )
-    elif date_type == 'INIT':
-        if verif_case == 'grid2obs':
-            savefig_name = (
-                savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
-            )
-        else:
-            savefig_name = (
-                savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
-            )
-    if verif_case == 'grid2grid' and verif_type == 'anom':
-        savefig_name = savefig_name+'_'+var_name+'_'+fcst_var_level
-    else:
-        savefig_name = savefig_name+'_'+fcst_var_name+'_'+fcst_var_level
-    if verif_case == 'precip':
-        savefig_name = savefig_name+'_'+fcst_var_thresh
-    savefig_name = savefig_name+'_fhr'+fcst_lead[:-4]+'_'+grid_vx_mask+'.png'
-    logger.info("Saving image as "+savefig_name)
-    plt.savefig(savefig_name)
-    plt.close()
+            savefig_name = savefig_name+'_'+fcst_var_name+'_'+fcst_var_level
+        if verif_case == 'precip':
+            savefig_name = savefig_name+'_'+fcst_var_thresh
+        savefig_name = (savefig_name+'_fhr'+fcst_lead[:-4]
+                        +'_'+grid_vx_mask+'.png')
+        logger.info("Saving image as "+savefig_name)
+        plt.savefig(savefig_name)
+        plt.clf()
+        plt.close('all')

@@ -168,7 +168,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'VGRD': 'Meridional Wind',
         'UGRD_VGRD': 'Vector Wind',
         'PRMSL': 'Pressure Reduced to MSL',
-        '03MR': 'Ozone Mixing Ratio',
+        'O3MR': 'Ozone Mixing Ratio',
         'RH': 'Relative Humidity',
         'SPFH': 'Specific Humidity',
         'HPBL': 'Planetary Boundary Layer Height',

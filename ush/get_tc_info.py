@@ -43,7 +43,7 @@ def get_all_tc_storms_basin_year(basin, year):
                                         'HAISHEN', 'TWELVE', 'NOUL', 'DOLPHIN',
                                         'KUJIRA', 'CHAN-HOM', 'LINFA', 'NANGKA',
                                         'SAUDEL', 'TWENTY', 'MOLAVE', 'GONI',
-                                        'ATSANI', 'ETAU', 'VAMCO']
+                                        'ATSANI', 'ETAU', 'VAMCO', 'KROVANH']
     ## 2019
     basin_year_names_dict['AL_2019'] = ['ANDREA', 'BARRY', 'THREE',
                                         'CHANTAL', 'DORIAN', 'ERIN',

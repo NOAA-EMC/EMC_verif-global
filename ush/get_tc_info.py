@@ -197,6 +197,7 @@ def get_tc_storm_id(storm):
     storm_id_dict['WP_2020_ATSANI'] = 'wp232020'
     storm_id_dict['WP_2020_ETAU'] = 'wp242020'
     storm_id_dict['WP_2020_VAMCO'] = 'wp252020'
+    storm_id_dict['WP_2020_KROVANH'] = 'wp262020'
     ## 2019
     storm_id_dict['AL_2019_ANDREA'] = 'al012019'
     storm_id_dict['AL_2019_BARRY'] = 'al022019'

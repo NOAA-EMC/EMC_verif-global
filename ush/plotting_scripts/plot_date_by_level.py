@@ -565,6 +565,7 @@ for plot_info in plot_info_list:
             subplot_num+=1
         obs_plotted = False
         get_clevels = True
+        make_colorbar = False
         for model_info in model_info_list:
             model_num = model_info_list.index(model_info) + 1
             model_idx = model_info_list.index(model_info)
@@ -622,6 +623,10 @@ for plot_info in plot_info_list:
                                   inline=True,
                                   fontsize=12.5)
                         get_clevels = False
+                        make_colorbar = True
+                        colorbar_CF = CF2
+                        colorbar_CF_ticks = CF2.levels
+                        colorbar_label = 'Difference'
                     else:
                         CF = ax.contourf(xmesh, ymesh, model_obs_diff,
                                          levels=CF2.levels,
@@ -666,6 +671,10 @@ for plot_info in plot_info_list:
                                   inline=True,
                                   fontsize=12.5)
                         get_clevels = False
+                        make_colorbar = True
+                        colorbar_CF = CF1
+                        colorbar_CF_ticks = CF1.levels
+                        colorbar_label = 'Bias'
                     else:
                         CF = ax.contourf(xmesh, ymesh, model_stat_values_array,
                                          levels=CF1.levels,
@@ -726,6 +735,10 @@ for plot_info in plot_info_list:
                                               ),
                                               extend='both')
                             get_clevels = False
+                            make_colorbar = True
+                            colorbar_CF = CF2
+                            colorbar_CF_ticks = CF2.levels
+                            colorbar_label = 'Difference'
                         else:
                             CF = ax.contourf(xmesh, ymesh, model_model1_diff,
                                              levels=CF2.levels,
@@ -783,18 +796,6 @@ for plot_info in plot_info_list:
             nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
             - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
         )
-        if stat == 'bias':
-            make_colorbar = True
-            colorbar_CF = CF1
-            colorbar_CF_ticks = CF1.levels
-            colorbar_label = 'Bias'
-        elif stat!= 'bias' and nmodels > 1:
-            make_colorbar = True
-            colorbar_CF = CF2
-            colorbar_CF_ticks = CF2.levels
-            colorbar_label = 'Difference'
-        else:
-            make_colorbar = False
         if make_colorbar:
             cax = fig.add_axes(
                 [cbar_left, cbar_bottom, cbar_width, cbar_height]

@@ -576,25 +576,8 @@ for plot_info in plot_info_list:
             else:
                 plt.setp(ax.get_yticklabels(), visible=False)
             subplot_num+=1
-        if (stat == 'fbar_obar' or stat == 'orate_frate'
-                or stat == 'baser_frate'):
-            logger.debug("Plotting observations")
-            obs_stat_values_array = stat_values_array[1,0,:,:]
-            ax = plt.subplot(gs[0])
-            ax.set_title('obs', loc='left')
-            CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
-                              cmap=cmap,
-                              locator=matplotlib.ticker.MaxNLocator(
-                                  symmetric=True
-                              ), extend='both')
-            C1 = ax.contour(xmesh, ymesh, obs_stat_values_array,
-                            levels=CF1.levels,
-                            colors='k',
-                            linewidths=1.0)
-            ax.clabel(C1, C1.levels,
-                      fmt='%1.2f',
-                      inline=True,
-                      fontsize=12.5)
+        obs_plotted = False
+        get_clevels = True
         for model_info in model_info_list:
             model_num = model_info_list.index(model_info) + 1
             model_idx = model_info_list.index(model_info)
@@ -604,161 +587,167 @@ for plot_info in plot_info_list:
             model_stat_values_array = stat_values_array[0,model_idx,:,:]
             if (stat == 'fbar_obar' or stat == 'orate_frate'
                     or stat == 'baser_frate'):
-                ax = plt.subplot(gs[model_num])
-                logger.debug("Plotting model "+str(model_num)+" "
-                             +model_name+" - obs "
-                             +"with name on plot "+model_plot_name
-                             +" - obs")
-                ax.set_title(model_plot_name+'-obs', loc='left')
-                model_obs_diff = (
-                    model_stat_values_array
-                    - stat_values_array[1,model_idx,:,:]
-                )
-                if model_num == 1:
-                    clevels_diff = plot_util.get_clevels(model_obs_diff)
-                    CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
-                                      levels=clevels_diff,
-                                      cmap=cmap_diff,
-                                      locator= matplotlib.ticker.MaxNLocator(
+                if not obs_plotted:
+                    ax = plt.subplot(gs[0])
+                    ax.set_title('obs', loc='left')
+                    if not stat_values_array[1,model_idx,:,:].mask.all():
+                        logger.debug("Plotting observations from "+model_name)
+                        obs_stat_values_array = stat_values_array[1,model_idx,:,:]
+                        CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
+                                          cmap=cmap,
+                                          locator=matplotlib.ticker.MaxNLocator(
                                           symmetric=True
-                                      ),
-                                      extend='both')
-                    #C2 = ax.contour(xmesh, ymesh, model_obs_diff,
-                    #                levels=CF2.levels, colors='k',
-                    #                linewidths=1.0)
-                    #ax.clabel(C2, C2.levels,
-                    #          fmt='%1.2f',
-                    #          inline=True,
-                    #          fontsize=12.5)
-                else:
-                    CF = ax.contourf(xmesh, ymesh, model_obs_diff,
-                                     levels=CF2.levels,
-                                     cmap=cmap_diff,
-                                     locator= matplotlib.ticker.MaxNLocator(
-                                         symmetric=True
-                                     ),
-                                     extend='both')
-                    #C = ax.contour(xmesh, ymesh, model_obs_diff,
-                    #               levels=CF2.levels,
-                    #               colors='k',
-                    #               linewidths=1.0)
-                    #ax.clabel(C, C.levels,
-                    #          fmt='%1.2f',
-                    #          inline=True,
-                    #          fontsize=12.5)
+                                          ), extend='both')
+                        C1 = ax.contour(xmesh, ymesh, obs_stat_values_array,
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                        obs_plotted = True
+                ax = plt.subplot(gs[model_num])
+                ax.set_title(model_plot_name+'-obs', loc='left')
+                model_obs_diff = (model_stat_values_array
+                                  -stat_values_array[1,model_idx,:,:])
+                if not model_obs_diff.mask.all():
+                    logger.debug("Plotting model "+str(model_num)+" "
+                                 +model_name+" - obs "
+                                 +"with name on plot "+model_plot_name
+                                 +" - obs")
+                    if get_clevels:
+                        clevels_diff = plot_util.get_clevels(model_obs_diff)
+                        CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
+                                          levels=clevels_diff,
+                                          cmap=cmap_diff,
+                                          locator=matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                          ),
+                                          extend='both')
+                        get_clevels = False
+                    else:
+                        CF = ax.contourf(xmesh, ymesh, model_obs_diff,
+                                         levels=CF2.levels,
+                                         cmap=cmap_diff,
+                                         locator=matplotlib.ticker.MaxNLocator(
+                                             symmetric=True
+                                         ),
+                                         extend='both')
             elif stat == 'bias' or stat == 'fbias':
-                logger.debug("Plotting model "+str(model_num)+" "
-                             +model_name+" with name on plot "
-                             +model_plot_name)
                 ax = plt.subplot(gs[model_idx])
                 ax.set_title(model_plot_name, loc='left')
-                if model_num == 1:
-                    clevels_bias = plot_util.get_clevels(
-                        model_stat_values_array
-                     )
-                    CF1 = ax.contourf(xmesh, ymesh, model_stat_values_array,
-                                      levels=clevels_bias,
-                                      cmap=cmap_bias,
-                                      locator=matplotlib.ticker.MaxNLocator(
-                                          symmetric=True
-                                      ), extend='both')
-                    C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
-                                    levels=CF1.levels,
-                                    colors='k',
-                                    linewidths=1.0)
-                    ax.clabel(C1, C1.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-                else:
-                    CF = ax.contourf(xmesh, ymesh, model_stat_values_array,
-                                     levels=CF1.levels,
-                                     cmap=cmap_bias,
-                                     extend='both')
-                    C = ax.contour(xmesh, ymesh, model_stat_values_array,
-                                   levels=CF1.levels,
-                                   colors='k',
-                                   linewidths=1.0)
-                    ax.clabel(C, C.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-            else:
-                ax = plt.subplot(gs[model_idx])
-                if model_num == 1:
+                if not model_stat_values_array.mask.all():
                     logger.debug("Plotting model "+str(model_num)+" "
                                  +model_name+" with name on plot "
                                  +model_plot_name)
+                    if get_clevels:
+                        clevels_bias = plot_util.get_clevels(
+                            model_stat_values_array
+                         )
+                        CF1 = ax.contourf(xmesh, ymesh,
+                                          model_stat_values_array,
+                                          levels=clevels_bias,
+                                          cmap=cmap_bias,
+                                          locator=\
+                                          matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                          ), extend='both')
+                        C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                        get_clevels = False
+                    else:
+                        CF = ax.contourf(xmesh, ymesh,
+                                         model_stat_values_array,
+                                         levels=CF1.levels,
+                                         locator=\
+                                         matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                         ),
+                                         cmap=cmap_bias,
+                                         extend='both')
+                        C = ax.contour(xmesh, ymesh,
+                                       model_stat_values_array,
+                                       levels=CF1.levels,
+                                       colors='k',
+                                       linewidths=1.0)
+                        ax.clabel(C, C.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+            else:
+                ax = plt.subplot(gs[model_idx])
+                if model_num == 1:
+                    ax.set_title(model_plot_name, loc='left')
                     model1_name = model_name
                     model1_plot_name = model_plot_name
                     model1_stat_values_array = model_stat_values_array
-                    ax.set_title(model_plot_name, loc='left')
-                    if stat in ['acc']:
-                        levels = np.array(
-                            [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
-                             0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1]
-                        )
-                        CF1 = ax.contourf(xmesh, ymesh,
-                                          model_stat_values_array,
-                                          levels=levels, cmap=cmap,
-                                          extend='both')
-                    else:
-                        CF1 = ax.contourf(xmesh, ymesh,
-                                          model_stat_values_array,
-                                          cmap=cmap,
-                                          extend='both')
-                    C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
-                                    levels=CF1.levels,
-                                    colors='k',
-                                    linewidths=1.0)
-                    ax.clabel(C1, C1.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
+                    if not model_stat_values_array.mask.all():
+                        logger.debug("Plotting model "+str(model_num)+" "
+                                     +model_name+" with name on plot "
+                                     +model_plot_name)
+                        if stat in ['acc']:
+                            levels = np.array(
+                                [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+                                 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1]
+                            )
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_stat_values_array,
+                                              levels=levels, cmap=cmap,
+                                              extend='both')
+                        else:
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_stat_values_array,
+                                              cmap=cmap,
+                                              extend='both')
+                        C1 = ax.contour(xmesh, ymesh,
+                                        model_stat_values_array,
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
                 else:
-                    logger.debug("Plotting model "+str(model_num)+" "
-                                 +model_name+" - model 1 "+model1_name+" "
-                                 +"with name on plot "+model_plot_name+" "
-                                 +"- "+model1_plot_name)
                     ax.set_title(model_plot_name+'-'+model1_plot_name,
                                  loc='left')
                     model_model1_diff = (
                         model_stat_values_array - model1_stat_values_array
                     )
-                    if model_num == 2:
-                        clevels_diff = plot_util.get_clevels(model_model1_diff)
-                        CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
-                                          levels=clevels_diff,
-                                          cmap=cmap_diff,
-                                          locator= \
-                                          matplotlib.ticker.MaxNLocator(
-                                              symmetric=True
-                                          ),
-                                          extend='both')
-                        #C2 = ax.contour(xmesh, ymesh, model_model1_diff,
-                        #                levels=CF2.levels, colors='k',
-                        #                linewidths=1.0)
-                        #ax.clabel(C2, C2.levels,
-                        #          fmt='%1.2f',
-                        #          inline=True,
-                        #          fontsize=12.5)
-                    else:
-                        CF = ax.contourf(xmesh, ymesh, model_model1_diff,
-                                         levels=CF2.levels,
-                                         cmap=cmap_diff,
-                                         locator= \
-                                         matplotlib.ticker.MaxNLocator(
-                                             symmetric=True
-                                         ),
-                                         extend='both')
-                        #C = ax.contour(xmesh, ymesh, model_model1_diff,
-                        #               levels=CF2.levels,
-                        #               colors='k',
-                        #               linewidths=1.0)
-                        #ax.clabel(C, C.levels,
-                        #          fmt='%1.2f',
-                        #          inline=True,
-                        #          fontsize=12.5)
+                    if not model_model1_diff.mask.all():
+                        logger.debug("Plotting model "+str(model_num)+" "
+                                     +model_name+" - model 1 "+model1_name+" "
+                                     +"with name on plot "+model_plot_name+" "
+                                     +"- "+model1_plot_name)
+                        if get_clevels:
+                            clevels_diff = plot_util.get_clevels(
+                                model_model1_diff
+                            )
+                            CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
+                                              levels=clevels_diff,
+                                              cmap=cmap_diff,
+                                              locator=\
+                                              matplotlib.ticker.MaxNLocator(
+                                                  symmetric=True
+                                              ),
+                                              extend='both')
+                            get_clevels = False
+                        else:
+                            CF = ax.contourf(xmesh, ymesh, model_model1_diff,
+                                             levels=CF2.levels,
+                                             cmap=cmap_diff,
+                                             locator=\
+                                             matplotlib.ticker.MaxNLocator(
+                                                 symmetric=True
+                                             ),
+                                             extend='both')
         #### EMC-verif_global build formal plot title
         if verif_grid == vx_mask:
             grid_vx_mask = verif_grid

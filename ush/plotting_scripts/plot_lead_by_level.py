@@ -434,6 +434,8 @@ for plot_info in plot_info_list:
         avg_cols_to_array = avg_file_cols[1:]
         # Reading in model lead average files produced from
         # plot_time_series.py
+        obs_plotted = False
+        get_clevels = True
         logger.info("Reading in model data")
         for model_info in model_info_list:
             model_num = model_info_list.index(model_info) + 1
@@ -512,174 +514,158 @@ for plot_info in plot_info_list:
                                  +model_plot_name+" file: "
                                  +lead_avg_file+" does not exist")
                     sys.exit(1)
-            if model_num == 1:
-                if (stat == 'fbar_obar' or stat == 'orate_frate'
-                        or stat == 'baser_frate'):
-                    logger.debug("Plotting observations")
+            model_avg_data = np.ma.masked_invalid(model_avg_data)
+            if (stat == 'fbar_obar' or stat == 'orate_frate'
+                    or stat == 'baser_frate'):
+                if not obs_plotted:
                     ax = plt.subplot(gs[0])
-                    obs_avg_data = model_avg_data[1,:,:]
                     ax.set_title('obs', loc='left')
-                    CF1 = ax.contourf(xmesh, ymesh, obs_avg_data,
-                                      cmap=cmap,
-                                      locator=matplotlib.ticker.MaxNLocator(
-                                           symmetric=True
-                                      ), extend='both')
-                    C1 = ax.contour(xmesh, ymesh, obs_avg_data,
-                                    levels=CF1.levels,
-                                    colors='k',
-                                    linewidths=1.0)
-                    ax.clabel(C1, C1.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-            if (stat == 'fbar_obar' or stat == 'orate_frate'
-                    or stat == 'baser_frate'):
+                    if not model_avg_data[1,:,:].mask.all():
+                        logger.debug("Plotting observations")
+                        ax = plt.subplot(gs[0])
+                        obs_avg_data = model_avg_data[1,:,:]
+                        ax.set_title('obs', loc='left')
+                        CF1 = ax.contourf(xmesh, ymesh, obs_avg_data,
+                                          cmap=cmap,
+                                          locator=\
+                                          matplotlib.ticker.MaxNLocator(
+                                               symmetric=True
+                                          ), extend='both')
+                        C1 = ax.contour(xmesh, ymesh, obs_avg_data,
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                        obs_plotted = True
                 ax = plt.subplot(gs[model_num])
-            else:
-                ax = plt.subplot(gs[model_idx])
-            if (stat == 'fbar_obar' or stat == 'orate_frate'
-                    or stat == 'baser_frate'):
-                logger.debug("Plotting model "+str(model_num)+" "
-                             +model_name+" - obs "
-                             +"with name on plot "+model_plot_name+" "
-                             +"- obs")
                 ax.set_title(model_plot_name+'-obs', loc='left')
-                model_obs_diff = (
-                    model_avg_data[0,:,:]
-                    - model_avg_data[1,:,:]
-                 )
-                if model_num == 1:
-                    clevels_diff = plot_util.get_clevels(model_obs_diff)
-                    CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
-                                      levels=clevels_diff,
-                                      cmap=cmap_diff,
-                                      locator= matplotlib.ticker.MaxNLocator(
-                                          symmetric=True
-                                      ),
-                                      extend='both')
-                    #C2 = ax.contour(xmesh, ymesh, model_obs_diff,
-                    #                levels=CF2.levels, colors='k',
-                    #                linewidths=1.0)
-                    #ax.clabel(C2, C2.levels,
-                    #          fmt='%1.2f',
-                    #          inline=True,
-                    #          fontsize=12.5)
-                else:
-                    CF = ax.contourf(xmesh, ymesh, model_obs_diff,
-                                     levels=CF2.levels,
-                                     cmap=cmap_diff,
-                                     locator= matplotlib.ticker.MaxNLocator(
-                                         symmetric=True
-                                     ),
-                                     extend='both')
-                    #C = ax.contour(xmesh, ymesh, model_obs_diff,
-                    #               levels=CF2.levels,
-                    #               colors='k',
-                    #               linewidths=1.0)
-                    #ax.clabel(C, C.levels,
-                    #          fmt='%1.2f',
-                    #          inline=True,
-                    #          fontsize=12.5)
-            elif stat == 'bias' or stat == 'fbias':
-                logger.debug("Plotting model "+str(model_num)
-                             +" "+model_name+" with name on plot "
-                             +model_plot_name)
-                ax.set_title(model_plot_name, loc='left')
-                if model_num == 1:
-                    clevels_bias = plot_util.get_clevels(
-                        model_avg_data[0,:,:]
-                     )
-                    CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
-                                      levels=clevels_bias,
-                                      cmap=cmap_bias,
-                                      locator=matplotlib.ticker.MaxNLocator(
-                                          symmetric=True
-                                      ), extend='both')
-                    C1 = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
-                                    levels=CF1.levels,
-                                    colors='k',
-                                    linewidths=1.0)
-                    ax.clabel(C1, C1.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-                else:
-                    CF = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
-                                     levels=CF1.levels,
-                                     cmap=cmap_bias,
-                                     extend='both')
-                    C = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
-                                   levels=CF1.levels,
-                                   colors='k',
-                                   linewidths=1.0)
-                    ax.clabel(C, C.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-            else:
-                if model_num == 1:
+                model_obs_diff = (model_avg_data[0,:,:]
+                                  - model_avg_data[1,:,:])
+                if not model_obs_diff.mask.all():
                     logger.debug("Plotting model "+str(model_num)+" "
-                                 +model_name+" with name on plot "
-                                 +model_plot_name)
-                    model1_name = model_name
-                    model1_plot_name = model_plot_name
-                    model1_avg_data = model_avg_data[0,:,:]
-                    ax.set_title(model_plot_name, loc='left')
-                    CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
-                                      cmap=cmap,
-                                      extend='both')
-                    C1 = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
-                                    levels=CF1.levels,
-                                    colors='k',
-                                    linewidths=1.0)
-                    ax.clabel(C1, C1.levels,
-                              fmt='%1.2f',
-                              inline=True,
-                              fontsize=12.5)
-                else:
-                    logger.debug("Plotting model "+str(model_num)+" "
-                                 +model_name+" - model 1 "+model1_name+" "
+                                 +model_name+" - obs "
                                  +"with name on plot "+model_plot_name+" "
-                                 +"- "+model1_plot_name)
-                    ax.set_title(model_plot_name+'-'+model1_plot_name,
-                                 loc='left')
-                    model_model1_diff = (
-                        model_avg_data[0,:,:] - model1_avg_data
-                    )
-                    if model_num == 2:
-                        clevels_diff = plot_util.get_clevels(model_model1_diff)
-                        CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
+                                 +"- obs")
+                    if get_clevels:
+                        clevels_diff = plot_util.get_clevels(model_obs_diff)
+                        CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
-                                          locator= \
+                                          locator=\
                                           matplotlib.ticker.MaxNLocator(
                                               symmetric=True
                                           ),
                                           extend='both')
-                        #C2 = ax.contour(xmesh, ymesh, model_model1_diff,
-                        #                levels=CF2.levels, colors='k',
-                        #                linewidths=1.0)
-                        #ax.clabel(C2, C2.levels,
-                        #          fmt='%1.2f',
-                        #          inline=True,
-                        #          fontsize=12.5)
+                        get_clevels = False
                     else:
-                        CF = ax.contourf(xmesh, ymesh, model_model1_diff,
+                        CF = ax.contourf(xmesh, ymesh, model_obs_diff,
                                          levels=CF2.levels,
                                          cmap=cmap_diff,
-                                         locator= \
+                                         locator=\
                                          matplotlib.ticker.MaxNLocator(
                                              symmetric=True
                                          ),
                                          extend='both')
-                        #C = ax.contour(xmesh, ymesh, model_model1_diff,
-                        #               levels=CF2.levels,
-                        #               colors='k',
-                        #               linewidths=1.0)
-                        #ax.clabel(C, C.levels,
-                        #          fmt='%1.2f',
-                        #          inline=True,
-                        #          fontsize=12.5)
+            elif stat == 'bias' or stat == 'fbias':
+                ax = plt.subplot(gs[model_idx])
+                ax.set_title(model_plot_name, loc='left')
+                if not model_avg_data[0,:,:].mask.all():
+                    logger.debug("Plotting model "+str(model_num)
+                                 +" "+model_name+" with name on plot "
+                                 +model_plot_name)
+                    if get_clevels:
+                        clevels_bias = plot_util.get_clevels(
+                            model_avg_data[0,:,:]
+                         )
+                        CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
+                                          levels=clevels_bias,
+                                          cmap=cmap_bias,
+                                          locator=\
+                                          matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                          ), extend='both')
+                        C1 = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                        get_clevels = False
+                    else:
+                        CF = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
+                                         levels=CF1.levels,
+                                         cmap=cmap_bias,
+                                         locator=\
+                                         matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                         ), extend='both')
+                        C = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
+                                       levels=CF1.levels,
+                                       colors='k',
+                                       linewidths=1.0)
+                        ax.clabel(C, C.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+            else:
+                ax = plt.subplot(gs[model_idx]) 
+                if model_num == 1:
+                    model1_name = model_name
+                    model1_plot_name = model_plot_name
+                    model1_avg_data = model_avg_data[0,:,:]
+                    ax.set_title(model_plot_name, loc='left')
+                    if not model1_avg_data.mask.all():
+                        logger.debug("Plotting model "+str(model_num)+" "
+                                     +model_name+" with name on plot "
+                                     +model_plot_name)
+                        CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
+                                          cmap=cmap,
+                                          extend='both')
+                        C1 = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, C1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                else:
+                    ax.set_title(model_plot_name+'-'+model1_plot_name,
+                                 loc='left')
+                    model_model1_diff = (model_avg_data[0,:,:]
+                                         - model1_avg_data)
+                    if not model_model1_diff.mask.all():
+                        logger.debug("Plotting model "+str(model_num)+" "
+                                     +model_name+" - model 1 "+model1_name+" "
+                                     +"with name on plot "+model_plot_name+" "
+                                     +"- "+model1_plot_name)
+                        if get_clevels:
+                            clevels_diff = plot_util.get_clevels(
+                                model_model1_diff
+                            )
+                            CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
+                                              levels=clevels_diff,
+                                              cmap=cmap_diff,
+                                              locator= \
+                                              matplotlib.ticker.MaxNLocator(
+                                                  symmetric=True
+                                              ),
+                                              extend='both')
+                            get_clevels = False
+                        else:
+                            CF = ax.contourf(xmesh, ymesh, model_model1_diff,
+                                             levels=CF2.levels,
+                                             cmap=cmap_diff,
+                                             locator= \
+                                             matplotlib.ticker.MaxNLocator(
+                                                 symmetric=True
+                                             ),
+                                             extend='both')
         #### EMC-verif_global build formal plot title
         if verif_grid == vx_mask:
             grid_vx_mask = verif_grid

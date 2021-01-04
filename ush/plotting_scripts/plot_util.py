@@ -623,9 +623,15 @@ def calculate_stat(logger, model_data, stat):
     """
     model_data_columns = model_data.columns.values.tolist()
     if model_data_columns == [ 'TOTAL' ]:
-        logger.error("Empty model_data dataframe")
-        exit(1)
-        stat_values = model_data.loc[:]['TOTAL']
+        logger.warning("Empty model_data dataframe")
+        line_type = 'NULL'
+        if (stat == 'fbar_obar' or stat == 'orate_frate'
+                or stat == 'baser_frate'):
+            stat_values = model_data.loc[:][['TOTAL']]
+            stat_values_fbar = model_data.loc[:]['TOTAL']
+            stat_values_obar = model_data.loc[:]['TOTAL']
+        else:
+            stat_values = model_data.loc[:]['TOTAL']
     else:
         if all(elem in model_data_columns for elem in
                ['FBAR', 'OBAR', 'MAE']):
@@ -703,18 +709,12 @@ def calculate_stat(logger, model_data, stat):
             stat_values = fbar - obar
         elif line_type == 'CTC':
             stat_values = (fy_oy + fy_on)/(fy_oy + fn_oy)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'rmse':
         stat_plot_name = 'Root Mean Square Error'
         if line_type == 'SL1L2':
             stat_values = np.sqrt(ffbar + oobar - 2*fobar)
         elif line_type == 'VL1L2':
             stat_values = np.sqrt(uvffbar + uvoobar - 2*uvfobar)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'msess':
         stat_plot_name = "Murphy's Mean Square Error Skill Score"
         if line_type == 'SL1L2':
@@ -725,9 +725,6 @@ def calculate_stat(logger, model_data, stat):
             mse = uvffbar + uvoobar - 2*uvfobar
             var_o = uvoobar - uobar*uobar - vobar*vobar
             stat_values = 1 - mse/var_o
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'rsd':
         stat_plot_name = 'Ratio of Standard Deviation'
         if line_type == 'SL1L2':
@@ -740,18 +737,12 @@ def calculate_stat(logger, model_data, stat):
             stat_values = np.sqrt(var_f)/np.sqrt(var_o)
         elif line_type == 'VCNT':
             stat_values = fstdev/ostdev
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'rmse_md':
         stat_plot_name = 'Root Mean Square Error from Mean Error'
         if line_type == 'SL1L2':
             stat_values = np.sqrt((fbar-obar)**2)
         elif line_type == 'VL1L2':
             stat_values = np.sqrt((ufbar - uobar)**2 + (vfbar - vobar)**2)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'rmse_pv':
         stat_plot_name = 'Root Mean Square Error from Pattern Variation'
         if line_type == 'SL1L2':
@@ -764,9 +755,6 @@ def calculate_stat(logger, model_data, stat):
             var_o = uvoobar - uobar*uobar - vobar*vobar
             R = (uvfobar - ufbar*uobar - vfbar*vobar)/(np.sqrt(var_f*var_o))
             stat_values = np.sqrt(var_f + var_o - 2*np.sqrt(var_f*var_o)*R)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'pcor':
         stat_plot_name = 'Pattern Correlation'
         if line_type == 'SL1L2':
@@ -778,9 +766,6 @@ def calculate_stat(logger, model_data, stat):
             var_o = uvoobar - uobar*uobar - vobar*vobar
             stat_values = (uvfobar - ufbar*uobar - vfbar*vobar)/(np.sqrt(
                               var_f*var_o))
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'acc':
         stat_plot_name = 'Anomaly Correlation Coefficient'
         if line_type == 'SAL1L2':
@@ -789,9 +774,6 @@ def calculate_stat(logger, model_data, stat):
                 (ffabar - fabar*fabar)*(ooabar - oabar*oabar)))
         elif line_type == 'VAL1L2':
             stat_values = (uvfoabar)/(np.sqrt(uvffabar*uvooabar))
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar':
         stat_plot_name = 'Forecast Averages'
         if line_type == 'SL1L2':
@@ -800,9 +782,6 @@ def calculate_stat(logger, model_data, stat):
             stat_values = np.sqrt(uvffbar)
         elif line_type == 'VCNT':
             stat_values = fbar
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar_obar':
         stat_plot_name = 'Forecast and Observation Averages'
         if line_type == 'SL1L2':
@@ -817,76 +796,46 @@ def calculate_stat(logger, model_data, stat):
             stat_values = model_data.loc[:][['FBAR', 'OBAR']]
             stat_values_fbar = model_data.loc[:]['FBAR']
             stat_values_obar = model_data.loc[:]['OBAR']
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'speed_err':
         stat_plot_name = (
             'Difference in Average FCST and OBS Wind Vector Speeds'
         )
         if line_type == 'VCNT':
             stat_values = speed_err
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'dir_err':
         stat_plot_name = (
             'Difference in Average FCST and OBS Wind Vector Direction'
         )
         if line_type == 'VCNT':
            stat_values = dir_err
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'rmsve':
         stat_plot_name = 'Root Mean Square Difference Vector Error'
         if line_type == 'VCNT':
            stat_values = rmsve
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'vdiff_speed':
         stat_plot_name = 'Difference Vector Speed'
         if line_type == 'VCNT':
             stat_values = vdiff_speed
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'vdiff_dir':
         stat_plot_name = 'Difference Vector Direction'
         if line_type == 'VCNT':
            stat_values = vdiff_dir
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar_obar_speed':
         stat_plot_name = 'Average Wind Vector Speed'
         if line_type == 'VCNT':
             stat_values = model_data.loc[:][('FBAR_SPEED', 'OBAR_SPEED')]
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar_obar_dir':
         stat_plot_name = 'Average Wind Vector Direction'
         if line_type == 'VCNT':
            stat_values = model_data.loc[:][('FDIR', 'ODIR')]
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar_speed':
         stat_plot_name = 'Average Forecast Wind Vector Speed'
         if line_type == 'VCNT':
             stat_values = fbar_speed
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbar_dir':
         stat_plot_name = 'Average Forecast Wind Vector Direction'
         if line_type == 'VCNT':
             stat_values = fdir
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'orate' or stat == 'baser':
         if stat == 'orate':
             stat_plot_name = 'Observation Rate'
@@ -894,16 +843,10 @@ def calculate_stat(logger, model_data, stat):
             stat_plot_name = 'Base Rate'
         if line_type == 'CTC':
             stat_values = (fy_oy + fn_oy)/total
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'frate':
         stat_plot_name = 'Forecast Rate'
         if line_type == 'CTC':
             stat_values = (fy_oy + fy_on)/total
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'orate_frate' or stat == 'baser_frate':
         if stat == 'orate_frate':
             stat_plot_name = 'Observation and Forecast Rates'
@@ -914,23 +857,14 @@ def calculate_stat(logger, model_data, stat):
             stat_values_obar = (fy_oy + fn_oy)/total
             stat_values = pd.concat([stat_values_fbar, stat_values_obar],
                                     axis=1)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'accuracy':
         stat_plot_name = 'Accuracy'
         if line_type == 'CTC':
             stat_values = (fy_oy + fn_on)/total
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'fbias':
         stat_plot_name = 'Frequency Bias'
         if line_type == 'CTC':
             stat_values = (fy_oy + fy_on)/(fy_oy + fn_oy)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'pod' or stat == 'hrate':
         if stat == 'pod':
             stat_plot_name = 'Probability of Detection'
@@ -938,9 +872,6 @@ def calculate_stat(logger, model_data, stat):
             stat_plot_name = 'Hit Rate'
         if line_type == 'CTC':
             stat_values = fy_oy/(fy_oy + fn_oy)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'pofd' or stat == 'farate':
         if stat == 'pofd':
             stat_plot_name = 'Probability of False Detection'
@@ -948,23 +879,14 @@ def calculate_stat(logger, model_data, stat):
             stat_plot_name = 'False Alarm Rate'
         if line_type == 'CTC':
             stat_values = fy_on/(fy_on + fn_on)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'podn':
         stat_plot_name = 'Probability of Detection of the Non-Event'
         if line_type == 'CTC':
             stat_values = fn_on/(fy_on + fn_on)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'faratio':
         stat_plot_name = 'False Alarm Ratio'
         if line_type == 'CTC':
             stat_values = fy_on/(fy_on + fy_oy)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'csi' or stat == 'ts':
         if stat == 'csi':
             stat_plot_name = 'Critical Success Index'
@@ -972,9 +894,6 @@ def calculate_stat(logger, model_data, stat):
             stat_plot_name = 'Threat Score'
         if line_type == 'CTC':
             stat_values = fy_oy/(fy_oy + fy_on + fn_oy)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'gss' or stat == 'ets':
         if stat == 'gss':
             stat_plot_name = 'Gilbert Skill Score'
@@ -983,9 +902,6 @@ def calculate_stat(logger, model_data, stat):
         if line_type == 'CTC':
             C = ((fy_oy + fy_on)*(fy_oy + fn_oy))/total
             stat_values = (fy_oy - C)/(fy_oy + fy_on+ fn_oy - C)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'hk' or stat == 'tss' or stat == 'pss':
         if stat == 'hk':
             stat_plot_name = 'Hanssen-Kuipers Discriminant'
@@ -997,9 +913,6 @@ def calculate_stat(logger, model_data, stat):
             stat_values = (
                 ((fy_oy*fn_on)-(fy_on*fn_oy))/((fy_oy+fn_oy)*(fy_on+fn_on))
             )
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     elif stat == 'hss':
         stat_plot_name = 'Heidke Skill Score'
         if line_type == 'CTC':
@@ -1007,9 +920,6 @@ def calculate_stat(logger, model_data, stat):
             Cb = (fn_oy+fn_on)*(fy_on+fn_on)
             C = (Ca + Cb)/total
             stat_values = (fy_oy + fn_on - C)/(total - C)
-        else:
-            logger.error(stat+" cannot be computed from line type "+line_type)
-            exit(1)
     else:
         logger.error(stat+" is not a valid option")
         exit(1)

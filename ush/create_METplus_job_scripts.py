@@ -881,15 +881,23 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['VALID_END'] = end_date_dt.strftime('%Y%m%d')
         job_env_dict['INIT_BEG'] = ''
         job_env_dict['INIT_END'] = ''
-        job_env_dict['group_list'] = 'FCST_INIT_HOUR_LIST'
-        job_env_dict['loop_list'] = 'FCST_VALID_HOUR_LIST'
+        if case in ['grid2obs', 'precip']:
+            job_env_dict['group_list'] = 'FCST_VALID_HOUR_LIST'
+            job_env_dict['loop_list'] = 'FCST_INIT_HOUR_LIST'
+        else:
+            job_env_dict['group_list'] = 'FCST_INIT_HOUR_LIST'
+            job_env_dict['loop_list'] = 'FCST_VALID_HOUR_LIST'
     elif job_env_dict['plot_by'] == 'INIT':
         job_env_dict['VALID_BEG'] = ''
         job_env_dict['VALID_END'] = ''
         job_env_dict['INIT_BEG'] = start_date_dt.strftime('%Y%m%d')
         job_env_dict['INIT_END'] = end_date_dt.strftime('%Y%m%d')
-        job_env_dict['group_list'] = 'FCST_VALID_HOUR_LIST'
-        job_env_dict['loop_list'] = 'FCST_INIT_HOUR_LIST'
+        if case in ['grid2obs', 'precip']:
+            job_env_dict['group_list'] = 'FCST_INIT_HOUR_LIST'
+            job_env_dict['loop_list'] = 'FCST_VALID_HOUR_LIST'
+        else:
+            job_env_dict['group_list'] = 'FCST_VALID_HOUR_LIST'
+            job_env_dict['loop_list'] = 'FCST_INIT_HOUR_LIST'
     # Set important METplus paths
     plot_conf_dir = os.path.join(conf_dir, case, 'plot')
     # Set case

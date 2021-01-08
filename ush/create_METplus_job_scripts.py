@@ -909,9 +909,9 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
         case_abbrev+'_model_plot_name_list'
     ].split(' ')
     nmodels = len(model_list)
-    if nmodels > 10:
+    if nmodels > 8:
         print("ERROR: Too many models listed in model_list ("
-              +str(nmodels)+"), current maximum is 10")
+              +str(nmodels)+"), current maximum is 8")
         sys.exit(1)
     for model in model_list:
         model_idx = model_list.index(model)

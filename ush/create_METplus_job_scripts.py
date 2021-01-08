@@ -946,7 +946,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                     )
             elif case == 'grid2obs':
                 job_env_dict['model'+str(model_num)+'_obtype'] = (
-                    ', '.join(os.environ[
+                    '_'.join(os.environ[
                         case_abbrev_type+'_msg_type_list'
                     ].split(' '))
                 )

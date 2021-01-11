@@ -232,8 +232,8 @@ for plot_info in plot_info_list:
     fcst_var_threshs_format = np.full_like(
         fcst_var_threshs, np.nan, dtype=object
     )
-    fcst_var_threshs_float = np.full_like(
-        fcst_var_threshs, np.nan, dtype=float
+    fcst_var_threshs_val = np.full_like(
+        fcst_var_threshs, np.nan, dtype=str
     )
     fcst_var_thresh_counts = np.arange(0, len(fcst_var_threshs),
                                        dtype=int)
@@ -243,7 +243,7 @@ for plot_info in plot_info_list:
             plot_util.format_thresh(fcst_var_thresh)
         )
         fcst_var_threshs_format[fcst_var_thresh_idx] = fcst_var_thresh_letter
-        fcst_var_threshs_float[fcst_var_thresh_idx] = (
+        fcst_var_threshs_val[fcst_var_thresh_idx] = (
             fcst_var_thresh_letter[2:]
         )
     xmesh, ymesh = np.meshgrid(fcst_var_thresh_counts, fcst_lead_timedeltas)
@@ -409,13 +409,13 @@ for plot_info in plot_info_list:
             ax.grid(True)
             if len(fcst_var_thresh_counts) >= 15:
                 ax.set_xticks(fcst_var_thresh_counts[::2])
-                ax.set_xticklabels(fcst_var_threshs_format[::2])
-            elif len(fcst_var_thresh_counts) >= 15:
+                ax.set_xticklabels(fcst_var_threshs_val[::2])
+            elif len(fcst_var_thresh_counts) >= 25:
                 ax.set_xticks(fcst_var_thresh_counts[::4])
-                ax.set_xticklabels(fcst_var_threshs_format[::4])
+                ax.set_xticklabels(fcst_var_threshs_val[::4])
             else:
                 ax.set_xticks(fcst_var_thresh_counts)
-                ax.set_xticklabels(fcst_var_threshs_format) 
+                ax.set_xticklabels(fcst_var_threshs_val) 
             ax.set_xlim([fcst_var_thresh_counts[0],
                          fcst_var_thresh_counts[-1]])
             if ax.is_last_row() \
@@ -458,6 +458,8 @@ for plot_info in plot_info_list:
             )
             model_avg_data.fill(np.nan)
             for vt in range(len(fcst_var_threshs_format)):
+                fcst_var_thresh = fcst_var_threshs[vt]
+                obs_var_thresh = obs_var_threshs[vt]
                 fcst_var_thresh_format = fcst_var_threshs_format[vt]
                 obs_var_thresh_format = obs_var_threshs_format[vt]
                 logger.info("Working on forecast lead averages "
@@ -589,9 +591,12 @@ for plot_info in plot_info_list:
                                  +" "+model_name+" with name on plot "
                                  +model_plot_name)
                     if get_clevels:
-                        clevels_bias = plot_util.get_clevels(
-                            model_avg_data[0,:,:]
-                         )
+                        #clevels_bias = plot_util.get_clevels(
+                        #    model_avg_data[0,:,:]
+                        # )
+                        clevels_bias = np.array(
+                            [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8]
+                        )
                         CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
                                           levels=clevels_bias,
                                           cmap=cmap_bias,

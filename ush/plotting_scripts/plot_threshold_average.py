@@ -251,8 +251,8 @@ for plot_info in plot_info_list:
     fcst_var_threshs_format = np.full_like(
         fcst_var_threshs, np.nan, dtype=object
     )
-    fcst_var_threshs_float = np.full_like(
-        fcst_var_threshs, np.nan, dtype=float
+    fcst_var_threshs_val = np.full_like(
+        fcst_var_threshs, np.nan, dtype=str
     )
     fcst_var_thresh_counts = np.arange(0, len(fcst_var_threshs),
                                        dtype=int)
@@ -262,7 +262,7 @@ for plot_info in plot_info_list:
             plot_util.format_thresh(fcst_var_thresh)
         )
         fcst_var_threshs_format[fcst_var_thresh_idx] = fcst_var_thresh_letter
-        fcst_var_threshs_float[fcst_var_thresh_idx] = (
+        fcst_var_threshs_val[fcst_var_thresh_idx] = (
             fcst_var_thresh_letter[2:]
         )
     obs_var_threshs_format = np.full_like(
@@ -338,12 +338,12 @@ for plot_info in plot_info_list:
         avg_cols_to_array = avg_file_cols[1:]
         CI_file_cols = ['LEADS', 'CI_VALS']
         CI_bar_max_widths = np.append(
-            np.diff(fcst_var_threshs_float),
-            fcst_var_threshs_float[-1]-fcst_var_threshs_float[-2]
+            np.diff(fcst_var_thresh_counts),
+            fcst_var_thresh_counts[-1]-fcst_var_thresh_counts[-2]
         )/1.5
         CI_bar_min_widths = np.append(
-            np.diff(fcst_var_threshs_float),
-            fcst_var_threshs_float[-1]-fcst_var_threshs_float[-2]
+            np.diff(fcst_var_thresh_counts),
+            fcst_var_thresh_counts[-1]-fcst_var_thresh_counts[-2]
         )/nmodels
         CI_bar_intvl_widths = (
             (CI_bar_max_widths-CI_bar_min_widths)/nmodels
@@ -362,6 +362,10 @@ for plot_info in plot_info_list:
             model_name = model_info[0]
             model_plot_name = model_info[1]
             model_obtype = model_info[2]
+            #### EMC-verif_global model plot settings
+            model_plot_settings_dict = (
+                model_obs_plot_settings_dict['model'+str(model_num)]
+            )
             model_avg_data = np.empty(
                 [len(avg_cols_to_array), len(fcst_var_threshs_format)]
             )
@@ -369,6 +373,8 @@ for plot_info in plot_info_list:
             model_CI_data = np.empty(len(fcst_var_threshs_format))
             model_CI_data.fill(np.nan)
             for vt in range(len(fcst_var_threshs_format)):
+                fcst_var_thresh = fcst_var_threshs[vt]
+                obs_var_thresh = obs_var_threshs[vt]
                 fcst_var_thresh_format = fcst_var_threshs_format[vt]
                 obs_var_thresh_format = obs_var_threshs_format[vt]
                 model_stat_template = dump_row_filename_template
@@ -532,10 +538,10 @@ for plot_info in plot_info_list:
                 ax1.grid(True)
                 if len(fcst_var_thresh_counts) >= 15:
                     ax1.set_xticks(fcst_var_thresh_counts[::2])
-                    ax1.set_xticklabels(fcst_var_threshs_format[::2])
+                    ax1.set_xticklabels(fcst_var_threshs_val[::2])
                 else:
                     ax1.set_xticks(fcst_var_thresh_counts)
-                    ax1.set_xticklabels(fcst_var_threshs_format)
+                    ax1.set_xticklabels(fcst_var_threshs_val)
                 ax1.set_xlim([fcst_var_thresh_counts[0],
                               fcst_var_thresh_counts[-1]])
                 ax1.set_ylabel(average_method.title())

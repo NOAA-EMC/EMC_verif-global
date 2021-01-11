@@ -204,7 +204,7 @@ valid_init_dict = {
     'fcst_valid_hour_beg': fcst_valid_hour.split(', ')[0],
     'fcst_valid_hour_end': fcst_valid_hour.split(', ')[-1],
     'fcst_init_hour_beg': fcst_init_hour.split(', ')[0],
-    'fcst_init_hour_end': fcst_init_hour.split(', ')-1],
+    'fcst_init_hour_end': fcst_init_hour.split(', ')[-1],
     'obs_valid_hour_beg': obs_valid_hour.split(', ')[0],
     'obs_valid_hour_end': obs_valid_hour.split(', ')[-1],
     'obs_init_hour_beg': obs_init_hour.split(', ')[0],
@@ -254,7 +254,7 @@ for plot_info in plot_info_list:
     fcst_var_threshs_float = np.full_like(
         fcst_var_threshs, np.nan, dtype=float
     )
-    fcst_var_thresh_counts = np.arange(0, len(fcst_var_thresh_list),
+    fcst_var_thresh_counts = np.arange(0, len(fcst_var_threshs),
                                        dtype=int)
     for fcst_var_thresh in fcst_var_threshs:
         fcst_var_thresh_idx = fcst_var_threshs.index(fcst_var_thresh)
@@ -532,14 +532,12 @@ for plot_info in plot_info_list:
                 ax1.grid(True)
                 if len(fcst_var_thresh_counts) >= 15:
                     ax1.set_xticks(fcst_var_thresh_counts[::2])
-                    ax1.set_xticklabels(fcst_var_thresh_val_list[::2])
+                    ax1.set_xticklabels(fcst_var_threshs_format[::2])
                 else:
                     ax1.set_xticks(fcst_var_thresh_counts)
-                    ax1.set_xticklabels(fcst_var_thresh_val_list)
+                    ax1.set_xticklabels(fcst_var_threshs_format)
                 ax1.set_xlim([fcst_var_thresh_counts[0],
                               fcst_var_thresh_counts[-1]])
-                #ax1.set_xticklabels(fcst_var_thresh_val_list)
-                #ax1.set_xticklabels(fcst_var_thresh_list)
                 ax1.set_ylabel(average_method.title())
                 ax2.grid(True)
                 ax2.set_xlabel('Forecast Threshold')
@@ -837,7 +835,7 @@ for plot_info in plot_info_list:
             ).strftime('%d%b%Y'),
             verif_case
         )
-        forecast_lead_title = plot_title.get_lead_title(lead)
+        forecast_lead_title = plot_title.get_lead_title(fcst_lead[:-4])
         full_title = (
             stat_plot_name+'\n'
             +var_info_title+', '+vx_mask_title+'\n'

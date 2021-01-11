@@ -77,6 +77,7 @@ fcst_valid_hour = os.environ['FCST_VALID_HOUR']
 fcst_init_hour = os.environ['FCST_INIT_HOUR']
 obs_valid_hour = os.environ['OBS_VALID_HOUR']
 obs_init_hour = os.environ['OBS_INIT_HOUR']
+fcst_lead_list = [os.environ['FCST_LEAD'].split(', ')]
 fcst_var_name = os.environ['FCST_VAR']
 fcst_var_units = os.environ['FCST_UNITS']
 fcst_var_level_list = os.environ['FCST_LEVEL'].split(', ')
@@ -234,7 +235,7 @@ for plot_info in plot_info_list:
     fcst_var_threshs_float = np.full_like(
         fcst_var_threshs, np.nan, dtype=float
     )
-    fcst_var_thresh_counts = np.arange(0, len(fcst_var_thresh_list),
+    fcst_var_thresh_counts = np.arange(0, len(fcst_var_threshs),
                                        dtype=int)
     for fcst_var_thresh in fcst_var_threshs:
         fcst_var_thresh_idx = fcst_var_threshs.index(fcst_var_thresh)
@@ -407,14 +408,14 @@ for plot_info in plot_info_list:
             ax = plt.subplot(gs[subplot_num])
             ax.grid(True)
             if len(fcst_var_thresh_counts) >= 15:
-                ax1.set_xticks(fcst_var_thresh_counts[::2])
-                ax1.set_xticklabels(fcst_var_thresh_val_list[::2])
+                ax.set_xticks(fcst_var_thresh_counts[::2])
+                ax.set_xticklabels(fcst_var_threshs_format[::2])
             elif len(fcst_var_thresh_counts) >= 15:
-                ax1.set_xticks(fcst_var_thresh_counts[::4])
-                ax1.set_xticklabels(fcst_var_thresh_val_list[::4])
+                ax.set_xticks(fcst_var_thresh_counts[::4])
+                ax.set_xticklabels(fcst_var_threshs_format[::4])
             else:
-                ax1.set_xticks(fcst_var_thresh_counts)
-                ax1.set_xticklabels(fcst_var_thresh_val_list) 
+                ax.set_xticks(fcst_var_thresh_counts)
+                ax.set_xticklabels(fcst_var_threshs_format) 
             ax.set_xlim([fcst_var_thresh_counts[0],
                          fcst_var_thresh_counts[-1]])
             if ax.is_last_row() \
@@ -523,30 +524,30 @@ for plot_info in plot_info_list:
                     logger.warning("Model "+str(model_num)+" "+model_name+" "
                                    +"with plot name "+model_plot_name+" "
                                    +"file: "+lead_avg_file+" does not exist")
-                model_avg_data = np.ma.masked_invalid(model_avg_data)
-                if (stat == 'fbar_obar' or stat == 'orate_frate'
-                        or stat == 'baser_frate'):
-                    if not obs_plotted:
+            model_avg_data = np.ma.masked_invalid(model_avg_data)
+            if (stat == 'fbar_obar' or stat == 'orate_frate'
+                    or stat == 'baser_frate'):
+                if not obs_plotted:
+                    obs_avg_data = model_avg_data[1,:,:]
+                    ax = plt.subplot(gs[0])
+                    ax.set_title('obs', loc='left')
+                    if not model_avg_data[1,:,:].mask.all():
+                        logger.debug("Plotting observations")
                         obs_avg_data = model_avg_data[1,:,:]
-                        ax = plt.subplot(gs[0])
-                        ax.set_title('obs', loc='left')
-                        if not model_avg_data[1,:,:].mask.all():
-                            logger.debug("Plotting observations")
-                            obs_avg_data = model_avg_data[1,:,:]
-                            CF1 = ax.contourf(xmesh, ymesh, obs_avg_data,
-                                              cmap=cmap,
-                                              locator=matplotlib.ticker.MaxNLocator(
-                                                   symmetric=True
-                                              ), extend='both')
-                            C1 = ax.contour(xmesh, ymesh, obs_avg_data,
-                                            levels=CF1.levels,
-                                            colors='k',
-                                            linewidths=1.0)
-                            ax.clabel(C1, CF1.levels,
-                                      fmt='%1.2f',
-                                      inline=True,
-                                      fontsize=12.5)
-                            obs_plotted = True
+                        CF1 = ax.contourf(xmesh, ymesh, obs_avg_data,
+                                          cmap=cmap,
+                                          locator=matplotlib.ticker.MaxNLocator(
+                                              symmetric=True
+                                          ), extend='both')
+                        C1 = ax.contour(xmesh, ymesh, obs_avg_data,
+                                        levels=CF1.levels,
+                                        colors='k',
+                                        linewidths=1.0)
+                        ax.clabel(C1, CF1.levels,
+                                  fmt='%1.2f',
+                                  inline=True,
+                                  fontsize=12.5)
+                        obs_plotted = True
                 ax = plt.subplot(gs[model_num])
                 ax.set_title(model_plot_name+' - obs', loc='left')
                 model_obs_diff = (

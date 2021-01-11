@@ -951,9 +951,9 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                     ].split(' '))
                 )
             elif case == 'precip':
-                job_env_dict['model'+str(model_num)+'_obtype'] = case
+                job_env_dict['model'+str(model_num)+'_obtype'] = case_type
             elif case == 'satellite':
-                job_env_dict['model'+str(model_num)+'_obtype'] = case
+                job_env_dict['model'+str(model_num)+'_obtype'] = case_type
         job_env_dict['RUN_type'] = case_type
         case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
                               'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',

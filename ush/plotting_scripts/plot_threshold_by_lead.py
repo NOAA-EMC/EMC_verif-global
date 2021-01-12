@@ -233,7 +233,7 @@ for plot_info in plot_info_list:
         fcst_var_threshs, np.nan, dtype=object
     )
     fcst_var_threshs_val = np.full_like(
-        fcst_var_threshs, np.nan, dtype=str
+        fcst_var_threshs, '--', dtype="<U10"
     )
     fcst_var_thresh_counts = np.arange(0, len(fcst_var_threshs),
                                        dtype=int)

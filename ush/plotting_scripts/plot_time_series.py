@@ -512,7 +512,8 @@ for plot_info in plot_info_list:
                          +"with name on plot "+model_plot_name+" lead "
                          +fcst_lead+" average to file: "+lead_avg_file)
             model_stat_average_array = plot_util.calculate_average(
-                logger, average_method, stat, model_data.loc[[model_plot_name]],
+                logger, average_method, stat,
+                model_data.loc[[model_plot_name]],
                 model_stat_values_array
             )
             with open(lead_avg_file, 'a') as file2write:
@@ -571,7 +572,8 @@ for plot_info in plot_info_list:
                             stat_CI = plot_util.calculate_ci(
                                 logger, ci_method,
                                 model_data.loc[[model_plot_name]],
-                                model_data.loc[[model1_plot_name]], total_dates,
+                                model_data.loc[[model1_plot_name]],
+                                total_dates,
                                 stat, average_method, randx[model_idx,:,:]
                             )
                         else:
@@ -774,7 +776,7 @@ for plot_info in plot_info_list:
             grid_vx_mask = verif_grid+vx_mask
         var_info_title = plot_title.get_var_info_title(
             fcst_var_name, fcst_var_level, fcst_var_extra, fcst_var_thresh
-        )  
+        )
         vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
         date_info_title = plot_title.get_date_info_title(
             date_type, fcst_valid_hour.split(', '),

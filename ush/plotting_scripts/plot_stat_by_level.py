@@ -4,7 +4,7 @@ Contact(s): Mallory Row
 Abstract: Reads average forecast hour files from plot_time_series.py
           to make stat-pressue plots
 History Log: Third version
-Usage: Called by make_plots_wrapper.py 
+Usage: Called by make_plots_wrapper.py
 Parameters: None
 Input Files: Text files
 Output Files: .png images
@@ -194,8 +194,8 @@ model_info_list = list(
 nmodels = len(model_info_list)
 # Plot info
 plot_info_list = list(
-    itertools.product(*[fcst_lead_list, 
-                        fcst_var_level_list, 
+    itertools.product(*[fcst_lead_list,
+                        fcst_var_level_list,
                         fcst_var_thresh_list])
     )
 # Date and time infomation and build title for plot
@@ -215,14 +215,14 @@ valid_init_dict = {
     'init_hour_beg': '',
     'init_hour_end': ''
 }
-valid_init_type_list = [ 
+valid_init_type_list = [
     'valid_hour_beg', 'valid_hour_end', 'init_hour_beg', 'init_hour_end'
 ]
 for vitype in valid_init_type_list:
-    if (valid_init_dict['fcst_'+vitype] != '' 
+    if (valid_init_dict['fcst_'+vitype] != ''
             and valid_init_dict['obs_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
-    elif (valid_init_dict['obs_'+vitype] != '' 
+    elif (valid_init_dict['obs_'+vitype] != ''
             and valid_init_dict['fcst_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['obs_'+vitype]
     if valid_init_dict['fcst_'+vitype] == '':
@@ -324,7 +324,8 @@ for plot_info in plot_info_list:
         fcst_var_levels_int = np.empty(len(fcst_var_levels), dtype=int)
         for vl in range(len(fcst_var_levels)):
             fcst_var_levels_int[vl] = fcst_var_levels[vl][1:]
-        # Reading in model lead averages files produced from plot_time_series.py
+        # Reading in model lead averages files produced
+        # from plot_time_series.py
         logger.info("Reading in model data")
         for model_info in model_info_list:
             model_num = model_info_list.index(model_info) + 1
@@ -431,7 +432,9 @@ for plot_info in plot_info_list:
                                 linestyle=obs_plot_settings_dict['linestyle'],
                                 linewidth=obs_plot_settings_dict['linewidth'],
                                 marker=obs_plot_settings_dict['marker'],
-                                markersize=obs_plot_settings_dict['markersize'],
+                                markersize=obs_plot_settings_dict[
+                                    'markersize'
+                                ],
                                 label='obs',
                                 zorder=4)
                         if model_avg_data[1,:].min() < stat_min \
@@ -548,7 +551,7 @@ for plot_info in plot_info_list:
             grid_vx_mask = verif_grid+vx_mask
         var_info_title = plot_title.get_var_info_title(
             fcst_var_name, 'all', fcst_var_extra, fcst_var_thresh
-        )  
+        )
         vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
         date_info_title = plot_title.get_date_info_title(
             date_type, fcst_valid_hour.split(', '),

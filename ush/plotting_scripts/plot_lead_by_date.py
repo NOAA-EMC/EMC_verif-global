@@ -395,7 +395,7 @@ for plot_info in plot_info_list:
                                 .loc[matching_date_idx][:]
                             )
                             for col in stat_file_line_type_columns:
-                                #### EMC-verif_global changes for PRMSL, PRES/Z0
+                                #### EMC-verif_global changes for PRMSL,PRES/Z0
                                 #### O3MR
                                 if fcst_var_name == 'PRMSL' \
                                         or \
@@ -596,10 +596,13 @@ for plot_info in plot_info_list:
                     ax.set_title('obs', loc='left')
                     if not stat_values_array[1,model_idx,:,:].mask.all():
                         logger.debug("Plotting observations from "+model_name)
-                        obs_stat_values_array = stat_values_array[1,model_idx,:,:]
+                        obs_stat_values_array = (
+                            stat_values_array[1,model_idx,:,:]
+                        )
                         CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
                                           cmap=cmap,
-                                          locator=matplotlib.ticker.MaxNLocator(
+                                          locator=matplotlib \
+                                              .ticker.MaxNLocator(
                                           symmetric=True
                                           ), extend='both')
                         C1 = ax.contour(xmesh, ymesh, obs_stat_values_array,
@@ -625,7 +628,8 @@ for plot_info in plot_info_list:
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
-                                          locator=matplotlib.ticker.MaxNLocator(
+                                          locator=matplotlib \
+                                              .ticker.MaxNLocator(
                                               symmetric=True
                                           ),
                                           extend='both')
@@ -806,7 +810,9 @@ for plot_info in plot_info_list:
                     /(plt.rcParams['figure.dpi']*x_figsize)
         )
         #### EMC-verif_global add colorbar
-        cbar_left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        cbar_left =(
+            noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        )
         cbar_width = (
             nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
             - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
@@ -830,12 +836,14 @@ for plot_info in plot_info_list:
                 )
             else:
                 savefig_name = (
-                    savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
+                    savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]
+                    +'Z'
                 )
         elif date_type == 'INIT':
             if verif_case == 'grid2obs':
                 savefig_name = (
-                    savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]+'Z'
+                    savefig_name+'_valid'+fcst_valid_hour.split(', ')[0][0:2]
+                    +'Z'
                 )
             else:
                 savefig_name = (

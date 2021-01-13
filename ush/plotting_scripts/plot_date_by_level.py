@@ -4,7 +4,7 @@ Contact(s): Mallory Row
 Abstract: Reads filtered files from stat_analysis_wrapper
           run_all_times to make date-pressure plots
 History Log: Third version
-Usage: Called by make_plots_wrapper.py 
+Usage: Called by make_plots_wrapper.py
 Parameters: None
 Input Files: MET .stat files
 Output Files: .png images
@@ -152,8 +152,8 @@ model_info_list = list(
 nmodels = len(model_info_list)
 # Plot info
 plot_info_list = list(
-    itertools.product(*[fcst_lead_list, 
-                        fcst_var_level_list, 
+    itertools.product(*[fcst_lead_list,
+                        fcst_var_level_list,
                         fcst_var_thresh_list])
     )
 # Date and time infomation and build title for plot
@@ -173,14 +173,14 @@ valid_init_dict = {
     'init_hour_beg': '',
     'init_hour_end': ''
 }
-valid_init_type_list = [ 
+valid_init_type_list = [
     'valid_hour_beg', 'valid_hour_end', 'init_hour_beg', 'init_hour_end'
 ]
 for vitype in valid_init_type_list:
-    if (valid_init_dict['fcst_'+vitype] != '' 
+    if (valid_init_dict['fcst_'+vitype] != ''
             and valid_init_dict['obs_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
-    elif (valid_init_dict['obs_'+vitype] != '' 
+    elif (valid_init_dict['obs_'+vitype] != ''
             and valid_init_dict['fcst_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['obs_'+vitype]
     if valid_init_dict['fcst_'+vitype] == '':
@@ -380,7 +380,7 @@ for plot_info in plot_info_list:
                                 .loc[matching_date_idx][:]
                             )
                             for col in stat_file_line_type_columns:
-                                #### EMC-verif_global changes for PRMSL, PRES/Z0
+                                #### EMC-verif_global changes for PRMSL,PRES/Z0
                                 #### O3MR
                                 if fcst_var_name == 'PRMSL' \
                                         or \
@@ -390,14 +390,14 @@ for plot_info in plot_info_list:
                                         scale = 1/100.
                                     elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
                                         scale = 1/(100.*100.)
-                                    else:    
+                                    else:
                                         scale = 1
                                 elif fcst_var_name == 'O3MR':
                                     if col in ['FBAR', 'OBAR']:
                                         scale = 1e6
                                     elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
                                         scale = 1e6*1e6
-                                    else:   
+                                    else:
                                         scale = 1
                                 else:
                                     scale = 1
@@ -580,7 +580,9 @@ for plot_info in plot_info_list:
                     ax.set_title('obs', loc='left')
                     if not stat_values_array[1,model_idx,:,:].mask.all():
                         logger.debug("Plotting observations from "+model_name)
-                        obs_stat_values_array = stat_values_array[1,model_idx,:,:]
+                        obs_stat_values_array = (
+                            stat_values_array[1,model_idx,:,:]
+                        )
                         CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
                                          cmap=cmap,
                                          locator=matplotlib.ticker.MaxNLocator(
@@ -655,7 +657,8 @@ for plot_info in plot_info_list:
                         clevels_bias = plot_util.get_clevels(
                             model_stat_values_array
                         )
-                        CF1 = ax.contourf(xmesh, ymesh, model_stat_values_array,
+                        CF1 = ax.contourf(xmesh, ymesh,
+                                          model_stat_values_array,
                                           levels=clevels_bias,
                                           cmap=cmap_bias,
                                           locator=\
@@ -702,7 +705,8 @@ for plot_info in plot_info_list:
                         logger.debug("Plotting model "+str(model_num)+" "
                                      +model_name+" with name on plot "
                                      +model_plot_name)
-                        CF1 = ax.contourf(xmesh, ymesh, model_stat_values_array,
+                        CF1 = ax.contourf(xmesh, ymesh,
+                                          model_stat_values_array,
                                           cmap=cmap,
                                           extend='both')
                         C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
@@ -719,13 +723,15 @@ for plot_info in plot_info_list:
                     model_model1_diff = (
                         model_stat_values_array - model1_stat_values_array
                     )
-                    if not model_model1_diff.mask.all(): 
+                    if not model_model1_diff.mask.all():
                         logger.debug("Plotting model "+str(model_num)+" "
                                      +model_name+" - model 1 "+model1_name+" "
                                      +"with name on plot "+model_plot_name+" "
                                      +"- "+model1_plot_name)
                         if get_clevels:
-                            clevels_diff = plot_util.get_clevels(model_model1_diff)
+                            clevels_diff = plot_util.get_clevels(
+                                model_model1_diff
+                            )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,
                                               cmap=cmap_diff,
@@ -791,7 +797,9 @@ for plot_info in plot_info_list:
                     /(plt.rcParams['figure.dpi']*x_figsize)
         )
         #### EMC-verif_global add colorbar
-        cbar_left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        cbar_left = (
+            noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        )
         cbar_width = (
             nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
             - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)

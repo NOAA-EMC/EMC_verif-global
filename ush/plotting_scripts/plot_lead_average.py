@@ -1,7 +1,8 @@
 '''
 Name: plot_lead_average.py
 Contact(s): Mallory Row
-Abstract: Reads average and CI files from plot_time_series.py to make dieoff plots
+Abstract: Reads average and CI files from plot_time_series.py
+          to make dieoff plots
 History Log: Third version
 Usage: Called by make_plots_wrapper.py
 Parameters: None

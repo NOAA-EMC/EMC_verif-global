@@ -3,7 +3,7 @@ Name: plot_threshold_by_lead.py
 Contact(s): Mallory Row
 Abstract: Reads average from plot_time_series.py to make treshold-lead plots
 History Log: First version
-Usage: Called by make_plots_wrapper.py 
+Usage: Called by make_plots_wrapper.py
 Parameters: None
 Input Files: Text files
 Output Files: .png images
@@ -149,8 +149,8 @@ model_info_list = list(
 nmodels = len(model_info_list)
 # Plot info
 plot_info_list = list(
-    itertools.product(*[fcst_lead_list, 
-                        fcst_var_level_list, 
+    itertools.product(*[fcst_lead_list,
+                        fcst_var_level_list,
                         fcst_var_thresh_list])
     )
 # Date and time infomation and build title for plot
@@ -170,14 +170,14 @@ valid_init_dict = {
     'init_hour_beg': '',
     'init_hour_end': ''
 }
-valid_init_type_list = [ 
+valid_init_type_list = [
     'valid_hour_beg', 'valid_hour_end', 'init_hour_beg', 'init_hour_end'
 ]
 for vitype in valid_init_type_list:
-    if (valid_init_dict['fcst_'+vitype] != '' 
+    if (valid_init_dict['fcst_'+vitype] != ''
             and valid_init_dict['obs_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
-    elif (valid_init_dict['obs_'+vitype] != '' 
+    elif (valid_init_dict['obs_'+vitype] != ''
             and valid_init_dict['fcst_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['obs_'+vitype]
     if valid_init_dict['fcst_'+vitype] == '':
@@ -415,7 +415,7 @@ for plot_info in plot_info_list:
                 ax.set_xticklabels(fcst_var_threshs_val[::4])
             else:
                 ax.set_xticks(fcst_var_thresh_counts)
-                ax.set_xticklabels(fcst_var_threshs_val) 
+                ax.set_xticklabels(fcst_var_threshs_val)
             ax.set_xlim([fcst_var_thresh_counts[0],
                          fcst_var_thresh_counts[-1]])
             if ax.is_last_row() \
@@ -515,9 +515,10 @@ for plot_info in plot_info_list:
                                 model_avg_file_data_col = (
                                     model_avg_file_data.loc[:][col].tolist()
                                 )
-                                if (model_avg_file_data_col[model_fcst_lead_idx]
+                                if (model_avg_file_data_col\
+                                        [model_fcst_lead_idx]
                                         != '--'):
-                                    model_avg_data[col_idx, 
+                                    model_avg_data[col_idx,
                                                    fcst_lead_idx, vt] = (
                                         float(model_avg_file_data_col \
                                               [model_fcst_lead_idx])
@@ -538,7 +539,8 @@ for plot_info in plot_info_list:
                         obs_avg_data = model_avg_data[1,:,:]
                         CF1 = ax.contourf(xmesh, ymesh, obs_avg_data,
                                           cmap=cmap,
-                                          locator=matplotlib.ticker.MaxNLocator(
+                                          locator=matplotlib\
+                                              .ticker.MaxNLocator(
                                               symmetric=True
                                           ), extend='both')
                         C1 = ax.contour(xmesh, ymesh, obs_avg_data,
@@ -551,7 +553,7 @@ for plot_info in plot_info_list:
                                   fontsize=12.5)
                         obs_plotted = True
                 ax = plt.subplot(gs[model_num])
-                ax.set_title(model_plot_name+' - obs', loc='left')
+                ax.set_title(model_plot_name+'-obs', loc='left')
                 model_obs_diff = (
                     model_avg_data[0,:,:]
                     - model_avg_data[1,:,:]
@@ -566,7 +568,8 @@ for plot_info in plot_info_list:
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
-                                          locator= matplotlib.ticker.MaxNLocator(
+                                          locator= matplotlib\
+                                              .ticker.MaxNLocator(
                                               symmetric=True
                                           ),
                                           extend='both')
@@ -579,7 +582,8 @@ for plot_info in plot_info_list:
                         CF = ax.contourf(xmesh, ymesh, model_obs_diff,
                                          levels=CF2.levels,
                                          cmap=cmap_diff,
-                                         locator= matplotlib.ticker.MaxNLocator(
+                                         locator= matplotlib\
+                                             .ticker.MaxNLocator(
                                              symmetric=True
                                          ),
                                          extend='both')
@@ -634,7 +638,7 @@ for plot_info in plot_info_list:
                                   inline=True,
                                   fontsize=12.5)
             else:
-                ax = plt.subplot(gs[model_idx]) 
+                ax = plt.subplot(gs[model_idx])
                 if model_num == 1:
                     model1_name = model_name
                     model1_plot_name = model_plot_name
@@ -733,7 +737,9 @@ for plot_info in plot_info_list:
                     /(plt.rcParams['figure.dpi']*x_figsize)
         )
         #### EMC-verif_global add colorbar
-        cbar_left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        cbar_left = (
+            noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        )
         cbar_width = (
             nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
             - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)

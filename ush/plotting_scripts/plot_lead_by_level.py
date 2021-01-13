@@ -1,7 +1,8 @@
 '''
 Name: plot_lead_by_level.py
 Contact(s): Mallory Row
-Abstract: Reads average files from plot_time_series.py to make lead-pressue plots
+Abstract: Reads average files from plot_time_series.py
+          to make lead-pressue plots
 History Log: Third version
 Usage: Called by make_plots_wrapper.py
 Parameters: None
@@ -505,7 +506,8 @@ for plot_info in plot_info_list:
                                 model_avg_file_data_col = (
                                     model_avg_file_data.loc[:][col].tolist()
                                 )
-                                if (model_avg_file_data_col[model_fcst_lead_idx]
+                                if (model_avg_file_data_col\
+                                        [model_fcst_lead_idx]
                                         != '--'):
                                     model_avg_data[col_idx, vl,
                                                     fcst_lead_idx] = (
@@ -625,7 +627,7 @@ for plot_info in plot_info_list:
                                   inline=True,
                                   fontsize=12.5)
             else:
-                ax = plt.subplot(gs[model_idx]) 
+                ax = plt.subplot(gs[model_idx])
                 if model_num == 1:
                     model1_name = model_name
                     model1_plot_name = model_plot_name
@@ -724,7 +726,9 @@ for plot_info in plot_info_list:
                     /(plt.rcParams['figure.dpi']*x_figsize)
         )
         #### EMC-verif_global add colorbar
-        cbar_left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        cbar_left = (
+            noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)
+        )
         cbar_width = (
             nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
             - noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize)

@@ -70,7 +70,8 @@ def get_lead_title(lead_hour_str):
         lead_day_str = str(int(lead_day_float))
     else:
         lead_day_str = str(lead_day_float)
-    lead_title = 'Forecast Day '+lead_day_str+' (Forecast Hour '+lead_hour_str+')'
+    lead_title = ('Forecast Day '+lead_day_str+' (Forecast Hour '
+                  +lead_hour_str+')')
     return lead_title
 
 def get_vx_mask_title(vx_mask):

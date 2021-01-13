@@ -1020,13 +1020,17 @@ def get_lead_avg_file(stat, input_filename, fcst_lead, output_base_dir):
     # if fcst_leadX is in filename, replace it with fcst_lead_avgs
     # and add .txt to end of filename
     if f'fcst_lead{fcst_lead}' in lead_avg_filename:
-        lead_avg_filename = lead_avg_filename.replace(f'fcst_lead{fcst_lead}', 'fcst_lead_avgs')
+        lead_avg_filename = (
+            lead_avg_filename.replace(f'fcst_lead{fcst_lead}',
+                                      'fcst_lead_avgs')
+        )
         lead_avg_filename += '.txt'
 
     # if not, remove mention of forecast lead and
     # add fcst_lead_avgs.txt to end of filename
     elif 'fcst_lead_avgs' not in input_filename:
-        lead_avg_filename = lead_avg_filename.replace(f'fcst_lead{fcst_lead}', '')
+        lead_avg_filename = lead_avg_filename.replace(f'fcst_lead{fcst_lead}',
+                                                      '')
         lead_avg_filename += '_fcst_lead_avgs.txt'
 
     lead_avg_file = os.path.join(output_base_dir, 'data',

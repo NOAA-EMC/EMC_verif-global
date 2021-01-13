@@ -1,9 +1,10 @@
 '''
 Name: plot_threshold_average.py
 Contact(s): Mallory Row
-Abstract: Reads average and CI files from plot_time_series.py to make dieoff plots
+Abstract: Reads average and CI files from plot_time_series.py
+          to make dieoff plots
 History Log: First version
-Usage: Called by make_plots_wrapper.py 
+Usage: Called by make_plots_wrapper.py
 Parameters: None
 Input Files: Text files
 Output Files: .png images
@@ -193,8 +194,8 @@ model_info_list = list(
 nmodels = len(model_info_list)
 # Plot info
 plot_info_list = list(
-    itertools.product(*[fcst_lead_list, 
-                        fcst_var_level_list, 
+    itertools.product(*[fcst_lead_list,
+                        fcst_var_level_list,
                         fcst_var_thresh_list])
     )
 # Date and time infomation and build title for plot
@@ -214,14 +215,14 @@ valid_init_dict = {
     'init_hour_beg': '',
     'init_hour_end': ''
 }
-valid_init_type_list = [ 
+valid_init_type_list = [
     'valid_hour_beg', 'valid_hour_end', 'init_hour_beg', 'init_hour_end'
 ]
 for vitype in valid_init_type_list:
-    if (valid_init_dict['fcst_'+vitype] != '' 
+    if (valid_init_dict['fcst_'+vitype] != ''
             and valid_init_dict['obs_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['fcst_'+vitype]
-    elif (valid_init_dict['obs_'+vitype] != '' 
+    elif (valid_init_dict['obs_'+vitype] != ''
             and valid_init_dict['fcst_'+vitype] == ''):
         valid_init_dict[vitype] = valid_init_dict['obs_'+vitype]
     if valid_init_dict['fcst_'+vitype] == '':
@@ -426,7 +427,7 @@ for plot_info in plot_info_list:
                                 model_avg_data[col_idx, vt] = (
                                     float(model_avg_file_data_col \
                                           [model_fcst_lead_idx])
-                                )                    
+                                )
                 else:
                     logger.warning("Model "+str(model_num)+" "+model_name+" "
                                    +"with plot name "+model_plot_name+" "

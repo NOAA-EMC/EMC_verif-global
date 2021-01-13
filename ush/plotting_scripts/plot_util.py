@@ -451,49 +451,64 @@ def calculate_ci(logger, ci_method, modelB_values, modelA_values, total_days,
             intvl = '--'
     elif ci_method == 'EMC_MONTE_CARLO':
         ntest, ntests = 1, 10000
-        scores_rand1 = np.empty(ntests)
-        scores_rand2 = np.empty(ntests)
-        scores_diff = np.empty(ntests)
+        dates = []
+        for idx_val in modelB_values.index.values:
+            dates.append(idx_val[1])
+        ndays = len(dates)
+        rand1_data_index = pd.MultiIndex.from_product(
+            [['rand1'], np.arange(1, ntests+1, dtype=int), dates],
+            names=['model_plot_name', 'ntest', 'dates']
+        )
+        rand2_data_index = pd.MultiIndex.from_product(
+            [['rand2'], np.arange(1, ntests+1, dtype=int), dates],
+            names=['model_plot_name', 'ntest', 'dates']
+        )
+        rand1_data = pd.DataFrame(
+            np.nan, index=rand1_data_index,
+            columns=modelB_values.columns
+        )
+        rand2_data = pd.DataFrame(
+            np.nan, index=rand2_data_index,
+            columns=modelB_values.columns
+        )
+        ncolumns = len(modelB_values.columns)
+        rand1_data_values = np.empty([ntests, ndays, ncolumns])
+        rand2_data_values = np.empty([ntests, ndays, ncolumns])
+        randx_ge0_idx = np.where(randx - 0.5 >= 0)
+        randx_lt0_idx = np.where(randx - 0.5 < 0)
+        rand1_data_values[randx_ge0_idx[0], randx_ge0_idx[1],:] = (
+            modelA_values.iloc[randx_ge0_idx[1],:]
+        )
+        rand2_data_values[randx_ge0_idx[0], randx_ge0_idx[1],:] = (
+           modelB_values.iloc[randx_ge0_idx[1],:]
+        )
+        rand1_data_values[randx_lt0_idx[0], randx_lt0_idx[1],:] = (
+          modelB_values.iloc[randx_lt0_idx[1],:]
+        )
+        rand2_data_values[randx_lt0_idx[0], randx_lt0_idx[1],:] = (
+            modelA_values.iloc[randx_lt0_idx[1],:]
+        )
+        ntest = 1
         while ntest <= ntests:
-            rand1_data = pd.DataFrame(
-                np.nan, index=modelB_values.index,
-                columns=modelB_values.columns
-            )
-            replace_level= rand1_data.index.get_level_values(0)[0]
-            rand1_data.rename(index={replace_level: 'rand1'}, inplace=True)
-            rand2_data = pd.DataFrame(
-                np.nan, index=modelB_values.index,
-                columns=modelB_values.columns
-            )
-            replace_level= rand2_data.index.get_level_values(0)[0]
-            rand2_data.rename(index={replace_level: 'rand2'}, inplace=True)
-            nday, ndays = 1, total_days
-            while nday <= ndays:
-                if randx[ntest-1,nday-1] - 0.5 >= 0:
-                    rand1_data.iloc[nday-1,:] = modelA_values.iloc[nday-1,:]
-                    rand2_data.iloc[nday-1,:] = modelB_values.iloc[nday-1,:]
-                else:
-                    rand1_data.iloc[nday-1,:] = modelB_values.iloc[nday-1,:]
-                    rand2_data.iloc[nday-1,:] = modelA_values.iloc[nday-1,:]
-                nday+=1
-            rand1_stat_values, rand1_stat_values_array, stat_plot_name = (
-                calculate_stat(logger, rand1_data, stat)
-            )
-            rand2_stat_values, rand2_stat_values_array, stat_plot_name = (
-                calculate_stat(logger, rand2_data, stat)
-            )
-            rand1_average_array = calculate_average(logger, average_method,
-                                                    stat, rand1_data,
-                                                    rand1_stat_values_array[:,0,:])
-            scores_rand1[ntest-1] = rand1_average_array[0]
-            rand2_average_array = calculate_average(logger, average_method,
-                                                    stat, rand2_data,
-                                                    rand2_stat_values_array[:,0,:])
-            scores_rand2[ntest-1] = rand2_average_array[0]
-            scores_diff[ntest-1] = (
-                rand2_average_array[0] - rand1_average_array[0]
-            )
+            rand1_data.loc[('rand1', ntest)] = rand1_data_values[ntest-1,:,:]
+            rand2_data.loc[('rand2', ntest)] = rand2_data_values[ntest-1,:,:]
             ntest+=1
+        intvl = np.nan
+        rand1_stat_values, rand1_stat_values_array, stat_plot_name = (
+            calculate_stat(logger, rand1_data, stat)
+        )
+        rand2_stat_values, rand2_stat_values_array, stat_plot_name = (
+            calculate_stat(logger, rand2_data, stat)
+        )
+        rand1_average_array = (
+            calculate_average(logger, average_method, stat, rand1_data,
+                              rand1_stat_values_array[0,0,:,:])
+        )
+        rand2_average_array = (
+            calculate_average(logger, average_method, stat, rand2_data,
+                              rand2_stat_values_array[0,0,:,:])
+        )
+        scores_diff = rand2_average_array - rand1_average_array
         scores_diff_mean = np.sum(scores_diff)/ntests
         scores_diff_var = np.sum((scores_diff-scores_diff_mean)**2)
         scores_diff_std = np.sqrt(scores_diff_var/(ntests-1))

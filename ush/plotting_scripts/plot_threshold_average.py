@@ -651,7 +651,7 @@ for plot_info in plot_info_list:
             # plot ax2
             if (stat == 'fbar_obar' or stat == 'orate_frate'
                     or stat == 'baser_frate'):
-                ax2.set_title('Difference from obs.', loc='left')
+                ax2.set_title('Difference from obs', loc='left')
             else:
                 ax2.set_title('Difference from '+model_info_list[0][1],
                               loc='left')

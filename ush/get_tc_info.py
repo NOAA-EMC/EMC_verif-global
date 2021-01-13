@@ -96,6 +96,7 @@ def get_tc_dict():
     tc_dict['WP_2020_ATSANI'] = 'wp232020'
     tc_dict['WP_2020_ETAU'] = 'wp242020'
     tc_dict['WP_2020_VAMCO'] = 'wp252020'
+    tc_dict['WP_2020_KROVANH'] = 'wp262020'
     ## 2019
     tc_dict['AL_2019_ANDREA'] = 'al012019'
     tc_dict['AL_2019_BARRY'] = 'al022019'

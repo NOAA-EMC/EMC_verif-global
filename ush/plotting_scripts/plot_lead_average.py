@@ -645,7 +645,7 @@ for plot_info in plot_info_list:
                                      ['marker'],
                                  markersize = obs_plot_settings_dict \
                                      ['markersize'],
-                                 label = 'obs.',
+                                 label = 'obs',
                                  zorder = 4)
                         if model_avg_data[1,:].min() \
                                 < stat_min_max_dict['ax1_stat_min'] \

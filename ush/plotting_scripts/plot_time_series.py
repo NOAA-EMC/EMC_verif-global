@@ -596,25 +596,28 @@ for plot_info in plot_info_list:
                 else:
                     ax.xaxis.set_minor_locator(md.DayLocator())
                 ax.set_ylabel(stat_plot_name)
-                if (stat == 'fbar_obar' or stat == 'orate_frate'
-                        or stat == 'baser_frate'):
-                    obs_plot_settings_dict = (
-                        model_obs_plot_settings_dict['obs']
-                    )
-                    obs_stat_values_array = model_stat_values_array[1,:]
-                    obs_count = (
-                        len(obs_stat_values_array)
-                        - np.ma.count_masked(obs_stat_values_array)
-                    )
-                    plot_time_dates_m = np.ma.masked_where(
-                        np.ma.getmask(obs_stat_values_array), plot_time_dates
-                    )
-                    plot_time_dates_mc = np.ma.compressed(plot_time_dates_m)
-                    obs_stat_values_mc = np.ma.compressed(
-                        obs_stat_values_array
-                    )
-                    #### EMC-verif_global plot observations
+                obs_plotted = False
+            if (stat == 'fbar_obar' or stat == 'orate_frate'
+                    or stat == 'baser_frate'):
+                obs_stat_values_array = model_stat_values_array[1,:]
+                obs_count = (
+                    len(obs_stat_values_array)
+                    - np.ma.count_masked(obs_stat_values_array)
+                )
+                obs_stat_values_mc = np.ma.compressed(
+                    obs_stat_values_array
+                )
+                plot_time_dates_m = np.ma.masked_where(
+                    np.ma.getmask(obs_stat_values_array), plot_time_dates
+                )
+                plot_time_dates_mc = np.ma.compressed(plot_time_dates_m)
+                obs_plot_settings_dict = (
+                    model_obs_plot_settings_dict['obs']
+                )
+                #### EMC-verif_global plot observations
+                if not obs_plotted:
                     if obs_count != 0:
+                        logger.debug("Plotting obs from "+model_name)
                         if np.abs(obs_stat_values_array.mean()) >= 10:
                             obs_mean_for_label = round(
                                 obs_stat_values_array.mean(), 2
@@ -640,7 +643,7 @@ for plot_info in plot_info_list:
                                          ['marker'],
                                      markersize = obs_plot_settings_dict \
                                          ['markersize'],
-                                     label=('obs. '
+                                     label=('obs '
                                             +str(obs_mean_for_label)
                                             +' '+str(obs_count)+' days'),
                                      zorder=4)
@@ -650,6 +653,7 @@ for plot_info in plot_info_list:
                         if obs_stat_values_array.max() > stat_max \
                                 or np.ma.is_masked(stat_max):
                             stat_max = obs_stat_values_array.max()
+                        obs_plotted = True
             count = (
                 len(model_stat_values_array[0,:])
                 - np.ma.count_masked(model_stat_values_array[0,:])

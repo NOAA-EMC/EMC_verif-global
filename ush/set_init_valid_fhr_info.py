@@ -176,6 +176,12 @@ elif RUN == 'tropcyc':
     RUN_abbrev_fcyc_beg, RUN_abbrev_fcyc_end, RUN_abbrev_fcyc_inc = (
         get_hr_list_info(RUN_abbrev_fcyc_list)
     )
+    env_var_dict[RUN_abbrev+'_fcyc_list'] = (
+        os.environ[RUN_abbrev+'_fcyc_list']
+    )
+    env_var_dict[RUN_abbrev+'_init_hr_list'] = ', '.join(
+        RUN_abbrev_fcyc_list
+    )
     env_var_dict[RUN_abbrev+'_init_hr_beg'] = RUN_abbrev_fcyc_beg
     env_var_dict[RUN_abbrev+'_init_hr_end'] = RUN_abbrev_fcyc_end
     env_var_dict[RUN_abbrev+'_init_hr_inc'] = RUN_abbrev_fcyc_inc
@@ -183,6 +189,12 @@ elif RUN == 'tropcyc':
     RUN_abbrev_vhr_list = os.environ[RUN_abbrev+'_vhr_list'].split(' ')
     RUN_abbrev_vhr_beg, RUN_abbrev_vhr_end, RUN_abbrev_vhr_inc = (
         get_hr_list_info(RUN_abbrev_vhr_list)
+    )
+    env_var_dict[RUN_abbrev+'_vhr_list'] = (
+        os.environ[RUN_abbrev+'_vhr_list']
+    )
+    env_var_dict[RUN_abbrev+'_valid_hr_list'] = ', '.join(
+        RUN_abbrev_vhr_list
     )
     env_var_dict[RUN_abbrev+'_valid_hr_beg'] = RUN_abbrev_vhr_beg
     env_var_dict[RUN_abbrev+'_valid_hr_end'] = RUN_abbrev_vhr_end

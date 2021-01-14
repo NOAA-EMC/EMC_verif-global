@@ -454,19 +454,18 @@ RUN = os.environ['RUN']
 
 # Check storm_list to see if all storms for basin and year
 # requested
+tc_dict = get_tc_info.get_tc_dict()
 storm_list = []
-for storm in config_storm_list:
-    basin = storm.split('_')[0]
-    year = storm.split('_')[1]
-    name = storm.split('_')[2]
-    if name == 'ALLNAMED':
-        all_storms_in_basin_year_list = (
-            get_tc_info.get_all_tc_storms_basin_year(basin, year)
-        )
-        for byn in all_storms_in_basin_year_list:
-            storm_list.append(byn)
+for config_storm in config_storm_list:
+    config_storm_basin = config_storm.split('_')[0]
+    config_storm_year = config_storm.split('_')[1]
+    config_storm_name = config_storm.split('_')[2]
+    if config_storm_name == 'ALLNAMED':
+        for byn in list(tc_dict.keys()):
+            if config_storm_basin+'_'+config_storm_year in byn:
+                storm_list.append(byn)
     else:
-        storm_list.append(storm)
+        storm_list.append(config_storm)
 
 # Group storms by basin
 AL_storm_list, CP_storm_list, EP_storm_list, WP_storm_list = [], [], [], []

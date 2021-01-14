@@ -11,9 +11,6 @@ import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
-# Read in script agruments
-storm_info = sys.argv[1]
-
 # Plot Settings
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.titleweight'] = 'bold'
@@ -97,34 +94,25 @@ DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 fhr_list = os.environ['fhr_list'].split(',')
 fhrs = np.asarray(fhr_list, dtype=int)
-init_hour_list = ', '.join(os.environ['init_hour_list'].split(','))
-valid_hour_list = ', '.join(os.environ['valid_hour_list'].split(','))
+init_hour_list = os.environ['init_hour_list'].split(',')
+valid_hour_list = os.environ['valid_hour_list'].split(',')
 model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
-
+basin = os.environ['basin']
+if 'tc' in list(os.environ.keys()):
+    plot_info = os.environ['tc']
+    year = plot_info.split('_')[1]
+    name = plot_info.split('_')[2]
+else:
+    plot_info = basin
 tc_stat_file_dir = os.path.join(DATA, RUN, 'metplus_output', 'gather',
-                                'tc_stat', storm_info)
+                                'tc_stat', plot_info)
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output', 'plot',
-                                     storm_info, 'imgs')
+                                     plot_info, 'images')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
-if len(storm_info) == 2:
-    basin = storm_info
-else:
-    storm_info_split = storm_info.split('_')
-    basin = storm_info_split[0]
-    year = storm_info_split[1]
-    storm = storm_info_split[2]
-if basin == 'AL':
-    formal_basin = 'Atlantic'
-elif basin == 'CP':
-    formal_basin = 'Central Pacific'
-elif basin == 'EP':
-    formal_basin = 'Eastern Pacific'
-elif basin == 'WP':
-    formal_basin = 'Western Pacific'
 
 # Read and plot stats
-print("Working on track and intensity error plots for "+storm_info)
+print("Working on track and intensity error plots for "+plot_info)
 print("Reading in data")
 summary_tcst_filename = os.path.join(tc_stat_file_dir, 'summary.tcst')
 if os.path.exists(summary_tcst_filename):
@@ -343,7 +331,6 @@ if os.path.exists(summary_tcst_filename):
             # Check y axis limit
             if stat_max >= ax.get_ylim()[1]:
                 while stat_max >= ax.get_ylim()[1]:
-                    print("WE ARE OFF THE PLOT")
                     y_axis_max = y_axis_max + y_axis_tick_inc
                     ax.set_yticks(
                         np.arange(y_axis_min,
@@ -423,16 +410,23 @@ if os.path.exists(summary_tcst_filename):
                     transform=ax.transData)
             # Build formal plot title
             full_title = formal_stat_name+'\n'
-            if len(storm_info) == 2:
-                full_title = full_title+' '+formal_basin+' Mean\n'
+            if basin == 'AL':
+                formal_basin = 'Atlantic'
+            elif basin == 'CP':
+                formal_basin = 'Central Pacific'
+            elif basin == 'EP':
+                formal_basin = 'Eastern Pacific'
+            elif basin == 'WP':
+                 formal_basin = 'Western Pacific'
+            if len(plot_info) == 2:
+                full_title = full_title+formal_basin+' Mean\n'
             else:
-                storm_info_split = storm_info.split('_')
                 full_title = (
-                    full_title+storm_info_split[2].title()+' '
-                    +'('+formal_basin+' '+storm_info_split[1]+')\n'
+                    full_title+name.title()+' '
+                    +'('+formal_basin+' '+year+')\n'
                 )
-            full_title = (full_title+'Cycles: '+init_hour_list+', '
-                          +' Valid Hours: '+valid_hour_list)
+            full_title = (full_title+'Cycles: '+', '.join(init_hour_list)+', '
+                          +' Valid Hours: '+', '.join(valid_hour_list))
             ax.set_title(full_title)
             fig.figimage(noaa_logo_img_array,
                  noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
@@ -444,7 +438,7 @@ if os.path.exists(summary_tcst_filename):
             savefig_name = os.path.join(
                 plotting_out_dir_imgs,
                 COLUMN_group.replace('(', '').replace(')', '')
-                +'_fhrmean_'+storm_info+'.png'
+                +'_fhrmean_'+plot_info+'.png'
             )
             print("Saving image as "+savefig_name)
             plt.savefig(savefig_name)

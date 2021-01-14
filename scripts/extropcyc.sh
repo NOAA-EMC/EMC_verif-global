@@ -97,8 +97,8 @@ else
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
 fi
-ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
-ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
+export ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
+export ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
 
 # Create job scripts to run METplus for tc_stat
 # and plotting scripts for individual

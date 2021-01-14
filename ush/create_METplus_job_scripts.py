@@ -1084,17 +1084,6 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                 basin_list.append(basin)
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
-    job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
-    job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
-    job_env_dict['fhr_list'] = (
-        os.environ[case_abbrev+'_fhr_list'].replace(' ','')
-    )
-    job_env_dict['init_hour_list'] = ','.join(
-        os.environ['tropcyc_fcyc_list'].split(' ')
-    )
-    job_env_dict['valid_hour_list'] = ','.join(
-        os.environ['tropcyc_vhr_list'].split(' ')
-    )
     # Set important METplus paths
     make_met_data_conf_dir = os.path.join(conf_dir, case, 'make_met_data')
     gather_conf_dir = os.path.join(conf_dir, case, 'gather')
@@ -1104,9 +1093,9 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         os.environ[case_abbrev+'_model_atcf_name_list'].split(' ')
     )
     nmodels = len(model_list)
-    if nmodels > 10:
+    if nmodels > 8:
         print("ERROR: Too many models listed in model_list ("
-              +str(nmodels)+"), current maximum is 10")
+              +str(nmodels)+"), current maximum is 8")
         sys.exit(1)
     model_atcf_abbrev_list = []
     for model in model_list:
@@ -1117,6 +1106,17 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         else:
             model_atcf_abbrev_list.append(model.ljust(4).upper()[0:4])
     if METplus_process == 'tc_stat':
+        job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
+        job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
+        job_env_dict['fhr_list'] = (
+            os.environ[case_abbrev+'_fhr_list'].replace(' ','')
+        )
+        job_env_dict['init_hour_list'] = (
+            os.environ[case_abbrev+'_init_hr_list'].replace(' ','')
+        )
+        job_env_dict['valid_hour_list'] = (
+            os.environ[case_abbrev+'_valid_hr_list'].replace(' ','')
+        )
         job_env_dict['model_list'] = ', '.join(model_list)
         job_env_dict['model_atcf_name_list'] = ', '.join(model_atcf_name_list)
         job_env_dict['model_atcf_abbrev_list'] = ', '.join(
@@ -1156,7 +1156,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file.write('\n')
             basin_img_dir = os.path.join(
                 job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
-                'plot', basin, 'imgs'
+                'plot', basin, 'images'
             )
             main_img_dir = os.path.join(
                 job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
@@ -1183,16 +1183,8 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         tc_start_date, tc_end_date = (
             get_tc_info.get_tc_dates(bdeck_file)
         )
-        tc_start_date_MET_format = datetime.datetime.strptime(
-            tc_start_date, '%Y%m%d%H'
-        ).strftime('%Y%m%d_%H%M%S')
-        tc_end_date_MET_format = datetime.datetime.strptime(
-            tc_end_date, '%Y%m%d%H'
-        ).strftime('%Y%m%d_%H%M%S')
         job_env_dict['TC_START_DATE'] = tc_start_date
         job_env_dict['TC_END_DATE'] = tc_end_date
-        job_env_dict['TC_START_DATE_MET_format'] = tc_start_date_MET_format
-        job_env_dict['TC_END_DATE_MET_format'] = tc_end_date_MET_format
         job_env_dict['tc'] = tc
         job_env_dict['basin'] = basin
         job_env_dict['year'] = year
@@ -1256,7 +1248,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file.write('\n')
             tc_img_dir = os.path.join(
                 job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
-                'plot', tc, 'imgs'
+                'plot', tc, 'images'
             )
             main_img_dir = os.path.join(
                 job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',

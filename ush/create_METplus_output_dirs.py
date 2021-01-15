@@ -29,7 +29,7 @@ os.makedirs(metplus_output_dir, mode=0o755)
 os.makedirs(metplus_job_scripts_dir, mode=0o755)
 
 # Build information of METplus output subdirectories to create
-metplus_output_subdir_list = [ 'confs', 'logs' ]
+metplus_output_subdir_list = [ 'confs', 'logs', 'tmp' ]
 if 'step2' in RUN:
     metplus_output_subdir_list.append(
        os.path.join('plot_by_'+plot_by, 'stat_analysis')

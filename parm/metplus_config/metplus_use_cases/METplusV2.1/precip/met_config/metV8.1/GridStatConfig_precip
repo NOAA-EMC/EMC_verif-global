@@ -230,7 +230,7 @@ nc_pairs_flag = {
 ////////////////////////////////////////////////////////////////////////////////
 
 grid_weight_flag = NONE;
-tmp_dir          = "/tmp";
+tmp_dir          = "${DATA}/${RUN}/metplus_output/tmp";
 output_prefix    = "${MODEL}_vs_${OBTYPE}";
 version          = "V8.1";
 

@@ -226,7 +226,7 @@ nc_pairs_flag = {
 ////////////////////////////////////////////////////////////////////////////////
 
 grid_weight_flag = COS_LAT;
-tmp_dir          = "/tmp";
+tmp_dir          = "${DATA}/${RUN}/metplus_output/tmp";
 output_prefix    = "height_${MODEL}_vs_${OBTYPE}";
 version          = "V8.1";
 

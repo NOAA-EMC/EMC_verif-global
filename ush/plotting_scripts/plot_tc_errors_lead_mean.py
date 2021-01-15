@@ -305,7 +305,7 @@ if os.path.exists(summary_tcst_filename):
                            color='None',
                            width=CI_bar_max_widths-(CI_bar_intvl_widths*(model_num-1)),
                            edgecolor= model_plot_settings_dict['color'],
-                           linewidth='1')
+                           linewidth=0.5)
                     if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
                             or np.ma.is_masked(stat_max):
                         if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
@@ -368,25 +368,24 @@ if os.path.exists(summary_tcst_filename):
                         )
             # Add number of cases
             x_axis_ticks_fraction = np.linspace(0, 1,len(fhrs), endpoint=True)
-            ax.annotate('# of\nCases', xy=(case_num_label_x_loc,
-                                        case_num_label_y_loc),
+            ax.annotate('# of\nCases',
+                        xy=(case_num_label_x_loc, case_num_label_y_loc),
                         xycoords='axes fraction')
-            for fhr in fhrs:
+            if len(fhrs) >= 15:
+              fhrs_ncase_to_plot = fhrs[::2]
+            else:
+              fhrs_ncase_to_plot = fhrs
+            for fhr in fhrs_ncase_to_plot:
                 fhr_idx = np.where(fhr == fhrs)[0][0]
                 if not np.ma.is_masked(all_amodel_total[:,fhr_idx]):
                     if np.all(all_amodel_total[:,fhr_idx]
                             == all_amodel_total[0,fhr_idx]):
                         num_cases = all_amodel_total[0,fhr_idx]
                         num_cases_str = str(int(num_cases))
-                        if len(num_cases_str) <= 2:
-                            rot = 0
-                        else:
-                            rot = 45
                         ax.annotate(num_cases_str,
                                     xy=(x_axis_ticks_fraction[fhr_idx],
                                         case_num_tick_y_loc),
-                                    xycoords='axes fraction', ha='center',
-                                    rotation=rot)
+                                    xycoords='axes fraction', ha='center')
                     else:
                         print("Working with nonhomogeneous sample for fhr "
                               +str(fhr)+"...not printing number of cases")

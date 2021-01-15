@@ -26,7 +26,7 @@ os.makedirs(metplus_output_dir, mode=0775)
 os.makedirs(metplus_job_scripts_dir, mode=0775)
 
 # Build information of METplus output subdirectories to create
-metplus_output_subdir_list = [ 'confs', 'logs' ]
+metplus_output_subdir_list = [ 'confs', 'logs', 'tmp' ]
 if RUN == 'grid2grid_step1':
     gather_by = os.environ['g2g1_gather_by']
     for type in os.environ['g2g1_type_list'].split(' '):

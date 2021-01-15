@@ -103,7 +103,7 @@ wmo_fisher_stats = [ "CNT:PR_CORR", "CNT:SP_CORR",
 
 rank_corr_flag = FALSE;
 vif_flag       = FALSE;
-tmp_dir        = "/tmp";
+tmp_dir        = "${DATA}/${RUN}/metplus_output/tmp";
 version        = "V8.1";
 
 ////////////////////////////////////////////////////////////////////////////////

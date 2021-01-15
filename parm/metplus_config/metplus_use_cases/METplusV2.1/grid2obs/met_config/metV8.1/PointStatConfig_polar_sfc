@@ -250,7 +250,7 @@ output_flag = {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-tmp_dir        = "/tmp";
+tmp_dir        = "${DATA}/${RUN}/metplus_output/tmp";
 output_prefix  = "";
 version        = "V8.1";
 

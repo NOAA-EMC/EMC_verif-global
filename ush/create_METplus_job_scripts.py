@@ -1069,7 +1069,6 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
 
          Returns:
     """
-    import get_tc_info
     tc_dict = get_tc_info.get_tc_dict()
     METplus_process = os.environ['METplus_'+case_abbrev+'_process']
     if METplus_process == 'tc_pairs':

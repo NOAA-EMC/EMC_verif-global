@@ -33,6 +33,7 @@ if [ $machine = WCOSS_C ]; then
         module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
         module load met/9.1
         export HOMEMET="/gpfs/hps3/emc/meso/noscrub/emc.metplus/met/${MET_version}"
+        export HOMEMET_bin_exec="exec"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
@@ -60,6 +61,7 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
         module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
         module load met/9.1
         export HOMEMET="/gpfs/dell2/emc/verification/noscrub/emc.metplus/met/${MET_version}"
+        export HOMEMET_bin_exec="exec"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
@@ -93,6 +95,7 @@ elif [ $machine = HERA ]; then
         module use /contrib/met/modulefiles
         module load met/9.1
         export HOMEMET="/contrib/met/9.1"
+        export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
@@ -122,6 +125,7 @@ elif [ $machine = ORION ]; then
     if [ $MET_version = 9.1 ]; then
         module load met/9.1
         export HOMEMET="/apps/contrib/MET/9.1"
+        export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1

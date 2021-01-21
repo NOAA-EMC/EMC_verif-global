@@ -32,8 +32,8 @@ def init_env_dict():
         'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
         'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
         'log_MET_output_to_METplus', 'METplus_verbosity', 'MET_version',
-        'HOMEMET', 'MET_verbosity', 'DATA', 'RUN', 'RM', 'CUT', 'TR', 'NCAP2',
-        'CONVERT', 'NCDUMP'
+        'HOMEMET', 'HOMEMET_bin_exec', 'MET_verbosity', 'DATA', 'RUN', 'RM',
+        'CUT', 'TR', 'NCAP2', 'CONVERT', 'NCDUMP'
     ]
     env_var_dict = {}
     for env_var in env_var_list:

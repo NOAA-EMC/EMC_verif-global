@@ -374,7 +374,7 @@ if os.path.exists(summary_tcst_filename):
             ax.annotate('# of\nCases',
                         xy=(case_num_label_x_loc, case_num_label_y_loc),
                         xycoords='axes fraction')
-            if len(fhrs) >= 15:
+            if len(fhrs) > 15:
               fhrs_ncase_to_plot = fhrs[::2]
             else:
               fhrs_ncase_to_plot = fhrs

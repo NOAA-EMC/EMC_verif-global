@@ -77,7 +77,7 @@ check_dup = TRUE;
 // Specify special processing to be performed for interpolated models.
 // Set to NONE, FILL, or REPLACE.
 //
-interp12 = REPLACE;
+interp12 = NONE;
 
 //
 // Specify how consensus forecasts should be defined

@@ -98,6 +98,7 @@ init_hour_list = os.environ['init_hour_list'].split(',')
 valid_hour_list = os.environ['valid_hour_list'].split(',')
 model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
 model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(', ')
+model_plot_name_list = os.environ['model_plot_name_list'].split(', ')
 basin = os.environ['basin']
 if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']
@@ -180,7 +181,7 @@ if os.path.exists(summary_tcst_filename):
             )
             for AMODEL in model_tmp_atcf_name_list:
                 AMODEL_idx = model_tmp_atcf_name_list.index(AMODEL)
-                AMODEL_plot_name = model_atcf_name_list[AMODEL_idx]
+                AMODEL_plot_name = model_plot_name_list[AMODEL_idx]
                 print("Plotting "+AMODEL_plot_name)
                 model_num+=1
                 model_plot_settings_dict = (

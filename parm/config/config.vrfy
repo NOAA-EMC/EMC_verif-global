@@ -395,6 +395,7 @@ fi
 
 if [ $RUN_TROPCYC = YES ]; then
     #tropcyc_model_atcf_name_list:  list of models ATCF 4 letter identifier in cooresponding tropcyc_model_file_format
+    #tropcyc_model_plot_name_list:  list of models reference name on plots
     #tropcyc_storm_list:            list of verifying storms, format BASIN_YEAR_NAME, ex. AL_2019_DORIAN, to verify all name use BASIN_YEAR_ALLNAMED
     #tropcyc_fcyc_list:             all forecst cycles to be included in verification: HH
     #tropcyc_vhr_list:              all valid hours to be included in verification: HH
@@ -402,6 +403,7 @@ if [ $RUN_TROPCYC = YES ]; then
     #tropcyc_fhr_max:               forecast hour to end verification HH[H]
     #tropcyc_model_file_format_list: file format of model files
     export tropcyc_model_atcf_name_list="AVNO"
+    export tropcyc_model_plot_name_list="ops_gfs gfsv16"
     export tropcyc_storm_list="AL_2020_ALLNAMED EP_2020_ALLNAMED WP_2020_ALLNAMED"
     export tropcyc_fcyc_list="00 06 12 18"
     export tropcyc_vhr_list="00 06 12 18"

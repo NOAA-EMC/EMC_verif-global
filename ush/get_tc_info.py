@@ -282,14 +282,7 @@ def get_tc_dates(bdeck_file):
         skipinitialspace=True, header=None,
         names=bdeck_cols
     )
-    TY_list = bdeck_data['TY'].tolist()
-    idx = 0
-    for TY in TY_list:
-        if TY not in ['DB', 'LO', 'WV']:
-            break
-        else:
-            idx+=1
     date_list = bdeck_data['YYYYMMDDHH'].tolist()
-    start_date = str(date_list[idx])
+    start_date = str(date_list[0])
     end_date = str(date_list[-1])
     return start_date, end_date

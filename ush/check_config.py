@@ -352,6 +352,12 @@ elif RUN == 'tropcyc':
             print("ERROR: length of "+atcf_name+" in "
                   +RUN+"_model_atcf_name_list != to 4")
             sys.exit(1)
+    valid_config_var_values_dict[RUN+'_storm_level_list'] = ['DB', 'TD', 'TS',
+                                                             'TY', 'ST', 'TC',
+                                                             'HU', 'SD', 'SS',
+                                                             'EX', 'IN', 'DS',
+                                                             'LO', 'WV', 'ET',
+                                                             'XX']
 elif RUN == 'maps2d':
     valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:

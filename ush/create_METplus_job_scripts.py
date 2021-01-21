@@ -1089,6 +1089,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
     model_plot_name_list = (
         os.environ[case_abbrev+'_model_plot_name_list'].split(' ')
     )
+    storm_level_list = os.environ[case_abbrev+'_storm_level_list'].split(' ')
     nmodels = len(model_list)
     if nmodels > 8:
         print("ERROR: Too many models listed in model_list ("
@@ -1117,6 +1118,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['model_tmp_atcf_name_list'] = ', '.join(
             model_tmp_atcf_name_list
         )
+        job_env_dict['storm_level_list'] = ','.join(storm_level_list)
         job_env_dict['model_plot_name_list'] = ', '.join(model_plot_name_list)
     basin_list = []
     # Set up tropical cyclone environment variables in dictionary

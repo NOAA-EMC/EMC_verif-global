@@ -394,14 +394,15 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
 fi
 
 if [ $RUN_TROPCYC = YES ]; then
-    #tropcyc_model_atcf_name_list:  list of models ATCF 4 letter identifier in cooresponding tropcyc_model_file_format
-    #tropcyc_model_plot_name_list:  list of models reference name on plots
-    #tropcyc_storm_list:            list of verifying storms, format BASIN_YEAR_NAME, ex. AL_2019_DORIAN, to verify all name use BASIN_YEAR_ALLNAMED
-    #tropcyc_fcyc_list:             all forecst cycles to be included in verification: HH
-    #tropcyc_vhr_list:              all valid hours to be included in verification: HH
-    #tropcyc_fhr_min:               forecast hour to start verification HH[H]
-    #tropcyc_fhr_max:               forecast hour to end verification HH[H]
+    #tropcyc_model_atcf_name_list:   list of models ATCF 4 letter identifier in cooresponding tropcyc_model_file_format
+    #tropcyc_model_plot_name_list:   list of models reference name on plots
+    #tropcyc_storm_list:             list of verifying storms, format BASIN_YEAR_NAME, ex. AL_2019_DORIAN, to verify all name use BASIN_YEAR_ALLNAMED
+    #tropcyc_fcyc_list:              all forecst cycles to be included in verification: HH
+    #tropcyc_vhr_list:               all valid hours to be included in verification: HH
+    #tropcyc_fhr_min:                forecast hour to start verification HH[H]
+    #tropcyc_fhr_max:                forecast hour to end verification HH[H]
     #tropcyc_model_file_format_list: file format of model files
+    #tropcyc_storm_level_list:       list of TC development levels to verify (column TY, see https://www.nrlmry.navy.mil/atcf_web/docs/database/new/abrdeck.html)
     export tropcyc_model_atcf_name_list="AVNO"
     export tropcyc_model_plot_name_list="ops_gfs gfsv16"
     export tropcyc_storm_list="AL_2020_ALLNAMED EP_2020_ALLNAMED WP_2020_ALLNAMED"
@@ -410,6 +411,7 @@ if [ $RUN_TROPCYC = YES ]; then
     export tropcyc_fhr_min="00"
     export tropcyc_fhr_max="168"
     export tropcyc_model_file_format_list="atcfunix.gfs.{init?fmt=%Y%m%d%H}"
+    export tropcyc_storm_level_list="TD TS HU SD SS TY ST"
 fi
 
 if [ $RUN_MAPS2D = YES ]; then

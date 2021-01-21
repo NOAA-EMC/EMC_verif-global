@@ -1217,6 +1217,10 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file.close()
     # Write basin mean job scripts
     if METplus_process == 'tc_stat':
+        for del_key in ['TC_START_DATE', 'TC_END_DATE', 'tc', 'basin',
+                        'year', 'name', 'tc_id', 'tc_num']:
+            if del_key in list(job_env_dict.keys()):
+                del job_env_dict[del_key]
         for basin in basin_list:
             job_env_dict['basin'] = basin
             # Create job file

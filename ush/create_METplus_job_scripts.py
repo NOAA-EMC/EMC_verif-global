@@ -1076,11 +1076,6 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
     elif METplus_process == 'tc_stat':
         npoe = int(os.environ['ncount_poe'])
         njob = int(os.environ['ncount_job'])
-        basin_list = []
-        for tc in tc_list:
-            basin = tc.split('_')[0]
-            if basin not in basin_list:
-                basin_list.append(basin)
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
     # Set important METplus paths
@@ -1096,14 +1091,12 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         print("ERROR: Too many models listed in model_list ("
               +str(nmodels)+"), current maximum is 8")
         sys.exit(1)
-    model_atcf_abbrev_list = []
+    model_tmp_atcf_name_list = []
     for model in model_list:
         model_idx = model_list.index(model)
+        model_num = model_idx + 1
         model_atcf_name = model_atcf_name_list[model_idx]
-        if model == 'gfs' and model_atcf_name != 'GFSO':
-            model_atcf_abbrev_list.append('GFSO')
-        else:
-            model_atcf_abbrev_list.append(model.ljust(4).upper()[0:4])
+        model_tmp_atcf_name_list.append('M'+str(model_num).zfill(3))
     if METplus_process == 'tc_stat':
         job_env_dict['START_DATE'] = start_date_dt.strftime('%Y%m%d')
         job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
@@ -1118,54 +1111,10 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         )
         job_env_dict['model_list'] = ', '.join(model_list)
         job_env_dict['model_atcf_name_list'] = ', '.join(model_atcf_name_list)
-        job_env_dict['model_atcf_abbrev_list'] = ', '.join(
-            model_atcf_abbrev_list
+        job_env_dict['model_tmp_atcf_name_list'] = ', '.join(
+            model_tmp_atcf_name_list
         )
-    # Write basin mean job scripts
-    if METplus_process == 'tc_stat':
-        for basin in basin_list:
-            job_env_dict['basin'] = basin
-            # Create job file
-            njob+=1
-            job_filename = os.path.join(job_env_dict['DATA'],
-                                        job_env_dict['RUN'],
-                                        'metplus_job_scripts',
-                                        'job'+str(njob))
-            job_file = open(job_filename, 'w')
-            job_file.write('#!/bin/sh\n')
-            job_file.write('set -x\n')
-            job_file.write('\n')
-            # Write environment variables
-            for name, value in job_env_dict.items():
-                job_file.write('export '+name+'="'+value+'"\n')
-            job_file.write('\n')
-            # Write METplus commands
-            metplus_conf = os.path.join(gather_conf_dir, 'basin.conf')
-            job_file.write(
-                master_metplus+' -c '+machine_conf+' -c '+metplus_conf+'\n'
-            )
-            job_file.write('\n')
-            job_file.write(
-                'python '
-                +os.path.join(job_env_dict['USHverif_global'],
-                                           'plotting_scripts',
-                                           'plot_tc_errors_lead_mean.py')
-                +'\n'
-            )
-            job_file.write('\n')
-            basin_img_dir = os.path.join(
-                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
-                'plot', basin, 'images'
-            )
-            main_img_dir = os.path.join(
-                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
-                'images'
-            )
-            job_file.write('nimgs=$(ls '+basin_img_dir+'/* |wc -l)\n')
-            job_file.write('if [ $nimgs -ne 0 ]; then\n')
-            job_file.write('    ln -sf '+basin_img_dir+'/* '+main_img_dir+'/.\n')
-            job_file.write('fi')
-            job_file.close()
+    basin_list = []
     # Set up tropical cyclone environment variables in dictionary
     for tc in tc_list:
         basin = tc.split('_')[0]
@@ -1173,6 +1122,8 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         name = tc.split('_')[2]
         if tc == 'WP_2018_HECTOR':
             basin = 'EP'
+        if basin not in basin_list:
+            basin_list.append(basin)
         tc_id =  tc_dict[tc]
         bdeck_file = os.path.join(job_env_dict['DATA'],
                                   job_env_dict['RUN'], 'data', 'bdeck',
@@ -1195,8 +1146,8 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             for model in model_list:
                 job_env_dict['model'] = model
                 model_idx = model_list.index(model)
-                job_env_dict['model_atcf_abbrev'] = (
-                    model_atcf_abbrev_list[model_idx]
+                job_env_dict['model_tmp_atcf_name'] = (
+                    model_tmp_atcf_name_list[model_idx]
                 )
                 # Create job file
                 njob+=1
@@ -1258,6 +1209,52 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             job_file.write('    ln -sf '+tc_img_dir+'/* '+main_img_dir+'/.\n')
             job_file.write('fi')
             job_file.close()
+    # Write basin mean job scripts
+    if METplus_process == 'tc_stat':
+        for basin in basin_list:
+            job_env_dict['basin'] = basin
+            # Create job file
+            njob+=1
+            job_filename = os.path.join(job_env_dict['DATA'],
+                                        job_env_dict['RUN'],
+                                        'metplus_job_scripts',
+                                        'job'+str(njob))
+            job_file = open(job_filename, 'w')
+            job_file.write('#!/bin/sh\n')
+            job_file.write('set -x\n')
+            job_file.write('\n')
+            # Write environment variables
+            for name, value in job_env_dict.items():
+                job_file.write('export '+name+'="'+value+'"\n')
+            job_file.write('\n')
+            # Write METplus commands
+            metplus_conf = os.path.join(gather_conf_dir, 'basin.conf')
+            job_file.write(
+                master_metplus+' -c '+machine_conf+' -c '+metplus_conf+'\n'
+            )
+            job_file.write('\n')
+            job_file.write(
+                'python '
+                +os.path.join(job_env_dict['USHverif_global'],
+                                           'plotting_scripts',
+                                           'plot_tc_errors_lead_mean.py')
+                +'\n'
+            )
+            job_file.write('\n')
+            basin_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'plot', basin, 'images'
+            )
+            main_img_dir = os.path.join(
+                job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
+                'images'
+            )
+            job_file.write('nimgs=$(ls '+basin_img_dir+'/* |wc -l)\n')
+            job_file.write('if [ $nimgs -ne 0 ]; then\n')
+            job_file.write('    ln -sf '+basin_img_dir+'/* '+main_img_dir+'/.\n')
+            job_file.write('fi')
+            job_file.close()
+
 
 def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                             case_type_list, master_metplus, machine_conf,

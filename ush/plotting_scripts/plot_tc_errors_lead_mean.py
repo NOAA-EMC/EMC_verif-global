@@ -97,6 +97,7 @@ fhrs = np.asarray(fhr_list, dtype=int)
 init_hour_list = os.environ['init_hour_list'].split(',')
 valid_hour_list = os.environ['valid_hour_list'].split(',')
 model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
+model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(', ')
 basin = os.environ['basin']
 if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']
@@ -177,13 +178,14 @@ if os.path.exists(summary_tcst_filename):
             tcstat_file_AMODEL_list = (
                 summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
             )
-            for AMODEL in model_atcf_name_list:
-                print("Plotting "+AMODEL)
+            for AMODEL in model_tmp_atcf_name_list:
+                AMODEL_idx = model_tmp_atcf_name_list.index(AMODEL)
+                AMODEL_plot_name = model_atcf_name_list[AMODEL_idx]
+                print("Plotting "+AMODEL_plot_name)
                 model_num+=1
                 model_plot_settings_dict = (
                     model_obs_plot_settings_dict['model'+str(model_num)]
                 )
-                AMODEL_plot_name = AMODEL
                 if AMODEL == 'AVNO' and 'GFSO' in tcstat_file_AMODEL_list:
                     print("Using operational GFS...using ATCF name as GFSO "
                          +"to find data to comply with MET")

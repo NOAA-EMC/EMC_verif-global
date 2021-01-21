@@ -1957,12 +1957,13 @@ elif RUN == 'tropcyc':
             )
             for model in model_list:
                 model_idx = model_list.index(model)
+                model_num = model_idx + 1
                 model_dir = model_dir_list[model_idx]
                 model_hpss_dir = model_hpss_dir_list[model_idx]
                 model_file_format = (
                     RUN_abbrev_model_file_format_list[model_idx]
                 )
-                model_atcf_abbrev = (
+                model_atcf_name = (
                     RUN_abbrev_model_atcf_name_list[model_idx]
                 )
                 link_model_dir = os.path.join(cwd, 'data', model)
@@ -1999,11 +2000,11 @@ elif RUN == 'tropcyc':
                                       +link_track_file+" from adeck file "
                                       +link_adeck_file+" for "+model+" "
                                       +"searching for ATCF name "
-                                      +model_atcf_abbrev+" and init time "
+                                      +model_atcf_name+" and init time "
                                       +init_time.strftime('%Y%m%d%H'))
                                 try:
                                     adeck_grep = subprocess.check_output(
-                                        'grep -R "'+model_atcf_abbrev+'" '
+                                        'grep -R "'+model_atcf_name+'" '
                                         +link_adeck_file+' | grep "'
                                         +init_time.strftime('%Y%m%d%H')+'"',
                                         shell=True, encoding='UTF-8'
@@ -2016,37 +2017,29 @@ elif RUN == 'tropcyc':
                                           +link_track_file+" from adeck file "
                                           +link_adeck_file)
                                     pass
-                            # Check to make sure listed ATCF name in the file
-                            # and do replacements
+                            ## Check to make sure listed ATCF name in the file
+                            ## and do replacements
                             if os.path.exists(link_track_file):
                                 try:
-                                    model_atcf_abbrev_grep = (
+                                    model_atcf_name_grep = (
                                         subprocess.check_output(
-                                            'grep -R "'+model_atcf_abbrev+'" '
+                                            'grep -R "'+model_atcf_name+'" '
                                              +link_track_file, shell=True,
                                              encoding='UTF-8'
                                         )
                                     )
-                                    if model == 'gfs' \
-                                            and model_atcf_abbrev != 'GFSO':
-                                        print("Using operational GFS..."
-                                              +"using ATCF name as GFSO "
-                                              +"to comply with MET in "
-                                              +link_track_file)
-                                        new_model_atcf_abbrev = 'GFSO'
-                                    else:
-                                        new_model_atcf_abbrev = (
-                                            model.ljust(4).upper()[0:4]
-                                        )
-                                        print("Replacing "+model+" ATCF name "
-                                              +model_atcf_abbrev+" with "
-                                              +new_model_atcf_abbrev+" in "
-                                              +link_track_file)
-                                    os.system('sed -i s/'+model_atcf_abbrev+'/'
-                                              +new_model_atcf_abbrev+'/g '
+                                    model_tmp_atcf_name = (
+                                        'M'+str(model_num).zfill(3)
+                                    )
+                                    print("Replacing "+model+" ATCF name "
+                                          +model_atcf_name+" with "
+                                          +model_tmp_atcf_name+" in "
+                                          +link_track_file)
+                                    os.system('sed -i s/'+model_atcf_name+'/'
+                                              +model_tmp_atcf_name+'/g '
                                               +link_track_file)
                                 except:
-                                     print("WARNING: "+model_atcf_abbrev+" "
+                                     print("WARNING: "+model_atcf_name+" "
                                            +"ATCF name for "+model+" not in "
                                            +link_track_file)
                                      pass

@@ -1989,11 +1989,13 @@ elif RUN == 'tropcyc':
                                           valid_time, init_time, '00')
                         )
                         if not os.path.exists(link_track_file):
-                            get_model_file(valid_time, init_time, lead,
-                                           model, model_dir, model_file_format,
-                                           RUN_model_data_run_hpss,
-                                           model_hpss_dir, link_model_dir,
-                                          'track.{init?fmt=%Y%m%d%H}.dat')
+                            if model_file_format != 'ADECK':
+                                get_model_file(valid_time, init_time, lead,
+                                               model, model_dir,
+                                               model_file_format,
+                                               RUN_model_data_run_hpss,
+                                               model_hpss_dir, link_model_dir,
+                                              'track.{init?fmt=%Y%m%d%H}.dat')
                             if not os.path.exists(link_track_file) \
                                     and os.path.exists(link_adeck_file):
                                 print("Going to try to make "

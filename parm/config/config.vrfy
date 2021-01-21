@@ -401,7 +401,7 @@ if [ $RUN_TROPCYC = YES ]; then
     #tropcyc_vhr_list:               all valid hours to be included in verification: HH
     #tropcyc_fhr_min:                forecast hour to start verification HH[H]
     #tropcyc_fhr_max:                forecast hour to end verification HH[H]
-    #tropcyc_model_file_format_list: file format of model files
+    #tropcyc_model_file_format_list: either file format of model archive track files, or set to ADECK to use data from adeck files
     #tropcyc_storm_level_list:       list of TC development levels to verify (column TY, see https://www.nrlmry.navy.mil/atcf_web/docs/database/new/abrdeck.html)
     export tropcyc_model_atcf_name_list="AVNO"
     export tropcyc_model_plot_name_list="ops_gfs gfsv16"
@@ -410,7 +410,7 @@ if [ $RUN_TROPCYC = YES ]; then
     export tropcyc_vhr_list="00 06 12 18"
     export tropcyc_fhr_min="00"
     export tropcyc_fhr_max="168"
-    export tropcyc_model_file_format_list="atcfunix.gfs.{init?fmt=%Y%m%d%H}"
+    export tropcyc_model_file_format_list="ADECK"
     export tropcyc_storm_level_list="TD TS HU SD SS TY ST"
 fi
 

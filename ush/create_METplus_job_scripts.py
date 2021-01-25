@@ -1201,7 +1201,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                 'python '
                 +os.path.join(job_env_dict['USHverif_global'],
                                            'plotting_scripts',
-                                           'plot_tc_errors_lead_mean.py')
+                                           'plot_tropcyc_lead_average.py')
                 +'\n'
             )
             job_file.write('\n')
@@ -1250,7 +1250,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                 'python '
                 +os.path.join(job_env_dict['USHverif_global'],
                                            'plotting_scripts',
-                                           'plot_tc_errors_lead_mean.py')
+                                           'plot_tropcyc_lead_average.py')
                 +'\n'
             )
             job_file.write('\n')

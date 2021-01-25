@@ -187,10 +187,6 @@ if os.path.exists(summary_tcst_filename):
                 model_plot_settings_dict = (
                     model_obs_plot_settings_dict['model'+str(model_num)]
                 )
-                if AMODEL == 'AVNO' and 'GFSO' in tcstat_file_AMODEL_list:
-                    print("Using operational GFS...using ATCF name as GFSO "
-                         +"to find data to comply with MET")
-                    AMODEL = 'GFSO'
                 fhrs_column_amodel_mean = np.full_like(fhrs, np.nan,
                                                        dtype=float)
                 fhrs_column_amodel_total = np.full_like(fhrs, np.nan,
@@ -401,15 +397,14 @@ if os.path.exists(summary_tcst_filename):
                 'edgecolor': 'black'
             }
             x_axis_tick_inc = fhrs[1] - fhrs[0]
-            ax.text(legend_box.x1 + (x_axis_tick_inc * 0.75),
-                    ax.get_ylim()[1] - (0.15 * y_axis_tick_inc),
-                    "Note: statistical significance at the 95% confidence "
-                    "level where confidence intervals do not intersect",
-                    ha='left',
-                    va='top',
-                    fontsize=10,
-                    bbox=props,
-                    transform=ax.transData)
+            if len(ax.lines) != 0:
+                ax.text(legend_box.x1 + (x_axis_tick_inc * 0.75),
+                        ax.get_ylim()[1] - (0.15 * y_axis_tick_inc),
+                        'Note: statistical significance at the 95% '
+                        +'confidence level where confidence intervals '
+                        +'do not intersect',
+                        ha='left', va='top', fontsize=10,
+                        bbox=props, transform=ax.transData)
             # Build formal plot title
             full_title = formal_stat_name+'\n'
             if basin == 'AL':

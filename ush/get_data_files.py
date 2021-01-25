@@ -2115,7 +2115,6 @@ elif RUN == 'maps2d':
                 fhr_list,
                 RUN_abbrev_type_make_met_data_by
             )
-            RUN_abbrev_type_valid_time_list = []
             # Get forecast, analysis, observation files for each model
             for model in model_list:
                 model_idx = model_list.index(model)
@@ -2127,6 +2126,16 @@ elif RUN == 'maps2d':
                 if not os.path.exists(link_model_data_dir):
                     os.makedirs(link_model_data_dir)
                     os.makedirs(os.path.join(link_model_data_dir, 'HPSS_jobs'))
+                model_fcst_ftp_files_filename = os.path.join(
+                    link_model_data_dir,
+                    RUN_abbrev_type+'_'+model+'_'
+                    +forecast_to_plot+'_file_list_fcst.txt'
+                )
+                model_obs_ftp_files_filename = os.path.join(
+                    link_model_data_dir,
+                    RUN_abbrev_type+'_'+model+'_'
+                    +forecast_to_plot+'_file_list_obs.txt'
+                )
                 # Get model forecast files
                 for time in RUN_abbrev_type_time_info_dict:
                     valid_time = time['valid_time']
@@ -2139,8 +2148,6 @@ elif RUN == 'maps2d':
                     if hour not in RUN_abbrev_type_hour_list:
                         continue
                     else:
-                        if valid_time not in RUN_abbrev_type_valid_time_list:
-                            RUN_abbrev_type_valid_time_list.append(valid_time)
                         if forecast_to_plot == 'anl':
                             ftp_file_format = anl_file_format
                             ftp_link_file_format = (
@@ -2159,56 +2166,119 @@ elif RUN == 'maps2d':
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
                                        ftp_link_file_format)
-                        # Get valid time analysis if needed
-                        if RUN_type == 'model2model' and \
-                                RUN_abbrev_model2model_forecast_anl_diff \
-                                == 'YES':
-                            get_model_file(valid_time, valid_time, 'anl',
-                                           model, model_dir, anl_file_format,
-                                           model_data_run_hpss, model_hpss_dir,
-                                           link_model_data_dir,
-                                           'anl.{valid?fmt=%Y%m%d%H}')
-            # Get valid time observations if needed
-            if RUN_type == 'model2obs':
-                obtype_list = ['gpcp', 'ghcn_cams']
-                if RUN_abbrev_model2obs_use_ceres == 'YES':
-                    obtype_list.append('ceres')
-                else:
-                    obtype_list.extend(['clwp', 'nvap', 'rad_isccp', 'rad_srb2'])
-                link_obs_dir = os.path.join(cwd, 'data', 'obs')
-                if not os.path.exists(link_obs_dir):
-                    os.makedirs(link_obs_dir)
-                for obtype in obtype_list:
-                    link_obtype_dir = os.path.join(link_obs_dir, obtype)
-                    if not os.path.exists(link_obtype_dir):
-                        os.makedirs(link_obtype_dir)
-                    for valid_time in RUN_abbrev_type_valid_time_list:
-                        YYYY = valid_time.strftime('%Y')
-                        B = valid_time.strftime('%B')[0:3]
-                        if obtype in ['clwp', 'nvap', 'rad_isccp', 'rad_srb2']:
-                            obtype_dir = os.path.join(obdata_dir,
-                                                      'vsdb_climo_data',
-                                                      'CF_compliant')
-                            obtype_filename = obtype+'_'+B+'.nc'
-                        else:
-                            if RUN_abbrev_model2obs_use_monthly_mean == 'YES':
-                                obtype_dir = os.path.join(obdata_dir, obtype,
-                                                          'monthly_mean')
-                                obtype_filename = obtype+'_'+B+YYYY+'.nc'
+                        model_fcst_ftp_lead_file = os.path.join(
+                            link_model_data_dir, format_filler(
+                                ftp_link_file_format, valid_time, init_time,
+                                ftp_lead
+                             )
+                        )
+                        # Get observation files if needed
+                        if RUN_type == 'model2model':
+                            if RUN_abbrev_model2model_forecast_anl_diff \
+                                    == 'YES':
+                                get_model_file(valid_time, valid_time, 'anl',
+                                               model, model_dir,
+                                               anl_file_format,
+                                               model_data_run_hpss,
+                                               model_hpss_dir,
+                                               link_model_data_dir,
+                                               'anl.{valid?fmt=%Y%m%d%H}')
+                                model_obs_ftp_lead_file = os.path.join(
+                                    link_model_data_dir, format_filler(
+                                        'anl.{valid?fmt=%Y%m%d%H}', valid_time,
+                                        valid_time, 'anl'
+                                    )
+                                )
                             else:
-                                obtype_dir = os.path.join(obdata_dir, obtype,
-                                                          'monthly_climo')
-                                obtype_filename = obtype+'_'+B+'.nc'
-                        obtype_file = os.path.join(obtype_dir, obtype_filename)
-                        link_obtype_file = os.path.join(link_obtype_dir,
-                                                        obtype_filename)
-                        if not os.path.exists(link_obtype_file):
-                            if os.path.exists(obtype_file):
-                                os.system('ln -sf '+obtype_file+' '
-                                          +link_obtype_file)
+                                model_obs_ftp_lead_file = (
+                                    model_fcst_ftp_lead_file
+                                )
+                            # Add to file list
+                            if os.path.exists(model_fcst_ftp_lead_file) \
+                                    and \
+                                    os.path.exists(model_obs_ftp_lead_file):
+                                with open(model_fcst_ftp_files_filename,
+                                          'a') as \
+                                        fcst_files:
+                                    fcst_files.write(
+                                        model_fcst_ftp_lead_file+'\n'
+                                    )
+                                with open(model_obs_ftp_files_filename,
+                                          'a') as \
+                                        obs_files:
+                                    obs_files.write(
+                                        model_obs_ftp_lead_file+'\n'
+                                    )
+                        elif RUN_type == 'model2obs':
+                            obtype_list = ['gpcp', 'ghcn_cams']
+                            if RUN_abbrev_model2obs_use_ceres == 'YES':
+                                obtype_list.append('ceres')
                             else:
-                                print("WARNING: "+obtype_file+" does not "
-                                      +"exists")
+                                obtype_list.extend(
+                                    ['clwp', 'nvap', 'rad_isccp', 'rad_srb2']
+                                )
+                            link_obs_dir = os.path.join(cwd, 'data', 'obs')
+                            if not os.path.exists(link_obs_dir):
+                                os.makedirs(link_obs_dir)
+                            for obtype in obtype_list:
+                                link_obtype_dir = os.path.join(link_obs_dir,
+                                                               obtype)
+                                if not os.path.exists(link_obtype_dir):
+                                    os.makedirs(link_obtype_dir)
+                                YYYY = valid_time.strftime('%Y')
+                                B = valid_time.strftime('%B')[0:3]
+                                if obtype in ['clwp', 'nvap', 'rad_isccp',
+                                              'rad_srb2']:
+                                    obtype_dir = os.path.join(
+                                        obdata_dir, 'vsdb_climo_data',
+                                        'CF_compliant'
+                                    )
+                                    obtype_filename = obtype+'_'+B+'.nc'
+                                else:
+                                    if RUN_abbrev_model2obs_use_monthly_mean \
+                                            == 'YES':
+                                        obtype_dir = os.path.join(
+                                            obdata_dir, obtype, 'monthly_mean'
+                                        )
+                                        obtype_filename = (
+                                            obtype+'_'+B+YYYY+'.nc'
+                                        )
+                                    else:
+                                        obtype_dir = os.path.join(
+                                            obdata_dir, obtype, 'monthly_climo'
+                                        )
+                                        obtype_filename = obtype+'_'+B+'.nc'
+                                obtype_file = os.path.join(obtype_dir,
+                                                           obtype_filename)
+                                link_obtype_file = os.path.join(
+                                    link_obtype_dir, obtype_filename
+                                )
+                                model_obs_ftp_lead_file = link_obtype_file
+                                if not os.path.exists(link_obtype_file):
+                                    if os.path.exists(obtype_file):
+                                        os.system('ln -sf '+obtype_file+' '
+                                                  +link_obtype_file)
+                                    else:
+                                        print("WARNING: "+obtype_file+" does "
+                                              +"not exist")
+                                # Add to file list
+                                if os.path.exists(model_fcst_ftp_lead_file) \
+                                        and \
+                                        os.path.exists(
+                                            model_obs_ftp_lead_file
+                                        ):
+                                    with open(model_fcst_ftp_files_filename,
+                                              'a') \
+                                            as fcst_files:
+                                        fcst_files.write(
+                                            model_fcst_ftp_lead_file+'\n'
+                                        )
+                                    with open(model_obs_ftp_files_filename,
+                                              'a') \
+                                            as obs_files:
+                                        obs_files.write(
+                                            model_obs_ftp_lead_file+'\n'
+                                        )
 elif RUN == 'mapsda':
     # Read in RUN related environment variables
     RUN_abbrev_gdas_model_file_format_list = os.environ[

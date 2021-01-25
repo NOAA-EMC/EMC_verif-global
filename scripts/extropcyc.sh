@@ -144,6 +144,5 @@ fi
 # custome templates and images to web
 if [ $SEND2WEB = YES ] ; then
     mkdir -p $DATA/$RUN/create_webpage_templates
-    python $USHverif_global/create_tropcyc_webpage_templates.py
     python $USHverif_global/build_webpage.py
 fi

@@ -2128,12 +2128,12 @@ elif RUN == 'maps2d':
                     os.makedirs(os.path.join(link_model_data_dir, 'HPSS_jobs'))
                 model_fcst_ftp_files_filename = os.path.join(
                     link_model_data_dir,
-                    RUN_abbrev_type+'_'+model+'_'
+                    RUN_type+'_'+model+'_'
                     +forecast_to_plot+'_file_list_fcst.txt'
                 )
                 model_obs_ftp_files_filename = os.path.join(
                     link_model_data_dir,
-                    RUN_abbrev_type+'_'+model+'_'
+                    RUN_type+'_'+model+'_'
                     +forecast_to_plot+'_file_list_obs.txt'
                 )
                 # Get model forecast files

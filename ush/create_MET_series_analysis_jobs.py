@@ -15,10 +15,10 @@ print("BEGIN: "+os.path.basename(__file__))
 
 # Read in environment variables
 HOMEMET = os.environ['HOMEMET']
+HOMEMET_bin_exec = os.environ['HOMEMET_bin_exec']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 PARMverif_global = os.environ['PARMverif_global']
-WGRIB2 = os.environ['WGRIB2']
 MET_verbosity = os.environ['MET_verbosity']
 MET_version = os.environ['MET_version']
 METplus_version = os.environ['METplus_version']
@@ -27,18 +27,15 @@ END_DATE = os.environ['END_DATE']
 job_num_id = os.environ['job_num_id']
 make_met_data_by = os.environ['make_met_data_by']
 forecast_to_plot = os.environ['forecast_to_plot']
-hr_beg = os.environ['hr_beg']
-hr_end = os.environ['hr_end']
-hr_inc = os.environ['hr_inc']
 regrid_to_grid = os.environ['regrid_to_grid']
 latlon_area = os.environ['latlon_area']
-var_group_name = os.environ['var_group_name']
+var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels_list = os.environ['var_levels'].split(', ')
-verif_case_type = os.environ['verif_case_type']
-if verif_case_type == 'model2model':
+RUN_type = os.environ['RUN_type']
+if RUN_type == 'model2model':
     forecast_anl_diff = os.environ['forecast_anl_diff']
-if verif_case_type == 'model2obs':
+if RUN_type == 'model2obs':
     obtype_var_name_list = os.environ['obtype_var_name'].split(', ')
 model_regex = re.compile("model(\d+)$")
 all_model_dict = {}
@@ -59,29 +56,18 @@ for key in list(os.environ.keys()):
 model_list = sorted(list(all_model_dict.keys()))
 
 # Set up series_analysis path and config
-series_analysis_path = os.path.join(HOMEMET, 'bin', 'series_analysis')
+series_analysis_path = os.path.join(HOMEMET, HOMEMET_bin_exec,
+                                    'series_analysis')
 series_analysis_verbosity = '-v '+MET_verbosity
-if any('bucketaccum' in s for s in var_levels_list):
-    series_analysis_config = '-config '+os.path.join(PARMverif_global,
-                                                     'metplus_config',
-                                                     'metplus_use_cases',
-                                                     'METplusV'
-                                                     +METplus_version,
-                                                     RUN, 'met_config',
-                                                     'metV'+MET_version,
-                                                     'SeriesAnalysisConfig_'
-                                                     +verif_case_type
-                                                     +'_time_range_accum')
-else:
-    series_analysis_config = '-config '+os.path.join(PARMverif_global,
-                                                     'metplus_config',
-                                                     'metplus_use_cases',
-                                                     'METplusV'
-                                                     +METplus_version,
-                                                     RUN, 'met_config',
-                                                     'metV'+MET_version,
-                                                     'SeriesAnalysisConfig_'
-                                                     +verif_case_type)
+series_analysis_config = '-config '+os.path.join(PARMverif_global,
+                                                 'metplus_config',
+                                                 'metplus_use_cases',
+                                                 'METplusV'
+                                                 +METplus_version,
+                                                 RUN, 'met_config',
+                                                 'METV'+MET_version,
+                                                 'SeriesAnalysisConfig_'
+                                                 +RUN_type)
 
 def get_var_grib1_info(var_name, var_level):
     """! This returns special GRIB1 variable information to use
@@ -102,6 +88,7 @@ def get_var_grib1_info(var_name, var_level):
              var_GRIB_lvl_val2 - string of the GRIB level 2 number
              var_GRIB1_ptv     - string of the GRIB1 parameter table
                                  where the variable is defined
+             var_GRIB1_tri     - string of the GRIB1 time range indicator
     """
     # Define GRIB level type
     if var_level[-3:] == 'hPa':
@@ -118,54 +105,54 @@ def get_var_grib1_info(var_name, var_level):
         var_GRIB_lvl_typ = '1'
     elif 'sigma' in var_level:
         var_GRIB_lvl_typ = '107'
-    elif var_level == 'msl':
+    elif 'msl' in var_level:
         var_GRIB_lvl_typ = '102'
-    elif var_level == 'column':
+    elif 'column' in var_level:
         var_GRIB_lvl_typ = '200'
-    elif var_level == 'toa':
+    elif 'toa' in var_level:
         var_GRIB_lvl_typ = '8'
-    elif var_level == 'pbl':
+    elif 'pbl' in var_level:
         if var_name == 'TCDC':
             var_GRIB_lvl_typ = '211'
         else:
             var_GRIB_lvl_typ = '220'
-    elif var_level == 'low':
-        var_GRIB_lvl_typ = '214'
-    elif var_level == 'mid':
-        var_GRIB_lvl_typ = '224'
-    elif var_level == 'high':
-        var_GRIB_lvl_typ = '234'
-    elif var_level == 'convective':
-        var_GRIB_lvl_typ = '244'
-    elif var_level == 'lowcloudbase':
+    elif 'lowcloudbase' in var_level:
         var_GRIB_lvl_typ = '212'
-    elif var_level == 'midcloudbase':
+    elif 'midcloudbase' in var_level:
         var_GRIB_lvl_typ = '222'
-    elif var_level == 'highcloudbase':
+    elif 'highcloudbase' in var_level:
         var_GRIB_lvl_typ = '232'
-    elif var_level == 'convectivecloudbase':
+    elif 'convectivecloudbase' in var_level:
         var_GRIB_lvl_typ = '242'
-    elif var_level == 'lowcloudtop':
+    elif 'lowcloudtop' in var_level:
         var_GRIB_lvl_typ = '213'
-    elif var_level == 'midcloudtop':
+    elif 'midcloudtop' in var_level:
         var_GRIB_lvl_typ = '223'
-    elif var_level == 'highcloudtop':
+    elif 'highcloudtop' in var_level:
         var_GRIB_lvl_typ = '233'
-    elif var_level == 'convectivecloudtop':
+    elif 'convectivecloudtop' in var_level:
         var_GRIB_lvl_typ = '243'
-    elif var_level == 'tropopause':
-        var_GRIB_lvl_typ = '7'
-    elif var_level == 'maxwindlev':
-        var_GRIB_lvl_typ = '6'
-    elif var_level == 'highesttropfrzlev':
+    elif 'highesttropfrzlev' in var_level:
         var_GRIB_lvl_typ = '204'
+    elif 'low' in var_level:
+        var_GRIB_lvl_typ = '214'
+    elif 'mid' in var_level:
+        var_GRIB_lvl_typ = '224'
+    elif 'high' in var_level:
+        var_GRIB_lvl_typ = '234'
+    elif 'convective' in var_level:
+        var_GRIB_lvl_typ = '244'
+    elif 'tropopause' in var_level:
+        var_GRIB_lvl_typ = '7'
+    elif 'maxwindlev' in var_level:
+        var_GRIB_lvl_typ = '6'
     else:
         print("ERROR: Unable to speificy GRIB level type "
               +"from variable level info "+var_level)
         sys.exit(1)
     # Define 1st and 2nd GRIB level
     var_level_nums = ''
-    for v in var_level:
+    for v in var_level.split('_')[0]:
         if v.isdigit() or v == '-' or v == '.':
             var_level_nums = var_level_nums + v
     if var_level_nums != '':
@@ -194,16 +181,45 @@ def get_var_grib1_info(var_name, var_level):
         var_GRIB1_ptv = '133'
     else:
         var_GRIB1_ptv = '2'
-    # Define time range accumulation
-    if 'bucketaccum' in var_level:
-        var_time_range_accum = 'A'
+    # Define time range indicator
+    if '_' in var_level:
+        if 'accum' in var_level:
+            var_GRIB1_tri = '4'
+        elif 'avg' in var_level:
+            var_GRIB1_tri = '3'
+        elif 'range' in var_level:
+            var_GRIB1_tri = '2'
+    else:
+        var_GRIB1_tri = '10'
+    # Define MET level
+    if 'sfc' in var_level:
+        var_MET_level = 'Z0'
+    elif 'AGL' in var_level:
+        if var_GRIB_lvl_val1 == var_GRIB_lvl_val2:
+            var_MET_level = 'Z'+var_GRIB_lvl_val1
+        else:
+            var_MET_level = 'Z'+var_GRIB_lvl_val1+'-'+var_GRIB_lvl_val2
+    elif 'UGL' in var_level:
+        if var_GRIB_lvl_val1 == var_GRIB_lvl_val2:
+            var_MET_level = 'Z'+var_GRIB_lvl_val1
+        else:
+            var_MET_level = 'Z'+var_GRIB_lvl_val1+'-'+var_GRIB_lvl_val2
+    elif var_level[-3:] == 'hPa':
+        if var_GRIB_lvl_val1 == var_GRIB_lvl_val2:
+            var_MET_level = 'P'+var_GRIB_lvl_val1
+        else:
+            var_MET_level = 'P'+var_GRIB_lvl_val1+'-'+var_GRIB_lvl_val2
+    elif 'accum' in var_level:
         for v in var_level:
             if v.isdigit():
-                var_time_range_accum = var_time_range_accum + v
+                var_MET_level = 'A'+v
+    elif 'sigma' in var_level:
+        var_MET_level = 'L'+var_GRIB_lvl_val1
     else:
-        var_time_range_accum = '0'
+        var_MET_level = 'L0'
     return (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-            var_GRIB_lvl_val2, var_GRIB1_ptv, var_time_range_accum)
+            var_GRIB_lvl_val2, var_GRIB1_ptv, var_GRIB1_tri,
+            var_MET_level)
 
 # Run for models
 for model in model_list:
@@ -213,53 +229,20 @@ for model in model_list:
     model_obtype = model_dict['obtype']
     series_analysis_config_file = series_analysis_config
     # Set up input information
-    if verif_case_type == 'model2model':
-        if forecast_anl_diff == 'YES' and forecast_to_plot != 'anl':
-            series_analysis_fcst_files = (
-                '-fcst '+os.path.join (DATA, RUN, 'data', model_name,
-                                       model_name+'_'+forecast_to_plot
-                                       +'_file_list.txt')
-            )
-            series_analysis_obs_files = (
-                '-obs '+os.path.join (DATA, RUN, 'data', model_name,
-                                      model_name+'_'+forecast_to_plot
-                                      +'_anl_file_list.txt')
-            )
-            series_analysis_files = (series_analysis_fcst_files
-                                     +' '+series_analysis_obs_files)
-        else:
-            series_analysis_files = (
-                '-both '+os.path.join (DATA, RUN, 'data', model_name,
-                                       model_name+'_'+forecast_to_plot
-                                       +'_file_list.txt')
-            )
-    elif verif_case_type == 'model2obs':
-        series_analysis_fcst_files = (
-            '-fcst '+os.path.join (DATA, RUN, 'data', model_name,
-                                   model_name+'_'+forecast_to_plot
-                                   +'_file_list.txt')
-        )
-        series_analysis_obs_files = (
-            '-obs '+os.path.join (DATA, RUN, 'data', 'obs',
-                                  model_obtype,
-                                  model_obtype+'_'+forecast_to_plot
-                                  +'_file_list.txt')
-        )
-        series_analysis_files = (series_analysis_fcst_files
-                                 +' '+series_analysis_obs_files)
-    else:
-        series_analysis_fcst_files = (
-            '-fcst '+os.path.join (DATA, RUN, 'data', model_name,
-                                   model_name+'_'+forecast_to_plot
-                                   +'_file_list.txt')
-        )
-        series_analysis_obs_files = (
-            '-obs '+os.path.join (DATA, RUN, 'data', model_name,
-                                  model_name+'_'+forecast_to_plot
-                                  +'_anl_file_list.txt')
-        )
-        series_analysis_files = (series_analysis_fcst_files
-                                 +' '+series_analysis_obs_files)
+    series_analysis_fcst_files = (
+        '-fcst '
+        +os.path.join(DATA, RUN, 'data', model_name,
+                      RUN_type+'_fcst_'+model_name+'_obs_'+model_obtype+'_'
+                      +forecast_to_plot+'_fcst_file_list.txt')
+    )
+    series_analysis_obs_files = (
+        '-obs '
+        +os.path.join(DATA, RUN, 'data', model_name,
+                      RUN_type+'_fcst_'+model_name+'_obs_'+model_obtype+'_'
+                      +forecast_to_plot+'_obs_file_list.txt')
+    )
+    series_analysis_files = (series_analysis_fcst_files
+                             +' '+series_analysis_obs_files)
     # Set up shell script for series_analysis job
     series_analysis_job_filename = os.path.join (DATA, RUN,
                                                  'metplus_job_scripts',
@@ -282,28 +265,28 @@ for model in model_list:
     for var_level in var_levels_list:
         var_level_idx = var_levels_list.index(var_level)
         series_analysis_out = (
-            '-out '+os.path.join (DATA, RUN, 'metplus_output',
-                                  'make_met_data_by_'+make_met_data_by,
-                                  'series_analysis', verif_case_type,
-                                  var_group_name, model_name,
-                                  forecast_to_plot+'_'+var_name+'_'
-                                  +var_level.replace(' ', '')+'.nc')
+            '-out '+os.path.join(DATA, RUN, 'metplus_output',
+                                 'make_met_data_by_'+make_met_data_by,
+                                 'series_analysis', RUN_type,
+                                 var_group, model_name,
+                                 forecast_to_plot+'_'+var_name+'_'
+                                 +var_level.replace(' ', '')+'.nc')
         )
         series_analysis_log = (
-            '-log '+os.path.join (DATA, RUN, 'metplus_output', 'logs',
-                                  'series_analysis_'+verif_case_type+'_'
-                                  +var_group_name+'_'+model_name+'_'
-                                  +forecast_to_plot+'_'+var_name+'_'
-                                  +var_level.replace(' ', '')+'.log')
+            '-log '+os.path.join(DATA, RUN, 'metplus_output', 'logs',
+                                 'series_analysis_'+RUN_type+'_'
+                                 +var_group+'_'+model_name+'_'
+                                 +forecast_to_plot+'_'+var_name+'_'
+                                 +var_level.replace(' ', '')+'.log')
         )
         series_analysis_job_file.write('export var_level="'+var_level+'"\n')
-        if verif_case_type == 'model2obs':
+        if RUN_type == 'model2obs':
             series_analysis_job_file.write('export obtype_var_name="'
                                            +obtype_var_name_list[var_level_idx]
                                            +'"\n')
         # extract special grib file information
         (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-            var_GRIB_lvl_val2, var_GRIB1_ptv, var_time_range_accum) = (
+         var_GRIB_lvl_val2, var_GRIB1_ptv, var_GRIB1_tri, var_MET_level) = (
                 get_var_grib1_info(var_name, var_level)
         )
         series_analysis_job_file.write('export var_GRIB_lvl_typ="'
@@ -314,18 +297,23 @@ for model in model_list:
                                        +var_GRIB_lvl_val2+'"\n')
         series_analysis_job_file.write('export var_GRIB1_ptv="'
                                        +var_GRIB1_ptv+'"\n')
+        series_analysis_job_file.write('export var_GRIB1_tri="'
+                                       +var_GRIB1_tri+'"\n')
+        series_analysis_job_file.write('export var_MET_level="'
+                                       +var_MET_level+'"\n')
         # special case for DSWRF since not in model files, running
         # obs only
-        if verif_case_type == 'model2obs':
+        if RUN_type == 'model2obs':
             if obtype_var_name_list[var_level_idx] == 'sw_toa_down':
                 series_analysis_config_file = (
                     series_analysis_config_file+'_obsonly'
                 )
                 series_analysis_files = (
-                    '-both '+os.path.join (DATA, RUN, 'data', 'obs',
-                                           model_obtype,
-                                           model_obtype+'_'+forecast_to_plot
-                                           +'_file_list.txt')
+                    '-both '
+                    +os.path.join(DATA, RUN, 'data', model_name,
+                                  RUN_type+'_fcst_'+model_name+'_obs_'
+                                  +model_obtype+'_'+forecast_to_plot
+                                  +'_obs_file_list.txt')
                 )
                 series_analysis_log = series_analysis_log.replace(
                     '.log', '_obsonly.log'
@@ -333,9 +321,6 @@ for model in model_list:
                 series_analysis_out = series_analysis_out.replace(
                     '.nc', '_obsonly.nc'
                 )
-        if var_time_range_accum != '0':
-            series_analysis_job_file.write('export var_time_range_accum="'
-                                           +var_time_range_accum+'"\n')
         series_analysis_job_file.write(series_analysis_path+' '
                                        +series_analysis_verbosity+' '
                                        +series_analysis_files+' '

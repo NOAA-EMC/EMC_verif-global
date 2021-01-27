@@ -1318,8 +1318,8 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                   '200hPa', '100hPa', '70hPa', '50hPa', '10hPa',
                                   '5hPa', '1hPa']},
             'sfc': {'TMP': ['2mAGL', 'sfc'],
-                    'TMAX': ['2mAGL'],
-                    'TMIN': ['2mAGL'],
+                    'TMAX': ['2mAGL_range6hr'],
+                    'TMIN': ['2mAGL_range6hr'],
                     'DPT': ['2mAGL'],
                     'RH': ['2mAGL'],
                     'SPFH': ['2mAGL'],
@@ -1335,68 +1335,64 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                     'HGT': ['sfc'],
                     'HINDEX': ['sfc'],
                     'ICEC': ['sfc'],
-                    'U-GWD': ['sfc'],
-                    'V-GWD': ['sfc'],
-                    'UFLX': ['sfc'],
-                    'VFLX': ['sfc'],
-                    'ALBDO': ['sfc'],
-                    'LHTFL': ['sfc'],
-                    'SHTFL': ['sfc'],
-                    'GFLUX': ['sfc']},
+                    'U-GWD': ['sfc_avg6hr'],
+                    'V-GWD': ['sfc_avg6hr'],
+                    'UFLX': ['sfc_avg6hr'],
+                    'VFLX': ['sfc_avg6hr'],
+                    'ALBDO': ['sfc_avg6hr'],
+                    'LHTFL': ['sfc_avg6hr'],
+                    'SHTFL': ['sfc_avg6hr'],
+                    'GFLUX': ['sfc_avg6hr']},
             'totcol': {'PWAT': ['column'],
                        'CWAT': ['column'],
                        'TOZNE': ['column'],
-                       'CWORK': ['column'],
+                       'CWORK': ['column_avg6hr'],
                        'RH': ['column']},
-            'precip': {'APCP': ['sfc_bucketaccum6hr'],
-                       'ACPCP': ['sfc_bucketaccum6hr'],
+            'precip': {'APCP': ['sfc_accum6hr'],
+                       'ACPCP': ['sfc_accum6hr'],
                        'SNOD': ['sfc'],
                        'WEASD': ['sfc'],
-                       'WATR': ['sfc']},
-            'cloudsrad': {'DLWRF': ['sfc'],
-                          'ULWRF': ['sfc', 'toa'],
-                          'DSWRF': ['sfc'],
-                          'USWRF': ['sfc', 'toa'],
-                          'ALBDO': ['sfc'],
+                       'WATR': ['sfc_accum6hr'],
+                       'PRATE': ['sfc_avg6hr'],
+                       'CRAIN': ['sfc_avg6hr'],
+                       'CSNOW': ['sfc_avg6hr'],
+                       'CICEP': ['sfc_avg6hr'],
+                       'CFRZR': ['sfc_avg6hr']},
+            'cloudsrad': {'DLWRF': ['sfc_avg6hr'],
+                          'ULWRF': ['sfc_avg6hr', 'toa_avg6hr'],
+                          'DSWRF': ['sfc_avg6hr'],
+                          'USWRF': ['sfc_avg6hr', 'toa_avg6hr'],
+                          'ALBDO': ['sfc_avg6hr'],
                           'SUNSD': ['sfc'],
-                          'TCDC': ['column', 'pbl', 'low',
-                                   'mid', 'high', 'convective'],
-                          'PRES': ['lowcloudbase', 'midcloudbase',
-                                   'highcloudbase', 'convectivecloudbase',
-                                   'lowcloudtop', 'midcloudtop',
-                                   'highcloudtop', 'convectivecloudtop'],
-                          'TMP': ['lowcloudtop', 'midcloudtop',
-                                  'highcloudtop'],
+                          'TCDC': ['column_avg6hr', 'pbl_avg6hr', 'low_avg6hr',
+                                   'mid_avg6hr', 'high_avg6hr', 'convective'],
+                          'PRES': ['lowcloudbase_avg6hr',
+                                   'midcloudbase_avg6hr',
+                                   'highcloudbase_avg6hr',
+                                   'convectivecloudbase',
+                                   'lowcloudtop_avg6hr', 'midcloudtop_avg6hr',
+                                   'highcloudtop_avg6hr',
+                                   'convectivecloudtop'],
+                          'TMP': ['lowcloudtop_avg6hr', 'midcloudtop_avg6hr',
+                                  'highcloudtop_avg6hr'],
                           'CWAT': ['column'],
-                          'CWORK': ['column']},
-            'capecin': {'CAPE': ['sfc', '255-0hPaAGL', '180-0hPaAGL'],
-                        'CIN': ['sfc', '255-0hPaAGL', '180-0hPaAGL']},
+                          'CWORK': ['column_avg6hr']},
+            'capecin': {'CAPE': ['sfc'],
+                        'CIN': ['sfc']},
             'pbl': {'HPBL': ['sfc'],
                     'VRATE': ['pbl'],
                     'UGRD': ['pbl'],
                     'VGRD': ['pbl'],
-                    'TCDC': ['pbl']},
+                    'TCDC': ['pbl_avg6hr']},
             'groundsoil': {'TMP': ['sfc'],
                            'TSOIL': ['0-10cmUGL', '10-40cmUGL',
                                      '40-100cmUGL', '100-200cmUGL'],
                            'SOILW': ['0-10cmUGL', '10-40cmUGL',
                                      '40-100cmUGL', '100-200cmUGL'],
-                           'LHTFL': ['sfc'],
-                           'SHTFL': ['sfc'],
-                           'GFLUX': ['sfc'],
-                           'WATR': ['sfc'],
-                           'PEVPR': ['sfc'],
-                           'FLDCP': ['sfc'],
-                           'WILT': ['sfc']},
-            'groundsoil': {'TMP': ['sfc'],
-                           'TSOIL': ['0-10cmUGL', '10-40cmUGL',
-                                     '40-100cmUGL', '100-200cmUGL'],
-                           'SOILW': ['0-10cmUGL', '10-40cmUGL',
-                                     '40-100cmUGL', '100-200cmUGL'],
-                           'LHTFL': ['sfc'],
-                           'SHTFL': ['sfc'],
-                           'GFLUX': ['sfc'],
-                           'WATR': ['sfc'],
+                           'LHTFL': ['sfc_avg6hr'],
+                           'SHTFL': ['sfc_avg6hr'],
+                           'GFLUX': ['sfc_avg6hr'],
+                           'WATR': ['sfc_accum6hr'],
                            'PEVPR': ['sfc'],
                            'FLDCP': ['sfc'],
                            'WILT': ['sfc']},
@@ -1423,15 +1419,16 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                   'RH': ['highesttropfrzlev']}
         },
         'maps2d_model2obs': {
-            'cloudsrad': {'DLWRF': ['sfc'],
-                          'ULWRF': ['sfc', 'toa'],
-                          'DSWRF': ['sfc', 'toa'],
-                          'USWRF': ['sfc', 'toa'],
-                          'TCDC': ['column', 'low',
-                                   'mid', 'high']},
+            'cloudsrad': {'DLWRF': ['sfc_avg6hr'],
+                          'ULWRF': ['sfc_avg6hr', 'toa_avg6hr'],
+                          'DSWRF': ['sfc_avg6hr', 'toa_avg6hr'],
+                          'USWRF': ['sfc_avg6hr', 'toa_avg6hr'],
+                          'TCDC': ['column_avg6hr', 'low_avg6hr',
+                                   'mid_avg6hr', 'high_avg6hr']},
             'sfc': {'TMP': ['2mAGL']},
             'totcol': {'PWAT': ['column'],
-                       'CWAT': ['column']}
+                       'CWAT': ['column']},
+            'precip': {'PRATE': ['sfc_avg6hr']}
         },
         'mapsda_gdas':{
             'preslevs':{'TMP': ['1000hPa', '925hPa', '800hPa', '700hPa',
@@ -1475,6 +1472,17 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                  '10hPa', '1hPa']}
         }
     }
+    maps2d_model2obs_obs_var_name = {
+        'DLWRF': ['lw_sfc_down'],
+        'ULWRF': ['lw_sfc_up', 'lw_toa_up'],
+        'DSWRF': ['sw_sfc_down', 'sw_toa_down'],
+        'USWRF': ['sw_sfc_up', 'sw_toa_up'],
+        'TCDC': ['cldt', 'cldl', 'cldm', 'cldh'],
+        'TMP': ['air'],
+        'PWAT': ['tpw'],
+        'CWAT': ['clwp'],
+        'PRATE': ['precip']
+    }
     njob = 0
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
@@ -1507,7 +1515,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                 os.environ[case_abbrev_type+'_'+case_type_env]
             )
         job_env_dict['plot_by'] = job_env_dict['make_met_data_by']
-        job_env_dict['case_type'] = case_type
+        job_env_dict['RUN_type'] = case_type
         # Check we have enough room on subplots before continuing
         if case == 'maps2d':
             if case_type == 'model2model':
@@ -1541,10 +1549,10 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                 error_msg = (
                     '(number of models in model_list ,'+str(nmodels)+')'
                 )
-        if nsubplots > 10:
+        if nsubplots > 8:
             print("ERROR: Requested verification results in "
                   +str(nsubplots)+" subplots "+error_msg
-                  +", current maximum is 10")
+                  +", current maximum is 8")
             sys.exit(1)
         # Set some specific case_type environment variables in own dictionary
         case_type_env_dict = {}
@@ -1619,9 +1627,12 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                       'DSWRF', 'USWRF']:
                                         obtype = 'rad_srb2'
                             elif var_group == 'sfc':
-                                obtype == 'ghcn_cams'
+                                obtype = 'ghcn_cams'
                             elif var_group == 'precip':
                                 obtype = 'gpcp'
+                            case_type_env_dict['obtype_var_name'] = ' '.join(
+                                maps2d_model2obs_obs_var_name[var_name]
+                            ).replace(' ', ', ')
                         elif case == 'mapsda':
                             if case_type == 'gdas':
                                 obtype = model+'_anl'
@@ -1631,6 +1642,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                 for forecast_to_plot in forecast_to_plot_list:
                     job_env_dict['forecast_to_plot'] = forecast_to_plot
                     njob+=1
+                    job_env_dict['job_num_id'] = str(njob)
                     # Create job file
                     job_filename = os.path.join(job_env_dict['DATA'],
                                                 job_env_dict['RUN'],
@@ -1647,9 +1659,19 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                         job_file.write('export '+name+'="'+value+'"\n')
                     job_file.write('\n')
                     # Write METplus commands
-                    metplus_conf = os.path.join(case_conf_dir, case+'.conf')
-                    job_file.write(master_metplus+' -c '+machine_conf+' '
-                                   +'-c '+metplus_conf+'\n')
+                    job_file.write(
+                        'python '
+                        +os.path.join(
+                            job_env_dict['USHverif_global'],
+                           'create_MET_series_analysis_jobs.py\n'
+                        )
+                    )
+                    for model in model_list:
+                        job_file.write(os.path.join(DATA, RUN,
+                                                    'metplus_job_scripts',
+                                                    'series_analysis_'
+                                                    +'job'+str(njob)+'_'
+                                                    +model+'.sh')+'\n')
                     job_file.write('\n')
                     if os.environ['machine'] == 'ORION':
                         job_file.write('echo "No map python plotting packages '
@@ -1683,7 +1705,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                         job_file.write('    ln -sf '+var_group_img_dir
                                        +'/* '+main_img_dir+'/.\n')
                         job_file.write('fi')
-                        job_file.close()
+                    job_file.close()
 
 # Read in environment variables
 DATA = os.environ['DATA']

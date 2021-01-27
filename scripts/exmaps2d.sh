@@ -97,17 +97,11 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
-    module switch python/3.6.3
-fi
 if [ $machine != "ORION" ]; then
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 
 # Send images to web
-if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
-   module switch python/2.7.14
-fi
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
 fi

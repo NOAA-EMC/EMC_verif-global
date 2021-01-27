@@ -372,6 +372,15 @@ elif RUN == 'maps2d':
                                          +'_use_ceres'] = ['YES', 'NO']
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_use_monthly_mean'] = ['YES', 'NO']
+            if os.environ[RUN_abbrev_type+'_use_ceres'] == 'NO' \
+                    and os.environ[RUN_abbrev_type+'_use_monthly_mean'] \
+                    == 'YES':
+                print("ERROR: Cannot set "+RUN_abbrev_type+"_use_ceres to "
+                      +"NO and "+RUN_abbrev_type+"_use_monthly_mean to YES. "
+                      +"Old observational datasets from VSDB are "
+                      +"climatology only. Please set "+RUN_abbrev_type
+                      +"_use_monthly_mean to NO.")
+                sys.exit(1)
         for forecast_to_plot \
                 in os.environ[RUN_abbrev_type
                               +'_forecast_to_plot_list'].split(' '):

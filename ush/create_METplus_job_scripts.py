@@ -1674,9 +1674,8 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                     +model+'.sh')+'\n')
                     job_file.write('\n')
                     if os.environ['machine'] == 'ORION':
-                        job_file.write('echo "No map python plotting packages '
-                                       +'installed on Orion. Not creating '
-                                       +'plots."\n')
+                        job_file.write('echo "Cartopy not installed on Orion. '
+                                       +'Not creating plots."\n')
                     else:
                         plotting_script_list = []
                         plotting_script_list.append(

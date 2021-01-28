@@ -206,16 +206,16 @@ plot_by = os.environ['plot_by']
 START_DATE = os.environ['START_DATE']
 END_DATE = os.environ['END_DATE']
 forecast_to_plot = os.environ['forecast_to_plot']
-hr_beg = os.environ['hr_beg']
-hr_end = os.environ['hr_end']
-hr_inc = os.environ['hr_inc']
+hour_beg = os.environ['hour_beg']
+hour_end = os.environ['hour_end']
+hour_inc = os.environ['hour_inc']
 regrid_to_grid = os.environ['regrid_to_grid']
 latlon_area = os.environ['latlon_area'].split(' ')
-var_group_name = os.environ['var_group_name']
+var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
 forecast_anl_diff = os.environ['forecast_anl_diff']
-verif_case_type = os.environ['verif_case_type']
+RUN_type = os.environ['RUN_type']
 
 # Set up information
 if forecast_to_plot == 'anl':
@@ -232,10 +232,10 @@ if env_var_model_list[0] == 'model10':
     env_var_model_list.append('model10')
 nmodels = len(env_var_model_list)
 make_met_data_by_hrs = []
-hr = int(hr_beg) * 3600
-while hr <= int(hr_end)*3600:
+hr = int(hour_beg) * 3600
+while hr <= int(hour_end)*3600:
     make_met_data_by_hrs.append(str(int(hr/3600)).zfill(2)+'Z')
-    hr+=int(hr_inc)
+    hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 if forecast_to_plot == 'anl':
     forecast_to_plot_title = 'analysis'
@@ -266,11 +266,11 @@ var_levels_num = np.asarray(var_level_num_list, dtype=float)
 # Get input and output directories
 series_analysis_file_dir = os.path.join(DATA, RUN, 'metplus_output',
                                         'make_met_data_by_'+make_met_data_by,
-                                        'series_analysis', verif_case_type,
-                                        var_group_name)
+                                        'series_analysis', RUN_type,
+                                        var_group)
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'plot_by_'+plot_by,
-                                     verif_case_type, var_group_name,
+                                     RUN_type, var_group,
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
@@ -316,9 +316,9 @@ for env_var_model in env_var_model_list:
             print("WARNING: "+model_series_analysis_netcdf_file+" "
                   +"does not exist")
 # Set up plot
-if verif_case_type == 'model2obs':
+if RUN_type == 'model2obs':
     nsubplots = nmodels + 1
-elif verif_case_type == 'model2model':
+elif RUN_type == 'model2model':
     if forecast_anl_diff == 'YES':
         nsubplots = nmodels * 2
     else:
@@ -417,7 +417,7 @@ for env_var_model in env_var_model_list:
     model_obtype = os.environ[env_var_model+'_obtype']
     model_plot_name = os.environ[env_var_model+'_plot_name']
     # Set up observation subplot map and title, if needed
-    if verif_case_type == 'model2obs' and model_num == 1:
+    if RUN_type == 'model2obs' and model_num == 1:
         obs_subplot_num = 0
         obs_subplot_title = maps2d_plot_util.get_obs_subplot_title(
             model_obtype, use_monthly_mean
@@ -440,7 +440,7 @@ for env_var_model in env_var_model_list:
         )
         subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
     # Set up analysis subplot map and title, if needed
-    if verif_case_type == 'model2model' and forecast_anl_diff == 'YES':
+    if RUN_type == 'model2model' and forecast_anl_diff == 'YES':
         anl_subplot_num = (2 * (model_num - 1) + 1)
         anl_subplot_title = model_plot_name+'-'+model_obtype
         ax_anl = draw_subplot_map(
@@ -464,7 +464,7 @@ for env_var_model in env_var_model_list:
         )
         subplot_CF_dict[ax_anl_subplot_loc] = CF_ax_anl
     # Set up model subplot map and title
-    if verif_case_type == 'model2obs':
+    if RUN_type == 'model2obs':
         subplot_num = model_num
         subplot_title = model_plot_name+'-'+model_obtype
         print("Plotting "+model+" - "+model_obtype)
@@ -474,7 +474,7 @@ for env_var_model in env_var_model_list:
         )
         ax_plot_levels = levels_diff
         ax_plot_cmap = cmap_diff
-    elif verif_case_type == 'model2model':
+    elif RUN_type == 'model2model':
         if forecast_anl_diff == 'YES':
             subplot_num = 2 * (model_num - 1)
         else:
@@ -578,7 +578,7 @@ if len(list(subplot_CF_dict.keys())) > 1:
             cbar.ax.xaxis.set_tick_params(pad=0)
 # Build savefig name
 savefig_name = os.path.join(plotting_out_dir_imgs,
-                            verif_case_type+'_'+var_group_name
+                            RUN_type+'_'+var_group
                             +'_'+var_name+'_zonalmean_'
                             +forecast_to_plot+'.png')
 print("Saving image as "+savefig_name)

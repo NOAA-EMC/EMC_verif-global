@@ -97,7 +97,7 @@ def read_series_analysis_file(series_analysis_file, var_scale):
             series_analysis_data_lat, series_analysis_data_lon)
 
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
-                     py_map_pckg, latlon_area):
+                     latlon_area):
     """ Draw map for subplot.
 
             Args:
@@ -108,10 +108,6 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                 nsubplots     - integer of the number
                                 of total subplots in
                                 image
-                py_map_pckg   - string of the python
-                                map plotting package
-                                to use; either cartopy
-                                or basemap
                 latlon_area   - list of the bounding
                                 latitudes and longitudes
                                 for the map
@@ -126,39 +122,28 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     urcrnrlon_val = float(latlon_area[3])
     lat_ticks = np.linspace(llcrnrlat_val, urcrnrlat_val, 7, endpoint=True)
     lon_ticks = np.linspace(llcrnrlon_val, urcrnrlon_val, 7, endpoint=True)
-    if py_map_pckg == 'cartopy':
-        ax_tmp = plt.subplot(
-            gs[subplot_num],
-            projection=ccrs.PlateCarree(central_longitude=180)
-        )
-        map_ax_tmp = ax_tmp
-        if urcrnrlon_val == 360:
-            urcrnrlon_val_adjust = 359.9
-        else:
-            urcrnrlon_val_adjust = urcrnrlon_val
-        ax_tmp.set_extent(
-            [llcrnrlon_val, urcrnrlon_val_adjust,
-             llcrnrlat_val, urcrnrlat_val],
-            ccrs.PlateCarree()
-        )
-        ax_tmp.set_global()
-        ax_tmp.coastlines()
-        ax_tmp.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
-        ax_tmp.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
-        lon_formatter = LongitudeFormatter(zero_direction_label=True)
-        lat_formatter = LatitudeFormatter()
-        ax_tmp.xaxis.set_major_formatter(lon_formatter)
-        ax_tmp.yaxis.set_major_formatter(lat_formatter)
-    elif py_map_pckg == 'basemap':
-        ax_tmp = plt.subplot(gs[subplot_num])
-        map_ax_tmp = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
-                             urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
-                             urcrnrlon=urcrnrlon_val, resolution='c',
-                             lon_0=180, ax=ax_tmp)
-        map_ax_tmp.drawcoastlines(linewidth=1.5, color='k', zorder=6)
-        map_ax_tmp.drawmapboundary
-        map_ax_tmp.drawmeridians(lon_ticks, labels=[False,False,False,True])
-        map_ax_tmp.drawparallels(lat_ticks, labels=[True,False,False,False])
+    ax_tmp = plt.subplot(
+        gs[subplot_num],
+        projection=ccrs.PlateCarree(central_longitude=180)
+    )
+    map_ax_tmp = ax_tmp
+    if urcrnrlon_val == 360:
+        urcrnrlon_val_adjust = 359.9
+    else:
+        urcrnrlon_val_adjust = urcrnrlon_val
+    ax_tmp.set_extent(
+        [llcrnrlon_val, urcrnrlon_val_adjust,
+         llcrnrlat_val, urcrnrlat_val],
+        ccrs.PlateCarree()
+    )
+    ax_tmp.set_global()
+    ax_tmp.coastlines()
+    ax_tmp.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+    ax_tmp.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+    lon_formatter = LongitudeFormatter(zero_direction_label=True)
+    lat_formatter = LatitudeFormatter()
+    ax_tmp.xaxis.set_major_formatter(lon_formatter)
+    ax_tmp.yaxis.set_major_formatter(lat_formatter)
     if ax_tmp.is_last_row() or \
             (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
        ax_tmp.set_xlabel('Longitude')
@@ -173,7 +158,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     return ax_tmp, map_ax_tmp
 
 def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
-                      plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
+                      plot_data_lon, plot_levels, plot_cmap,
                       latlon_area):
     """ Plot data for subplot.
 
@@ -185,10 +170,6 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
                 plot_data_lon - array of the data longitudes
                 plot_levels   - array of the contour levels
                 plot_cmap     - string of the colormap to use
-                py_map_pckg   - string of the python
-                                map plotting package
-                                to use; either cartopy
-                                or basemap
                 latlon_area   - list of the bounding
                                 latitudes and longitudes
                                 for the map
@@ -201,14 +182,9 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     llcrnrlon_val = float(latlon_area[2])
     urcrnrlon_val = float(latlon_area[3])
     # Add cyclic point for model data
-    if py_map_pckg == 'cartopy':
-        plot_data_cyc, plot_data_lon_cyc = add_cyclic_point(
-            plot_data, coord = plot_data_lon
-        )
-    elif py_map_pckg == 'basemap':
-        plot_data_cyc, plot_data_lon_cyc = addcyclic(
-            plot_data, plot_data_lon
-        )
+    plot_data_cyc, plot_data_lon_cyc = add_cyclic_point(
+        plot_data, coord = plot_data_lon
+    )
     # Get area average
     plot_data_area_avg = maps2d_plot_util.calculate_area_average(
         plot_data, plot_data_lat, plot_data_lon,
@@ -250,18 +226,11 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
     if np.count_nonzero(~np.isnan(plot_data_cyc)) != 0:
-        if py_map_pckg == 'cartopy':
-            CF_tmp = ax_tmp.contourf(
-                x, y, plot_data_cyc,
-                transform=ccrs.PlateCarree(),
-                levels=plot_levels, cmap=plot_cmap, extend='both'
-            )
-        elif py_map_pckg == 'basemap':
-            map_ax_tmp_x, map_ax_tmp_y = map_ax_tmp(x, y)
-            CF_tmp = map_ax_tmp.contourf(
-                map_ax_tmp_x, map_ax_tmp_y, plot_data_cyc,
-                levels=plot_levels, cmap=plot_cmap, extend='both'
-            )
+        CF_tmp = ax_tmp.contourf(
+            x, y, plot_data_cyc,
+            transform=ccrs.PlateCarree(),
+            levels=plot_levels, cmap=plot_cmap, extend='both'
+        )
     else:
         CF_tmp = None
     return CF_tmp
@@ -270,35 +239,28 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
 machine = os.environ['machine']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
-make_met_data_by = os.environ['maps2d_make_met_data_by']
-plot_by = os.environ['maps2d_make_met_data_by']
+make_met_data_by = os.environ['maps2d_model2obs_make_met_data_by']
+plot_by = make_met_data_by
 START_DATE = os.environ['start_date']
 END_DATE = os.environ['end_date']
-forecast_to_plot_list = os.environ['maps2d_forecast_to_plot_list'].split(' ')
-regrid_to_grid = os.environ['maps2d_regrid_to_grid']
+forecast_to_plot_list = os.environ['maps2d_model2obs_forecast_to_plot_list'].split(' ')
+regrid_to_grid = os.environ['maps2d_model2obs_regrid_to_grid']
 latlon_area = os.environ['maps2d_latlon_area'].split(' ')
 type_list = os.environ['maps2d_type_list'].split(' ')
 use_monthly_mean = os.environ['maps2d_model2obs_use_monthly_mean']
 use_ceres = os.environ['maps2d_model2obs_use_ceres']
-hr_beg = os.environ['maps2d_hr_beg']
-hr_end = os.environ['maps2d_hr_end']
-hr_inc = os.environ['maps2d_hr_inc']
+hour_beg = os.environ['maps2d_model2obs_hour_beg']
+hour_end = os.environ['maps2d_model2obs_hour_end']
+hour_inc = os.environ['maps2d_model2obs_hour_inc']
 model_list = os.environ['model_list'].split(' ')
 model_plot_name_list = os.environ['maps2d_model_plot_name_list'].split(' ')
 
 # Set up information
-verif_case_type = 'model2obs'
-var_group_name = 'cloudsrad'
-if machine == 'WCOSS_C' or machine == 'WCOSS_DELL_P3':
-    py_map_pckg = 'cartopy'
-else:
-    py_map_pckg = 'basemap'
-if py_map_pckg == 'cartopy':
-    import cartopy.crs as ccrs
-    from cartopy.util import add_cyclic_point
-    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-elif py_map_pckg == 'basemap':
-    from mpl_toolkits.basemap import Basemap, addcyclic
+RUN_type = 'model2obs'
+var_group = 'cloudsrad'
+import cartopy.crs as ccrs
+from cartopy.util import add_cyclic_point
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 nmodels = int(len(model_list))
 
 # Plot title information
@@ -308,21 +270,21 @@ dates_title = (make_met_data_by.lower()+' '
                +START_DATE_dt.strftime('%d%b%Y')+'-'
                +END_DATE_dt.strftime('%d%b%Y'))
 make_met_data_by_hrs = []
-hr = int(hr_beg) * 3600
-while hr <= int(hr_end)*3600:
+hr = int(hour_beg) * 3600
+while hr <= int(hour_end)*3600:
     make_met_data_by_hrs.append(str(int(hr/3600)).zfill(2)+'Z')
-    hr+=int(hr_inc)
+    hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 forecase_to_plot_title_list = []
 
 # Get input and output directories
 series_analysis_file_dir = os.path.join(DATA, RUN, 'metplus_output',
                                         'make_met_data_by_'+make_met_data_by,
-                                        'series_analysis', verif_case_type,
-                                         var_group_name)
+                                        'series_analysis', RUN_type,
+                                         var_group)
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'plot_by_'+plot_by,
-                                     verif_case_type, var_group_name,
+                                     RUN_type, var_group,
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
@@ -511,12 +473,12 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             )
             ax_obs, map_ax_obs = draw_subplot_map(
                 obs_subplot_num, obs_subplot_title, nsubplots,
-                py_map_pckg, latlon_area
+                latlon_area
             )
         subplot_num = model_num
         subplot_title = model_plot_name+'-'+model_obtype
         ax, map_ax = draw_subplot_map(
-            subplot_num, subplot_title, nsubplots, py_map_pckg, latlon_area
+            subplot_num, subplot_title, nsubplots, latlon_area
         )
         # Read data
         all_model_files_exist = True
@@ -530,7 +492,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 missing_file_list.append(model_series_analysis_netcdf_file)
         if not all_model_files_exist:
             print("Missing files for "+model+" "+', '.join(missing_file_list))
-            if nmodel == 1:
+            if model_num == 1:
                 ax_obs.set_title('--', loc='right')
             ax.set_title('--', loc='right')
         else:
@@ -667,7 +629,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     ax_obs, map_ax_obs, ax_obs_plot_data,
                     ax_obs_plot_data_lat, ax_obs_plot_data_lon,
                     ax_obs_plot_levels, ax_obs_plot_cmap,
-                    py_map_pckg, latlon_area
+                    latlon_area
                 )
                 subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
             print("Plotting "+model+" - "+model_obtype)
@@ -683,7 +645,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 ax, map_ax, ax_plot_data,
                 ax_plot_data_lat, ax_plot_data_lon,
                 ax_plot_levels, ax_plot_cmap,
-                py_map_pckg, latlon_area
+                latlon_area
             )
             subplot_CF_dict[ax_subplot_loc] = CF_ax
     # Build formal plot title
@@ -767,7 +729,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 cbar.ax.xaxis.set_tick_params(pad=0)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
-                                verif_case_type+'_'+var_group_name
+                                RUN_type+'_'+var_group
                                 +'_'+var_name+'_'+var_level.replace(' ', '')
                                 +'_'+forecast_to_plot+'.png')
     print("Saving image as "+savefig_name)

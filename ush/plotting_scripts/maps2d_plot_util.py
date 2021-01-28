@@ -150,67 +150,67 @@ def get_maps2d_plot_settings(var_name, var_level):
     elif 'sigma' in var_level:
         var_GRIB_lvl_typ = '107'
         formal_var_level = var_level.replace('sigma', '')+' Sigma Level'
-    elif var_level == 'msl':
+    elif 'msl' in var_level:
         var_GRIB_lvl_typ = '102'
         formal_var_level = 'Mean Sea Level Pressure'
-    elif var_level == 'column':
+    elif 'column' in var_level:
         var_GRIB_lvl_typ = '200'
         formal_var_level = 'Entire Atmosphere'
-    elif var_level == 'toa':
+    elif 'toa' in var_level:
         var_GRIB_lvl_typ = '8'
         formal_var_level = 'Top of Atmosphere'
-    elif var_level == 'pbl':
+    elif 'pbl' in var_level:
         if var_name == 'TCDC':
             var_GRIB_lvl_typ = '211'
             formal_var_level = 'Boundary Layer Cloud Layer'
         else:
             var_GRIB_lvl_typ = '220'
             formal_var_level = 'Planetary Boundary Layer'
-    elif var_level == 'low':
-        var_GRIB_lvl_typ = '214'
-        formal_var_level = 'Low Cloud Layer'
-    elif var_level == 'mid':
-        var_GRIB_lvl_typ = '224'
-        formal_var_level = 'Middle Cloud Layer'
-    elif var_level == 'high':
-        var_GRIB_lvl_typ = '234'
-        formal_var_level = 'High Cloud Layer'
-    elif var_level == 'convective':
-        var_GRIB_lvl_typ = '244'
-        formal_var_level = 'Convective Cloud Layer'
-    elif var_level == 'lowcloudbase':
+    elif 'lowcloudbase' in var_level:
         var_GRIB_lvl_typ = '212'
         formal_var_level = 'Low Cloud Bottom Level'
-    elif var_level == 'midcloudbase':
+    elif 'midcloudbase' in var_level:
         var_GRIB_lvl_typ = '222'
         formal_var_level = 'Middle Cloud Bottom Level'
-    elif var_level == 'highcloudbase':
+    elif 'highcloudbase' in var_level:
         var_GRIB_lvl_typ = '232'
         formal_var_level = 'High Cloud Bottom Level'
-    elif var_level == 'convectivecloudbase':
+    elif 'convectivecloudbase' in var_level:
         var_GRIB_lvl_typ = '242'
         formal_var_level = 'Convective Cloud Bottom Level'
-    elif var_level == 'lowcloudtop':
+    elif 'lowcloudtop' in var_level:
         var_GRIB_lvl_typ = '213'
         formal_var_level = 'Low Cloud Top Level'
-    elif var_level == 'midcloudtop':
+    elif 'midcloudtop' in var_level:
         var_GRIB_lvl_typ = '223'
         formal_var_level = 'Middle Cloud Top Level'
-    elif var_level == 'highcloudtop':
+    elif 'highcloudtop' in var_level:
         var_GRIB_lvl_typ = '233'
         formal_var_level = 'High Cloud Top Level'
-    elif var_level == 'convectivecloudtop':
+    elif 'convectivecloudtop' in var_level:
         var_GRIB_lvl_typ = '243'
         formal_var_level = 'Convective Cloud Top Level'
-    elif var_level == 'tropopause':
+    elif 'tropopause' in var_level:
         var_GRIB_lvl_typ = '7'
         formal_var_level = 'Tropopause'
-    elif var_level == 'maxwindlev':
+    elif 'maxwindlev' in var_level:
         var_GRIB_lvl_typ = '6'
         formal_var_level = 'Maximum Wind Level'
-    elif var_level == 'highesttropfrzlev':
+    elif 'highesttropfrzlev' in var_level:
         var_GRIB_lvl_typ = '204'
         formal_var_level = 'Highest Tropospheric Freezing Level'
+    elif 'low' in var_level:
+        var_GRIB_lvl_typ = '214'
+        formal_var_level = 'Low Cloud Layer'
+    elif 'mid' in var_level:
+        var_GRIB_lvl_typ = '224'
+        formal_var_level = 'Middle Cloud Layer'
+    elif 'high' in var_level:
+        var_GRIB_lvl_typ = '234'
+        formal_var_level = 'High Cloud Layer'
+    elif 'convective' in var_level:
+        var_GRIB_lvl_typ = '244'
+        formal_var_level = 'Convective Cloud Layer'
     # Get settings
     if var_name == '4LFTX': #best (4 layer) lifted index (K)
         formal_var_name = 'Best (4-Layer) Lifted Index'
@@ -293,6 +293,30 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
+    elif var_name == 'CFRZR': #categorical freezing rain (yes=1; no=0)
+        formal_var_name = 'Categorical Freezing Rain'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
+    elif var_name == 'CICEP': #categorical ice pellets (yes=1; no=0)
+        formal_var_name = 'Categorical Ice Pellets'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
     elif var_name == 'CIN': #convective inhibition (CIN)(J kg-1)
         formal_var_name = 'CIN'
         cmap = plt.cm.RdPu_r
@@ -330,6 +354,30 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
+    elif var_name == 'CRAIN': #categorical rain (yes=1; no=0)
+        formal_var_name = 'Categorical Rain'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
+    elif var_name == 'CSNOW': #categorical snow (yes=1; no=0)
+        formal_var_name = 'Categorical Snow'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
     elif var_name == 'CWAT': #cloud water (kg m-2)
         formal_var_name = 'Cloud Water'
         cmap = plt.cm.BuGn
@@ -416,7 +464,6 @@ def get_maps2d_plot_settings(var_name, var_level):
             sys.exit(1)
     elif var_name == 'GFLUX': #ground heat flux (W m-2)
         formal_var_name = 'Ground Heat Flux'
-        var_units = ''
         cmap = plt.cm.PiYG
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([-30,-20,-15,-10,-5,-2,2,5,10,15,20,30])

@@ -264,9 +264,6 @@ for key in os.environ.keys():
     if result is not None:
         env_var_model_list.append(result.group(0))
 env_var_model_list = sorted(env_var_model_list, key=lambda m: m[-1])
-if env_var_model_list[0] == 'model10':
-    env_var_model_list.remove(env_var_model_list[0])
-    env_var_model_list.append('model10')
 nmodels = len(env_var_model_list)
 make_met_data_by_hrs = []
 hr = int(hour_beg) * 3600

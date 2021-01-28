@@ -1576,7 +1576,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
             )
         elif case == 'mapsda':
             forecast_to_plot_list = (
-                os.environ[case_abbrev_type+'_guess_hour'].split(' ')
+                ('fhr'+os.environ[case_abbrev_type+'_guess_hour']).split(' ')
             )
         # Set up plotting environment variables in dictionary
         plotting_dict = plotting_case_case_type_dict[case+'_'+case_type]
@@ -1633,12 +1633,12 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                             case_type_env_dict['obtype_var_name'] = ' '.join(
                                 maps2d_model2obs_obs_var_name[var_name]
                             ).replace(' ', ', ')
-                        elif case == 'mapsda':
-                            if case_type == 'gdas':
-                                obtype = model+'_anl'
-                            elif case_type == 'ens':
-                                obtype = model
-                        job_env_dict['model'+str(model_num)+'_obtype'] = obtype
+                    elif case == 'mapsda':
+                        if case_type == 'gdas':
+                            obtype = model+'_anl'
+                        elif case_type == 'ens':
+                            obtype = model
+                    job_env_dict['model'+str(model_num)+'_obtype'] = obtype
                 for forecast_to_plot in forecast_to_plot_list:
                     job_env_dict['forecast_to_plot'] = forecast_to_plot
                     njob+=1

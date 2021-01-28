@@ -2351,6 +2351,7 @@ elif RUN == 'mapsda':
                 anl_file_format = RUN_abbrev_gdas_anl_file_format_list[
                     model_idx
                 ]
+                obtype = model+'_anl'
                 # Get model guess and analysis files
                 for time in RUN_abbrev_type_time_info_dict:
                     valid_time = time['valid_time']
@@ -2368,11 +2369,49 @@ elif RUN == 'mapsda':
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
                                        'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                        model_fcst_file = os.path.join(
+                            link_model_data_dir, format_filler(
+                                'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                valid_time, init_time, lead
+                             )
+                        )
                         get_model_file(valid_time, valid_time, 'anl',
                                        model, model_dir, anl_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
                                        'anl.{valid?fmt=%Y%m%d%H}')
+                        model_obs_file = os.path.join(
+                            link_model_data_dir, format_filler(
+                                'anl.{valid?fmt=%Y%m%d%H}',
+                                valid_time, valid_time, 'anl'
+                             )
+                        )
+                        model_fcst_files_filename = os.path.join(
+                            link_model_data_dir,
+                            RUN_type+'_fcst_'+model+'_obs_'+obtype+'_fhr'
+                            +lead+'_fcst_file_list.txt'
+                        )
+                        model_obs_files_filename = os.path.join(
+                            link_model_data_dir,
+                             RUN_type+'_fcst_'+model+'_obs_'+obtype+'_fhr'
+                             +lead+'_obs_file_list.txt'
+                        )
+                        # Add to file list
+                        if os.path.exists(model_fcst_file) \
+                                and \
+                                os.path.exists(model_obs_file):
+                            with open(model_fcst_files_filename,
+                                      'a') as \
+                                    fcst_files:
+                                fcst_files.write(
+                                    model_fcst_file+'\n'
+                                )
+                            with open(model_obs_files_filename,
+                                      'a') as \
+                                    obs_files:
+                                obs_files.write(
+                                    model_obs_file+'\n'
+                                )
             # Get RUN_type ens files
             if RUN_type == 'ens':
                 model_dir = RUN_abbrev_ens_model_dir_list[model_idx]

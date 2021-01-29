@@ -46,6 +46,7 @@ for env_var_model in env_var_model_list:
         met_stat_filename = met_stat_file.rpartition('/')[2]
         with open(met_stat_file) as msf:
             first_line = msf.readline()
+            second_line = msf.readline()
         filter_cmd = (
             ' | grep "'+vx_mask+'" | grep "'+fcst_var_name+'" | grep -v "VCNT"'
         )
@@ -57,8 +58,38 @@ for env_var_model in env_var_model_list:
                                             met_stat_filename)
         with open(pruned_met_stat_file, 'w') as pmsf:
             pmsf.write(first_line+output)
-    if RUN == 'satellite_step2':
-        os.system('sed -i "s/0,\*,\*/Z0/g" '
-                  +pruned_data_dir+'/*')
+        if '/contrib' in os.environ['HOMEMET']:
+            if 'V'+os.environ['MET_version'] != second_line.split(' ')[0]:
+                print('V'+os.environ['MET_version']+' '+second_line.split(' ')[0])
+                import pandas as pd
+                met_columns = first_line.split()
+                pruned_met_stat_file_data = pd.read_csv(
+                    pruned_met_stat_file, sep=" ", skiprows=1,
+                    skipinitialspace=True, header=None, dtype=str,
+                    keep_default_na=False
+                )
+                pruned_met_stat_file_data.rename(
+                    columns=dict(
+                        zip(
+                            pruned_met_stat_file_data.columns[
+                                :len(met_columns)
+                            ],
+                            met_columns
+                        )
+                    ), inplace=True
+                )
+                pruned_met_stat_file_data_drop = (
+                    pruned_met_stat_file_data.drop(
+                        ['FCST_UNITS', 'OBS_UNITS'],
+                        axis=1
+                    )
+                )
+                new_first_line = first_line.replace('FCST_UNITS', '').replace('OBS_UNITS', '')
+                new_output = pruned_met_stat_file_data_drop.to_string(header=False, index=False).replace(second_line.split(' ')[0], 'V'+os.environ['MET_version'])
+                new_pruned_met_stat_file = os.path.join(pruned_data_dir, 'test_'+met_stat_filename)
+                print(new_pruned_met_stat_file)
+                with open(new_pruned_met_stat_file, 'w') as npmsf:
+                    npmsf.write(new_first_line+new_output)
+                os.rename(new_pruned_met_stat_file, pruned_met_stat_file)
 
 print("END: "+os.path.basename(__file__))

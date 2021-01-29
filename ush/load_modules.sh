@@ -15,7 +15,7 @@ METplus_version=${3}
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global
-if [[ "$MET_version" =~ ^(8.1)$ ]]; then
+if [[ "$MET_version" =~ ^(8.0|8.1)$ ]]; then
     echo "Requested MET version: $MET_version"
 else
     echo "ERROR: $MET_version is not supported in verif_global"
@@ -99,6 +99,10 @@ elif [ $machine = HERA ]; then
     module use -a /contrib/anaconda/modulefiles
     module load anaconda/anaconda2-4.4.0
     if [ $MET_version = 8.1 ]; then
+        module use -a /contrib/met/modulefiles
+        module load met/$MET_version
+        export HOMEMET="/contrib/met/${MET_version}"
+    elif [ $MET_version = 8.0 ]; then
         module use -a /contrib/met/modulefiles
         module load met/$MET_version
         export HOMEMET="/contrib/met/${MET_version}"

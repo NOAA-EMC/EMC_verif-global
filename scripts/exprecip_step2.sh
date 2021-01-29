@@ -25,6 +25,15 @@ set -x
 mkdir -p $RUN
 cd $RUN
 
+if [ $machine = HERA ]; then
+    if [ $MET_version = 8.1 ]; then
+        echo "ERROR: Please set MET_version to 8.0 for ${RUN} on Hera"
+        exit
+    fi
+    source /apps/lmod/lmod/init/sh
+    module load anaconda/anaconda2-4.4.0
+fi
+
 # Set up environment variables for initialization, valid, and forecast hours and source them
 export precip2_type_list="${precip2_obtype}_accum${precip2_accum_length}hr"
 if [ $precip2_fhr_max -gt 180 ]; then

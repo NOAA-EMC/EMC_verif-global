@@ -369,6 +369,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         # Set up plot
         if model_num == 1:
             nsubplots = nmodels + 1
+            obs_plotted = False
             if nsubplots == 1:
                 x_figsize, y_figsize = 14, 7
                 row, col = 1, 1
@@ -617,8 +618,8 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 model_data_lat = USWRF_sfc_data_lat
                 model_data_lon = USWRF_sfc_data_lon
-            if model_num == 1:
-                print("Plotting "+model_obtype+" observations")
+            if not obs_plotted:
+                print("Plotting "+model_obtype+" observations from "+model)
                 ax_obs_subplot_loc = str(ax_obs.rowNum)+','+str(ax_obs.colNum)
                 ax_obs_plot_data = obs_calc_var
                 ax_obs_plot_data_lat = model_data_lat
@@ -632,6 +633,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                     latlon_area
                 )
                 subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
+                obs_plotted = True
             print("Plotting "+model+" - "+model_obtype)
             ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
             ax_plot_data = (

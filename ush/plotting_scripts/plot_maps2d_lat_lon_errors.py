@@ -330,6 +330,7 @@ for var_level in var_levels:
         if model_num == 1:
             if RUN_type == 'model2obs':
                 nsubplots = nmodels + 1
+                obs_plotted = False
             elif RUN_type == 'model2model':
                 if forecast_anl_diff == 'YES':
                     nsubplots = nmodels * 2
@@ -479,6 +480,9 @@ for var_level in var_levels:
             if RUN_type == 'model2model' \
                     and forecast_anl_diff == 'YES':
                 ax_anl.set_title('--', loc='right')
+            if model_num == 1:
+                model1_data_series_cnt_FBAR = np.array([])
+                model1_data_series_cnt_OBAR = np.array([])
             ax.set_title('--', loc='right')
         else:
             (model_data_series_cnt_FBAR, model_data_series_cnt_OBAR,
@@ -487,8 +491,8 @@ for var_level in var_levels:
                                           var_scale)
             )
             if RUN_type == 'model2obs':
-                if model_num == 1:
-                    print("Plotting "+model_obtype+" observations")
+                if not obs_plotted:
+                    print("Plotting "+model_obtype+" observations from "+model)
                     ax_obs_subplot_loc = str(ax_obs.rowNum)+','+str(ax_obs.colNum)
                     ax_obs_plot_data = model_data_series_cnt_OBAR
                     ax_obs_plot_data_lat = model_data_lat
@@ -502,6 +506,7 @@ for var_level in var_levels:
                         latlon_area
                     )
                     subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
+                    obs_plotted = True
                 print("Plotting "+model+" - "+model_obtype)
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = (
@@ -528,10 +533,17 @@ for var_level in var_levels:
                     model1_data_series_cnt_OBAR = model_data_series_cnt_OBAR
                 else:
                     print("Plotting "+model+" - "+model1)
-                    ax_plot_data = (
-                        model_data_series_cnt_FBAR
-                        - model1_data_series_cnt_FBAR
-                    )
+                    if np.size(model1_data_series_cnt_FBAR) == 0:
+                        ax_plot_data = (
+                            model_data_series_cnt_FBAR
+                            - (np.ones_like(model_data_series_cnt_FBAR)
+                               * np.nan)
+                        )
+                    else:
+                        ax_plot_data = (
+                            model_data_series_cnt_FBAR
+                            - model1_data_series_cnt_FBAR
+                        )
                     ax_plot_levels = levels_diff
                     ax_plot_cmap = cmap_diff
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)

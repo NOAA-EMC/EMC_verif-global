@@ -1458,8 +1458,8 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
             'sfc': {'MSLET': ['msl']}
         },
         'mapsda_ens': {
-            'siglevs': {'TMP': ['1000hPa', '850hPa', '500hPa', '250hPa',
-                                '10hPa', '1hPa'],
+            'preslevs': {'TMP': ['1000hPa', '850hPa', '500hPa', '250hPa',
+                                 '10hPa', '1hPa'],
                         'UGRD': ['1000hPa', '850hPa', '500hPa', '250hPa',
                                  '10hPa', '1hPa'],
                         'VGRD': ['1000hPa', '850hPa', '500hPa', '250hPa',
@@ -1469,7 +1469,8 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                         'CLWMR': ['1000hPa', '850hPa', '500hPa', '250hPa',
                                   '10hPa', '1hPa'],
                         'O3MR': ['1000hPa', '850hPa', '500hPa', '250hPa',
-                                 '10hPa', '1hPa']}
+                                 '10hPa', '1hPa']},
+            'sfc': {'PRES': ['sfc']}
         }
     }
     maps2d_model2obs_obs_var_name = {
@@ -1659,20 +1660,22 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                         job_file.write('export '+name+'="'+value+'"\n')
                     job_file.write('\n')
                     # Write METplus commands
-                    job_file.write(
-                        'python '
-                        +os.path.join(
-                            job_env_dict['USHverif_global'],
-                           'create_MET_series_analysis_jobs.py\n'
+                    if case == 'maps2d' \
+                            or (case == 'mapsda' and case_type == 'gdas'):
+                        job_file.write(
+                            'python '
+                            +os.path.join(
+                                job_env_dict['USHverif_global'],
+                               'create_MET_series_analysis_jobs.py\n'
+                            )
                         )
-                    )
-                    for model in model_list:
-                        job_file.write(os.path.join(DATA, RUN,
-                                                    'metplus_job_scripts',
-                                                    'series_analysis_'
-                                                    +'job'+str(njob)+'_'
-                                                    +model+'.sh')+'\n')
-                    job_file.write('\n')
+                        for model in model_list:
+                            job_file.write(os.path.join(DATA, RUN,
+                                                        'metplus_job_scripts',
+                                                        'series_analysis_'
+                                                        +'job'+str(njob)+'_'
+                                                        +model+'.sh')+'\n')
+                        job_file.write('\n')
                     if os.environ['machine'] == 'ORION':
                         job_file.write('echo "Cartopy not installed on Orion. '
                                        +'Not creating plots."\n')

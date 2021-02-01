@@ -345,7 +345,6 @@ for stat in plot_stats_list:
                     +var_level.replace(' ', '')+'.nc'
                 )
             elif RUN_type == 'ens':
-                model_suffix = os.environ[env_var_model+'_suffix']
                 if forecast_to_plot == 'anl':
                     input_file = os.path.join(
                         input_dir, model,
@@ -354,15 +353,18 @@ for stat in plot_stats_list:
                 else:
                     input_file = os.path.join(
                         input_dir, model,
-                        'atmf0'+forecast_to_plot
+                        'atmf'+forecast_to_plot[3:].zfill(3)
                         +'.ens'+stat+'.nc'
                     )
             # Set up plot
             if model_num == 1:
                 if RUN_type == 'ens':
                     nsubplots = nmodels
+                    get_diff_levels = True
                 else:
                     nsubplots = nmodels + 1
+                    get_inc_levels = True
+                    get_diff_levels = True
                 if nsubplots == 1:
                     x_figsize, y_figsize = 14, 7
                     row, col = 1, 1
@@ -484,7 +486,12 @@ for stat in plot_stats_list:
                     subplot_title = ('RMSE(A-B) '+model_plot_name
                                      +'-'+model1_plot_name)
             elif stat in ['mean', 'spread']:
-                subplot_title = model_plot_name
+                if model_num == 1:
+                    model1 = model
+                    model1_plot_name = model_plot_name
+                    subplot_title = model_plot_name
+                else:
+                    subplot_title = model_plot_name+'-'+model1_plot_name
             ax, map_ax = draw_subplot_map(
                 subplot_num, subplot_title, nsubplots, latlon_area
             )
@@ -496,6 +503,8 @@ for stat in plot_stats_list:
                       +"does not exist")
                 if RUN_type == 'gdas' and model_num == 1:
                     ax_cntrl.set_title('--', loc='right')
+                if model_num == 1:
+                    model1_stat_data = np.array([])
                 ax.set_title('--', loc='right')
             else:
                 if RUN_type == 'gdas':
@@ -514,18 +523,31 @@ for stat in plot_stats_list:
                             )
                             model1_stat_data = stat_data
                         else:
-                            stat_data = np.sqrt(
-                                (model_data_series_cnt_OBAR
-                                 - model_data_series_cnt_FBAR)**2
-                            ) - model1_stat_data
+                            if np.size(model1_stat_data) == 0:
+                                stat_data = np.sqrt(
+                                    (model_data_series_cnt_OBAR
+                                     - model_data_series_cnt_FBAR)**2
+                                ) - (
+                                    np.ones_like(model_data_series_cnt_FBAR)
+                                    * np.nan
+                                )
+                            else:
+                                stat_data = np.sqrt(
+                                    (model_data_series_cnt_OBAR
+                                     - model_data_series_cnt_FBAR)**2
+                                ) - model1_stat_data
                 elif RUN_type == 'ens':
                     print(input_file+" exists")
                     model_data = netcdf.Dataset(input_file)
+                    if 'lev' in list(model_data.variables.keys()):
+                        nlev = 64
+                    elif 'pfull' in list(model_data.variables.keys()):
+                        nlev = 128
                     if var_name != 'PRES':
                         # Get closest matching sigma level pressure
-                        if model_suffix == 'nc4':
+                        if nlev == 64:
                             model_levels = levsn64p
-                        else:
+                        elif nlev == 128:
                             model_levels = model_data.variables['pfull'][:]
                         var_level_float = float(var_level.replace('hPa', ''))
                         model_levels_var_level_diff = np.abs(
@@ -539,7 +561,7 @@ for stat in plot_stats_list:
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
                     # Get index data
-                    if model_suffix == 'nc4':
+                    if nlev == 64:
                        model_data_lat = model_data.variables['lat'][:]
                        model_data_lon = model_data.variables['lon'][:]
                        if var_name == 'TMP':
@@ -574,7 +596,7 @@ for stat in plot_stats_list:
                            )
                        elif var_name == 'PRES':
                            model_data_var = model_data.variables['ps'][:]
-                    elif model_suffix == 'nc':
+                    elif nlev == 128:
                        model_data_lat = np.flipud(
                            model_data.variables['grid_yt'][:]
                        )
@@ -599,7 +621,12 @@ for stat in plot_stats_list:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
                     else:
-                        stat_data = model_data_var - model1_stat_data
+                        if np.size(model1_stat_data) == 0:
+                            stat_data = (model_data_var
+                                         - (np.ones_like(model_data_var)
+                                            * np.nan))
+                        else:
+                            stat_data = model_data_var - model1_stat_data
                 # Plot model data
                 if RUN_type == 'gdas':
                     if model_num == 1:
@@ -621,9 +648,10 @@ for stat in plot_stats_list:
                 if RUN_type == 'gdas':
                     if stat == 'inc':
                         print("Plotting "+model+" increments")
-                        if model_num == 1:
+                        if get_inc_levels:
                             levels_plot = plot_util.get_clevels(stat_data)
                             cmap_plot = plt.cm.PiYG_r
+                            get_inc_levels = False
                     elif stat == 'rmse':
                         if model_num == 1:
                             print("Plotting "+model1+" increment RMSE")
@@ -632,9 +660,10 @@ for stat in plot_stats_list:
                         else:
                             print("Plotting "+model+" - "+model1+" "
                                   +"increment RMSE")
-                            if model_num == 2:
+                            if get_diff_levels:
                                 levels_plot = plot_util.get_clevels(stat_data)
                                 cmap_plot = cmap_diff
+                                get_diff_levels = False
                 elif RUN_type == 'ens':
                     if var_name != 'PRES':
                         ax.set_title('idx='
@@ -642,7 +671,6 @@ for stat in plot_stats_list:
                                      +',p='+str(model_level), loc='center')
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
-                        model1 = model
                         levels_plot = np.nan
                         if stat == 'mean':
                             cmap_plot = cmap
@@ -650,9 +678,10 @@ for stat in plot_stats_list:
                             cmap_plot = plt.cm.afmhot_r
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                        if model_num == 2:
+                        if get_diff_levels:
                             levels_plot = plot_util.get_clevels(stat_data)
                             cmap_plot = cmap_diff
+                            get_diff_levels = False
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
                 ax_plot_data_lat = model_data_lat
@@ -711,7 +740,7 @@ for stat in plot_stats_list:
                 cbar_title = 'Difference'
             elif (RUN_type == 'gdas' and stat == 'inc'):
                 cbar_title = 'Increments'
-            if len(list(subplot_CF_dict.keys())) > 1:
+            if len(list(subplot_CF_dict.keys())) >= 1:
                 cbar_subplot = None
                 for subplot_loc in list(subplot_CF_dict.keys()):
                     if subplot_loc != '0,0' \

@@ -67,9 +67,16 @@ def read_series_analysis_file(series_analysis_file, var_scale):
             series_analysis_data_series_cnt_FBAR.filled()
         )
     if 'series_cnt_OBAR' in series_analysis_data_variable_names:
-        series_analysis_data_series_cnt_OBAR =  (
-            series_analysis_data.variables['series_cnt_OBAR'][:] * var_scale
-        )
+        if 'PRATE' in series_analysis_file \
+                and 'model2obs' in series_analysis_file:
+            series_analysis_data_series_cnt_OBAR =  (
+                series_analysis_data.variables['series_cnt_OBAR'][:]
+            )
+        else:
+            series_analysis_data_series_cnt_OBAR =  (
+                series_analysis_data.variables['series_cnt_OBAR'][:]
+                * var_scale
+            )
     else:
         print("WARNING: OBAR values not in file "+series_analysis_file
               +"...setting to NaN")

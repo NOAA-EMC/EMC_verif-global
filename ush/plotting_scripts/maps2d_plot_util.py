@@ -691,7 +691,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.1,0.2,0.4,0.6,0.8,1,1.5,2,2.5,3]
             )
             levels_diff = np.array(
-                [-3-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
+                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
             )
             var_scale = 24*3600
             var_units = 'mm 'r'$\mathregular{day^{-1}}$'''

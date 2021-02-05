@@ -40,8 +40,8 @@ if [ $machine = WCOSS_C ]; then
     fi
     if [ $METplus_version = 3.1 ]; then
         module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
-        module load metplus/3.1
-        export HOMEMETplus="/gpfs/hps3/emc/meso/noscrub/emc.metplus/METplus/METplus-$METplus_version"
+        module load metplus/3.1.1
+        export HOMEMETplus="/gpfs/hps3/emc/meso/noscrub/emc.metplus/METplus/METplus-${METplus_version}.1"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
@@ -68,8 +68,8 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     fi
     if [ $METplus_version = 3.1 ]; then
         module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
-        module load metplus/3.1
-        export HOMEMETplus="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METplus/METplus-$METplus_version"
+        module load metplus/3.1.1
+        export HOMEMETplus="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METplus/METplus-${METplus_version}.1"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1

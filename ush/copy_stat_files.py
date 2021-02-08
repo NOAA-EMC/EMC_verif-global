@@ -9,6 +9,8 @@ Abstract: This script is run by all step1 scripts in scripts/.
 import os
 import datetime
 
+print("BEGIN: "+os.path.basename(__file__))
+
 # Read in environment variables
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
@@ -111,10 +113,12 @@ for RUN_type in RUN_type_list:
                         archive_file_dir = archive_file.rpartition('/')[0]
                         if not os.path.exists(archive_file_dir):
                             os.makedirs(archive_file_dir)
+                        print("Copying "+verif_global_file+" to "+archive_file)
                         os.system('cpfs '+verif_global_file+' '+archive_file)
                     if SENDCOM == 'YES':
                         if not os.path.exists(COMOUT):
                             os.makedirs(COMOUT)
+                        print("Copying "+verif_global_file+" to "+comout_file)
                         os.system('cpfs '+verif_global_file+' '+comout_file)
                         if SENDDBM == 'YES':
                             os.system(
@@ -128,3 +132,5 @@ for RUN_type in RUN_type_list:
                           +"was not generated or zero size")
                     print("**************************************************\n")
         date = date + datetime.timedelta(days=1)
+
+print("END: "+os.path.basename(__file__))

@@ -13,9 +13,7 @@ Abstract: This is run at the end of all step1 scripts
               4) Listing of METviewer datbases
 '''
 
-import sys
 import datetime
-import shutil
 import os
 import subprocess
 

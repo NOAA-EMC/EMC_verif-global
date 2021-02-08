@@ -8,9 +8,7 @@ Abstract: This scripts generates a standard GFS grid-to-grid
               3) Send scorecard to website
 '''
 
-import sys
 import datetime as datetime
-import shutil
 import os
 import subprocess
 from time import sleep

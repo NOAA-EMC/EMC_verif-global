@@ -6,7 +6,6 @@ Abstract: This script is run by the maps2d and mapsda jobs scripts.
           netCDF output.
 '''
 
-from __future__ import (print_function, division)
 import sys
 import os
 import re

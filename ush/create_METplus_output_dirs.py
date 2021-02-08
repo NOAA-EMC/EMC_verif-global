@@ -6,9 +6,7 @@ Abstract: This script is run by all scripts in scripts/.
           for the METplus verification use cases and their types.
 '''
 
-import sys
 import os
-import datetime
 
 print("BEGIN: "+os.path.basename(__file__))
 

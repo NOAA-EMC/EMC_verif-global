@@ -7,8 +7,6 @@ Abstract: This script is run by run_verif_global.sh.
 '''
 
 import os
-import sys
-import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
 

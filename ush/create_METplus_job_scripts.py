@@ -71,6 +71,8 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
     gather_conf_dir = os.path.join(
         conf_dir, case, 'gather'
     )
+    # Set case
+    job_env_dict['RUN_case'] = case
     # Set up model environment variables in dictionary
     for model in os.environ['model_list'].split(' '):
         job_env_dict['model'] = model

@@ -236,19 +236,19 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
-    export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
+    export global_archive="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "ORION" ]; then
-    export gstat="/work/noaa/ovp/mrow/archive"
+    export global_archive="/work/noaa/ovp/mrow/archive"
     export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_C" ]; then
-    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 fi

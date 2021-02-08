@@ -610,7 +610,7 @@ if machine == 'ORION':
 
 if RUN == 'grid2grid_step1':
     # Read in RUN related environment variables
-    gfs_dir = os.environ['gstat']
+    global_archive = os.environ['global_archive']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -667,7 +667,7 @@ if RUN == 'grid2grid_step1':
                 RUN_abbrev_type_truth_name_short = model
                 model_RUN_abbrev_type_truth_hpss_dir = model_hpss_dir
             elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00']:
-                model_RUN_abbrev_type_truth_dir = gfs_dir
+                model_RUN_abbrev_type_truth_dir = global_archive
                 RUN_abbrev_type_truth_name_short = (
                     RUN_abbrev_type_truth_name.split('_')[0]
                 )
@@ -2047,7 +2047,7 @@ elif RUN == 'tropcyc':
                                      pass
 elif RUN == 'maps2d':
     # Read in RUN related environment variables
-    gstat = os.environ['gstat']
+    global_archive = os.environ['global_archive']
     obdata_dir = os.environ['obdata_dir']
     RUN_abbrev_plot_diff = os.environ[RUN_abbrev+'_plot_diff']
     RUN_abbrev_anl_file_format_list = (

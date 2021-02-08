@@ -943,7 +943,7 @@ elif RUN == 'grid2obs_step1':
                                             ]+' '
                                             +iabp_reg_YYYYmmdd_data.loc[
                                                 idx,'DOY'
-                                            ][0:3]+' '
+                                            ].split('.')[0]+' '
                                             +iabp_reg_YYYYmmdd_data.loc[
                                                 idx,'Hour'
                                             ]+' '

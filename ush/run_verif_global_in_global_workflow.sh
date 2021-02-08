@@ -244,11 +244,11 @@ elif [ $machine = "ORION" ]; then
     export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_C" ]; then
-    export gstat="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/stat"
+    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export gstat="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/stat"
+    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
 fi

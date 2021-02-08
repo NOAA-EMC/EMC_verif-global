@@ -15,7 +15,7 @@ model = "${MODEL}";
 // Output description to be written
 // May be set separately in each "obs.field" entry
 //
-desc = "NA";
+desc = "on_${grid}";
 
 //
 // Output observation type to be written

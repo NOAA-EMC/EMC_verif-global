@@ -52,7 +52,7 @@ export RUN_MAPSDA="NO"
 #model_data_run_hpss:    get files from HPSS ("YES") if not online
 #hpss_walltime:          how long to run HPSS job to get data in minutes
 export model_list="gfs"
-export model_dir_list="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/stat/global"
+export model_dir_list="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
 export model_stat_dir_list="/gpfs/dell2/emc/modeling/noscrub/$USER/archive"
 export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"
 export model_data_run_hpss="NO"

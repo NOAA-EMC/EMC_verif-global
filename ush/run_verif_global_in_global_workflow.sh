@@ -257,6 +257,9 @@ export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
 
+## Some online sites
+export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
+
 ## Do checks on switches to run verification for
 if [ $METPCASE = g2g1 ]; then
     RUN_GRID2OBS_STEP1=NO

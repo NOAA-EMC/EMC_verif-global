@@ -8,6 +8,7 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
+# Set information based on gfs_cyc
 if [ $gfs_cyc = 1 ]; then
     export fcyc_list="$cyc"
     export vhr_list="$cyc"
@@ -129,6 +130,24 @@ export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
 export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
 export precip1_mv_database_group="${USER}"
 export precip1_mv_database_desc="Precip METplus data for ${PSLOT}"
+
+echo
+
+# Check forecast max hours, adjust if before experiment SDATE
+#SDATE_GFS
+#SDATE_GFS_YYYYMMDDHH="$(echo $SDATE_GFS  | cut -c1-10)"
+#start_date
+#g2g1_anom_fhr_max
+#g2g1_anom_fhr_max_date="$(echo $($NDATE -${g2g1_anom_fhr_max} ${start_date}00) | cut -c1-8)"
+#if [ $g2g1_anom_fhr_max_date -le $SDATE_GFS_YYYYMMDDHH ] ; then
+#    g2g1_anom_fhr_max="$(echo $($NHOUR ${start_date}00 $SDATE_GFS_YYYYMMDDHH))"
+#fi
+#g2g1_pres_fhr_max
+#g2g1_sfc_fhr_max
+#g2o1_upper_air_fhr_max
+#g2o1_conus_sfc_fhr_max
+#g2o1_polar_sfc_fhr_max
+#precip1_ccpa_accum24hr_fhr_max
 
 echo
 ## Output set up

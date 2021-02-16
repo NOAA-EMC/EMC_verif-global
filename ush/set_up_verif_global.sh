@@ -169,9 +169,9 @@ elif [ $machine = "WCOSS_C" ]; then
     export PTMP="/gpfs/hps2/ptmp/$USER"
     export NOSCRUB="/gpfs/hps3/emc/global/noscrub/$USER"
     export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/hps3/emc/global/noscrub/Fanglin.Yang/prepbufr"
-    export obdata_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata"
-    export ccpa_24hr_arch_dir="/gpfs/hps3/emc/global/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
+    export obdata_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
     export NWROOT=${NWROOT:-"/gpfs/dell1/nco/ops/nwprod"}
@@ -180,9 +180,9 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export PTMP="/gpfs/dell3/ptmp/$USER"
     export NOSCRUB="/gpfs/dell2/emc/modeling/noscrub/$USER"
     export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/dell2/emc/modeling/noscrub/Fanglin.Yang/prepbufr"
-    export obdata_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata"
-    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/Mallory.Row/obdata/ccpa_accum24hr"
+    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
+    export obdata_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
 fi
 

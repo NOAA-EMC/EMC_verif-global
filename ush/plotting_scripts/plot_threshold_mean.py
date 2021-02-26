@@ -700,7 +700,7 @@ for stat in plot_stats_list:
                     ax2.bar(fcst_var_thresh_counts[index], 2*np.absolute(model_ci_data[index]), 
                             bottom = -1*np.absolute(model_ci_data[index]), 
                             color = 'None',
-                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index), 
+                            width = CI_bar_max_widths[index]-(CI_bar_intvl_widths[index]*model_index),
                             edgecolor = model_plot_settings_dict['color'], 
                             linewidth = '1')
     subplot_num = 1

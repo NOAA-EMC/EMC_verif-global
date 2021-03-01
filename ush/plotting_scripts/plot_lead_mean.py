@@ -174,9 +174,9 @@ logger.addHandler(file_handler)
 leads_sec = leads * 3600.
 nmodels = len(model_name_list)
 CI_bar_max_widths = np.append(np.diff(leads_sec),
-                              leads[-1]-leads[-2])/1.5
+                              leads_sec[-1]-leads_sec[-2])/1.5
 CI_bar_min_widths = np.append(np.diff(leads_sec),
-                              leads[-1]-leads[-2])/nmodels
+                              leads_sec[-1]-leads_sec[-2])/nmodels
 CI_bar_intvl_widths = (
     (CI_bar_max_widths-CI_bar_min_widths)/nmodels
 )
@@ -675,7 +675,7 @@ for stat in plot_stats_list:
                     ax2.bar(leads[index], 2*np.absolute(model_ci_data[index]), 
                             bottom = -1*np.absolute(model_ci_data[index]), 
                             color = 'None',
-                            width = CI_bar_max_widths-(CI_bar_intvl_widths*model_index), 
+                            width = CI_bar_max_widths[index]-(CI_bar_intvl_widths[index]*model_index),
                             edgecolor = model_plot_settings_dict['color'], 
                             linewidth = '1')
     subplot_num = 1

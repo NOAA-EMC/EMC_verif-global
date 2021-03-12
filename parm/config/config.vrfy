@@ -405,7 +405,7 @@ if [ $RUN_TROPCYC = YES ]; then
     #tropcyc_stat_list:              stats from MET's tc_stat to plot: see MET's README_TC for examples
     #tropcyc_storm_level_list:       list of TC development levels to verify (column TY, see https://www.nrlmry.navy.mil/atcf_web/docs/database/new/abrdeck.html)
     export tropcyc_model_atcf_name_list="AVNO"
-    export tropcyc_model_plot_name_list="ops_gfs gfsv16"
+    export tropcyc_model_plot_name_list="ops_gfs"
     export tropcyc_storm_list="AL_2020_ALLNAMED EP_2020_ALLNAMED WP_2020_ALLNAMED"
     export tropcyc_fcyc_list="00 06 12 18"
     export tropcyc_vhr_list="00 06 12 18"

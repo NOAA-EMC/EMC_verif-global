@@ -186,7 +186,15 @@ def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
     if 'NCEPPROD' in hpss_dir:
         # Operational GFS HPSS archive set up
         if dt_init_time \
-                >= datetime.datetime.strptime('20200226', '%Y%m%d'):
+                >= datetime.datetime.strptime('20210321', '%Y%m%d'):
+            hpss_tar_filename_prefix = ('com_gfs_prod_'+model_dump+'.'
+                                        +YYYYmmdd+'_'+HH+'.'+model_dump)
+            hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                            'atmos', model_dump+'.t'+HH+'z.')
+        elif dt_init_time \
+                >= datetime.datetime.strptime('20200226', '%Y%m%d') \
+            and dt_init_time \
+                    < datetime.datetime.strptime('20210321', '%Y%m%d'):
             hpss_tar_filename_prefix = ('com_gfs_prod_'+model_dump+'.'
                                         +YYYYmmdd+'_'+HH+'.'+model_dump)
             hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
@@ -1056,7 +1064,7 @@ elif RUN == 'grid2obs_step1':
                         )
                         prepbufr_prod_file = os.path.join(
                             prepbufr_prod_upper_air_dir, prepbufr+'.'+YYYYmmdd,
-                            HH, prepbufr+'.t'+HH+'z.prepbufr'
+                            HH, 'atmos', prepbufr+'.t'+HH+'z.prepbufr'
                         )
                         prepbufr_arch_file = os.path.join(
                             prepbufr_arch_dir, prepbufr, 'prepbufr.'+prepbufr

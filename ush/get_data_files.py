@@ -311,7 +311,17 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_prefix,
         # no cyclone track files
         hpss_date_dir = os.path.join(hpss_dir, 'rh'+YYYY, YYYYmm,
                                      YYYYmmdd)
-        if int(YYYYmmdd) >= 20200226:
+        if int(YYYYmmdd) >= 20210321:
+            hpss_tar = os.path.join(hpss_date_dir,
+                                    'com_gfs_prod_'+hpss_file_prefix+'.'
+                                    +YYYYmmdd+'_'+HH+'.'+hpss_file_prefix
+                                    +'_pgrb2.tar')
+            hpss_file = (
+                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/atmos/'
+                +hpss_file_prefix+'.t'+HH
+                +'z.pgrb2.0p25.'+hpss_file_suffix
+                )
+        elif int(YYYYmmdd) >= 20200226 and int(YYYYmmdd) < 20210321:
             hpss_tar = os.path.join(hpss_date_dir,
                                     'com_gfs_prod_'+hpss_file_prefix+'.'
                                     +YYYYmmdd+'_'+HH+'.'+hpss_file_prefix
@@ -372,17 +382,17 @@ def set_up_gfs_hpss_info(init_time, hpss_dir, hpss_file_prefix,
                                     'enkfgdas.tar')
         if hpss_file_suffix == 'cyclone.trackatcfunix':
             hpss_file = ( 
-                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/'
+                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/atmos/'
                 +'avno.t'+HH+'z.'+hpss_file_suffix
             )
         elif hpss_file_prefix == 'enkfgdas':
             hpss_file = (
-                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/'
+                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/atmos/'
                 +'gdas.t'+HH+'z.'+hpss_file_suffix
             )
         else:
             hpss_file = (
-                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/'
+                hpss_file_prefix+'.'+YYYYmmdd+'/'+HH+'/atmos/'
                 +hpss_file_prefix+'.t'+HH+'z.pgrb2.0p25.'+hpss_file_suffix
             )
     hpss_job_filename = os.path.join(
@@ -865,14 +875,22 @@ elif RUN == 'grid2obs_step1':
                 link_prepbufr_file = os.path.join(link_prepbufr_data_dir,
                                                   'prepbufr.gdas.'+YYYYmmddHH)
                 prod_file = os.path.join(prepbufr_prod_upper_air_dir, 
-                                         'gdas.'+YYYYmmdd, HH,
+                                         'gdas.'+YYYYmmdd, HH, 'atmos',
                                          'gdas.t'+HH+'z.prepbufr')
                 arch_file = os.path.join(prepbufr_arch_dir, 'gdas',
                                          'prepbufr.gdas.'+YYYYmmddHH)
                 hpss_date_dir = os.path.join(hpss_prod_base_dir,
                                              'rh'+YYYY, YYYYmm,
                                              YYYYmmdd)
-                if int(YYYYmmdd) >= 20200226:
+                if int(YYYYmmdd) >= 20210321:
+                    hpss_tar_file = (
+                        'com_gfs_prod_gdas.'
+                        +YYYYmmdd+'_'+HH+'.gdas.tar'
+                    )
+                    hpss_file = (
+                        'gdas.'+YYYYmmdd+'/'+HH+'/atmos/gdas.t'+HH+'z.prepbufr'
+                    )
+                elif int(YYYYmmdd) >= 20200226 and int(YYYYmmdd) < 20210321:
                     hpss_tar_file = (
                         'com_gfs_prod_gdas.'
                         +YYYYmmdd+'_'+HH+'.gdas.tar'
@@ -3055,13 +3073,13 @@ elif RUN == 'mapsda':
                 for file_type in ['mean', 'spread']:
                     if ens_guess_hour == 'anl':
                         file_format = (
-                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/'
+                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/atmos/'
                             +dump+'.t{cycle?fmt=%H}z.atmanl.ens'
                             +file_type+'.'+netcdf_suffix
                         )
                     else:
                         file_format = (
-                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/'
+                            'enkf'+dump+'.{init?fmt=%Y%m%d}/{cycle?fmt=%H}/atmos/'
                             +dump+'.t{cycle?fmt=%H}z.atmf0{lead?fmt=%H}.ens'
                             +file_type+'.'+netcdf_suffix
                         )

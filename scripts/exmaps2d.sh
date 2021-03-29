@@ -97,4 +97,9 @@ if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
 fi
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
+else
+    if [ $KEEPDATA = NO ]; then
+        cd ..
+        rm -rf $RUN
+    fi
 fi

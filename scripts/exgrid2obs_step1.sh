@@ -153,7 +153,12 @@ while [ $DATE -le ${end_date} ] ; do
     DATE=$(echo $($NDATE +24 ${DATE}00 ) |cut -c 1-8 )
 done
 
-# Send data to METviewer AWS server
+# Send data to METviewer AWS server and clean up
 if [ $SENDMETVIEWER = YES ]; then
     python $USHverif_global/load_to_METviewer_AWS.py
+else
+    if [ $KEEPDATA = NO ]; then
+        cd ..
+        rm -rf $RUN
+    fi
 fi

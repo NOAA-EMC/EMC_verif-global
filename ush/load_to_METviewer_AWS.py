@@ -22,6 +22,7 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 # Read in environment variables
+KEEPDATA = os.environ['KEEPDATA']
 machine = os.environ['machine']
 DATA = os.environ['DATA']
 NET = os.environ['NET']
@@ -58,6 +59,12 @@ elif RUN == 'precip_step1':
     mv_desc = os.environ['precip1_mv_database_desc']
     gather_by = os.environ['precip1_gather_by']
     subdir_list = os.environ['precip1_type_list'].split(' ')
+elif RUN == 'satellite_step1':
+    mv_database = os.environ['sat1_mv_database_name']
+    mv_group = os.environ['sat1_mv_database_group']
+    mv_desc = os.environ['sat1_mv_database_desc']
+    gather_by = os.environ['sat1_gather_by']
+    subdir_list = os.environ['sat1_type_list'].split(' ')
 data_dir = os.path.join(os.getcwd(), 'metplus_output', 
                         'gather_by_'+gather_by, 'stat_analysis')
 METviewer_AWS_scripts_dir = os.path.join(USHverif_global,
@@ -171,6 +178,10 @@ with open(AWS_job_filename, 'a') as AWS_job_file:
         os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh')+' '
         +os.environ['USER'].lower()
     )
+    if KEEPDATA == 'NO':
+        AWS_job_file.write('\n')
+        AWS_job_file.write('cd ..\n')
+        AWS_job_file.write('rm -rf '+RUN)
 
 # Submit job card
 os.chmod(AWS_job_filename, 0o755)

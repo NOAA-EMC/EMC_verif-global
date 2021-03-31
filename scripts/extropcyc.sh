@@ -132,4 +132,9 @@ if [ $SEND2WEB = YES ] ; then
     mkdir -p $DATA/$RUN/create_webpage_templates
     python $USHverif_global/create_tropcyc_webpage_templates.py
     python $USHverif_global/build_webpage.py
+else
+    if [ $KEEPDATA = NO ]; then
+        cd ..
+        rm -rf $RUN
+    fi
 fi

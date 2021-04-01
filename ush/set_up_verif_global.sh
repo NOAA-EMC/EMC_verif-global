@@ -135,7 +135,11 @@ elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
     export QUEUESHARED="dev_shared"
     export QUEUESERV="dev_transfer"
     export PARTITION_BATCH=""
-    export nproc="28"
+    if [ $machine = "WCOSS_C" ]; then
+        export nproc="24"
+    elif [ $machine = "WCOSS_DELL_P3" ]; then
+        export nproc="28"
+    fi
     export MPMD="YES"
 fi
 

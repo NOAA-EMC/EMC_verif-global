@@ -17,6 +17,7 @@ import datetime
 print("BEGIN: "+os.path.basename(__file__))
 
 # Read in environment variables
+KEEPDATA = os.environ['KEEPDATA']
 machine = os.environ['machine']
 USHverif_global = os.environ['USHverif_global']
 DATA = os.environ['DATA']
@@ -590,6 +591,10 @@ with open(web_job_filename, 'a') as web_job_file:
                     +' '+webhostid+'@'+webhost+':'
                     +os.path.join(webdir, RUN_type, tropcyc_type, '.\n')
                 )
+        if KEEPDATA == 'NO':
+            web_job_file.write('\n')
+            web_job_file.write('cd ..\n')
+            web_job_file.write('rm -rf '+RUN)
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)

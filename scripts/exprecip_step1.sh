@@ -103,11 +103,16 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
 echo
 
-# Send data to METviewer AWS server
+# Send data to METviewer AWS server and clean up
 if [ $SENDMETVIEWER = YES ]; then
     python $USHverif_global/load_to_METviewer_AWS.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully ran load_to_METviewer_AWS.py"
     echo
+else
+    if [ $KEEPDATA = NO ]; then
+        cd ..
+        rm -rf $RUN
+    fi
 fi

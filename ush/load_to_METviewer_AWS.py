@@ -20,6 +20,7 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 # Read in environment variables
+KEEPDATA = os.environ['KEEPDATA']
 machine = os.environ['machine']
 DATA = os.environ['DATA']
 NET = os.environ['NET']
@@ -157,6 +158,10 @@ with open(AWS_job_filename, 'a') as AWS_job_file:
         os.path.join(METviewer_AWS_scripts_dir, 'mv_db_size_on_aws.sh')+' '
         +os.environ['USER'].lower()
     )
+    if KEEPDATA == 'NO':
+        AWS_job_file.write('\n')
+        AWS_job_file.write('cd ..\n')
+        AWS_job_file.write('rm -rf '+RUN)
 
 # Submit job card
 os.chmod(AWS_job_filename, 0o755)

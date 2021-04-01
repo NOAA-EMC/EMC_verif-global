@@ -46,6 +46,7 @@ if [ $machine = WCOSS_C ]; then
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+    module load alps
     module load xt-lsfhpc/9.1.3
     module load cfp-intel-sandybridge/1.1.0
     module load hpss/4.1.0.3

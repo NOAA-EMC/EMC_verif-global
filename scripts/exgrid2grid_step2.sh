@@ -104,6 +104,10 @@ fi
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
+    echo
 else
     if [ $KEEPDATA = NO ]; then
         cd ..

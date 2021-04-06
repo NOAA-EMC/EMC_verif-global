@@ -1320,7 +1320,7 @@ elif RUN == 'precip_step1':
     if machine == 'ORION':
         print("WARNING: Orion does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_obs_data_run_hpss to NO")
-        prepbufr_run_hpss = 'NO'
+        obs_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

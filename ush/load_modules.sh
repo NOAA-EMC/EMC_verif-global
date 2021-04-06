@@ -166,6 +166,7 @@ if [ $machine = "ORION" ]; then
     export NCAP2=`which ncap2 | sed 's/ncap2 is //g'`
     export CONVERT=`which convert | sed 's/convert is //g'`
     export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
+    export HTAR="/null/htar"
 fi
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"

@@ -28,6 +28,12 @@ export RUN_abbrev="$RUN"
 mkdir -p $RUN
 cd $RUN
 
+# Check machine to be sure we can get the data
+if [ $machine = "ORION" ]; then
+    echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
+    exit
+fi
+
 # Check user's configuration file
 python $USHverif_global/check_config.py
 status=$?

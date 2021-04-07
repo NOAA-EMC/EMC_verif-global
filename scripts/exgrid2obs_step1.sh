@@ -27,6 +27,16 @@ export RUN_abbrev="g2o1"
 mkdir -p $RUN
 cd $RUN
 
+# Check machine to be sure we can get the data
+if [ $machine = "ORION" ]; then
+    if grep -q "polar_sfc" <<< "$g2o1_type_list"; then
+        echo "WARNING: Cannot run ${RUN} polar_sfc on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc //'`
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc//'`
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/polar_sfc //'`
+    fi
+fi
+
 # Check user's configuration file
 python $USHverif_global/check_config.py
 status=$?

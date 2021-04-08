@@ -134,7 +134,7 @@ elif [ $machine = ORION ]; then
     if [ $METplus_version = 3.1 ]; then
         module use /apps/contrib/modulefiles
         module load metplus/3.1
-        export HOMEMETplus="/apps/contrib/MET/METplus/METplus-3.1"
+        export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1

@@ -104,7 +104,7 @@ elif [ $machine = HERA ]; then
     if [ $METplus_version = 3.1 ]; then
         module use /contrib/METplus/modulefiles
         module load metplus/3.1
-        export HOMEMETplus="/contrib/METplus/METplus-3.1"
+        export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1

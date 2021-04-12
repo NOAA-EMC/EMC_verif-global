@@ -924,6 +924,13 @@ elif RUN == 'grid2obs_step1':
                             if not os.path.exists(iabp_region_YYYYmmdd_file):
                                 print("WARNING: Could not get IABP files from "
                                       +"FTP for "+iabp_region+" on "+YYYYmmdd)
+                            else:
+                                if os.path.getsize(iabp_region_YYYYmmdd_file) \
+                                        == 0:
+                                    print("WARNING: Could not get IABP files "
+                                          +"from FTP for "+iabp_region+" "
+                                          +"on "+YYYYmmdd)
+                                    os.remove(iabp_region_YYYYmmdd_file)
                         iabp_reg_YYYYmmdd_file_list = glob.glob(
                             os.path.join(iabp_dir, '*'+YYYYmmdd+'.dat')
                         )
@@ -1793,6 +1800,10 @@ elif RUN == 'satellite_step1':
                             +"'name="+'"SEA_ICE_FREE"; level="(*,*)";'+"' "
                             +'-name SEA_ICE_FREE_POLAR -value "0"'
                         )
+                    elif os.path.exists(link_RUN_type_file) \
+                            and os.path.getsize(link_RUN_type_file) == 0:
+                        print("WARNING: could not get "+RUN_type_ftp_file)
+                        os.remove(link_RUN_type_file)
                     else:
                         print("WARNING: could not get "+RUN_type_ftp_file)
 elif RUN == 'satellite_step2':

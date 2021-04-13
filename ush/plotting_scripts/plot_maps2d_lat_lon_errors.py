@@ -12,6 +12,10 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import cartopy.crs as ccrs
+from cartopy.util import add_cyclic_point
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy import config
 
 warnings.filterwarnings('ignore')
 
@@ -253,6 +257,7 @@ var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
 RUN_type = os.environ['RUN_type']
+machine = os.environ['machine']
 if RUN_type == 'model2model':
     forecast_anl_diff = os.environ['forecast_anl_diff']
     if forecast_to_plot == 'anl':
@@ -260,10 +265,11 @@ if RUN_type == 'model2model':
 if RUN_type == 'model2obs':
    use_monthly_mean = os.environ['use_monthly_mean']
 
+# Set up location of Natural Earth files
+if machine == 'HERA':
+    config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
+
 # Set up information
-import cartopy.crs as ccrs
-from cartopy.util import add_cyclic_point
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 env_var_model_list = []
 regex = re.compile(r'model(\d+)$')
 for key in os.environ.keys():

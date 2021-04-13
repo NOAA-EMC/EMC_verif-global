@@ -13,6 +13,10 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import cartopy.crs as ccrs
+from cartopy.util import add_cyclic_point
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy import config
 
 warnings.filterwarnings('ignore')
 
@@ -249,16 +253,18 @@ var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
 RUN_type = os.environ['RUN_type']
+machine = os.environ['machine']
 if RUN_type == 'gdas':
     regrid_to_grid = os.environ['regrid_to_grid']
     plot_stats_list = ['inc', 'rmse']
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
 
+# Set up location of Natural Earth files
+if machine == 'HERA':
+    config['data_dir']='/home/Deanna.Spindler/.local/share/cartopy'
+
 # Set up information
-import cartopy.crs as ccrs
-from cartopy.util import add_cyclic_point
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 env_var_model_list = []
 regex = re.compile(r'model(\d+)$')
 for key in os.environ.keys():

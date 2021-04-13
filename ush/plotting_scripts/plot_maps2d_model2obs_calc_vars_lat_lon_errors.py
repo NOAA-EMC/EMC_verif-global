@@ -13,6 +13,10 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import itertools
+import cartopy.crs as ccrs
+from cartopy.util import add_cyclic_point
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy import config
 
 warnings.filterwarnings('ignore')
 
@@ -236,7 +240,6 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     return CF_tmp
 
 # Read in environment variables
-machine = os.environ['machine']
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 make_met_data_by = os.environ['maps2d_model2obs_make_met_data_by']
@@ -254,13 +257,15 @@ hour_end = os.environ['maps2d_model2obs_hour_end']
 hour_inc = os.environ['maps2d_model2obs_hour_inc']
 model_list = os.environ['model_list'].split(' ')
 model_plot_name_list = os.environ['maps2d_model_plot_name_list'].split(' ')
+machine = os.environ['machine']
+
+# Set up location of Natural Earth files
+if machine == 'HERA':
+    config['data_dir']='/home/Deanna.Spindler/.local/share/cartopy'
 
 # Set up information
 RUN_type = 'model2obs'
 var_group = 'cloudsrad'
-import cartopy.crs as ccrs
-from cartopy.util import add_cyclic_point
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 nmodels = int(len(model_list))
 
 # Plot title information

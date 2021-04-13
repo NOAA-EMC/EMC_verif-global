@@ -562,6 +562,7 @@ web_job_filename = os.path.join(DATA, 'batch_jobs',
                                 NET+'_'+RUN+'_web.sh')
 with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')
+        web_job_file.write('set -x'+'\n')
         web_job_file.write('ssh -q -l '+webhostid+' '+webhost+' " ls -l '
                            +webdir+' "'+'\n')
         web_job_file.write('if [ $? -ne 0 ]; then'+'\n')

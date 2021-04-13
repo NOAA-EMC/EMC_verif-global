@@ -129,6 +129,7 @@ AWS_job_filename = os.path.join(DATA, 'batch_jobs',
                                 NET+'_'+RUN+'_load2METviewerAWS.sh')
 with open(AWS_job_filename, 'a') as AWS_job_file:
     AWS_job_file.write('#!/bin/sh'+'\n')
+    AWS_job_file.write('set -x'+'\n')
     if new_or_add == 'new':
         AWS_job_file.write('echo "Creating database on METviewer AWS using '
                            +os.path.join(METviewer_AWS_scripts_dir,

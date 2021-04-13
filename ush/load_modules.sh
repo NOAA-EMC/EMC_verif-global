@@ -59,18 +59,18 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
     module purge
     if [ $MET_version = 9.1 ]; then
-        module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
-        module load met/9.1
-        export HOMEMET="/gpfs/dell2/emc/verification/noscrub/emc.metplus/met/${MET_version}"
+        module use /gpfs/dell1/nco/ops/nwprod/modulefiles/compiler_prod/ips/18.0.1
+        module load met/9.1.3
+        export HOMEMET="/gpfs/dell1/nco/ops/nwprod/met.v${MET_version}.3"
         export HOMEMET_bin_exec="exec"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles
+        module use /gpfs/dell1/nco/ops/nwprod/modulefiles/compiler_prod/ips/18.0.1
         module load metplus/3.1.1
-        export HOMEMETplus="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METplus/METplus-${METplus_version}.1"
+        export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1

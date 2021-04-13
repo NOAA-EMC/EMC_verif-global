@@ -30,18 +30,18 @@ if [ $machine = WCOSS_C ]; then
     module purge
     module load craype-haswell
     if [ $MET_version = 9.1 ]; then
-        module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
-        module load met/9.1
-        export HOMEMET="/gpfs/hps3/emc/meso/noscrub/emc.metplus/met/${MET_version}"
+        module use /gpfs/hps/nco/ops/nwprod/modulefiles
+        module load met/9.1.3
+        export HOMEMET="/gpfs/hps/nco/ops/nwprod/met.v${MET_version}.3"
         export HOMEMET_bin_exec="exec"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /gpfs/hps3/emc/meso/noscrub/emc.metplus/modulefiles
+        module use /gpfs/hps/nco/ops/nwprod/modulefiles
         module load metplus/3.1.1
-        export HOMEMETplus="/gpfs/hps3/emc/meso/noscrub/emc.metplus/METplus/METplus-${METplus_version}.1"
+        export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
@@ -53,8 +53,11 @@ if [ $machine = WCOSS_C ]; then
     module load prod_util/1.1.2
     module load grib_util/1.1.1
     module load nco-gnu-sandybridge/4.4.4
+    module unload python/3.6.3
+    module unuse /usrx/local/prod/modulefiles
     module use /usrx/local/dev/modulefiles
     module load NetCDF-intel-sandybridge/4.5.0
+    module load python/3.6.3
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
     module purge

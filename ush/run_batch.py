@@ -50,7 +50,8 @@ with open(job_card_filename, 'a') as job_card:
             job_card.write("#BSUB -extsched 'CRAYLINUX[]' -R '1*"
                            "{select[craylinux && !vnode]} + "
                            +nproc+"*{select[craylinux && vnode]"
-                           "span[ptile=24] cu[type=cabinet]}'")
+                           "span[ptile=24] cu[type=cabinet]}'\n")
+            job_card.write('export PMI_NO_FORK=1\n')
         elif machine == 'WCOSS_DELL_P3':
             if RUN in ['grid2grid_step2']:
                 job_card.write('#BSUB -n '+str(int(nproc)*3)+'\n')

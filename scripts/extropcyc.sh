@@ -29,7 +29,7 @@ mkdir -p $RUN
 cd $RUN
 
 # Check machine to be sure we can get the data
-if [[ "$machine" =~ ^(HERA|ORION)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C)$ ]]; then
     echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
     exit
 fi

@@ -79,7 +79,7 @@ if [ $MPMD = YES ]; then
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION ]; then

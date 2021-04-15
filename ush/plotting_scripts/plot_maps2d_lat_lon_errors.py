@@ -268,6 +268,8 @@ if RUN_type == 'model2obs':
 # Set up location of Natural Earth files
 if machine == 'HERA':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
+if machine == 'WCOSS_C':
+    config['data_dir']='/u/Mallory.Row/.local/share/cartopy'
 
 # Set up information
 env_var_model_list = []

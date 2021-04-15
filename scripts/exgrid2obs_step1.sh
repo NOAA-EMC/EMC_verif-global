@@ -28,7 +28,7 @@ mkdir -p $RUN
 cd $RUN
 
 # Check machine to be sure we can get the data
-if [[ "$machine" =~ ^(HERA|ORION)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C)$ ]]; then
     if grep -q "polar_sfc" <<< "$g2o1_type_list"; then
         echo "WARNING: Cannot run ${RUN} polar_sfc on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
         export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc //'`

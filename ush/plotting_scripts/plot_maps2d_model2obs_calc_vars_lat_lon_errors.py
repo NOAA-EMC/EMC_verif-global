@@ -263,7 +263,9 @@ machine = os.environ['machine']
 if machine == 'HERA':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
 if machine == 'WCOSS_C':
-    config['data_dir']='/u/Mallory.Row/.local/share/cartopy'
+    config['data_dir']='/u/emc.verif/.local/share/cartopy'
+if machine == 'WCOSS_DELL_P3':
+    config['data_dir']='/u/emc.verif/.local/share/cartopy'
 
 # Set up information
 RUN_type = 'model2obs'

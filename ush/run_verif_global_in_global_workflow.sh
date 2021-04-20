@@ -35,15 +35,15 @@ export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
-export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}"}
+export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## OUTPUT DATA SETTINGS
 export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
 ## DATE SETTINGS
-export start_date="$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)"
-export end_date="$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)"
+export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
 ## METPLUS SETTINGS
@@ -86,9 +86,9 @@ export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
 export g2g1_sfc_fhr_max=${g2g1_sfc_fhr_max:-$FHMAX_GFS}
 export g2g1_sfc_grid=${g2g1_sfc_grid:-"G002"}
 export g2g1_sfc_gather_by=${g2g1_sfc_gather_by:-"VSDB"}
-export g2g1_mv_database_name="mv_${PSLOT}_grid2grid_metplus"
-export g2g1_mv_database_group="${USER}"
-export g2g1_mv_database_desc="Grid-to-grid METplus data for ${PSLOT}"
+export g2g1_mv_database_name=${g2g1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
+export g2g1_mv_database_group=${g2g1_mv_database_group:-"NOAA-NCEP"}
+export g2g1_mv_database_desc=${g2g1_mv_database_desc:-"Grid-to-grid METplus data for global workflow experiment ${PSLOT}"}
 # GRID2OBS STEP 1
 export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
 export g2o1_upper_air_msg_type_list=${g2o1_upper_air_msg_type_list:-"ADPUPA"}
@@ -113,29 +113,28 @@ export g2o1_polar_sfc_fhr_max=${g2o1_polar_sfc_fhr_max:-$FHMAX_GFS}
 export g2o1_polar_sfc_grid=${g2o1_polar_sfc_grid:-"G219"}
 export g2o1_polar_sfc_gather_by=${g2o1_polar_sfc_gather_by:-"VSDB"}
 export g2o1_prepbufr_data_run_hpss=${g2o1_prepbufr_data_run_hpss:-"NO"}
-export g2o1_mv_database_name="mv_${PSLOT}_grid2obs_metplus"
-export g2o1_mv_database_group="${USER}"
-export g2o1_mv_database_desc="Grid-to-obs METplus data for ${PSLOT}"
+export g2o1_mv_database_name=${g2o1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
+export g2o1_mv_database_group=${g2o1_mv_database_group:-"NOAA-NCEP"}
+export g2o1_mv_database_desc=${g2o1_mv_database_desc:-"Grid-to-obs METplus data for global workflow experiment ${PSLOT}"}
 # PRECIP STEP 1
 export precip1_type_list=${precip1_type_list:-"ccpa_accum24hr"}
 export precip1_ccpa_accum24hr_model_bucket_list=${precip1_ccpa_accum24hr_model_bucket:-"06"}
 export precip1_ccpa_accum24hr_model_var_list=${precip1_ccpa_accum24hr_model_var:-"APCP"}
-export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"}
+export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}.grib2"}
 export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
 export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
 export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHAX_GFS}
 export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
 export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VSDB"}
 export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
-export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
-export precip1_mv_database_group="${USER}"
-export precip1_mv_database_desc="Precip METplus data for ${PSLOT}"
+export precip1_mv_database_name=${precip1_mv_database_name:-"mv_${PSLOT}_precip_metplus"}
+export precip1_mv_database_group=${precip1_mv_database_group:-"NOAA-NCEP"}
+export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data for global workflow experiment ${PSLOT}"}
 
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE
-#SDATE_GFS
-#SDATE_GFS_YYYYMMDDHH="$(echo $SDATE_GFS  | cut -c1-10)"
+#SDATE_GFS_YYYYMMDDHH="$(echo $SDATE_GFS | cut -c1-10)"
 #start_date
 #g2g1_anom_fhr_max
 #g2g1_anom_fhr_max_date="$(echo $($NDATE -${g2g1_anom_fhr_max} ${start_date}00) | cut -c1-8)"

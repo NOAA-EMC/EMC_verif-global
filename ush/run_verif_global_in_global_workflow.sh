@@ -46,6 +46,11 @@ export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8
 export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
+## WEB SETTINGS
+export SEND2WEB="NO"
+export webhost="emcrzdm.ncep.noaa.gov"
+export webhostid="$USER"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus_${PSLOT}"
 ## METPLUS SETTINGS
 export MET_version="9.1"
 export METplus_version="3.1"

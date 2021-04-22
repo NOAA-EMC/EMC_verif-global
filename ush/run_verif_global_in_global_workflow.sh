@@ -133,22 +133,46 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 
 echo
 
-# Check forecast max hours, adjust if before experiment SDATE
-#SDATE_GFS_YYYYMMDDHH="$(echo $SDATE_GFS | cut -c1-10)"
-#start_date
-#g2g1_anom_fhr_max
-#g2g1_anom_fhr_max_date="$(echo $($NDATE -${g2g1_anom_fhr_max} ${start_date}00) | cut -c1-8)"
-#if [ $g2g1_anom_fhr_max_date -le $SDATE_GFS_YYYYMMDDHH ] ; then
-#    g2g1_anom_fhr_max="$(echo $($NHOUR ${start_date}00 $SDATE_GFS_YYYYMMDDHH))"
-#fi
-#g2g1_pres_fhr_max
-#g2g1_sfc_fhr_max
-#g2o1_upper_air_fhr_max
-#g2o1_conus_sfc_fhr_max
-#g2o1_polar_sfc_fhr_max
-#precip1_ccpa_accum24hr_fhr_max
+# Check forecast max hours, adjust if before experiment SDATE_GFS
+SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
+g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
+g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_anom_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2g1_pres_check_vhour="${g2g1_pres_vhr_list: -2}"
+g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_pres_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2g1_sfc_check_vhour="${g2g1_sfc_vhr_list: -2}"
+g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_upper_air_check_vhour="${g2o1_upper_air_vhr_list: -2}"
+g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_conus_sfc_check_vhour="${g2o1_conus_sfc_vhr_list: -2}"
+g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
+g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+precip1_ccpa_accum24hr_check_vhour="12"
+precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${start_date}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
 
 echo
+
 ## Output set up
 export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/vrfy"}
 export DATA=$OUTPUTROOT

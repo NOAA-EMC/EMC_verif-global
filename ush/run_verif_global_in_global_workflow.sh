@@ -35,7 +35,7 @@ export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
-export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}

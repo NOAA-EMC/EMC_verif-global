@@ -289,13 +289,13 @@ if [ $cyc != $cyc2run ]; then
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
-if [ ${start_date}${cyc2run} -le $SDATE ]; then
+if [ ${start_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
 for fcyc in $fcyc_list; do
-    if [ ${start_date}${fcyc} -le $SDATE ]; then
+    if [ ${start_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
          RUN_GRID2GRID_STEP1=NO
          RUN_GRID2OBS_STEP1=NO
          RUN_PRECIP_STEP1=NO
@@ -305,11 +305,11 @@ for precip1_type in $precip1_type_list; do
     precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
     precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
     precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
-    if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then
+    if [ ${precip_check_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
         RUN_PRECIP_STEP1=NO
     fi
     for fcyc in $fcyc_list; do
-        if [ ${precip_check_date}${fcyc} -le $SDATE ]; then
+        if [ ${precip_check_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
             RUN_PRECIP_STEP1=NO
         fi
     done

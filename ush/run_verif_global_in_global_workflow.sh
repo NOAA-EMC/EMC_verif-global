@@ -251,8 +251,8 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
-    export global_archive="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
-    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
+    export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "ORION" ]; then
     export global_archive="/work/noaa/ovp/mrow/archive"

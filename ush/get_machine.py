@@ -3,27 +3,36 @@ Program Name: get_machine.py
 Contact(s): Mallory Row
 Abstract: This script is run by set_up_verif_global.sh.
           It gets the name of the name of the machine being
-          run on by checking environment variables.
+          run on by checking environment variables "machine"
+          or "MACHINE". If not does matching based on environment
+          variable "HOSTNAME" or output from hostname executable.
 '''
 
-from __future__ import (print_function, division)
+import sys
 import os
 import re
+import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
-
-# Read in environment variables
-hostname = os.environ['HOSTNAME']
 
 EMC_verif_global_machine_list = [
     'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3'
 ]
 
+# Read in environment variables
+if not 'HOSTNAME' in list(os.environ.keys()):
+    hostname = subprocess.check_output(
+        'hostname', shell=True
+    ).replace('\n', '')
+else:
+    hostname = os.environ['HOSTNAME']
+
 # Get machine name
 for env_var in ['machine', 'MACHINE']:
     if env_var in os.environ:
         if os.environ[env_var] in EMC_verif_global_machine_list:
-            print("Found environment variable "+env_var+"="+os.environ[env_var])
+            print("Found environment variable "
+                  +env_var+"="+os.environ[env_var])
             machine = os.environ[env_var]
             break
 if 'machine' not in vars():
@@ -47,13 +56,14 @@ if 'machine' not in vars():
         machine = 'WCOSS_DELL_P3'
     else:
         print("Cannot find match for "+hostname)
-        exit(1)
+        sys.exit(1)
 
 # Write to machine config file
 if not os.path.exists('config.machine'):
     with open('config.machine', 'a') as file:
         file.write('#!/bin/sh\n')
         file.write('echo "BEGIN: config.machine"\n')
+        file.write('echo "Setting machine='+'"'+machine+'""\n')
         file.write('export machine='+'"'+machine+'"\n')
         file.write('echo "END: config.machine"')
 

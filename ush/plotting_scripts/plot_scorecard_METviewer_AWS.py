@@ -8,9 +8,7 @@ Abstract: This scripts generates a standard GFS grid-to-grid
               3) Send scorecard to website
 '''
 
-import sys
 import datetime as datetime
-import shutil
 import os
 import subprocess
 from time import sleep
@@ -28,6 +26,7 @@ QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
 SEND2WEB = os.environ['SEND2WEB']
+METviewer_AWS_scripts_dir = os.environ['METviewer_AWS_scripts_dir']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
@@ -43,8 +42,6 @@ walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
         .total_seconds()
 walltime = (datetime.datetime.min
            + datetime.timedelta(minutes=int(web_walltime))).time()
-METviewer_AWS_scripts_dir = os.path.join(USHverif_global,
-                                         'METviewer_AWS_scripts')
 
 # Do some formatting for XML variables
 valid_beg_dt = datetime.datetime.strptime(valid_beg+vhr_list[0], '%Y%m%d%H')
@@ -421,7 +418,7 @@ if SEND2WEB == 'YES':
                                                   'scorecard/'
                                                   +scorecard2web)
                            +' '+webhostid+'@'+webhost+':'
-                           +os.path.join(webdir, 'scorecard', 'images', 
+                           +os.path.join(webdir, 'scorecard', 'images',
                                          'scorecard.png'))
     # Submit job card
     os.chmod(web_job_filename, 0o755)

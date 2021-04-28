@@ -1,14 +1,14 @@
-def get_date_info_title(plot_time, valid_hours, init_hours,
+def get_date_info_title(date_type, valid_hours, init_hours,
                         start_date, end_date, verif_case):
     """! Get a formalized version of the
-         verification date information to 
+         verification date information to
          use in plot title
- 
+
              Args:
-                 plot_time   - string of verification date 
-                               types: valid or init
-                 valid_hours - array of valid hours
-                 init_hours  - array of initialzation hours
+                 date_type   - string of verification date
+                               types: VALID or INIT
+                 valid_hours - list of valid hours
+                 init_hours  - list of initialzation hours
                  start_date  - string of verification
                                start date
                  end_date    - string of verification
@@ -17,7 +17,7 @@ def get_date_info_title(plot_time, valid_hours, init_hours,
                                name
              Returns:
                  date_title - string of a formalized version
-                              of the verification region
+                              of the verification dates
                               to use in plot title
     """
     valid_hours_format = []
@@ -28,26 +28,26 @@ def get_date_info_title(plot_time, valid_hours, init_hours,
     for ih in init_hours:
         init_hours_format.append(ih[0:2]+'Z')
     init_hours_title = ', '.join(init_hours_format)
-    if plot_time == 'valid':
+    if date_type == 'VALID':
         if verif_case == 'grid2obs':
             date_info_title = (
-                plot_time+' '+start_date+'-'+end_date+', '
+                date_type.lower()+' '+start_date+'-'+end_date+', '
                 +init_hours_title+' cycles'
             )
         else:
             date_info_title = (
-                plot_time+' '+start_date+'-'+end_date+' '
+                date_type.lower()+' '+start_date+'-'+end_date+' '
                 +valid_hours_title
             )
-    elif plot_time == 'init':
+    elif date_type == 'INIT':
         if verif_case == 'grid2obs':
             date_info_title = (
-                plot_time+' '+start_date+'-'+end_date+', valid '
+                date_type.lower()+' '+start_date+'-'+end_date+', valid '
                 +valid_hours_title
             )
         else:
             date_info_title = (
-                plot_time+' '+start_date+'-'+end_date+' '
+                date_type.lower()+' '+start_date+'-'+end_date+' '
                 +init_hours_title
             )
     return date_info_title
@@ -55,7 +55,7 @@ def get_date_info_title(plot_time, valid_hours, init_hours,
 def get_lead_title(lead_hour_str):
     """! Get a formalized version of the
          forecast lead to use in plot title
- 
+
              Args:
                  lead - string of the forecast lead [hour]
 
@@ -70,28 +70,29 @@ def get_lead_title(lead_hour_str):
         lead_day_str = str(int(lead_day_float))
     else:
         lead_day_str = str(lead_day_float)
-    lead_title = 'Forecast Day '+lead_day_str+' (Forecast Hour '+lead_hour_str+')'
+    lead_title = ('Forecast Day '+lead_day_str+' (Forecast Hour '
+                  +lead_hour_str+')')
     return lead_title
 
-def get_region_title(region):
+def get_vx_mask_title(vx_mask):
     """! Get a formalized version of the
-         verification region to use in plot title
- 
+         verification vx_mask to use in plot title
+
              Args:
-                 region - string of the verification
-                          region abbrevation used for
+                 vx_mask - string of the verification
+                          vx_mask abbrevation used for
                           MET
 
              Returns:
-                 region_title - string of a formalized version
-                                of the verification region
+                 vx_mask_title - string of a formalized version
+                                of the verification vx_mask
                                 to use in plot title
     """
-    region_title_dict = {
+    vx_mask_title_dict = {
         'G002': 'Global',
         'NHX': 'Northern Hemisphere 20N-80N',
         'SHX': 'Southern Hemisphere 20S-80S',
-        'TRO': 'Tropics 20S-20N', 
+        'TRO': 'Tropics 20S-20N',
         'PNA': 'Pacific North America',
         'N60': '60N-90N',
         'S60': '60S-90S',
@@ -131,16 +132,16 @@ def get_region_title(region):
         'SEA_ICE_POLAR': 'Polar - Sea Ice',
         'SEA_ICE_FREE_POLAR': 'Polar - Sea Ice Free'
     }
-    if region in list(region_title_dict.keys()):
-        region_title = region_title_dict[region] 
+    if vx_mask in list(vx_mask_title_dict.keys()):
+        vx_mask_title = vx_mask_title_dict[vx_mask]
     else:
-        region_title = region
-    return region_title
+        vx_mask_title = vx_mask
+    return vx_mask_title
 
 def get_var_info_title(var_name, var_level, var_extra, var_thresh):
     """! Get a formalized version of the
          variable information to use in plot title
- 
+
              Args:
                  var_name   - string of the variable GRIB name
                  var_level  - string of the variable level used
@@ -168,7 +169,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'VGRD': 'Meridional Wind',
         'UGRD_VGRD': 'Vector Wind',
         'PRMSL': 'Pressure Reduced to MSL',
-        '03MR': 'Ozone Mixing Ratio',
+        'O3MR': 'Ozone Mixing Ratio',
         'RH': 'Relative Humidity',
         'SPFH': 'Specific Humidity',
         'HPBL': 'Planetary Boundary Layer Height',
@@ -221,7 +222,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
             var_extra_title = 'Cloud Ceiling'
     else:
         var_extra_title = var_extra
-    # Build variable threshold title 
+    # Build variable threshold title
     if var_thresh == '':
         var_thresh_title = ''
     elif var_thresh == 'all':

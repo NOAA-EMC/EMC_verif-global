@@ -5,25 +5,34 @@
 #           between model-to-model and model to observations
 # History Log:
 #   02/2020: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
-set -x 
+set -x
+
+export RUN_abbrev="$RUN"
 
 # Set up directories
 mkdir -p $RUN
 cd $RUN
+
+# Check user's configuration file
+python $USHverif_global/check_config.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
+echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py
@@ -32,6 +41,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
 echo
@@ -39,18 +49,21 @@ echo
 # Link needed data files and set up model information
 mkdir -p data
 python $USHverif_global/get_data_files.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
 # Create output directories for METplus
 python $USHverif_global/create_METplus_output_dirs.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
 echo
 
 # Create job scripts to run METplus
 python $USHverif_global/create_METplus_job_scripts.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
@@ -66,7 +79,7 @@ if [ $MPMD = YES ]; then
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION ]; then
@@ -84,19 +97,17 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
-    module switch python/3.6.3
-fi
 if [ $machine != "ORION" ]; then
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 
 # Send images to web
-if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
-   module switch python/2.7.14 
-fi
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
+    echo
 else
     if [ $KEEPDATA = NO ]; then
         cd ..

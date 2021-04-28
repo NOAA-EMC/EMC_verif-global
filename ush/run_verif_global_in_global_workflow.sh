@@ -8,79 +8,7 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-##### List of previously set environment varirables in 
-##### global workflow
-##### Settings from rocoto 
-## RUN_ENVIR, HOMEgfs, EXPDIR,
-## CDATE, CDUMP, PDY, cyc, METPCASE
-##### Settings from config.base
-## KEEPDATA, SENDECF, SENDCOM, SENDDBN,
-## gfs_cyc, NET, RUN_ENVIR, envir,  machine
-## HOMEDIR, STMP, PTMP, NOSCRUB, WGRIB2
-## WGRIB2, CNVGRIB, ACCOUNT, QUEUE, QUEUE_ARCH
-## PSLOT, FHMIN_GFS, FHMAX_GF
-##### Settings from config.metp
-## RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1
-## RUN_PRECIP_STEP1, HOMEverif_global
-## model_list, model_data_dir_list,
-## model_fileformat_list, model_hpssdir_list
-## get_data_from_hpss, hpss_walltime
-## OUTPUTROOT, model_arch_dir_list
-## make_met_data_by, gather_by
-## VFRFYBACK_HRS, METPLUS_verbosity,
-## MET_verbosity, log_MET_output_to_METplus
-## fhr_min, fhr_max, g2g1_type_list
-## g2g1_anl_name, g2g1_anl_fileformat_list
-## g2g1_grid, g2o1_type_list, g2o1_obtype_upper_air
-## g2o1_grid_upper_air, g2o1_fhr_out_upper_air
-## g2o1_obtype_conus_sfc, g2o1_grid_conus_sfc
-## g2o1_fhr_out_conus_sfc, g2o1_obtype_polar_sfc,
-## g2o1_grid_polar_sfc, g2o1_fhr_out_polar_sfc
-## g2o1_prepbufr_data_runhpss
-## precip1_obtype, precip1_accum_length
-## precip1_model_bucket_list, precip1_model_varname_list
-## precip1_model_fileformat_list, precip1_grid
-##### Settings from machinve env
-## npe_node_metp_gfs
-
-##### Map the global workflow environment variables
-##### to the variables needed to run in EMC_verif-global
-export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
-export RUN_GRID2OBS_STEP1=${RUN_GRID2OBS_STEP1:-NO}
-export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
-export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
-## INPUT DATA SETTINGS
-export model_list=${model_list:-$PSLOT}
-export model_dir_list=${model_dir_list:-${NOSCRUB}/archive}
-export model_fileformat_list=${model_fileformat_list:-"pgbf{lead?fmt=%H}.${CDUMP}.{init?fmt=%Y%m%d%H}"}
-export model_hpssdir_list=${model_hpssdir_list:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
-export get_data_from_hpss=${get_data_from_hpss:-NO}
-export hpss_walltime=${hpss_walltime:-10}
-## OUTPUT DATA SETTINGS
-export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
-export make_met_data_by=${make_met_data_by:-VALID}
-export gather_by=${gather_by:-VSDB}
-export plot_by=${plot_by:-VALID}
-export SENDMETVIEWER=${SENDMETVIEW:-NO}
-## DATE SETTINGS
-VRFYBACK_HRS=${VRFYBACK_HRS:-00}
-## ARCHIVE SETTINGS
-export model_arch_dir_list=${model_arch_dir_list:-${NOSCRUB}/archive}
-## METPLUS SETTINGS
-export METplus_verbosity=${METplus_verbosity:-INFO}
-export MET_verbosity=${MET_verbosity:-2}
-export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
-## FORECAST VERIFICATION SETTINGS
-fhr_min=${FHMIN_GFS:-00}
-fhr_max=${FHMAX_GFS:-180}
-## RESOURCE SETTINGS
-export nproc=${npe_node_metp_gfs:-1}
-export QUEUE=${QUEUE:-dev}
-export QUEUESERV=${QUEUE_ARCH:-dev_transfer}
-##### Set up configuration
-## OUTPUT DATA SETTINGS
-export DATA=$OUTPUTROOT
-## DATE AND HOUR SETTINGS
+# Set information based on gfs_cyc
 if [ $gfs_cyc = 1 ]; then
     export fcyc_list="$cyc"
     export vhr_list="$cyc"
@@ -94,90 +22,165 @@ elif [ $gfs_cyc = 4 ]; then
     export vhr_list="00 06 12 18"
     export cyc2run=00
 else
-    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4."                                          
+    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
     exit 1
 fi
-export start_date="$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)"
-export end_date="$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)"
-## ARCHIVE SETTINGS
-export SENDARCH="YES"
+
+# Map the global workflow environment variables to EMC_verif-global variables
+export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
+export RUN_GRID2OBS_STEP1=${RUN_GRID2OBS_STEP1:-NO}
+export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
+export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
+## INPUT DATA SETTINGS
+export model_list=${model:-$PSLOT}
+export model_dir_list=${model_dir:-${NOSCRUB}/archive}
+export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
+export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
+export model_data_run_hpss=${get_data_from_hpss:-"NO"}
+export hpss_walltime=${hpss_walltime:-10}
+## OUTPUT DATA SETTINGS
+export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
+## DATE SETTINGS
+export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export make_met_data_by=${make_met_data_by:-VALID}
+export plot_by="VALID"
+## WEB SETTINGS
+export SEND2WEB="NO"
+export webhost="emcrzdm.ncep.noaa.gov"
+export webhostid="$USER"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus_${PSLOT}"
 ## METPLUS SETTINGS
-export MET_version="8.1"
-export METplus_version="2.1"
-## RUNTIME SETTINGS
-export MPMD="YES"
-## FORECAST VERIFICATION SETTINGS
-## some set in config.vrfy
-# GRID-TO-GRID STEP 1
+export MET_version="9.1"
+export METplus_version="3.1"
+export METplus_verbosity=${METplus_verbosity:-INFO}
+export MET_verbosity=${MET_verbosity:-2}
+export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
+## DATA DIRECTIVE SETTINGS
+export SENDARCH=${SENDARCH:-"YES"}
+export SENDMETVIEWER=${SENDMETVIEWER:-"NO"}
+export KEEPDATA=${KEEPDATA:-"NO"}
+export SENDECF=${SENDECF:-"NO"}
+export SENDCOM=${SENDCOM:-"NO"}
+export SENDDBN=${SENDDBN:-"NO"}
+export SENDDBN_NTC=${SENDDBN_NTC:-"NO"}
+# GRID2GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
-export g2g1_anl_name=${g2g1_anl_name:-self_anl}
-if [ $g2g1_anl_name = self ]; then
-    export g2g1_anl_name="self_anl"
-fi
-export g2g1_anl_fileformat_list=${g2g1_anl_fileformat_list:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}"}
-export g2g1_fcyc_list=$fcyc_list
-export g2g1_vhr_list=$vhr_list
-export g2g1_fhr_min=$fhr_min
-export g2g1_fhr_max=$fhr_max
-export g2g1_grid=${g2g1_grid:-G002}
-export g2g1_gather_by=$gather_by
-export model_data_runhpss=$get_data_from_hpss
-# GRID-TO-OBS STEP 1
-export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc polar_sfc"}
-export g2o1_fcyc_list=$fcyc_list
-export g2o1_fhr_min=$fhr_min
-export g2o1_fhr_max=$fhr_max
-export g2o1_obtype_upper_air=${g2o1_obtype_upper_air:-"ADPUPA"}
-export g2o1_obtype_conus_sfc=${g2o1_obtype_conus_sfc:-"ONLYSF ADPUPA"}
-export g2o1_obtype_polar_sfc=${g2o1_obtype_polar_sfc:-"IABP"}
-export g2o1_fhr_out_upper_air=${g2o1_fhr_out_upper_air:-6}
-export g2o1_fhr_out_conus_sfc=${g2o1_fhr_out_conus_sfc:-3}
-export g2o1_fhr_out_polar_sfc=${g2o1_fhr_out_polar_sfc:-3}
-export g2o1_grid_upper_air=${g2o_grid_upper_air:-G003}
-export g2o1_grid_conus_sfc=${g2o_grid_conus_sfc:-G104}
-export g2o1_grid_polar_sfc=${g2o_grid_polar_sfc:-G223}
-export g2o1_gather_by=$gather_by
-export g2o1_prepbufr_data_runhpss=${g2o1_prepbufr_data_runhpss:-"NO"}
-if [ $g2o1_fhr_out_upper_air -eq 12 ]; then
-    export g2o1_vhr_list_upper_air="00 12"
-elif [ $g2o1_fhr_out_upper_air -eq 6 ]; then
-    export g2o1_vhr_list_upper_air="00 06 12 18"
-else
-    echo "ERROR: g2o1_fhr_out_upper_air=$g2o1_fhr_out_upper_air is not supported"
-fi
-if [ $g2o1_fhr_out_conus_sfc -eq 12 ]; then
-    export g2o1_vhr_list_conus_sfc="00 12"
-elif [ $g2o1_fhr_out_conus_sfc -eq 6 ]; then
-    export g2o1_vhr_list_conus_sfc="00 06 12 18"
-elif [ $g2o1_fhr_out_conus_sfc -eq 3 ]; then
-    export g2o1_vhr_list_conus_sfc="00 03 06 09 12 15 18 21"
-else
-    echo "ERROR: g2o1_fhr_out_conus_sfc=$g2o1_fhr_out_conus_sfc is not supported"
-fi
-if [ $g2o1_fhr_out_polar_sfc -eq 12 ]; then
-    export g2o1_vhr_list_polar_sfc="00 12"
-elif [ $g2o1_fhr_out_polar_sfc -eq 6 ]; then
-    export g2o1_vhr_list_polar_sfc="00 06 12 18"
-elif [ $g2o1_fhr_out_polar_sfc -eq 3 ]; then
-    export g2o1_vhr_list_polar_sfc="00 03 06 09 12 15 18 21"
-else
-    echo "ERROR: g2o1_fhr_out_polar_sfc=$g2o1_fhr_out_polar_sfc is not supported"
-fi
+export g2g1_anom_truth_name=${g2g1_anom_truth_name:-"self_anl"}
+export g2g1_anom_truth_file_format_list=${g2g1_anom_truth_file:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_anom_fcyc_list=${fcyc_list}
+export g2g1_anom_vhr_list=${vhr_list}
+export g2g1_anom_fhr_min=${g2g1_anom_fhr_min:-$FHMIN_GFS}
+export g2g1_anom_fhr_max=${g2g1_anom_fhr_max:-$FHMAX_GFS}
+export g2g1_anom_grid=${g2g1_anom_grid:-"G002"}
+export g2g1_anom_gather_by=${g2g1_anom_gather_by:-"VSDB"}
+export g2g1_pres_truth_name=${g2g1_pres_truth_name:-"self_anl"}
+export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file:-"pgbanl.gfs.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_pres_fcyc_list=${fcyc_list}
+export g2g1_pres_vhr_list=${vhr_list}
+export g2g1_pres_fhr_min=${g2g1_pres_fhr_min:-$FHMIN_GFS}
+export g2g1_pres_fhr_max=${g2g1_pres_fhr_max:-$FHMAX_GFS}
+export g2g1_pres_grid=${g2g1_pres_grid:-"G002"}
+export g2g1_pres_gather_by=${g2g1_pres_gather_by:-"VSDB"}
+export g2g1_sfc_truth_name=${g2g1_sfc_truth_name:-"self_f00"}
+export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.gfs.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_sfc_fcyc_list=${fcyc_list}
+export g2g1_sfc_vhr_list=${vhr_list}
+export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
+export g2g1_sfc_fhr_max=${g2g1_sfc_fhr_max:-$FHMAX_GFS}
+export g2g1_sfc_grid=${g2g1_sfc_grid:-"G002"}
+export g2g1_sfc_gather_by=${g2g1_sfc_gather_by:-"VSDB"}
+export g2g1_mv_database_name=${g2g1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
+export g2g1_mv_database_group=${g2g1_mv_database_group:-"NOAA-NCEP"}
+export g2g1_mv_database_desc=${g2g1_mv_database_desc:-"Grid-to-grid METplus data for global workflow experiment ${PSLOT}"}
+# GRID2OBS STEP 1
+export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
+export g2o1_upper_air_msg_type_list=${g2o1_upper_air_msg_type_list:-"ADPUPA"}
+export g2o1_upper_air_fcyc_list=${fcyc_list}
+export g2o1_upper_air_vhr_list=${g2o1_upper_air_vhr_list:-"00 06 12 18"}
+export g2o1_upper_air_fhr_min=${g2o1_upper_air_fhr_min:-$FHMIN_GFS}
+export g2o1_upper_air_fhr_max=${g2o1_upper_air_fhr_max:-$FHMAX_GFS}
+export g2o1_upper_air_grid=${g2o1_upper_air_grid:-"G003"}
+export g2o1_upper_air_gather_by=${g2o1_upper_air_gather_by:-"VSDB"}
+export g2o1_conus_sfc_msg_type_list=${g2o1_conus_sfc_msg_type_list:-"ONLYSF ADPUPA"}
+export g2o1_conus_sfc_fcyc_list=${fcyc_list}
+export g2o1_conus_sfc_vhr_list=${g2o1_conus_sfc_vhr_list:-"00 03 06 09 12 15 18 21"}
+export g2o1_conus_sfc_fhr_min=${g2o1_conus_sfc_fhr_min:-$FHMIN_GFS}
+export g2o1_conus_sfc_fhr_max=${g2o1_cnous_sfc_fhr_max:-$FHMAX_GFS}
+export g2o1_conus_sfc_grid=${g2o1_conus_sfc_grid:-"G104"}
+export g2o1_conus_sfc_gather_by=${g2o1_conus_sfc_gather_by:-"VSDB"}
+export g2o1_polar_sfc_msg_type_list=${g2o1_polar_sfc_msg_type_list:-"IABP"}
+export g2o1_polar_sfc_fcyc_list=${fcyc_list}
+export g2o1_polar_sfc_vhr_list=${g2o1_polar_sfc_vhr_list:-"00 03 06 09 12 15 18 21"}
+export g2o1_polar_sfc_fhr_min=${g2o1_polar_sfc_fhr_min:-$FHMIN_GFS}
+export g2o1_polar_sfc_fhr_max=${g2o1_polar_sfc_fhr_max:-$FHMAX_GFS}
+export g2o1_polar_sfc_grid=${g2o1_polar_sfc_grid:-"G219"}
+export g2o1_polar_sfc_gather_by=${g2o1_polar_sfc_gather_by:-"VSDB"}
+export g2o1_prepbufr_data_run_hpss=${g2o1_prepbufr_data_run_hpss:-"NO"}
+export g2o1_mv_database_name=${g2o1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
+export g2o1_mv_database_group=${g2o1_mv_database_group:-"NOAA-NCEP"}
+export g2o1_mv_database_desc=${g2o1_mv_database_desc:-"Grid-to-obs METplus data for global workflow experiment ${PSLOT}"}
 # PRECIP STEP 1
-export precip1_fcyc_list=$fcyc_list
-export precip1_fhr_min=$fhr_min
-export precip1_fhr_max=$fhr_max
-export precip1_obtype=${precip1_obtype:-ccpa}
-export precip1_accum_length=${precip1_accum_length:-24}
-export precip1_model_bucket_list=${precip_model_bucket_list:-06}
-export precip1_model_varname_list=${precip_model_varname_list:-APCP}
-export precip1_model_fileformat_list=${precip1_model_filefomat_list:-$model_fileformat_list}
-export precip1_grid=${precip1_grid:-G211}
-export precip1_gather_by=$gather_by
-export precip1_obs_data_runhpss="YES"
+export precip1_type_list=${precip1_type_list:-"ccpa_accum24hr"}
+export precip1_ccpa_accum24hr_model_bucket_list=${precip1_ccpa_accum24hr_model_bucket:-"06"}
+export precip1_ccpa_accum24hr_model_var_list=${precip1_ccpa_accum24hr_model_var:-"APCP"}
+export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}.grib2"}
+export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
+export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
+export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHAX_GFS}
+export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
+export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VSDB"}
+export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
+export precip1_mv_database_name=${precip1_mv_database_name:-"mv_${PSLOT}_precip_metplus"}
+export precip1_mv_database_group=${precip1_mv_database_group:-"NOAA-NCEP"}
+export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data for global workflow experiment ${PSLOT}"}
 
 echo
-## Set up output location
+
+# Check forecast max hours, adjust if before experiment SDATE_GFS
+SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
+g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
+g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_anom_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2g1_pres_check_vhour="${g2g1_pres_vhr_list: -2}"
+g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_pres_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2g1_sfc_check_vhour="${g2g1_sfc_vhr_list: -2}"
+g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_upper_air_check_vhour="${g2o1_upper_air_vhr_list: -2}"
+g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_conus_sfc_check_vhour="${g2o1_conus_sfc_vhr_list: -2}"
+g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
+g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+precip1_ccpa_accum24hr_check_vhour="12"
+precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
+    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${start_date}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+fi
+
+echo
+
+## Output set up
+export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/vrfy"}
+export DATA=$OUTPUTROOT
 mkdir -p $DATA
 cd $DATA
 if [ $METPCASE = g2g1 ]; then
@@ -199,27 +202,40 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
 echo
+
 if [ -s config.machine ]; then
     . $DATA/config.machine
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
-    echo
 fi
 
-## Load modules and set machine specific variables
-if [ $machine != "HERA" -a $machine != "WCOSS_C" -a $machine != "WCOSS_DELL_P3" -a $machine != "ORION" ]; then
-    echo "ERROR: $machine is not supported"
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
+   echo
+else
+    echo "ERROR: $machine is not a supported machine"
     exit 1
 fi
 
-. $HOMEverif_global/ush/load_modules.sh $machine $MET_version $METplus_version
+## Load modules and set machine specific paths
+. $HOMEverif_global/ush/load_modules.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"
 echo
 
-## Installations for verif_global, MET, and METplus
+## Account and queues for machines
+export ACCOUNT=${ACCOUNT:-"GFS-DEV"}
+export QUEUE=${QUEUE:-"dev"}
+export QUEUESHARED=${QUEUE_SHARED:-"dev_shared"}
+export QUEUESERV=${QUEUE_SERVICE:-"dev_transfer"}
+export PARTITION_BATCH=${PARTITION_BATCH:-""}
+
+## Run settings for machines
+export MPMD="YES"
+export nproc=${npe_node_metp_gfs:-1}
+
+## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
 export FIXverif_global=$FIXgfs/fix_verif
@@ -233,26 +249,26 @@ export USHMETplus=$HOMEMETplus/ush
 export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
-## Machine and user specific paths
+## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
-    export gstat="/scratch1/NCEPDEV/global/Fanglin.Yang/stat"
-    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Fanglin.Yang/stat/prepbufr"
+    export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "ORION" ]; then
-    export gstat="/work/noaa/ovp/mrow/archive"
+    export global_archive="/work/noaa/ovp/mrow/archive"
     export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS_C" ]; then
-    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export gstat="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
+    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
 fi
 
-## Some operational directories
+## Set operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
@@ -273,32 +289,35 @@ if [ $METPCASE = pcp1 ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
 fi
-if [ $cyc != $cyc2run ]; then 
-    RUN_GRID2GRID_STEP1=NO 
-    RUN_GRID2OBS_STEP1=NO 
+if [ $cyc != $cyc2run ]; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
-if [ ${start_date}${cyc2run} -le $SDATE ]; then
+if [ ${start_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
 for fcyc in $fcyc_list; do
-    if [ ${start_date}${fcyc} -le $SDATE ]; then
+    if [ ${start_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
          RUN_GRID2GRID_STEP1=NO
          RUN_GRID2OBS_STEP1=NO
          RUN_PRECIP_STEP1=NO
     fi
 done
-precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
-precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
-if [ ${precip_check_date}${cyc2run} -le $SDATE ]; then
-    RUN_PRECIP_STEP1=NO
-fi
-for fcyc in $fcyc_list; do
-    if [ ${precip_check_date}${fcyc} -le $SDATE ]; then
-         RUN_PRECIP_STEP1=NO
+for precip1_type in $precip1_type_list; do
+    precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
+    precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
+    precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
+    if [ ${precip_check_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+        RUN_PRECIP_STEP1=NO
     fi
+    for fcyc in $fcyc_list; do
+        if [ ${precip_check_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+            RUN_PRECIP_STEP1=NO
+        fi
+    done
 done
 
 ## Run METplus
@@ -309,7 +328,7 @@ if [ $RUN_GRID2GRID_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-grid verifcation using METplus ====="
     export RUN="grid2grid_step1"
     $HOMEverif_global/scripts/exgrid2grid_step1.sh
-fi 
+fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo
@@ -317,7 +336,7 @@ if [ $RUN_GRID2OBS_STEP1 = YES ] ; then
     echo "===== creating partial sum data for grid-to-observations verifcation using METplus ====="
     export RUN="grid2obs_step1"
     $HOMEverif_global/scripts/exgrid2obs_step1.sh
-fi  
+fi
 
 if [ $RUN_PRECIP_STEP1 = YES ] ; then
     echo

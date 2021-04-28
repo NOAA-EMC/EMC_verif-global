@@ -1,4 +1,5 @@
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -91,7 +92,7 @@ def read_series_analysis_file(series_analysis_file, var_scale):
 def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
                      var_levels):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -128,16 +129,16 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
-    ax_tmp.set_title(subplot_title, loc='left') 
+    ax_tmp.set_title(subplot_title, loc='left')
     return ax_tmp
 
 def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                       plot_levels, plot_cmap, latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp           - subplot axis object
-                plot_data        - array of the data to plot  
+                plot_data        - array of the data to plot
                 plot_data_lat    - array of the data latitudes
                 plot_data_levels - array of the data levels
                 plot_levels      - array of the contour levels
@@ -206,21 +207,21 @@ plot_by = os.environ['plot_by']
 START_DATE = os.environ['START_DATE']
 END_DATE = os.environ['END_DATE']
 forecast_to_plot = os.environ['forecast_to_plot']
-hr_beg = os.environ['hr_beg']
-hr_end = os.environ['hr_end']
-hr_inc = os.environ['hr_inc']
+hour_beg = os.environ['hour_beg']
+hour_end = os.environ['hour_end']
+hour_inc = os.environ['hour_inc']
 regrid_to_grid = os.environ['regrid_to_grid']
 latlon_area = os.environ['latlon_area'].split(' ')
-var_group_name = os.environ['var_group_name']
+var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
-verif_case_type = os.environ['verif_case_type']
-if verif_case_type == 'gdas':
+RUN_type = os.environ['RUN_type']
+if RUN_type == 'gdas':
     plot_stats_list = ['inc', 'rmse']
-elif verif_case_type == 'ens':
+elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
     print("ERROR: Currently cannot do zonal means for ens")
-    exit(1)
+    sys.exit(1)
 
 # Set up information
 env_var_model_list = []
@@ -230,21 +231,18 @@ for key in os.environ.keys():
     if result is not None:
         env_var_model_list.append(result.group(0))
 env_var_model_list = sorted(env_var_model_list, key=lambda m: m[-1])
-if env_var_model_list[0] == 'model10':
-    env_var_model_list.remove(env_var_model_list[0])
-    env_var_model_list.append('model10')
 nmodels = len(env_var_model_list)
 make_met_data_by_hrs = []
-hr = int(hr_beg) * 3600
-while hr <= int(hr_end)*3600:
+hr = int(hour_beg) * 3600
+while hr <= int(hour_end)*3600:
     make_met_data_by_hrs.append(str(int(hr/3600)).zfill(2)+'Z')
-    hr+=int(hr_inc)
+    hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
-if verif_case_type == 'gdas':
+if RUN_type == 'gdas':
     forecast_to_plot_title = (
         'First Guess Hour '+forecast_to_plot
     )
-elif verif_case_type == 'ens':
+elif RUN_type == 'ens':
     forecast_to_plot_title = (
         'Forecast Hour '+forecast_to_plot
     )
@@ -262,16 +260,16 @@ for var_level in var_levels:
 var_levels_num = np.asarray(var_level_num_list, dtype=float)
 
 # Get input and output directories
-if verif_case_type == 'gdas':
+if RUN_type == 'gdas':
     input_dir = os.path.join(DATA, RUN, 'metplus_output',
                              'make_met_data_by_'+make_met_data_by,
-                             'series_analysis', verif_case_type,
-                             var_group_name)
-elif verif_case_type == 'ens':
+                             'series_analysis', RUN_type,
+                             var_group)
+elif RUN_type == 'ens':
      input_dir = os.path.join(DATA, RUN, 'data')
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'plot_by_'+plot_by,
-                                     verif_case_type, var_group_name,
+                                     RUN_type, var_group,
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
@@ -289,7 +287,7 @@ for env_var_model in env_var_model_list:
         var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
             maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
         )
-        if verif_case_type == 'gdas':
+        if RUN_type == 'gdas':
             model_obtype = os.environ[env_var_model+'_obtype']
             input_file = os.path.join(
                 input_dir, model,
@@ -315,7 +313,7 @@ for env_var_model in env_var_model_list:
                     model_data_series_cnt_OBAR.mean(axis=1)
             else:
                 print("WARNING: "+input_file+" does not exist")
-        elif verif_case_type == 'ens':
+        elif RUN_type == 'ens':
             model_suffix = os.environ[env_var_model+'_suffix']
             if forecast_to_plot == 'anl':
                 input_file = os.path.join(
@@ -425,7 +423,7 @@ for stat in plot_stats_list:
         stat_title = 'Ensemble Mean'
     elif stat == 'spread':
         stat_title = 'Ensemble Spread'
-    if verif_case_type == 'ens':
+    if RUN_type == 'ens':
         nsubplots = nmodels
     else:
         nsubplots = nmodels + 1
@@ -493,9 +491,9 @@ for stat in plot_stats_list:
         cbar_height = 0.02
     else:
         logger.error("Too many subplots selected, max. is 10")
-        exit(1)
+        sys.exit(1)
     suptitle_x_loc = (
-        plt.rcParams['figure.subplot.left'] 
+        plt.rcParams['figure.subplot.left']
         +plt.rcParams['figure.subplot.right']
     )/2.
     fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -524,7 +522,7 @@ for stat in plot_stats_list:
         model_obtype = os.environ[env_var_model+'_obtype']
         model_plot_name = os.environ[env_var_model+'_plot_name']
         # Set up control analysis subplot map and title for gdas
-        if verif_case_type == 'gdas' and model_num == 1:
+        if RUN_type == 'gdas' and model_num == 1:
             cntrl_subplot_num = 0
             cntrl_subplot_title = 'A '+model_plot_name
             ax_cntrl = draw_subplot_map(
@@ -548,7 +546,7 @@ for stat in plot_stats_list:
             )
             subplot_CF_dict[ax_cntrl_subplot_loc] = CF_ax_cntrl
         # Set up model subplot map and title
-        if verif_case_type == 'ens':
+        if RUN_type == 'ens':
             subplot_num =  model_num - 1
         else:
             subplot_num =  model_num
@@ -646,11 +644,11 @@ for stat in plot_stats_list:
         right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
     )
     # Add colorbars
-    if verif_case_type == 'ens' or \
-            (verif_case_type == 'gdas' and stat == 'inc'):
-        if verif_case_type == 'ens':
+    if RUN_type == 'ens' or \
+            (RUN_type == 'gdas' and stat == 'inc'):
+        if RUN_type == 'ens':
             cbar_title = 'Difference'
-        elif (verif_case_type == 'gdas' and stat == 'inc'):
+        elif (RUN_type == 'gdas' and stat == 'inc'):
             cbar_title = 'Increments'
         if len(list(subplot_CF_dict.keys())) > 1:
             cbar_subplot = None
@@ -690,11 +688,11 @@ for stat in plot_stats_list:
                                             [cbar_subplot_loc].levels)
                 if nsubplots == 2:
                     cbar.ax.set_ylabel(cbar_title, labelpad = 5)
-                    cbar.ax.yaxis.set_tick_params(pad=0) 
+                    cbar.ax.yaxis.set_tick_params(pad=0)
                 else:
                     cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                     cbar.ax.xaxis.set_tick_params(pad=0)
-    elif (verif_case_type == 'gdas' and stat == 'rmse'):
+    elif (RUN_type == 'gdas' and stat == 'rmse'):
         subplot01_pos = ax_model1.get_position()
         cbar01_left = subplot01_pos.x1 + 0.01
         cbar01_bottom = subplot01_pos.y0
@@ -758,7 +756,7 @@ for stat in plot_stats_list:
                     cbar.ax.xaxis.set_tick_params(pad=0)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
-                                verif_case_type+'_'+stat+'_'+var_group_name
+                                RUN_type+'_'+stat+'_'+var_group
                                 +'_'+var_name+'_zonalmean.png')
     print("Saving image as "+savefig_name)
     plt.savefig(savefig_name)

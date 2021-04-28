@@ -1,4 +1,5 @@
 from __future__ import (print_function, division)
+import sys
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -12,6 +13,10 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import cartopy.crs as ccrs
+from cartopy.util import add_cyclic_point
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy import config
 
 warnings.filterwarnings('ignore')
 
@@ -88,9 +93,9 @@ def read_series_analysis_file(series_analysis_file, var_scale):
             series_analysis_data_lat, series_analysis_data_lon)
 
 def draw_subplot_map(subplot_num, subplot_title, nsubplots,
-                     py_map_pckg, latlon_area):
+                     latlon_area):
     """ Draw map for subplot.
-            
+
             Args:
                 subplot_num   - integer of the subplot
                                 location number
@@ -99,10 +104,6 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
                 nsubplots     - integer of the number
                                 of total subplots in
                                 image
-                py_map_pckg   - string of the python
-                                map plotting package
-                                to use; either cartopy
-                                or basemap
                 latlon_area   - list of the bounding
                                 latitudes and longitudes
                                 for the map
@@ -117,39 +118,28 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     urcrnrlon_val = float(latlon_area[3])
     lat_ticks = np.linspace(llcrnrlat_val, urcrnrlat_val, 7, endpoint=True)
     lon_ticks = np.linspace(llcrnrlon_val, urcrnrlon_val, 7, endpoint=True)
-    if py_map_pckg == 'cartopy':
-        ax_tmp = plt.subplot(
-            gs[subplot_num],
-            projection=ccrs.PlateCarree(central_longitude=180)
-        )
-        map_ax_tmp = ax_tmp
-        if urcrnrlon_val == 360:
-            urcrnrlon_val_adjust = 359.9
-        else:
-            urcrnrlon_val_adjust = urcrnrlon_val
-        ax_tmp.set_extent(
-            [llcrnrlon_val, urcrnrlon_val_adjust,
-             llcrnrlat_val, urcrnrlat_val],
-            ccrs.PlateCarree()
-        )
-        ax_tmp.set_global()
-        ax_tmp.coastlines()
-        ax_tmp.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
-        ax_tmp.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
-        lon_formatter = LongitudeFormatter(zero_direction_label=True)
-        lat_formatter = LatitudeFormatter()
-        ax_tmp.xaxis.set_major_formatter(lon_formatter)
-        ax_tmp.yaxis.set_major_formatter(lat_formatter)
-    elif py_map_pckg == 'basemap':
-        ax_tmp = plt.subplot(gs[subplot_num])
-        map_ax_tmp = Basemap(projection='cyl', llcrnrlat=llcrnrlat_val,
-                             urcrnrlat=urcrnrlat_val, llcrnrlon=llcrnrlon_val,
-                             urcrnrlon=urcrnrlon_val, resolution='c',
-                             lon_0=180, ax=ax_tmp)
-        map_ax_tmp.drawcoastlines(linewidth=1.5, color='k', zorder=6)
-        map_ax_tmp.drawmapboundary
-        map_ax_tmp.drawmeridians(lon_ticks, labels=[False,False,False,True])
-        map_ax_tmp.drawparallels(lat_ticks, labels=[True,False,False,False])
+    ax_tmp = plt.subplot(
+        gs[subplot_num],
+        projection=ccrs.PlateCarree(central_longitude=180)
+    )
+    map_ax_tmp = ax_tmp
+    if urcrnrlon_val == 360:
+        urcrnrlon_val_adjust = 359.9
+    else:
+        urcrnrlon_val_adjust = urcrnrlon_val
+    ax_tmp.set_extent(
+        [llcrnrlon_val, urcrnrlon_val_adjust,
+         llcrnrlat_val, urcrnrlat_val],
+        ccrs.PlateCarree()
+    )
+    ax_tmp.set_global()
+    ax_tmp.coastlines()
+    ax_tmp.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+    ax_tmp.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+    lon_formatter = LongitudeFormatter(zero_direction_label=True)
+    lat_formatter = LatitudeFormatter()
+    ax_tmp.xaxis.set_major_formatter(lon_formatter)
+    ax_tmp.yaxis.set_major_formatter(lat_formatter)
     if ax_tmp.is_last_row() or \
             (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
        ax_tmp.set_xlabel('Longitude')
@@ -164,22 +154,18 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     return ax_tmp, map_ax_tmp
 
 def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
-                      plot_data_lon, plot_levels, plot_cmap, py_map_pckg,
+                      plot_data_lon, plot_levels, plot_cmap,
                       latlon_area):
     """ Plot data for subplot.
-            
+
             Args:
                 ax_tmp        - subplot axis object
                 map_ax_tmp    - subplot map information
-                plot_data     - array of the data to plot  
+                plot_data     - array of the data to plot
                 plot_data_lat - array of the data latitudes
                 plot_data_lon - array of the data longitudes
                 plot_levels   - array of the contour levels
                 plot_cmap     - string of the colormap to use
-                py_map_pckg   - string of the python
-                                map plotting package
-                                to use; either cartopy
-                                or basemap
                 latlon_area   - list of the bounding
                                 latitudes and longitudes
                                 for the map
@@ -192,14 +178,9 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     llcrnrlon_val = float(latlon_area[2])
     urcrnrlon_val = float(latlon_area[3])
     # Add cyclic point for model data
-    if py_map_pckg == 'cartopy':
-        plot_data_cyc, plot_data_lon_cyc = add_cyclic_point(
-            plot_data, coord = plot_data_lon
-        )
-    elif py_map_pckg == 'basemap':
-        plot_data_cyc, plot_data_lon_cyc = addcyclic(
-            plot_data, plot_data_lon
-        )
+    plot_data_cyc, plot_data_lon_cyc = add_cyclic_point(
+        plot_data, coord = plot_data_lon
+    )
     # NOTE: using cartopy 0.16, using cyclic data sometimes
     #       breaks geometries so not using
     plot_data_cyc = plot_data
@@ -247,22 +228,15 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
     if np.count_nonzero(~np.isnan(plot_data_cyc)) != 0:
-        if py_map_pckg == 'cartopy':
-            CF_tmp = ax_tmp.contourf(
-                x, y, plot_data_cyc,
-                transform=ccrs.PlateCarree(),
-                levels=plot_levels, cmap=plot_cmap, extend='both'
-            )
-        elif py_map_pckg == 'basemap':
-            map_ax_tmp_x, map_ax_tmp_y = map_ax_tmp(x, y)
-            CF_tmp = map_ax_tmp.contourf(
-                map_ax_tmp_x, map_ax_tmp_y, plot_data_cyc,
-                levels=plot_levels, cmap=plot_cmap, extend='both'
-            )
+        CF_tmp = ax_tmp.contourf(
+            x, y, plot_data_cyc,
+            transform=ccrs.PlateCarree(),
+            levels=plot_levels, cmap=plot_cmap, extend='both'
+        )
     else:
         CF_tmp = None
     return CF_tmp
-    
+
 # Read in environment variables
 DATA = os.environ['DATA']
 RUN = os.environ['RUN']
@@ -271,28 +245,30 @@ plot_by = os.environ['plot_by']
 START_DATE = os.environ['START_DATE']
 END_DATE = os.environ['END_DATE']
 forecast_to_plot = os.environ['forecast_to_plot']
-hr_beg = os.environ['hr_beg']
-hr_end = os.environ['hr_end']
-hr_inc = os.environ['hr_inc']
+hour_beg = os.environ['hour_beg']
+hour_end = os.environ['hour_end']
+hour_inc = os.environ['hour_inc']
 latlon_area = os.environ['latlon_area'].split(' ')
-var_group_name = os.environ['var_group_name']
+var_group = os.environ['var_group']
 var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
-verif_case_type = os.environ['verif_case_type']
-if verif_case_type == 'gdas':
+RUN_type = os.environ['RUN_type']
+machine = os.environ['machine']
+if RUN_type == 'gdas':
     regrid_to_grid = os.environ['regrid_to_grid']
     plot_stats_list = ['inc', 'rmse']
-elif verif_case_type == 'ens':
+elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
 
+# Set up location of Natural Earth files
+if machine == 'HERA':
+    config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
+if machine == 'WCOSS_C':
+    config['data_dir']='/u/emc.verif/.local/share/cartopy'
+if machine == 'WCOSS_DELL_P3':
+    config['data_dir']='/u/emc.verif/.local/share/cartopy'
+
 # Set up information
-py_map_pckg = os.environ['py_map_pckg']
-if py_map_pckg == 'cartopy':
-    import cartopy.crs as ccrs
-    from cartopy.util import add_cyclic_point
-    from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-elif py_map_pckg == 'basemap':
-    from mpl_toolkits.basemap import Basemap, addcyclic
 env_var_model_list = []
 regex = re.compile(r'model(\d+)$')
 for key in os.environ.keys():
@@ -300,21 +276,18 @@ for key in os.environ.keys():
     if result is not None:
         env_var_model_list.append(result.group(0))
 env_var_model_list = sorted(env_var_model_list, key=lambda m: m[-1])
-if env_var_model_list[0] == 'model10':
-    env_var_model_list.remove(env_var_model_list[0])
-    env_var_model_list.append('model10')
 nmodels = len(env_var_model_list)
 make_met_data_by_hrs = []
-hr = int(hr_beg) * 3600
-while hr <= int(hr_end)*3600:
+hr = int(hour_beg) * 3600
+while hr <= int(hour_end)*3600:
     make_met_data_by_hrs.append(str(int(hr/3600)).zfill(2)+'Z')
-    hr+=int(hr_inc)
+    hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
-if verif_case_type == 'gdas':
+if RUN_type == 'gdas':
     forecast_to_plot_title = (
         'First Guess Hour '+forecast_to_plot
     )
-elif verif_case_type == 'ens':
+elif RUN_type == 'ens':
     forecast_to_plot_title = (
         'Forecast Hour '+forecast_to_plot
     )
@@ -327,16 +300,16 @@ dates_title = (make_met_data_by.lower()+' '
                +END_DATE_dt.strftime('%d%b%Y'))
 
 # Get input and output directories
-if verif_case_type == 'gdas':
+if RUN_type == 'gdas':
     input_dir = os.path.join(DATA, RUN, 'metplus_output',
                              'make_met_data_by_'+make_met_data_by,
-                             'series_analysis', verif_case_type,
-                             var_group_name)
-elif verif_case_type == 'ens':
+                             'series_analysis', RUN_type,
+                             var_group)
+elif RUN_type == 'ens':
      input_dir = os.path.join(DATA, RUN, 'data')
 plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'plot_by_'+plot_by,
-                                     verif_case_type, var_group_name,
+                                     RUN_type, var_group,
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
@@ -374,15 +347,14 @@ for stat in plot_stats_list:
             model_num+=1
             model = os.environ[env_var_model]
             model_plot_name = os.environ[env_var_model+'_plot_name']
-            if verif_case_type == 'gdas':
+            if RUN_type == 'gdas':
                 model_obtype = os.environ[env_var_model+'_obtype']
                 input_file = os.path.join(
                     input_dir, model,
                     forecast_to_plot+'_'+var_name+'_'
                     +var_level.replace(' ', '')+'.nc'
                 )
-            elif verif_case_type == 'ens':
-                model_suffix = os.environ[env_var_model+'_suffix']
+            elif RUN_type == 'ens':
                 if forecast_to_plot == 'anl':
                     input_file = os.path.join(
                         input_dir, model,
@@ -391,15 +363,18 @@ for stat in plot_stats_list:
                 else:
                     input_file = os.path.join(
                         input_dir, model,
-                        'atmf0'+forecast_to_plot
+                        'atmf'+forecast_to_plot[3:].zfill(3)
                         +'.ens'+stat+'.nc'
                     )
             # Set up plot
             if model_num == 1:
-                if verif_case_type == 'ens':
+                if RUN_type == 'ens':
                     nsubplots = nmodels
+                    get_diff_levels = True
                 else:
                     nsubplots = nmodels + 1
+                    get_inc_levels = True
+                    get_diff_levels = True
                 if nsubplots == 1:
                     x_figsize, y_figsize = 14, 7
                     row, col = 1, 1
@@ -409,7 +384,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.05 
+                    cbar00_left_adjust = 0.05
                     cbar_bottom = 0.06
                     cbar_height = 0.02
                 elif nsubplots == 2:
@@ -474,9 +449,9 @@ for stat in plot_stats_list:
                     cbar_height = 0.02
                 else:
                     logger.error("Too many subplots selected, max. is 10")
-                    exit(1)
+                    sys.exit(1)
                 suptitle_x_loc = (
-                    plt.rcParams['figure.subplot.left'] 
+                    plt.rcParams['figure.subplot.left']
                     +plt.rcParams['figure.subplot.right']
                 )/2.
                 fig = plt.figure(figsize=(x_figsize, y_figsize))
@@ -498,15 +473,15 @@ for stat in plot_stats_list:
                     y_figsize * plt.rcParams['figure.dpi'] * nws_logo_y_scale
                 )
                 # Set up control analysis subplot map and title for gdas
-                if verif_case_type == 'gdas':
+                if RUN_type == 'gdas':
                     cntrl_subplot_num = 0
                     cntrl_subplot_title = 'A '+model_plot_name
                     ax_cntrl, map_ax_cntrl = draw_subplot_map(
                         cntrl_subplot_num, cntrl_subplot_title, nsubplots,
-                        py_map_pckg, latlon_area
+                        latlon_area
                     )
             # Set up model subplot map and title
-            if verif_case_type == 'ens':
+            if RUN_type == 'ens':
                 subplot_num =  model_num - 1
             else:
                 subplot_num =  model_num
@@ -521,9 +496,14 @@ for stat in plot_stats_list:
                     subplot_title = ('RMSE(A-B) '+model_plot_name
                                      +'-'+model1_plot_name)
             elif stat in ['mean', 'spread']:
-                subplot_title = model_plot_name
+                if model_num == 1:
+                    model1 = model
+                    model1_plot_name = model_plot_name
+                    subplot_title = model_plot_name
+                else:
+                    subplot_title = model_plot_name+'-'+model1_plot_name
             ax, map_ax = draw_subplot_map(
-                subplot_num, subplot_title, nsubplots, py_map_pckg, latlon_area
+                subplot_num, subplot_title, nsubplots, latlon_area
             )
             if model_num == 1:
                 ax_model1 = ax
@@ -531,11 +511,13 @@ for stat in plot_stats_list:
             if not os.path.exists(input_file):
                 print("WARNING: "+input_file+" "
                       +"does not exist")
-                if verif_case_type == 'gdas' and model_num == 1:
-                    ax_cntrl.set_title('--', loc='right') 
+                if RUN_type == 'gdas' and model_num == 1:
+                    ax_cntrl.set_title('--', loc='right')
+                if model_num == 1:
+                    model1_stat_data = np.array([])
                 ax.set_title('--', loc='right')
             else:
-                if verif_case_type == 'gdas':
+                if RUN_type == 'gdas':
                     (model_data_series_cnt_FBAR, model_data_series_cnt_OBAR,
                      model_data_lat, model_data_lon) = (
                         read_series_analysis_file(input_file, var_scale)
@@ -551,18 +533,31 @@ for stat in plot_stats_list:
                             )
                             model1_stat_data = stat_data
                         else:
-                            stat_data = np.sqrt(
-                                (model_data_series_cnt_OBAR
-                                 - model_data_series_cnt_FBAR)**2
-                            ) - model1_stat_data
-                elif verif_case_type == 'ens':
+                            if np.size(model1_stat_data) == 0:
+                                stat_data = np.sqrt(
+                                    (model_data_series_cnt_OBAR
+                                     - model_data_series_cnt_FBAR)**2
+                                ) - (
+                                    np.ones_like(model_data_series_cnt_FBAR)
+                                    * np.nan
+                                )
+                            else:
+                                stat_data = np.sqrt(
+                                    (model_data_series_cnt_OBAR
+                                     - model_data_series_cnt_FBAR)**2
+                                ) - model1_stat_data
+                elif RUN_type == 'ens':
                     print(input_file+" exists")
                     model_data = netcdf.Dataset(input_file)
+                    if 'lev' in list(model_data.variables.keys()):
+                        nlev = 64
+                    elif 'pfull' in list(model_data.variables.keys()):
+                        nlev = 128
                     if var_name != 'PRES':
                         # Get closest matching sigma level pressure
-                        if model_suffix == 'nc4':
+                        if nlev == 64:
                             model_levels = levsn64p
-                        else:
+                        elif nlev == 128:
                             model_levels = model_data.variables['pfull'][:]
                         var_level_float = float(var_level.replace('hPa', ''))
                         model_levels_var_level_diff = np.abs(
@@ -576,7 +571,7 @@ for stat in plot_stats_list:
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
                     # Get index data
-                    if model_suffix == 'nc4':
+                    if nlev == 64:
                        model_data_lat = model_data.variables['lat'][:]
                        model_data_lon = model_data.variables['lon'][:]
                        if var_name == 'TMP':
@@ -611,7 +606,7 @@ for stat in plot_stats_list:
                            )
                        elif var_name == 'PRES':
                            model_data_var = model_data.variables['ps'][:]
-                    elif model_suffix == 'nc':
+                    elif nlev == 128:
                        model_data_lat = np.flipud(
                            model_data.variables['grid_yt'][:]
                        )
@@ -636,9 +631,14 @@ for stat in plot_stats_list:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
                     else:
-                        stat_data = model_data_var - model1_stat_data
+                        if np.size(model1_stat_data) == 0:
+                            stat_data = (model_data_var
+                                         - (np.ones_like(model_data_var)
+                                            * np.nan))
+                        else:
+                            stat_data = model_data_var - model1_stat_data
                 # Plot model data
-                if verif_case_type == 'gdas':
+                if RUN_type == 'gdas':
                     if model_num == 1:
                         print("Plotting "+model+" analysis")
                         ax_cntrl_subplot_loc = (str(ax_cntrl.rowNum)
@@ -652,15 +652,16 @@ for stat in plot_stats_list:
                             ax_cntrl, map_ax_cntrl, ax_cntrl_plot_data,
                             ax_cntrl_plot_data_lat, ax_cntrl_plot_data_lon,
                             ax_cntrl_plot_levels, ax_cntrl_plot_cmap,
-                            py_map_pckg, latlon_area
+                            latlon_area
                         )
                         subplot_CF_dict[ax_cntrl_subplot_loc] = CF_ax_cntrl
-                if verif_case_type == 'gdas':
+                if RUN_type == 'gdas':
                     if stat == 'inc':
                         print("Plotting "+model+" increments")
-                        if model_num == 1:
+                        if get_inc_levels:
                             levels_plot = plot_util.get_clevels(stat_data)
                             cmap_plot = plt.cm.PiYG_r
+                            get_inc_levels = False
                     elif stat == 'rmse':
                         if model_num == 1:
                             print("Plotting "+model1+" increment RMSE")
@@ -669,17 +670,17 @@ for stat in plot_stats_list:
                         else:
                             print("Plotting "+model+" - "+model1+" "
                                   +"increment RMSE")
-                            if model_num == 2:
+                            if get_diff_levels:
                                 levels_plot = plot_util.get_clevels(stat_data)
                                 cmap_plot = cmap_diff
-                elif verif_case_type == 'ens':
+                                get_diff_levels = False
+                elif RUN_type == 'ens':
                     if var_name != 'PRES':
                         ax.set_title('idx='
                                      +str(model_levels_var_level_diff_min_idx)
                                      +',p='+str(model_level), loc='center')
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
-                        model1 = model
                         levels_plot = np.nan
                         if stat == 'mean':
                             cmap_plot = cmap
@@ -687,9 +688,10 @@ for stat in plot_stats_list:
                             cmap_plot = plt.cm.afmhot_r
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                        if model_num == 2:
+                        if get_diff_levels:
                             levels_plot = plot_util.get_clevels(stat_data)
                             cmap_plot = cmap_diff
+                            get_diff_levels = False
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
                 ax_plot_data_lat = model_data_lat
@@ -700,7 +702,7 @@ for stat in plot_stats_list:
                     ax, map_ax, ax_plot_data,
                     ax_plot_data_lat, ax_plot_data_lon,
                     ax_plot_levels, ax_plot_cmap,
-                    py_map_pckg, latlon_area
+                    latlon_area
                 )
                 subplot_CF_dict[ax_subplot_loc] = CF_ax
         # Build formal plot title
@@ -722,9 +724,9 @@ for stat in plot_stats_list:
             right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
         )
         # Add colorbars
-        if verif_case_type == 'gdas':
+        if RUN_type == 'gdas':
             subplot00_pos = ax_cntrl.get_position()
-        elif verif_case_type == 'ens':
+        elif RUN_type == 'ens':
             subplot00_pos = ax_model1.get_position()
         cbar00_left = subplot00_pos.x0 - cbar00_left_adjust
         cbar00_bottom = subplot00_pos.y0
@@ -742,13 +744,13 @@ for stat in plot_stats_list:
             cax00.yaxis.set_label_position('left')
             cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
             cbar00.ax.yaxis.set_tick_params(pad=0)
-        if verif_case_type == 'ens' or \
-                (verif_case_type == 'gdas' and stat == 'inc'):
-            if verif_case_type == 'ens':
+        if RUN_type == 'ens' or \
+                (RUN_type == 'gdas' and stat == 'inc'):
+            if RUN_type == 'ens':
                 cbar_title = 'Difference'
-            elif (verif_case_type == 'gdas' and stat == 'inc'):
+            elif (RUN_type == 'gdas' and stat == 'inc'):
                 cbar_title = 'Increments'
-            if len(list(subplot_CF_dict.keys())) > 1:
+            if len(list(subplot_CF_dict.keys())) >= 1:
                 cbar_subplot = None
                 for subplot_loc in list(subplot_CF_dict.keys()):
                     if subplot_loc != '0,0' \
@@ -786,11 +788,11 @@ for stat in plot_stats_list:
                                             [cbar_subplot_loc].levels)
                     if nsubplots == 2:
                         cbar.ax.set_ylabel(cbar_title, labelpad = 5)
-                        cbar.ax.yaxis.set_tick_params(pad=0) 
+                        cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                         cbar.ax.xaxis.set_tick_params(pad=0)
-        elif (verif_case_type == 'gdas' and stat == 'rmse'):
+        elif (RUN_type == 'gdas' and stat == 'rmse'):
             subplot01_pos = ax_model1.get_position()
             cbar01_left = subplot01_pos.x1 + 0.01
             cbar01_bottom = subplot01_pos.y0
@@ -854,7 +856,7 @@ for stat in plot_stats_list:
                         cbar.ax.xaxis.set_tick_params(pad=0)
         # Build savefig name
         savefig_name = os.path.join(plotting_out_dir_imgs,
-                                    verif_case_type+'_'+stat+'_'+var_group_name
+                                    RUN_type+'_'+stat+'_'+var_group
                                     +'_'+var_name+'_'
                                     +var_level.replace(' ', '')
                                     +'.png')

@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import matplotlib
 matplotlib.use('agg')
@@ -5,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def get_obs_subplot_title(obtype, use_monthly_mean):
     """ Get title for observations subplot.
-            
+
             Args:
                 obtype           - string of the reference
                                    observation type used
@@ -41,14 +42,14 @@ def get_obs_subplot_title(obtype, use_monthly_mean):
 def calculate_area_average(var_data, lat, lon, lat_min, lat_max,
                            lon_min, lon_max):
     """! Calculate area average of dataset,
-         weighting in the latitude dimension by the difference 
+         weighting in the latitude dimension by the difference
          between the sines of the latitude at the northern and
          southern edges of the grid box. Trying to mimic
          GrADS function aave.
-        
+
              Args:
                  var_data     - array of variable values
-                 lat          - array of latitude values 
+                 lat          - array of latitude values
                  lon          - array of longitude values
                  lat_max      - float of maximum latitude
                                 to include in averaging
@@ -117,13 +118,13 @@ def calculate_area_average(var_data, lat, lon, lat_min, lat_max,
 
 def get_maps2d_plot_settings(var_name, var_level):
     """! Get plot settings specific for variable name and level
- 
+
              Args:
                  var_name  - string of variable GRIB name
                  var_level - string of the variable level
 
              Returns:
-                 
+
     """
     # Define GRIB level type
     if var_level[-3:] == 'hPa':
@@ -149,67 +150,67 @@ def get_maps2d_plot_settings(var_name, var_level):
     elif 'sigma' in var_level:
         var_GRIB_lvl_typ = '107'
         formal_var_level = var_level.replace('sigma', '')+' Sigma Level'
-    elif var_level == 'msl':
+    elif 'msl' in var_level:
         var_GRIB_lvl_typ = '102'
         formal_var_level = 'Mean Sea Level Pressure'
-    elif var_level == 'column':
+    elif 'column' in var_level:
         var_GRIB_lvl_typ = '200'
         formal_var_level = 'Entire Atmosphere'
-    elif var_level == 'toa':
+    elif 'toa' in var_level:
         var_GRIB_lvl_typ = '8'
         formal_var_level = 'Top of Atmosphere'
-    elif var_level == 'pbl':
+    elif 'pbl' in var_level:
         if var_name == 'TCDC':
             var_GRIB_lvl_typ = '211'
             formal_var_level = 'Boundary Layer Cloud Layer'
         else:
             var_GRIB_lvl_typ = '220'
             formal_var_level = 'Planetary Boundary Layer'
-    elif var_level == 'low':
-        var_GRIB_lvl_typ = '214'
-        formal_var_level = 'Low Cloud Layer'
-    elif var_level == 'mid':
-        var_GRIB_lvl_typ = '224'
-        formal_var_level = 'Middle Cloud Layer'
-    elif var_level == 'high':
-        var_GRIB_lvl_typ = '234'
-        formal_var_level = 'High Cloud Layer'
-    elif var_level == 'convective':
-        var_GRIB_lvl_typ = '244'
-        formal_var_level = 'Convective Cloud Layer'
-    elif var_level == 'lowcloudbase':
+    elif 'lowcloudbase' in var_level:
         var_GRIB_lvl_typ = '212'
         formal_var_level = 'Low Cloud Bottom Level'
-    elif var_level == 'midcloudbase':
+    elif 'midcloudbase' in var_level:
         var_GRIB_lvl_typ = '222'
         formal_var_level = 'Middle Cloud Bottom Level'
-    elif var_level == 'highcloudbase':
+    elif 'highcloudbase' in var_level:
         var_GRIB_lvl_typ = '232'
         formal_var_level = 'High Cloud Bottom Level'
-    elif var_level == 'convectivecloudbase':
+    elif 'convectivecloudbase' in var_level:
         var_GRIB_lvl_typ = '242'
         formal_var_level = 'Convective Cloud Bottom Level'
-    elif var_level == 'lowcloudtop':
+    elif 'lowcloudtop' in var_level:
         var_GRIB_lvl_typ = '213'
         formal_var_level = 'Low Cloud Top Level'
-    elif var_level == 'midcloudtop':
+    elif 'midcloudtop' in var_level:
         var_GRIB_lvl_typ = '223'
         formal_var_level = 'Middle Cloud Top Level'
-    elif var_level == 'highcloudtop':
+    elif 'highcloudtop' in var_level:
         var_GRIB_lvl_typ = '233'
         formal_var_level = 'High Cloud Top Level'
-    elif var_level == 'convectivecloudtop':
+    elif 'convectivecloudtop' in var_level:
         var_GRIB_lvl_typ = '243'
         formal_var_level = 'Convective Cloud Top Level'
-    elif var_level == 'tropopause':
+    elif 'tropopause' in var_level:
         var_GRIB_lvl_typ = '7'
         formal_var_level = 'Tropopause'
-    elif var_level == 'maxwindlev':
+    elif 'maxwindlev' in var_level:
         var_GRIB_lvl_typ = '6'
         formal_var_level = 'Maximum Wind Level'
-    elif var_level == 'highesttropfrzlev':
+    elif 'highesttropfrzlev' in var_level:
         var_GRIB_lvl_typ = '204'
         formal_var_level = 'Highest Tropospheric Freezing Level'
+    elif 'low' in var_level:
+        var_GRIB_lvl_typ = '214'
+        formal_var_level = 'Low Cloud Layer'
+    elif 'mid' in var_level:
+        var_GRIB_lvl_typ = '224'
+        formal_var_level = 'Middle Cloud Layer'
+    elif 'high' in var_level:
+        var_GRIB_lvl_typ = '234'
+        formal_var_level = 'High Cloud Layer'
+    elif 'convective' in var_level:
+        var_GRIB_lvl_typ = '244'
+        formal_var_level = 'Convective Cloud Layer'
     # Get settings
     if var_name == '4LFTX': #best (4 layer) lifted index (K)
         formal_var_name = 'Best (4-Layer) Lifted Index'
@@ -224,7 +225,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'ACPCP': #Convective precipitation (kg m-2)
         formal_var_name = 'Convective Precipitation'
         cmap = plt.cm.terrain_r
@@ -238,7 +239,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'ALBDO': #albedo (%)
         formal_var_name = 'Albedo'
         cmap = plt.cm.cubehelix_r
@@ -252,7 +253,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'APCP': #total precipitation (kg m-2)
         formal_var_name = 'Total Precipitation'
         cmap = plt.cm.terrain_r
@@ -266,7 +267,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'CAPE': #convective available potential energy (CAPE) (J kg-1)
         formal_var_name = 'CAPE'
         cmap = plt.cm.RdPu
@@ -291,7 +292,31 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
+    elif var_name == 'CFRZR': #categorical freezing rain (yes=1; no=0)
+        formal_var_name = 'Categorical Freezing Rain'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
+    elif var_name == 'CICEP': #categorical ice pellets (yes=1; no=0)
+        formal_var_name = 'Categorical Ice Pellets'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
     elif var_name == 'CIN': #convective inhibition (CIN)(J kg-1)
         formal_var_name = 'CIN'
         cmap = plt.cm.RdPu_r
@@ -314,7 +339,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'CLWMR': #cloud water mixing ratio (kg kg-1)
         formal_var_name = 'Cloud Mixing Ratio'
         cmap = plt.cm.Blues
@@ -328,7 +353,31 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
+    elif var_name == 'CRAIN': #categorical rain (yes=1; no=0)
+        formal_var_name = 'Categorical Rain'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
+    elif var_name == 'CSNOW': #categorical snow (yes=1; no=0)
+        formal_var_name = 'Categorical Snow'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '1': #surface
+            levels = np.array(
+                [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
+            )
+            levels_diff = np.array(
+                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+            )
+            var_scale = 1
+            var_units = 'yes=1; no=0'
     elif var_name == 'CWAT': #cloud water (kg m-2)
         formal_var_name = 'Cloud Water'
         cmap = plt.cm.BuGn
@@ -340,7 +389,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'CWORK': #cloud work function (J kg-1)
         formal_var_name = 'Cloud Work Function'
         cmap = plt.cm.BuGn
@@ -356,7 +405,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'DLWRF': #downward longwave radiation flux (W m-2)
         formal_var_name = 'Downward Longwave Flux'
         cmap = plt.cm.gist_heat_r
@@ -372,7 +421,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'DPT': #dewpoint temperature (K)
         formal_var_name = 'Dewpoint Temperature'
         cmap = plt.cm.Greens
@@ -386,7 +435,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'DSWRF': #downward shortwave radiation flux (W m-2)
         formal_var_name = 'Downward Shortwave Flux'
         cmap = plt.cm.gist_heat_r
@@ -398,7 +447,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'FLDCP': #field capacity (fraction)
         formal_var_name = 'Field Capacity'
         cmap = plt.cm.PuBuGn
@@ -412,10 +461,9 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'GFLUX': #ground heat flux (W m-2)
         formal_var_name = 'Ground Heat Flux'
-        var_units = ''
         cmap = plt.cm.PiYG
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([-30,-20,-15,-10,-5,-2,2,5,10,15,20,30])
@@ -425,7 +473,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'GUST': #wind gust (m s-1)
         formal_var_name = 'Wind Gust'
         cmap = plt.cm.pink_r
@@ -437,7 +485,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'HGT': #geopotential height (gpm)
         formal_var_name = 'Geopotential Height'
         cmap = plt.cm.cubehelix_r
@@ -485,7 +533,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'HINDEX': #haines index (no units)
         formal_var_name = 'Haines Index'
         cmap = plt.cm.YlOrRd
@@ -495,11 +543,11 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [-3,-2,-1,-0.5,-0.1,-0.01,0,0.01,0.1,0.5,1,2,3]
             )
             var_scale = 1
-            var_units = '' 
+            var_units = ''
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'HPBL': #planetary boundary layer height (m)
         formal_var_name = 'Planetary Boundary Layer Height'
         cmap = plt.cm.cubehelix_r
@@ -515,7 +563,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'ICAHT': #ICAO standard atmosphere reference height (m)
         formal_var_name = 'ICAO Standard Atmos. Reference Height'
         cmap = plt.cm.cubehelix_r
@@ -536,7 +584,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'ICEC': #ice cover (proportion)
         formal_var_name = 'Ice Cover (ice=1, no ice=0)'
         cmap = plt.cm.Blues
@@ -552,7 +600,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'LFTX': #lifted index (K)
         formal_var_name = 'Lifted Index'
         cmap = plt.cm.magma
@@ -566,7 +614,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'LHTFL': #latent heat net flux (W m-2)
         formal_var_name = 'Latent Heat Flux'
         cmap = plt.cm.Reds
@@ -578,7 +626,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'MSLET': #mean sea-level pressure (NAM reduction) (Pa)
         formal_var_name = 'Mean Sea Level Pressure (NAM Reduction)'
         cmap = plt.cm.rainbow
@@ -592,7 +640,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'O3MR': #ozone mixing ratio (kg kg-1)
         formal_var_name = 'Ozone Mixing Ratio'
         cmap = plt.cm.YlGnBu
@@ -606,7 +654,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'PEVPR': #potential evaporation rate (W m-2)
         formal_var_name = 'Potential Evaporation Rate'
         cmap = plt.cm.copper_r
@@ -620,7 +668,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'POT': #potential temperature (K)
         formal_var_name = 'Potential Temperature'
         cmap = plt.cm.rainbow
@@ -634,7 +682,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'PRATE': #precipitation rate ([kg m-2] s-1)
         formal_var_name = 'Precipitation Rate'
         cmap = plt.cm.terrain_r
@@ -643,7 +691,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.1,0.2,0.4,0.6,0.8,1,1.5,2,2.5,3]
             )
             levels_diff = np.array(
-                [-3-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
+                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
             )
             var_scale = 24*3600
             var_units = 'mm 'r'$\mathregular{day^{-1}}$'''
@@ -696,7 +744,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             )
             levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
             var_scale = 0.01
-            var_units = 'hPa'  
+            var_units = 'hPa'
         elif var_GRIB_lvl_typ == '232': #high cloud bottom level
             levels = np.array(
                 [180,200,220,240,260,280,300,320,340,360,380,400,420]
@@ -728,7 +776,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'PRMSL': #pressure reduced to MSL (Pa)
         formal_var_name = 'Pressure Reduced to MSL'
         cmap = plt.cm.rainbow
@@ -742,7 +790,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'PWAT': #precipitable water (kg m-2)
         formal_var_name = 'Precipitable Water'
         cmap = plt.cm.BuGn
@@ -758,7 +806,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'RH': #relative humidity (%)
         formal_var_name = 'Relative Humidity'
         cmap = plt.cm.Greens
@@ -792,7 +840,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'SHTFL': #sensible heat net flux (W m-2)
         formal_var_name = 'Sensible Heat Flux'
         cmap = plt.cm.Reds
@@ -804,7 +852,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'SNOD': #snow depth (m)
         formal_var_name = 'Snow Depth'
         cmap = plt.cm.Blues
@@ -819,7 +867,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'SOILW': #volumetric soil moisture content (fraction)
         formal_var_name = 'Volumetric Soil Moisture'
         cmap = plt.cm.summer_r
@@ -831,7 +879,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'SPFH': #specific humidity (kg kg-1)
         formal_var_name = 'Specific Humidity'
         cmap = plt.cm.Greens
@@ -852,7 +900,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'SUNSD': #sunshine Duration (s)
         formal_var_name = 'Sunshine Duration'
         cmap = plt.cm.YlOrBr
@@ -864,13 +912,13 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'TCDC': #total cloud cover (%)
         formal_var_name = 'Cloud Cover'
         cmap = plt.cm.Blues
         if var_GRIB_lvl_typ == '200': #entire atmosphere/column
             levels = np.array([0,10,20,30,40,50,60,80,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30]) 
+            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '211': #boundary layer cloud layer
@@ -913,7 +961,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'TMIN': #minimum temperature (K)
         formal_var_name = 'Minimum Temperature'
         cmap = plt.cm.rainbow
@@ -929,7 +977,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'TMP': #temperature (K)
         formal_var_name = 'Temperature'
         cmap = plt.cm.rainbow
@@ -1003,7 +1051,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'TOZNE': #total ozone (Dobson)
         formal_var_name = 'Total Ozone'
         cmap = plt.cm.summer_r
@@ -1017,7 +1065,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'TSOIL': #soil temperature (K)
         formal_var_name = 'Soil Temperature'
         cmap = plt.cm.rainbow
@@ -1033,7 +1081,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'UFLX': #momentum flux, u component (N m-2)
         formal_var_name = 'Zonal Momentum Flux'
         cmap = plt.cm.PRGn
@@ -1049,7 +1097,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'UGRD': #zonal wind (m s-1)
         formal_var_name = 'Zonal Wind'
         cmap = plt.cm.PRGn
@@ -1100,7 +1148,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'U-GWD': #zonal flux of gravity wave stress (N m-2)
         formal_var_name = 'Zonal Gravity Wave Stress'
         cmap = plt.cm.PuRd
@@ -1114,7 +1162,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'ULWRF': #upward longwave radiation flux (W m-2)
         formal_var_name = 'Upward Longwave Flux'
         cmap = plt.cm.gist_heat_r
@@ -1131,7 +1179,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'USWRF': #upward shortwave radiation flux (W m-2)
         formal_var_name = 'Upward Shortwave Flux'
         cmap = plt.cm.gist_heat_r
@@ -1148,7 +1196,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VFLX': #momentum flux, v component (N m-2)
         formal_var_name = 'Meridional Momentum Flux'
         cmap = plt.cm.PRGn
@@ -1164,7 +1212,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VGRD': #meridional wind (m s-1)
         formal_var_name = 'Meridional Wind'
         cmap = plt.cm.PRGn
@@ -1217,7 +1265,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'V-GWD': #meridional flux of gravity wave stress (N m-2)
         formal_var_name = 'Meridional Gravity Wave Stress'
         cmap = plt.cm.PuRd
@@ -1229,7 +1277,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VIS': #visibility (m)
         formal_var_name = 'Visibility'
         cmap = plt.cm.gray
@@ -1241,7 +1289,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VRATE': #ventilation Rate (m2 s-1)
         formal_var_name = 'Ventilation Rate'
         cmap = plt.cm.magma_r
@@ -1253,7 +1301,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VVEL': #vertical velocity (Pa s-1)
         formal_var_name = 'Vertical Velocity'
         cmap = plt.cm.PRGn
@@ -1270,7 +1318,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'VWSH': #vertical speed shear (s-1)
         formal_var_name = 'Vertical Speed Shear'
         cmap = plt.cm.PRGn
@@ -1284,7 +1332,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'WATR': #water runoff (kg m-2)
         formal_var_name = 'Water Runoff'
         cmap = plt.cm.BuGn
@@ -1300,7 +1348,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'WEASD': #water equiv. of accum. snow depth (kg m-2)
         formal_var_name = 'Water Equivalent of Accum Snow Depth'
         cmap = plt.cm.Blues
@@ -1312,7 +1360,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     elif var_name == 'WILT': #wilting point (fraction)
         formal_var_name = 'Wilting Point'
         cmap = plt.cm.YlOrBr
@@ -1326,10 +1374,10 @@ def get_maps2d_plot_settings(var_name, var_level):
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
-            exit(1)
+            sys.exit(1)
     else:
         print("ERROR: cannot find plot settings for "+var_name)
-        exit(1)
+        sys.exit(1)
     if var_name in ['PRMSL', 'MSLET', 'HPBL']:
         var_info_title = (
             formal_var_name+' ('+var_units+')'

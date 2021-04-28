@@ -5,25 +5,44 @@
 #           to produce SL1L2 and VL1L2 stats
 # History Log:
 #   2/2019: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
 set -x
 
+export RUN_abbrev="g2o1"
+
 # Set up directories
 mkdir -p $RUN
 cd $RUN
+
+# Check machine to be sure we can get the data
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C)$ ]]; then
+    if grep -q "polar_sfc" <<< "$g2o1_type_list"; then
+        echo "WARNING: Cannot run ${RUN} polar_sfc on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc //'`
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc//'`
+        export g2o1_type_list=`echo $g2o1_type_list | sed 's/polar_sfc //'`
+    fi
+fi
+
+# Check user's configuration file
+python $USHverif_global/check_config.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
+echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py
@@ -32,6 +51,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
 echo
@@ -39,18 +59,21 @@ echo
 # Link needed data files and set up model information
 mkdir -p data
 python $USHverif_global/get_data_files.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
 # Create output directories for METplus
 python $USHverif_global/create_METplus_output_dirs.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
-echo 
+echo
 
 # Create job scripts to run METplus
 python $USHverif_global/create_METplus_job_scripts.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
@@ -66,7 +89,7 @@ if [ $MPMD = YES ]; then
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION ]; then
@@ -83,79 +106,20 @@ else
     done
 fi
 
-# Copy data to user archive or to COMOUT
-gather_by=$g2o1_gather_by
-DATE=${start_date}
-while [ $DATE -le ${end_date} ] ; do
-    export DATE=$DATE
-    export COMIN=${COMIN:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    export COMOUT=${COMOUT:-$COMROOT/$NET/$envir/$RUN.$DATE}
-    m=0
-    arch_dirs=($model_arch_dir_list)
-    for model in $model_list; do
-        export model=$model
-        export arch_dir=${arch_dirs[m]}
-        arch_dir_strlength=$(echo -n $arch_dir | wc -m)
-        if [ $arch_dir_strlength = 0 ]; then
-            arch_dir=${arch_dirs[0]}
-        fi
-        for type in $g2o1_type_list; do
-            if [ $gather_by = VALID ]; then
-                if [ $type = upper_air ]; then
-                    gather_by_hour_list=$g2o1_vhr_list_upper_air
-                elif [ $type = conus_sfc ]; then
-                    gather_by_hour_list=$g2o1_vhr_list_conus_sfc
-                elif [ $type = polar_sfc ]; then
-                    gather_by_hour_list=$g2o1_vhr_list_polar_sfc
-                fi
-            else
-                gather_by_hour_list=$g2o1_fcyc_list
-            fi
-            for gather_by_hour in $gather_by_hour_list; do
-                if [ $gather_by = VSDB ]; then
-                    if [ $type = upper_air ]; then
-                        valid_hr_beg=$g2o1_valid_hr_beg_upper_air
-                        valid_hr_end=$g2o1_valid_hr_end_upper_air
-                    elif [ $type = conus_sfc ]; then
-                        valid_hr_beg=$g2o1_valid_hr_beg_conus_sfc
-                        valid_hr_end=$g2o1_valid_hr_end_conus_sfc
-                    elif [ $type = polar_sfc ]; then
-                        valid_hr_beg=$g2o1_valid_hr_beg_polar_sfc
-                        valid_hr_end=$g2o1_valid_hr_end_polar_sfc
-                    fi
-                    verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${valid_hr_beg}_${DATE}${valid_hr_end}_${gather_by_hour}.stat"
-                else
-                    verif_global_filename="metplus_output/gather_by_$gather_by/stat_analysis/$type/$model/${model}_${DATE}${gather_by_hour}.stat"
-                fi
-                arch_filename="$arch_dir/metplus_data/by_$gather_by/grid2obs/$type/${gather_by_hour}Z/$model/${model}_${DATE}.stat"
-                comout_filename="$COMOUT/${model}_grid2obs_${type}_${DATE}_${gather_by_hour}Z_${gather_by}.stat"
-                if [ -s $verif_global_filename ]; then
-                   if [ $SENDARCH = YES ]; then
-                       mkdir -p $arch_dir/metplus_data/by_$gather_by/grid2obs/$type/${gather_by_hour}Z/$model
-                       cpfs $verif_global_filename $arch_filename
-                   fi
-                   if [ $SENDCOM = YES ]; then
-                       mkdir -p $COMOUT
-                       cpfs $verif_global_filename $comout_filename
-                       if [ "${SENDDBN^^}" = YES ]; then
-                           $DBNROOT/bin/dbn_alert MODEL VERIF_GLOBAL $job $veif_global_filename
-                       fi
-                   fi
-                else
-                   echo "*************************************************************"
-                   echo "** WARNING: $verif_global_filename was not generated or zero size"
-                   echo "*************************************************************"
-                fi
-            done
-        done
-        m=$((m+1))
-    done
-    DATE=$(echo $($NDATE +24 ${DATE}00 ) |cut -c 1-8 )
-done
+# Copy stat files to desired location
+python $USHverif_global/copy_stat_files.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
+echo
 
 # Send data to METviewer AWS server and clean up
 if [ $SENDMETVIEWER = YES ]; then
     python $USHverif_global/load_to_METviewer_AWS.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran load_to_METviewer_AWS.py"
+    echo
 else
     if [ $KEEPDATA = NO ]; then
         cd ..

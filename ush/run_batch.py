@@ -6,31 +6,29 @@ Abstract: This script is run by run_verif_global.sh.
           script to run and submits it.
 '''
 
-from __future__ import (print_function, division)
 import os
-import sys
-import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
 
-# Read in script agruments
-machine = sys.argv[1]
-script = sys.argv[2]
-
 # Read in environment variables
+machine = os.environ['machine']
 NET = os.environ['NET']
 RUN = os.environ['RUN']
+HOMEverif_global = os.environ['HOMEverif_global']
 QUEUE = os.environ['QUEUE']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
 nproc = os.environ['nproc']
+
+# Get RUN ex script
+script = os.path.join(HOMEverif_global, 'scripts', 'ex'+RUN+'.sh')
 
 # Create job card directory and file name
 cwd = os.getcwd()
 batch_job_dir = os.path.join(cwd, 'batch_jobs')
 if not os.path.exists(batch_job_dir):
     os.makedirs(batch_job_dir)
-job_card_filename = os.path.join(batch_job_dir, 
+job_card_filename = os.path.join(batch_job_dir,
                                  NET+'_'+RUN+'.sh')
 job_output_filename = os.path.join(batch_job_dir,
                                    NET+'_'+RUN+'.out')
@@ -52,7 +50,8 @@ with open(job_card_filename, 'a') as job_card:
             job_card.write("#BSUB -extsched 'CRAYLINUX[]' -R '1*"
                            "{select[craylinux && !vnode]} + "
                            +nproc+"*{select[craylinux && vnode]"
-                           "span[ptile=24] cu[type=cabinet]}'")
+                           "span[ptile=24] cu[type=cabinet]}'\n")
+            job_card.write('export PMI_NO_FORK=1\n')
         elif machine == 'WCOSS_DELL_P3':
             if RUN in ['grid2grid_step2']:
                 job_card.write('#BSUB -n '+str(int(nproc)*3)+'\n')
@@ -68,10 +67,13 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')
         job_card.write('#SBATCH --job-name='+job_name+'\n')
         job_card.write('#SBATCH --output='+job_output_filename+'\n')
-        job_card.write('#SBATCH --mem=3g\n')
+        if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+                   'maps2d', 'mapsda']:
+            job_card.write('#SBATCH --mem=10g\n')
+        else:
+            job_card.write('#SBATCH --mem=3g\n')
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
-        #job_card.write('#SBATCH --ntasks=1\n')
         job_card.write('#SBATCH --time=6:00:00\n')
     elif machine == 'ORION':
         job_card.write('#!/bin/sh\n')
@@ -83,12 +85,11 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --mem=3g\n')
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
-        #job_card.write('#SBATCH --ntasks=1\n')
         job_card.write('#SBATCH --time=6:00:00\n')
     job_card.write('\n')
     job_card.write('/bin/sh '+script)
 
-# Submit job card 
+# Submit job card
 print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
 if machine in ['WCOSS_C', 'WCOSS_DELL_P3']:

@@ -5,26 +5,41 @@
 #           track and intensity error
 # History Log:
 #   11/2019: Initial version of script
-# 
+#
 # Usage:
-#   Parameters: 
+#   Parameters:
 #       agrument to script
 #   Input Files:
 #       file
-#   Output Files:  
+#   Output Files:
 #       file
-#  
+#
 # Condition codes:
 #       0 - Normal exit
-# 
+#
 # User controllable options: None
 
 
-set -x 
+set -x
+
+export RUN_abbrev="$RUN"
 
 # Set up directories
 mkdir -p $RUN
 cd $RUN
+
+# Check machine to be sure we can get the data
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C)$ ]]; then
+    echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
+    exit
+fi
+
+# Check user's configuration file
+python $USHverif_global/check_config.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
+echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py
@@ -33,6 +48,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
 echo
@@ -40,12 +56,14 @@ echo
 # Link needed data files and set up model information
 mkdir -p data
 python $USHverif_global/get_data_files.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
 # Create output directories for METplus
 python $USHverif_global/create_METplus_output_dirs.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
 echo
@@ -53,6 +71,7 @@ echo
 # Create job scripts to run METplus for tc_pairs
 export METplus_tropcyc_process="tc_pairs"
 python $USHverif_global/create_METplus_job_scripts.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
@@ -84,14 +103,15 @@ else
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
 fi
-ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
-ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
+export ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
+export ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
 
 # Create job scripts to run METplus for tc_stat
 # and plotting scripts for individual
 # storms and all storms in a given basin
 export METplus_tropcyc_process="tc_stat"
 python $USHverif_global/create_METplus_job_scripts.py
+status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
@@ -109,7 +129,7 @@ if [ $MPMD = YES ]; then
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION ]; then
@@ -130,8 +150,11 @@ fi
 # custome templates and images to web
 if [ $SEND2WEB = YES ] ; then
     mkdir -p $DATA/$RUN/create_webpage_templates
-    python $USHverif_global/create_tropcyc_webpage_templates.py
     python $USHverif_global/build_webpage.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
+    echo
 else
     if [ $KEEPDATA = NO ]; then
         cd ..

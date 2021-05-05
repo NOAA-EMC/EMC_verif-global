@@ -41,6 +41,8 @@ for env_var_model in env_var_model_list:
     )
     if not os.path.exists(pruned_data_dir):
        os.makedirs(pruned_data_dir)
+    if len(met_stat_files) == 0:
+        continue
     with open(met_stat_files[0]) as msf:
         met_header_cols = msf.readline()
     all_grep_output = ''

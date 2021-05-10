@@ -569,6 +569,7 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('    echo "Making directory '+webdir+'"'+'\n')
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
                            +' "mkdir -p '+webdir+' "'+'\n')
+        web_job_file.write('    sleep 10\n')
         web_job_file.write('    scp -q '+os.path.join(USHverif_global,
                                                       'webpage.tar')+'  '
                            +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')

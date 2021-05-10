@@ -57,7 +57,6 @@ nticks = 2
 title_loc = 'center'
 cmap_bias = plt.cm.PiYG_r
 cmap = plt.cm.BuPu
-cmap_diff = plt.cm.coolwarm_r
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -432,6 +431,10 @@ for plot_info in plot_info_list:
     logger.info("Calculating and plotting statistics")
     for stat in stats_list:
         logger.debug("Working on "+stat)
+        if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv']:
+            cmap_diff = plt.cm.bwr
+        else:
+            cmap_diff = plt.cm.bwr_r
         stat_values, stat_values_array, stat_plot_name = (
             plot_util.calculate_stat(logger, model_data, stat)
         )

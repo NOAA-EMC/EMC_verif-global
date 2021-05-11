@@ -220,8 +220,6 @@ if RUN_type == 'gdas':
     plot_stats_list = ['inc', 'rmse']
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
-    print("ERROR: Currently cannot do zonal means for ens")
-    sys.exit(1)
 
 # Set up information
 env_var_model_list = []
@@ -314,103 +312,126 @@ for env_var_model in env_var_model_list:
             else:
                 print("WARNING: "+input_file+" does not exist")
         elif RUN_type == 'ens':
-            model_suffix = os.environ[env_var_model+'_suffix']
             if forecast_to_plot == 'anl':
-                input_file = os.path.join(
+                input_mean_file = os.path.join(
                     input_dir, model,
-                    'atmanl.ens'+stat+'.nc'
+                    'atmanl.ensmean.nc'
+                )
+                input_spread_file = os.path.join(
+                    input_dir, model,
+                    'atmanl.ensspread.nc'
                 )
             else:
-                input_file = os.path.join(
+                input_mean_file = os.path.join(
                    input_dir, model,
-                   'atmf0'+forecast_to_plot
-                    +'.ens'+stat+'.nc'
+                   'atmf'+forecast_to_plot[3:].zfill(3)
+                   +'.ensmean.nc'
                 )
-            if os.path.exists(input_file):
-                print(input_file+" exists")
-                model_data = netcdf.Dataset(input_file)
+                input_spread_file = os.path.join(
+                   input_dir, model,
+                   'atmf'+forecast_to_plot[3:].zfill(3)
+                   +'.ensspread.nc'
+                )
+            if os.path.exists(input_mean_file):
+                print(input_mean_file+" exists")
+                model_mean_data = netcdf.Dataset(input_mean_file)
                 if var_name != 'PRES':
                     # Get closest matching sigma level pressure
-                    if model_suffix == 'nc4':
-                        model_levels = levsn64p
-                    else:
-                        model_levels = model_data.variables['pfull'][:]
+                    model_mean_levels = model_mean_data.variables['pfull'][:]
                     var_level_float = float(var_level.replace('hPa', ''))
-                    model_levels_var_level_diff = np.abs(
-                        model_levels - var_level_float
+                    model_mean_levels_var_level_diff = np.abs(
+                        model_mean_levels - var_level_float
                     )
-                    model_levels_var_level_diff_min_idx = np.where(
-                        model_levels_var_level_diff \
-                        == np.min(model_levels_var_level_diff)
+                    model_mean_levels_var_level_diff_min_idx = np.where(
+                        model_mean_levels_var_level_diff \
+                        == np.min(model_mean_levels_var_level_diff)
                     )[0][0]
-                    model_level = (
-                        model_levels[model_levels_var_level_diff_min_idx]
-                    )
+                    model_level = model_mean_levels[
+                        model_mean_levels_var_level_diff_min_idx
+                    ]
                 # Get index data
-                if model_suffix == 'nc4':
-                    model_data_lat = model_data.variables['lat'][:]
-                    model_data_lon = model_data.variables['lon'][:]
-                    if var_name == 'TMP':
-                        model_data_var = (
-                            model_data.variables['t']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'UGRD':
-                        model_data_var = (
-                            model_data.variables['u']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'VGRD':
-                        model_data_var = (
-                            model_data.variables['v']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'SPFH':
-                        model_data_var = (
-                            model_data.variables['q']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'CLWMR':
-                        model_data_var = (
-                            model_data.variables['cw']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'O3MR':
-                        model_data_var = (
-                            model_data.variables['oz']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'PRES':
-                        model_data_var = model_data.variables['ps'][:]
-                elif model_suffix == 'nc':
-                    model_data_lat = np.flipud(
-                       model_data.variables['grid_yt'][:]
+                model_mean_data_lat = np.flipud(
+                   model_mean_data.variables['grid_yt'][:]
+                )
+                model_mean_data_lon = model_mean_data.variables['grid_xt'][:]
+                if var_name == 'PRES':
+                    model_mean_data_var = (
+                        model_mean_data.variables['pressfc'][0,:,:]
                     )
-                    model_data_lon = model_data.variables['grid_xt'][:]
-                    if var_name == 'PRES':
-                        model_data_var = (
-                            model_data.variables['pressfc'][0,:,:]
-                        )
-                    else:
-                        model_data_var = (
-                            model_data.variables[var_name.lower()]\
-                            [0,model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    model_data_var = np.flipud(model_data_var)
-                    if np.ma.is_masked(model_data_var):
-                        np.ma.set_fill_value(model_data_var, np.nan)
-                        model_data_var = (
-                            model_data_var.filled()
-                        )
-                model_data_var = model_data_var * var_scale
-                if not 'model_var_levels_zonalmean' in locals():
-                    model_var_levels_zonalmean = np.ones(
-                        [nmodels, nvar_levels, len(model_data_lat)]
+                else:
+                    model_mean_data_var = (
+                        model_mean_data.variables[var_name.lower()]\
+                        [0,model_mean_levels_var_level_diff_min_idx,:,:]
+                    )
+                model_mean_data_var = np.flipud(model_mean_data_var)
+                if np.ma.is_masked(model_mean_data_var):
+                    np.ma.set_fill_value(model_mean_data_var, np.nan)
+                    model_mean_data_var = (
+                        model_mean_data_var.filled()
+                    )
+                model_mean_data_var = model_mean_data_var
+                if not 'model_mean_var_levels_zonalmean' in locals():
+                    model_mean_var_levels_zonalmean = np.ones(
+                        [nmodels, nvar_levels, len(model_mean_data_lat)]
                     ) * np.nan
-                model_var_levels_zonalmean[model_num-1,var_level_num-1,:] = \
-                    model_data_var.mean(axis=1)
+                model_mean_var_levels_zonalmean[
+                    model_num-1,var_level_num-1,:
+                ] = \
+                    model_mean_data_var.mean(axis=1)
             else:
-                print("WARNING: "+input_file+" does not exist")
+                print("WARNING: "+input_mean_file+" does not exist")
+            if os.path.exists(input_spread_file):
+                print(input_spread_file+" exists")
+                model_spread_data = netcdf.Dataset(input_spread_file)
+                if var_name != 'PRES':
+                    # Get closest matching sigma level pressure
+                    model_spread_levels = model_spread_data.variables[
+                        'pfull'
+                    ][:]
+                    var_level_float = float(var_level.replace('hPa', ''))
+                    model_spread_levels_var_level_diff = np.abs(
+                        model_spread_levels - var_level_float
+                    )
+                    model_spread_levels_var_level_diff_min_idx = np.where(
+                        model_spread_levels_var_level_diff \
+                        == np.min(model_spread_levels_var_level_diff)
+                    )[0][0]
+                    model_level = model_spread_levels[
+                        model_spread_levels_var_level_diff_min_idx
+                    ]
+                # Get index data
+                model_spread_data_lat = np.flipud(
+                   model_spread_data.variables['grid_yt'][:]
+                )
+                model_spread_data_lon = model_spread_data.variables[
+                    'grid_xt'
+                ][:]
+                if var_name == 'PRES':
+                    model_spread_data_var = (
+                        model_spread_data.variables['pressfc'][0,:,:]
+                    )
+                else:
+                    model_spread_data_var = (
+                        model_spread_data.variables[var_name.lower()]\
+                        [0,model_spread_levels_var_level_diff_min_idx,:,:]
+                    )
+                model_spread_data_var = np.flipud(model_spread_data_var)
+                if np.ma.is_masked(model_spread_data_var):
+                    np.ma.set_fill_value(model_spread_data_var, np.nan)
+                    model_spread_data_var = (
+                        model_spread_data_var.filled()
+                    )
+                model_spread_data_var = model_spread_data_var
+                if not 'model_spread_var_levels_zonalmean' in locals():
+                    model_spread_var_levels_zonalmean = np.ones(
+                        [nmodels, nvar_levels, len(model_spread_data_lat)]
+                    ) * np.nan
+                model_spread_var_levels_zonalmean[
+                    model_num-1,var_level_num-1,:
+                ] = \
+                    model_spread_data_var.mean(axis=1)
+            else:
+                print("WARNING: "+input_spread_file+" does not exist")
 
 # Set up plot
 for stat in plot_stats_list:
@@ -584,6 +605,14 @@ for stat in plot_stats_list:
                     cmap_plot = cmap_diff
         elif stat in ['mean', 'spread']:
             subplot_title = model_plot_name
+            if stat == 'mean':
+                model_var_levels_zonalmean = model_mean_var_levels_zonalmean
+                model_data_lat = model_mean_data_lat
+                model_data_lon = model_mean_data_lon
+            elif stat == 'spread':
+                model_var_levels_zonalmean = model_spread_var_levels_zonalmean
+                model_data_lat = model_spread_data_lat
+                model_data_lon = model_spread_data_lon
             if model_num == 1:
                 print("Plotting "+model+" ensemble "+stat)
                 stat_data = (

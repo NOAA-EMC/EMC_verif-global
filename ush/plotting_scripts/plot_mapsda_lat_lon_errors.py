@@ -675,10 +675,6 @@ for stat in plot_stats_list:
                                 cmap_plot = cmap_diff
                                 get_diff_levels = False
                 elif RUN_type == 'ens':
-                    if var_name != 'PRES':
-                        ax.set_title('idx='
-                                     +str(model_levels_var_level_diff_min_idx)
-                                     +',p='+str(model_level), loc='center')
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
                         levels_plot = np.nan

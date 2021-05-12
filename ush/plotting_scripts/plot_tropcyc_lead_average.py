@@ -41,7 +41,7 @@ legend_ncol = 1
 title_loc = 'center'
 model_obs_plot_settings_dict = {
     'model1': {'color': '#000000',
-               'marker': 'None', 'markersize': 0,
+               'marker': 'o', 'markersize': 6,
                'linestyle': 'solid', 'linewidth': 3},
     'model2': {'color': '#FB2020',
                'marker': '^', 'markersize': 7,

@@ -703,9 +703,14 @@ for plot_info in plot_info_list:
             grid_vx_mask = verif_grid
         else:
             grid_vx_mask = verif_grid+vx_mask
-        var_info_title = plot_title.get_var_info_title(
-            fcst_var_name, fcst_var_level, fcst_var_extra, 'all'
-        )
+        if verif_type in ['sfc', 'conus_sfc']:
+            var_info_title = plot_title.get_var_info_title(
+                fcst_var_name, fcst_var_level, fcst_var_extra, 'all'
+            )
+        else:
+            var_info_title = plot_title.get_var_info_title(
+                var_name, fcst_var_level, fcst_var_extra, 'all'
+            )
         vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
         date_info_title = plot_title.get_date_info_title(
             date_type, fcst_valid_hour.split(', '),

@@ -426,7 +426,7 @@ for plot_info in plot_info_list:
                         )
                         for col in stat_file_line_type_columns:
                             #### EMC-verif_global changes for PRMSL, PRES/Z0
-                            #### O3MR
+                            #### SPFH, O3MR
                             if fcst_var_name == 'PRMSL' \
                                     or \
                                     (fcst_var_name == 'PRES' \
@@ -435,6 +435,13 @@ for plot_info in plot_info_list:
                                     scale = 1/100.
                                 elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
                                     scale = 1/(100.*100.)
+                                else:
+                                    scale = 1
+                            elif fcst_var_name == 'SPFH':
+                                if col in ['FBAR', 'OBAR']:
+                                    scale = 1000
+                                elif col in ['FFBAR', 'FOBAR', 'OOBAR']:
+                                    scale = 1000*1000
                                 else:
                                     scale = 1
                             elif fcst_var_name == 'O3MR':

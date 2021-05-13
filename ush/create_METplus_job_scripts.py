@@ -29,7 +29,7 @@ def init_env_dict():
                             environment variable values
     """
     env_var_list = [
-        'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
+        'machine', 'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
         'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
         'log_MET_output_to_METplus', 'METplus_verbosity', 'MET_version',
         'HOMEMET', 'HOMEMET_bin_exec', 'MET_verbosity', 'DATA', 'RUN', 'RM',

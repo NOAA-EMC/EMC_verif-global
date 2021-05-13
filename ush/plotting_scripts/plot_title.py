@@ -171,7 +171,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         'PRMSL': 'Pressure Reduced to MSL (hPa)',
         'O3MR': 'Ozone Mixing Ratio (ppmg)',
         'RH': 'Relative Humidity (%)',
-        'SPFH': 'Specific Humidity (kg 'r'$\mathregular{kg^{-1}}$'')',
+        'SPFH': 'Specific Humidity (g 'r'$\mathregular{kg^{-1}}$'')',
         'HPBL': 'Planetary Boundary Layer Height (m)',
         'WEASD': ('Accum. Snow Depth Water Equiv. '
                   +'(kg 'r'$\mathregular{m^{-2}}$'')'),

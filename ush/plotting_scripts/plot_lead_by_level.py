@@ -668,9 +668,15 @@ for plot_info in plot_info_list:
                                      +"with name on plot "+model_plot_name+" "
                                      +"- "+model1_plot_name)
                         if get_clevels:
-                            clevels_diff = plot_util.get_clevels(
-                                model_model1_diff
-                            )
+                            if stat in ['acc']:
+                                clevels_diff = np.array(
+                                    [-0.5, -0.4, -0.3, -0.2, -0.1, -0.05,
+                                     0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+                                )
+                            else:
+                                clevels_diff = plot_util.get_clevels(
+                                    model_model1_diff
+                                )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,
                                               cmap=cmap_diff,

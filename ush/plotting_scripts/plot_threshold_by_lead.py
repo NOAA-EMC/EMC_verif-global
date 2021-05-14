@@ -307,10 +307,16 @@ for plot_info in plot_info_list:
         base_name+='_alpha'+alpha
     for stat in stats_list:
         logger.debug("Working on "+stat)
-        if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv']:
-            cmap_diff = plt.cm.bwr
+        if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv', 'fbar_obar']:
+            cmap_original = plt.cm.bwr
         else:
-            cmap_diff = plt.cm.bwr_r
+            cmap_original = plt.cm.bwr_r
+        colors_diff = cmap_original(
+            np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+        )
+        cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+            'cmap_diff', colors_diff
+        )
         stat_plot_name = plot_util.get_stat_plot_name(logger, stat)
         if (stat == 'fbar_obar' or stat == 'orate_frate'
             or stat == 'baser_frate'):

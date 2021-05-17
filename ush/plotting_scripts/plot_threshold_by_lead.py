@@ -573,7 +573,8 @@ for plot_info in plot_info_list:
                                  +"with name on plot "+model_plot_name+" "
                                  +"- obs")
                     if get_clevels:
-                        clevels_diff = plot_util.get_clevels(model_obs_diff)
+                        clevels_diff = plot_util.get_clevels(model_obs_diff,
+                                                             1.1)
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
@@ -605,7 +606,7 @@ for plot_info in plot_info_list:
                                  +model_plot_name)
                     if get_clevels:
                         #clevels_bias = plot_util.get_clevels(
-                        #    model_avg_data[0,:,:]
+                        #    model_avg_data[0,:,:], 1.1
                         # )
                         clevels_bias = np.array(
                             [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8]
@@ -686,7 +687,7 @@ for plot_info in plot_info_list:
                                 )
                             else:
                                 clevels_diff = plot_util.get_clevels(
-                                    model_model1_diff
+                                    model_model1_diff, 1.1
                                 )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,

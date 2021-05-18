@@ -574,7 +574,7 @@ for plot_info in plot_info_list:
                                  +"- obs")
                     if get_clevels:
                         clevels_diff = plot_util.get_clevels(model_obs_diff,
-                                                             1.1)
+                                                             1)
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
@@ -687,7 +687,7 @@ for plot_info in plot_info_list:
                                 )
                             else:
                                 clevels_diff = plot_util.get_clevels(
-                                    model_model1_diff, 1.1
+                                    model_model1_diff, 1
                                 )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,

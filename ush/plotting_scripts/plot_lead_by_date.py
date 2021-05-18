@@ -641,7 +641,7 @@ for plot_info in plot_info_list:
                                  +" - obs")
                     if get_clevels:
                         clevels_diff = plot_util.get_clevels(model_obs_diff,
-                                                             1.1)
+                                                             1)
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
@@ -671,9 +671,15 @@ for plot_info in plot_info_list:
                                  +model_name+" with name on plot "
                                  +model_plot_name)
                     if get_clevels:
+                        if np.max(np.abs(model_stat_values_array)) > 100:
+                            bias_spacing = 2.25
+                        elif np.max(np.abs(model_stat_values_array)) > 10:
+                            bias_spacing = 1.25
+                        else:
+                            bias_spacing = 1
                         clevels_bias = plot_util.get_clevels(
-                            model_stat_values_array, 1.1
-                         )
+                            model_stat_values_array, bias_spacing
+                        )
                         CF1 = ax.contourf(xmesh, ymesh,
                                           model_stat_values_array,
                                           levels=clevels_bias,
@@ -767,7 +773,7 @@ for plot_info in plot_info_list:
                                 )
                             else:
                                 clevels_diff = plot_util.get_clevels(
-                                    model_model1_diff, 1.1
+                                    model_model1_diff, 1
                                 )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,

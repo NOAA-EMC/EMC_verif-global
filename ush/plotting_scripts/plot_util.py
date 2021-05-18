@@ -370,7 +370,7 @@ def get_clevels(data, spacing):
     else:
        cmin = round(cmin-0.1,1)
        cmax = round(cmax+0.1,1)
-    steps = 7
+    steps = 6
     span = cmax
     dx = 1.0 / (steps-1)
     pos = np.array([0 + (i*dx)**spacing*span for i in range(steps)],

@@ -55,7 +55,13 @@ plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 nticks = 2
 title_loc = 'center'
-cmap_bias = plt.cm.PiYG_r
+cmap_bias_original = plt.cm.PiYG_r
+colors_bias = cmap_bias_original(
+    np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
+)
+cmap_bias = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_bias', colors_bias
+)
 cmap = plt.cm.BuPu
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
@@ -439,10 +445,10 @@ for plot_info in plot_info_list:
     for stat in stats_list:
         logger.debug("Working on "+stat)
         if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv', 'fbar_obar']:
-            cmap_original = plt.cm.bwr
+            cmap_diff_original = plt.cm.bwr
         else:
-            cmap_original = plt.cm.bwr_r
-        colors_diff = cmap_original(
+            cmap_diff_original = plt.cm.bwr_r
+        colors_diff = cmap_diff_original(
             np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
         )
         cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(

@@ -606,9 +606,9 @@ for plot_info in plot_info_list:
                         if np.max(np.abs(model_avg_data[0,:,:])) > 100:
                             bias_spacing = 2.25
                         elif np.max(np.abs(model_avg_data[0,:,:])) > 10:
-                            bias_spacing = 1.25
+                            bias_spacing = 2
                         else:
-                            bias_spacing = 1
+                            bias_spacing = 1.75
                         clevels_bias = plot_util.get_clevels(
                             model_avg_data[0,:,:], bias_spacing
                         )

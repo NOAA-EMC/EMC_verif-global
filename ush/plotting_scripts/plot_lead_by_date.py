@@ -632,8 +632,21 @@ for plot_info in plot_info_list:
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                         obs_plotted = True
@@ -699,8 +712,21 @@ for plot_info in plot_info_list:
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                         get_clevels = False
@@ -723,8 +749,21 @@ for plot_info in plot_info_list:
                                        levels=CF1.levels,
                                        colors='k',
                                        linewidths=1.0)
+                        C_labels_list = []
+                        for level in C.levels:
+                            if str(level).split('.')[1] == '0':
+                                C_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C.levels, C_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C, C.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
             else:
@@ -757,8 +796,21 @@ for plot_info in plot_info_list:
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                 else:
@@ -868,6 +920,17 @@ for plot_info in plot_info_list:
                                 ticks = colorbar_CF_ticks)
             cbar.ax.set_xlabel(colorbar_label, labelpad = 0)
             cbar.ax.xaxis.set_tick_params(pad=0)
+            cbar_tick_labels_list = []
+            for tick in cbar.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar_tick_labels_list.append(
+                        str(int(tick))
+                    )
+                else:
+                    cbar_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            cbar.ax.set_xticklabels(cbar_tick_labels_list)
         #### EMC-verif_global build savefig name
         savefig_name = os.path.join(output_imgs_dir, stat)
         if date_type == 'VALID':

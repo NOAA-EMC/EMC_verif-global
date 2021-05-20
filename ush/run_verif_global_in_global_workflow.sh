@@ -128,7 +128,7 @@ export precip1_ccpa_accum24hr_model_var_list=${precip1_ccpa_accum24hr_model_var:
 export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}.grib2"}
 export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
 export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
-export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHAX_GFS}
+export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHMAX_GFS}
 export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
 export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VSDB"}
 export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}

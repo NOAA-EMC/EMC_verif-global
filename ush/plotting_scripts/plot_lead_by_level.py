@@ -698,9 +698,20 @@ for plot_info in plot_info_list:
                         logger.debug("Plotting model "+str(model_num)+" "
                                      +model_name+" with name on plot "
                                      +model_plot_name)
-                        CF1 = ax.contourf(xmesh, ymesh, model_avg_data[0,:,:],
-                                          cmap=cmap,
-                                          extend='both')
+                        if stat in ['acc']:
+                            levels = np.array(
+                                [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+                                 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1]
+                            )
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_avg_data[0,:,:],
+                                              levels=levels, cmap=cmap,
+                                              extend='both')
+                        else:
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_avg_data[0,:,:],
+                                              cmap=cmap,
+                                              extend='both')
                         C1 = ax.contour(xmesh, ymesh, model_avg_data[0,:,:],
                                         levels=CF1.levels,
                                         colors='k',

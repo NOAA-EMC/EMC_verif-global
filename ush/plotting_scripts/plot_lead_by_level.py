@@ -707,6 +707,24 @@ for plot_info in plot_info_list:
                                               model_avg_data[0,:,:],
                                               levels=levels, cmap=cmap,
                                               extend='both')
+                        elif stat in ['rmse', 'rmse_md', 'rmse_pv']:
+                            cmax = np.nanmax(model_avg_data[0,:,:])
+                            steps = 12
+                            dx = 1.0 / (steps-1)
+                            if cmax > 100:
+                                spacing = 2.25
+                            elif cmax > 10:
+                                spacing = 2
+                            else:
+                                spacing = 1.75
+                            levels = np.array(
+                                [0+(i*dx)**spacing*cmax for i in range(steps)],
+                                dtype=float
+                            )
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_avg_data[0,:,:],
+                                              levels=levels, cmap=cmap,
+                                              extend='both')
                         else:
                             CF1 = ax.contourf(xmesh, ymesh,
                                               model_avg_data[0,:,:],
@@ -751,7 +769,7 @@ for plot_info in plot_info_list:
                                 )
                             else:
                                 clevels_diff = plot_util.get_clevels(
-                                    model_model1_diff, 1
+                                    model_model1_diff, 1.25
                                 )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,

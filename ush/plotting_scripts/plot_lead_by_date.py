@@ -574,12 +574,12 @@ for plot_info in plot_info_list:
         while subplot_num < nsubplots:
             ax = plt.subplot(gs[subplot_num])
             ax.grid(True)
-            if len(fcst_lead_timedeltas) >= 15:
-                ax.set_xticks(fcst_lead_timedeltas[::2])
-                ax.set_xticklabels(fcst_lead_timedeltas_str[::2])
-            elif len(fcst_lead_timedeltas) >= 25:
+            if len(fcst_lead_timedeltas) >= 25:
                 ax.set_xticks(fcst_lead_timedeltas[::4])
                 ax.set_xticklabels(fcst_lead_timedeltas_str[::4])
+            elif len(fcst_lead_timedeltas) >= 15:
+                ax.set_xticks(fcst_lead_timedeltas[::2])
+                ax.set_xticklabels(fcst_lead_timedeltas_str[::2])
             else:
                 ax.set_xticks(fcst_lead_timedeltas)
                 ax.set_xticklabels(fcst_lead_timedeltas_str)

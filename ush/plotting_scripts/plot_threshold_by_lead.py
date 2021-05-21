@@ -438,12 +438,12 @@ for plot_info in plot_info_list:
                 ax.set_xlabel('Forecast Threshold')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)
-            if len(fcst_lead_timedeltas) >= 15:
-                ax.set_yticks(fcst_lead_timedeltas[::2])
-                ax.set_yticklabels(fcst_lead_timedeltas_str[::2])
-            elif len(fcst_lead_timedeltas) >= 25:
+            if len(fcst_lead_timedeltas) >= 25:
                 ax.set_yticks(fcst_lead_timedeltas[::4])
                 ax.set_yticklabels(fcst_lead_timedeltas_str[::4])
+            elif len(fcst_lead_timedeltas) >= 15:
+                ax.set_yticks(fcst_lead_timedeltas[::2])
+                ax.set_yticklabels(fcst_lead_timedeltas_str[::2])
             else:
                 ax.set_yticks(fcst_lead_timedeltas)
                 ax.set_yticklabels(fcst_lead_timedeltas_str)

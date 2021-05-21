@@ -624,10 +624,7 @@ for plot_info in plot_info_list:
                         )
                         CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
                                           cmap=cmap,
-                                          locator=matplotlib \
-                                              .ticker.MaxNLocator(
-                                          symmetric=True
-                                          ), extend='both')
+                                          extend='both')
                         C1 = ax.contour(xmesh, ymesh, obs_stat_values_array,
                                         levels=CF1.levels,
                                         colors='k',
@@ -665,10 +662,6 @@ for plot_info in plot_info_list:
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
-                                          locator=matplotlib \
-                                              .ticker.MaxNLocator(
-                                              symmetric=True
-                                          ),
                                           extend='both')
                         get_clevels = False
                         make_colorbar = True
@@ -679,9 +672,6 @@ for plot_info in plot_info_list:
                         CF = ax.contourf(xmesh, ymesh, model_obs_diff,
                                          levels=CF2.levels,
                                          cmap=cmap_diff,
-                                         locator=matplotlib.ticker.MaxNLocator(
-                                             symmetric=True
-                                         ),
                                          extend='both')
             elif stat == 'bias' or stat == 'fbias':
                 ax = plt.subplot(gs[model_idx])
@@ -704,10 +694,7 @@ for plot_info in plot_info_list:
                                           model_stat_values_array,
                                           levels=clevels_bias,
                                           cmap=cmap_bias,
-                                          locator=\
-                                          matplotlib.ticker.MaxNLocator(
-                                              symmetric=True
-                                          ), extend='both')
+                                          extend='both')
                         C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
                                         levels=CF1.levels,
                                         colors='k',
@@ -738,10 +725,6 @@ for plot_info in plot_info_list:
                         CF = ax.contourf(xmesh, ymesh,
                                          model_stat_values_array,
                                          levels=CF1.levels,
-                                         locator=\
-                                         matplotlib.ticker.MaxNLocator(
-                                              symmetric=True
-                                         ),
                                          cmap=cmap_bias,
                                          extend='both')
                         C = ax.contour(xmesh, ymesh,
@@ -855,10 +838,6 @@ for plot_info in plot_info_list:
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,
                                               cmap=cmap_diff,
-                                              locator=\
-                                              matplotlib.ticker.MaxNLocator(
-                                                  symmetric=True
-                                              ),
                                               extend='both')
                             get_clevels = False
                             make_colorbar = True
@@ -869,10 +848,6 @@ for plot_info in plot_info_list:
                             CF = ax.contourf(xmesh, ymesh, model_model1_diff,
                                              levels=CF2.levels,
                                              cmap=cmap_diff,
-                                             locator=\
-                                             matplotlib.ticker.MaxNLocator(
-                                                 symmetric=True
-                                             ),
                                              extend='both')
         #### EMC-verif_global build formal plot title
         if verif_grid == vx_mask:

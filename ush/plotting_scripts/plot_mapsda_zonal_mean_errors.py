@@ -192,9 +192,22 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
             )
-            C_tmp_labels = ax_tmp.clabel(
-                C_tmp, C_tmp.levels, fmt='%g', colors='k'
-            )
+            C_tmp_labels_list = []
+            for level in C_tmp.levels:
+                if str(level).split('.')[1] == '0':
+                    C_tmp_labels_list.append(str(int(level)))
+                else:
+                    C_tmp_labels_list.append(
+                        str(round(level,3)).rstrip('0')
+                    )
+            fmt = {}
+            for lev, label in zip(C_tmp.levels, C_tmp_labels_list):
+                fmt[lev] = label
+            ax_tmp.clabel(C_tmp, C_tmp.levels,
+                         fmt=fmt,
+                         inline=True,
+                         fontsize=12.5,
+                         color='k')
     else:
         CF_tmp = None
     return CF_tmp
@@ -577,8 +590,17 @@ for stat in plot_stats_list:
             stat_data = (model_var_levels_zonalmean_OBAR[model_num-1,:,:]
                          - model_var_levels_zonalmean_FBAR[model_num-1,:,:])
             if model_num == 1:
-                            levels_plot = plot_util.get_clevels(stat_data)
-                            cmap_plot = plt.cm.PiYG_r
+                levels_plot = plot_util.get_clevels(stat_data, 1.25)
+                cmap_plot_original = plt.cm.PiYG_r
+                colors_plot = cmap_plot_original(
+                    np.append(np.linspace(0,0.3,10),
+                              np.linspace(0.7,1,10))
+                )
+                cmap_plot = (
+                    matplotlib.colors.\
+                    LinearSegmentedColormap.from_list('cmap_plot',
+                                                      colors_plot)
+                )
         elif stat == 'rmse':
             if model_num == 1:
                 print("Plotting "+model+" increment RMSE")
@@ -601,7 +623,7 @@ for stat in plot_stats_list:
                      - model_var_levels_zonalmean_FBAR[model_num-1,:,:])**2
                 ) - model1_stat_data
                 if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
+                    levels_plot = plot_util.get_clevels(stat_data, 1.25)
                     cmap_plot = cmap_diff
         elif stat in ['mean', 'spread']:
             subplot_title = model_plot_name
@@ -618,12 +640,13 @@ for stat in plot_stats_list:
                 stat_data = (
                     model_var_levels_zonalmean[model_num-1,:,:] * var_scale
                 )
-                levels_plot = np.nan
                 model1 = model
                 model1_stat_data = stat_data
                 if stat == 'mean':
                     cmap_plot = cmap
+                    levels_plot = levels
                 elif stat == 'spread':
+                    levels_plot = np.nan
                     cmap_plot = plt.cm.afmhot_r
             else:
                 print("Plotting "+model+"-"+model1+" ensemble "+stat)
@@ -632,7 +655,7 @@ for stat in plot_stats_list:
                     - model1_stat_data
                 )
                 if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
+                    levels_plot = plot_util.get_clevels(stat_data, 1.25)
                     cmap_plot = cmap_diff
         ax = draw_subplot_map(
             subplot_num, subplot_title, nsubplots, latlon_area,
@@ -721,6 +744,18 @@ for stat in plot_stats_list:
                 else:
                     cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                     cbar.ax.xaxis.set_tick_params(pad=0)
+                cbar_tick_labels_list = []
+                for tick in cbar.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar_tick_labels_list.append(str(int(tick)))
+                    else:
+                        cbar_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                if nsubplots == 2:
+                    cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                else:
+                    cbar.ax.set_xticklabels(cbar_tick_labels_list)
     elif (RUN_type == 'gdas' and stat == 'rmse'):
         subplot01_pos = ax_model1.get_position()
         cbar01_left = subplot01_pos.x1 + 0.01
@@ -739,6 +774,15 @@ for stat in plot_stats_list:
             cbar01.ax.yaxis.set_tick_params(pad=0)
             cbar01.ax.set_ylabel('RMSE', labelpad = 5)
             cbar01.ax.yaxis.set_tick_params(pad=0)
+            cbar01_tick_labels_list = []
+            for tick in cbar01.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar01_tick_labels_list.append(str(int(tick)))
+                else:
+                    cbar01_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            cbar01.ax.set_yticklabels(cbar01_tick_labels_list)
         if len(list(subplot_CF_dict.keys())) > 2:
             cbar_subplot = None
             for subplot_loc in list(subplot_CF_dict.keys()):
@@ -783,6 +827,20 @@ for stat in plot_stats_list:
                 else:
                     cbar.ax.set_xlabel('Difference', labelpad = 0)
                     cbar.ax.xaxis.set_tick_params(pad=0)
+                cbar_tick_labels_list = []
+                for tick in cbar.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar_tick_labels_list.append(
+                            str(int(tick))
+                        )
+                    else:
+                        cbar_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                if nsubplots == 3:
+                    cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                else:
+                    cbar.ax.set_xticklabels(cbar_tick_labels_list)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 RUN_type+'_'+stat+'_'+var_group

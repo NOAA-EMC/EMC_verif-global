@@ -229,7 +229,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
         else:
             levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
-    if not all(i < j for i, j in zip(plot_levels, plot_levels[1:])):
+    if not np.all(np.diff(plot_levels) > 0):
         plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)

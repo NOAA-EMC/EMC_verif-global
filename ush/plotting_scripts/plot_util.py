@@ -359,11 +359,11 @@ def get_clevels(data, spacing):
        cmax = np.nanmax(data)
        cmin = -1 * np.nanmax(data)
     if cmax > 100:
+        cmax = cmax - (cmax * 0.2)
+        cmin = cmin + (cmin * 0.2)
+    elif cmax > 10:
         cmax = cmax - (cmax * 0.1)
         cmin = cmin + (cmin * 0.1)
-    elif cmax > 10:
-        cmax = cmax - (cmax * 0.01)
-        cmin = cmin + (cmin * 0.01)
     if cmax > 1:
        cmin = round(cmin-1,0)
        cmax = round(cmax+1,0)

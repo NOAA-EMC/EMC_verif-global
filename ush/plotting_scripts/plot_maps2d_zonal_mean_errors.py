@@ -33,7 +33,13 @@ plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 title_loc = 'center'
-cmap_diff = plt.cm.bwr
+cmap_diff_original = plt.cm.bwr
+colors_diff = cmap_diff_original(
+    np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+)
+cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_diff', colors_diff
+)
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -191,9 +197,22 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
             )
-            C_tmp_labels = ax_tmp.clabel(
-                C_tmp, C_tmp.levels, fmt='%g', colors='k'
-            )
+            C_tmp_labels_list = []
+            for level in C_tmp.levels:
+                if str(level).split('.')[1] == '0':
+                    C_tmp_labels_list.append(str(int(level)))
+                else:
+                    C_tmp_labels_list.append(
+                        str(round(level,3)).rstrip('0')
+                    )
+            fmt = {}
+            for lev, label in zip(C_tmp.levels, C_tmp_labels_list):
+                fmt[lev] = label
+            ax_tmp.clabel(C_tmp, C_tmp.levels,
+                         fmt=fmt,
+                         inline=True,
+                         fontsize=12.5,
+                         color='k')
     else:
         CF_tmp = None
     return CF_tmp
@@ -573,6 +592,18 @@ if len(list(subplot_CF_dict.keys())) > 1:
         else:
             cbar.ax.set_xlabel('Difference', labelpad = 0)
             cbar.ax.xaxis.set_tick_params(pad=0)
+        cbar_tick_labels_list = []
+        for tick in cbar.get_ticks():
+            if str(tick).split('.')[1] == '0':
+                cbar_tick_labels_list.append(str(int(tick)))
+            else:
+                cbar_tick_labels_list.append(
+                    str(round(tick,3)).rstrip('0')
+                )
+        if nsubplots == 2:
+            cbar.ax.set_yticklabels(cbar_tick_labels_list)
+        else:
+            cbar.ax.set_xticklabels(cbar_tick_labels_list)
 # Build savefig name
 savefig_name = os.path.join(plotting_out_dir_imgs,
                             RUN_type+'_'+var_group

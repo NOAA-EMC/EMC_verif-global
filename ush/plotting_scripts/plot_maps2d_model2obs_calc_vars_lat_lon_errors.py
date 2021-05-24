@@ -37,7 +37,13 @@ plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 title_loc = 'center'
-cmap_diff = plt.cm.bwr
+cmap_diff_original = plt.cm.bwr
+colors_diff = cmap_diff_original(
+    np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+)
+cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_diff', colors_diff
+)
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -697,6 +703,15 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         cax00.yaxis.set_label_position('left')
         cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
         cbar00.ax.yaxis.set_tick_params(pad=0)
+        cbar00_tick_labels_list = []
+        for tick in cbar00.get_ticks():
+            if str(tick).split('.')[1] == '0':
+                cbar00_tick_labels_list.append(str(int(tick)))
+            else:
+                cbar00_tick_labels_list.append(
+                    str(round(tick,3)).rstrip('0')
+                )
+        cbar00.ax.set_yticklabels(cbar00_tick_labels_list)
     if len(list(subplot_CF_dict.keys())) > 1:
         cbar_subplot = None
         for subplot_loc in list(subplot_CF_dict.keys()):
@@ -738,6 +753,18 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             else:
                 cbar.ax.set_xlabel('Difference', labelpad = 0)
                 cbar.ax.xaxis.set_tick_params(pad=0)
+            cbar_tick_labels_list = []
+            for tick in cbar.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar_tick_labels_list.append(str(int(tick)))
+                else:
+                    cbar_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            if nsubplots == 2:
+                cbar.ax.set_yticklabels(cbar_tick_labels_list)
+            else:
+                cbar.ax.set_xticklabels(cbar_tick_labels_list)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 RUN_type+'_'+var_group

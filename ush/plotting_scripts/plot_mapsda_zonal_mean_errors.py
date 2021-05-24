@@ -830,9 +830,7 @@ for stat in plot_stats_list:
                 cbar_tick_labels_list = []
                 for tick in cbar.get_ticks():
                     if str(tick).split('.')[1] == '0':
-                        cbar_tick_labels_list.append(
-                            str(int(tick))
-                        )
+                        cbar_tick_labels_list.append(str(int(tick)))
                     else:
                         cbar_tick_labels_list.append(
                             str(round(tick,3)).rstrip('0')

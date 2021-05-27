@@ -29,8 +29,8 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
@@ -152,7 +152,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Latitude')
+        ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -290,13 +290,23 @@ while hr <= int(hour_end)*3600:
     hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 if RUN_type == 'gdas':
-    forecast_to_plot_title = (
-        'First Guess Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot[3:]
+        )
+    else:
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot
+        )
 elif RUN_type == 'ens':
-    forecast_to_plot_title = (
-        'Forecast Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot[3:]
+        )
+    else:
+         forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot
+        )
 else:
     forecast_to_plot_title = forecast_to_plot
 START_DATE_dt = datetime.datetime.strptime(START_DATE, '%Y%m%d')
@@ -367,10 +377,12 @@ for stat in plot_stats_list:
                 if RUN_type == 'ens':
                     nsubplots = nmodels
                     get_diff_levels = True
+                    get_levels = True
                 else:
                     nsubplots = nmodels + 1
                     get_inc_levels = True
                     get_diff_levels = True
+                    get_levels = True
                 if nsubplots == 1:
                     x_figsize, y_figsize = 14, 7
                     row, col = 1, 1
@@ -392,7 +404,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.06
                     cbar_height = 0.02
                 elif nsubplots > 2 and nsubplots <= 4:
@@ -404,7 +416,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 4 and nsubplots <= 6:
@@ -416,7 +428,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 6 and nsubplots <= 8:
@@ -428,7 +440,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 8 and nsubplots <= 10:
@@ -440,7 +452,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 else:
@@ -596,6 +608,15 @@ for stat in plot_stats_list:
                         ax_cntrl_plot_data = model_data_series_cnt_OBAR
                         ax_cntrl_plot_data_lat = model_data_lat
                         ax_cntrl_plot_data_lon = model_data_lon
+                        if get_levels:
+                            if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                            '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                                levels = plot_util.get_clevels(
+                                    ax_cntrl_plot_data, 1.25
+                                 )
+                            else:
+                                levels = np.nan
+                            get_levels = False
                         ax_cntrl_plot_levels = levels
                         ax_cntrl_plot_cmap = cmap
                         CF_ax_cntrl = plot_subplot_data(
@@ -640,7 +661,16 @@ for stat in plot_stats_list:
                         print("Plotting "+model+" ensemble "+stat)
                         if stat == 'mean':
                             cmap_plot = cmap
-                            levels_plot = levels
+                            if get_levels:
+                                if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                                '4LFTX', 'UFLX', 'VFLX',
+                                                'GFLX']:
+                                    levels_plot = plot_util.get_clevels(
+                                        stat_data, 1.25
+                                    )
+                                else:
+                                    levels_plot = np.nan
+                            get_levels = False
                         elif stat == 'spread':
                             cmap_plot = plt.cm.afmhot_r
                             levels_plot = np.nan
@@ -701,7 +731,7 @@ for stat in plot_stats_list:
                                   ticks = subplot_CF_dict['0,0'].levels)
             cax00.yaxis.set_ticks_position('left')
             cax00.yaxis.set_label_position('left')
-            cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
+            cbar00.ax.set_ylabel(cbar00_title, labelpad = 2)
             cbar00.ax.yaxis.set_tick_params(pad=0)
             cbar00_tick_labels_list = []
             for tick in cbar00.get_ticks():
@@ -729,7 +759,7 @@ for stat in plot_stats_list:
                 if cbar_subplot != None:
                     if nsubplots == 2:
                         subplot_pos = ax.get_position()
-                        cbar_left = subplot_pos.x1 + 0.01
+                        cbar_left = subplot_pos.x1 + 0.005
                         cbar_bottom = subplot_pos.y0
                         cbar_width = cbar00_width
                         cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -755,7 +785,7 @@ for stat in plot_stats_list:
                                         ticks = subplot_CF_dict \
                                             [cbar_subplot_loc].levels)
                     if nsubplots == 2:
-                        cbar.ax.set_ylabel(cbar_title, labelpad = 5)
+                        cbar.ax.set_ylabel(cbar_title, labelpad = 2)
                         cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel(cbar_title, labelpad = 0)
@@ -774,7 +804,7 @@ for stat in plot_stats_list:
                         cbar.ax.set_xticklabels(cbar_tick_labels_list)
         elif (RUN_type == 'gdas' and stat == 'rmse'):
             subplot01_pos = ax_model1.get_position()
-            cbar01_left = subplot01_pos.x1 + 0.01
+            cbar01_left = subplot01_pos.x1 + 0.005
             cbar01_bottom = subplot01_pos.y0
             cbar01_width = cbar00_width
             cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
@@ -788,7 +818,7 @@ for stat in plot_stats_list:
                                       orientation = 'vertical',
                                       ticks = subplot_CF_dict['0,1'].levels)
                 cbar01.ax.yaxis.set_tick_params(pad=0)
-                cbar01.ax.set_ylabel('RMSE', labelpad = 5)
+                cbar01.ax.set_ylabel('RMSE', labelpad = 2)
                 cbar01.ax.yaxis.set_tick_params(pad=0)
                 cbar01_tick_labels_list = []
                 for tick in cbar01.get_ticks():
@@ -838,7 +868,7 @@ for stat in plot_stats_list:
                     if nsubplots == 3:
                         cax.yaxis.set_ticks_position('left')
                         cax.yaxis.set_label_position('left')
-                        cbar.ax.set_ylabel('Difference', labelpad = 5)
+                        cbar.ax.set_ylabel('Difference', labelpad = 2)
                         cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel('Difference', labelpad = 0)

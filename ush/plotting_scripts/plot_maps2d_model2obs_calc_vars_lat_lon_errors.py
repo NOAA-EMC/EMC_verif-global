@@ -4,6 +4,7 @@ import os
 import numpy as np
 import netCDF4 as netcdf
 import re
+import plot_util as plot_util
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
@@ -29,8 +30,8 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
@@ -160,7 +161,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Latitude')
+        ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -311,6 +312,8 @@ var_info_forcast_to_plot_list = itertools.product(
     ['SWABSORB_atm', 'LWEMIT_atm', 'SWALBDO_sfc'], forecast_to_plot_list
 )
 for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
+    get_levels = True
+    get_diff_levels = True
     var_name = var_info_forcast_to_plot[0].split('_')[0]
     var_level = var_info_forcast_to_plot[0].split('_')[1]
     forecast_to_plot = var_info_forcast_to_plot[1]
@@ -341,10 +344,10 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         var_scale = 1
         cbar00_title = 'Atmospheric Absorbed Shortwave'
         files_needed_list = [
-           forecast_to_plot+'_DSWRF_toa_obsonly.nc',
-           forecast_to_plot+'_DSWRF_sfc.nc',
-           forecast_to_plot+'_USWRF_toa.nc',
-           forecast_to_plot+'_USWRF_sfc.nc',
+           forecast_to_plot+'_DSWRF_toa_avg6hr_obsonly.nc',
+           forecast_to_plot+'_DSWRF_sfc_avg6hr.nc',
+           forecast_to_plot+'_USWRF_toa_avg6hr.nc',
+           forecast_to_plot+'_USWRF_sfc_avg6hr.nc',
         ]
     elif var_name == 'LWEMIT': #longwave emitted
         var_info_title = (
@@ -356,9 +359,9 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         var_scale = 1
         cbar00_title = 'Atmospheric Emitted Longwave'
         files_needed_list = [
-           forecast_to_plot+'_DLWRF_sfc.nc',
-           forecast_to_plot+'_ULWRF_toa.nc',
-           forecast_to_plot+'_ULWRF_sfc.nc',
+           forecast_to_plot+'_DLWRF_sfc_avg6hr.nc',
+           forecast_to_plot+'_ULWRF_toa_avg6hr.nc',
+           forecast_to_plot+'_ULWRF_sfc_avg6hr.nc',
         ]
     elif var_name == 'SWALBDO': #shortwave surface albedo
         var_info_title = 'Shortwave Surface Albedo (fraction)'
@@ -370,8 +373,8 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         var_scale = 1
         cbar00_title = 'Albedo'
         files_needed_list = [
-           forecast_to_plot+'_DSWRF_sfc.nc',
-           forecast_to_plot+'_USWRF_sfc.nc',
+           forecast_to_plot+'_DSWRF_sfc_avg6hr.nc',
+           forecast_to_plot+'_USWRF_sfc_avg6hr.nc',
         ]
     subplot_CF_dict = {}
     for model in model_list:
@@ -408,7 +411,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.06
                 cbar_height = 0.02
             elif nsubplots > 2 and nsubplots <= 4:
@@ -420,7 +423,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 4 and nsubplots <= 6:
@@ -432,7 +435,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 6 and nsubplots <= 8:
@@ -444,7 +447,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 8 and nsubplots <= 10:
@@ -456,7 +459,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             else:
@@ -517,7 +520,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             if var_name == 'SWABSORB': #shortwave absorption
                 DSWRF_toa_obsonly_file  = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_DSWRF_toa_obsonly.nc'
+                    forecast_to_plot+'_DSWRF_toa_avg6hr_obsonly.nc'
                 )
                 (DSWRF_toa_obsonly_data_series_cnt_FBAR,
                  DSWRF_toa_obsonly_data_series_cnt_OBAR,
@@ -527,7 +530,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 DSWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_DSWRF_sfc.nc'
+                    forecast_to_plot+'_DSWRF_sfc_avg6hr.nc'
                 )
                 (DSWRF_sfc_data_series_cnt_FBAR,
                  DSWRF_sfc_data_series_cnt_OBAR,
@@ -536,7 +539,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 USWRF_toa_file  = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_USWRF_toa.nc'
+                    forecast_to_plot+'_USWRF_toa_avg6hr.nc'
                 )
                 (USWRF_toa_data_series_cnt_FBAR,
                  USWRF_toa_data_series_cnt_OBAR,
@@ -545,7 +548,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 USWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_USWRF_sfc.nc'
+                    forecast_to_plot+'_USWRF_sfc_avg6hr.nc'
                 )
                 (USWRF_sfc_data_series_cnt_FBAR,
                  USWRF_sfc_data_series_cnt_OBAR,
@@ -569,7 +572,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             elif var_name == 'LWEMIT': #longwave emitted
                 DLWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_DLWRF_sfc.nc'
+                    forecast_to_plot+'_DLWRF_sfc_avg6hr.nc'
                 )
                 (DLWRF_sfc_data_series_cnt_FBAR,
                  DLWRF_sfc_data_series_cnt_OBAR,
@@ -578,7 +581,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 ULWRF_toa_file  = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_ULWRF_toa.nc'
+                    forecast_to_plot+'_ULWRF_toa_avg6hr.nc'
                 )
                 (ULWRF_toa_data_series_cnt_FBAR,
                  ULWRF_toa_data_series_cnt_OBAR,
@@ -587,7 +590,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 ULWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_ULWRF_sfc.nc'
+                    forecast_to_plot+'_ULWRF_sfc_avg6hr.nc'
                 )
                 (ULWRF_sfc_data_series_cnt_FBAR,
                  ULWRF_sfc_data_series_cnt_OBAR,
@@ -609,7 +612,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             elif var_name == 'SWALBDO': #shortwave surface albedo
                 DSWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_DSWRF_sfc.nc'
+                    forecast_to_plot+'_DSWRF_sfc_avg6hr.nc'
                 )
                 (DSWRF_sfc_data_series_cnt_FBAR,
                  DSWRF_sfc_data_series_cnt_OBAR,
@@ -618,7 +621,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 )
                 USWRF_sfc_file = os.path.join(
                     series_analysis_file_dir, model,
-                    forecast_to_plot+'_USWRF_sfc.nc'
+                    forecast_to_plot+'_USWRF_sfc_avg6hr.nc'
                 )
                 (USWRF_sfc_data_series_cnt_FBAR,
                  USWRF_sfc_data_series_cnt_OBAR,
@@ -641,6 +644,13 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                 ax_obs_plot_data = obs_calc_var
                 ax_obs_plot_data_lat = model_data_lat
                 ax_obs_plot_data_lon = model_data_lon
+                if get_levels:
+                    if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                    '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                        levels = plot_util.get_clevels(ax_obs_plot_data, 1.25)
+                    else:
+                        levels = np.nan
+                    get_levels = False
                 ax_obs_plot_levels = levels
                 ax_obs_plot_cmap = cmap
                 CF_ax_obs = plot_subplot_data(
@@ -658,6 +668,9 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
             )
             ax_plot_data_lat = model_data_lat
             ax_plot_data_lon = model_data_lon
+            if get_diff_levels:
+                levels_diff = plot_util.get_clevels(ax_plot_data, 1.25)
+                get_diff_levels = False
             ax_plot_levels = levels_diff
             ax_plot_cmap = cmap_diff
             CF_ax = plot_subplot_data(
@@ -703,7 +716,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                               ticks = subplot_CF_dict['0,0'].levels)
         cax00.yaxis.set_ticks_position('left')
         cax00.yaxis.set_label_position('left')
-        cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
+        cbar00.ax.set_ylabel(cbar00_title, labelpad = 2)
         cbar00.ax.yaxis.set_tick_params(pad=0)
         cbar00_tick_labels_list = []
         for tick in cbar00.get_ticks():
@@ -724,7 +737,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         if cbar_subplot != None:
             if nsubplots == 2:
                 subplot_pos = ax.get_position()
-                cbar_left = subplot_pos.x1 + 0.01
+                cbar_left = subplot_pos.x1 + 0.005
                 cbar_bottom = subplot_pos.y0
                 cbar_width = cbar00_width
                 cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -750,7 +763,7 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
                                 ticks = subplot_CF_dict[cbar_subplot_loc] \
                                     .levels)
             if nsubplots == 2:
-                cbar.ax.set_ylabel('Difference', labelpad = 5)
+                cbar.ax.set_ylabel('Difference', labelpad = 2)
                 cbar.ax.yaxis.set_tick_params(pad=0)
             else:
                 cbar.ax.set_xlabel('Difference', labelpad = 0)

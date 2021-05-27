@@ -4,6 +4,7 @@ import os
 import numpy as np
 import netCDF4 as netcdf
 import re
+import plot_util as plot_util
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
@@ -28,8 +29,8 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
@@ -157,7 +158,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Latitude')
+        ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -340,6 +341,8 @@ for var_level in var_levels:
     )
     model_num = 0
     subplot_CF_dict = {}
+    get_levels = True
+    get_diff_levels = True
     print("Working on lat-lon error plots for "+var_name+" "+var_level)
     for env_var_model in env_var_model_list:
         model_num+=1
@@ -382,7 +385,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.06
                 cbar_height = 0.02
             elif nsubplots > 2 and nsubplots <= 4:
@@ -394,7 +397,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 4 and nsubplots <= 6:
@@ -406,7 +409,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 6 and nsubplots <= 8:
@@ -418,7 +421,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             elif nsubplots > 8 and nsubplots <= 10:
@@ -430,7 +433,7 @@ for var_level in var_levels:
                 noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                 nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                 cbar00_width = 0.01
-                cbar00_left_adjust = 0.09
+                cbar00_left_adjust = 0.075
                 cbar_bottom = 0.03
                 cbar_height = 0.02
             else:
@@ -522,6 +525,14 @@ for var_level in var_levels:
                     ax_obs_plot_data = model_data_series_cnt_OBAR
                     ax_obs_plot_data_lat = model_data_lat
                     ax_obs_plot_data_lon = model_data_lon
+                    if get_levels:
+                        if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                        '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                            levels = plot_util.get_clevels(ax_obs_plot_data,
+                                                           1.25)
+                        else:
+                            levels = np.nan
+                        get_levels = False
                     ax_obs_plot_levels = levels
                     ax_obs_plot_cmap = cmap
                     CF_ax_obs = plot_subplot_data(
@@ -539,6 +550,9 @@ for var_level in var_levels:
                  )
                 ax_plot_data_lat = model_data_lat
                 ax_plot_data_lon = model_data_lon
+                if get_diff_levels:
+                    levels_diff = plot_util.get_clevels(ax_plot_data, 1.25)
+                    get_diff_levels = False
                 ax_plot_levels = levels_diff
                 ax_plot_cmap = cmap_diff
                 CF_ax = plot_subplot_data(
@@ -552,6 +566,13 @@ for var_level in var_levels:
                 if model_num == 1:
                     print("Plotting "+model)
                     ax_plot_data = model_data_series_cnt_FBAR
+                    if get_levels:
+                        if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                        '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                            levels = plot_util.get_clevels(ax_plot_data, 1.25)
+                        else:
+                            levels = np.nan
+                        get_levels = False
                     ax_plot_levels = levels
                     ax_plot_cmap = cmap
                     model1_data_series_cnt_FBAR = model_data_series_cnt_FBAR
@@ -569,6 +590,9 @@ for var_level in var_levels:
                             model_data_series_cnt_FBAR
                             - model1_data_series_cnt_FBAR
                         )
+                    if get_diff_levels:
+                        levels_diff = plot_util.get_clevels(ax_plot_data, 1.25)
+                        get_diff_levels = False
                     ax_plot_levels = levels_diff
                     ax_plot_cmap = cmap_diff
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
@@ -583,13 +607,18 @@ for var_level in var_levels:
                 subplot_CF_dict[ax_subplot_loc] = CF_ax
                 if forecast_anl_diff == 'YES':
                     print("Plotting "+model+" - "+model_obtype)
-                    ax_anl_subplot_loc = str(ax_anl.rowNum)+','+str(ax_anl.colNum)
+                    ax_anl_subplot_loc = (str(ax_anl.rowNum)+','
+                                          +str(ax_anl.colNum))
                     ax_anl_plot_data = (
                         model_data_series_cnt_FBAR
                         - model_data_series_cnt_OBAR
                     )
                     ax_anl_plot_data_lat = model_data_lat
                     ax_anl_plot_data_lon = model_data_lon
+                    if get_diff_levels:
+                        levels_diff = plot_util.get_clevels(ax_anl_plot_data,
+                                                            1.25)
+                        get_diff_levels = False
                     ax_anl_plot_levels = levels_diff
                     ax_anl_plot_cmap = cmap_diff
                     CF_ax_anl = plot_subplot_data(
@@ -638,7 +667,7 @@ for var_level in var_levels:
                               ticks = subplot_CF_dict['0,0'].levels)
         cax00.yaxis.set_ticks_position('left')
         cax00.yaxis.set_label_position('left')
-        cbar00.ax.set_ylabel(cbar00_title, labelpad=5)
+        cbar00.ax.set_ylabel(cbar00_title, labelpad=2)
         cbar00.ax.yaxis.set_tick_params(pad=0)
         cbar00_tick_labels_list = []
         for tick in cbar00.get_ticks():
@@ -659,7 +688,7 @@ for var_level in var_levels:
         if cbar_subplot != None:
             if nsubplots == 2:
                 subplot_pos = ax.get_position()
-                cbar_left = subplot_pos.x1 + 0.01
+                cbar_left = subplot_pos.x1 + 0.005
                 cbar_bottom = subplot_pos.y0
                 cbar_width = cbar00_width
                 cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -685,7 +714,7 @@ for var_level in var_levels:
                                 ticks = subplot_CF_dict[cbar_subplot_loc] \
                                     .levels)
             if nsubplots == 2:
-                cbar.ax.set_ylabel('Difference', labelpad = 5)
+                cbar.ax.set_ylabel('Difference', labelpad = 2)
                 cbar.ax.yaxis.set_tick_params(pad=0)
             else:
                 cbar.ax.set_xlabel('Difference', labelpad = 0)

@@ -309,13 +309,14 @@ if not os.path.exists(plotting_out_dir_imgs):
 
 # Loop of variables levels to create lat-lon plots
 var_info_forcast_to_plot_list = itertools.product(
-    ['SWABSORB_atm', 'LWEMIT_atm', 'SWALBDO_sfc'], forecast_to_plot_list
+    ['SWABSORB_atm_avg6hr', 'LWEMIT_atm_avg6hr', 'SWALBDO_sfc_avg6hr'],
+    forecast_to_plot_list
 )
 for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
     get_levels = True
     get_diff_levels = True
-    var_name = var_info_forcast_to_plot[0].split('_')[0]
-    var_level = var_info_forcast_to_plot[0].split('_')[1]
+    var_name = var_info_forcast_to_plot[0].partition('_')[0]
+    var_level = var_info_forcast_to_plot[0].partition('_')[2]
     forecast_to_plot = var_info_forcast_to_plot[1]
     print("Working on lat-lon error plots for "+var_name+" "+var_level
           +" "+forecast_to_plot)

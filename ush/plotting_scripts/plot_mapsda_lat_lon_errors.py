@@ -29,15 +29,21 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 title_loc = 'center'
-cmap_diff = plt.cm.bwr
+cmap_diff_original = plt.cm.bwr
+colors_diff = cmap_diff_original(
+    np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+)
+cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_diff', colors_diff
+)
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -146,7 +152,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Latitude')
+        ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -223,7 +229,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
         else:
             levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
-    if not all(i < j for i, j in zip(plot_levels, plot_levels[1:])):
+    if not np.all(np.diff(plot_levels) > 0):
         plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lon_cyc, plot_data_lat)
@@ -284,13 +290,23 @@ while hr <= int(hour_end)*3600:
     hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 if RUN_type == 'gdas':
-    forecast_to_plot_title = (
-        'First Guess Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot[3:]
+        )
+    else:
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot
+        )
 elif RUN_type == 'ens':
-    forecast_to_plot_title = (
-        'Forecast Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot[3:]
+        )
+    else:
+         forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot
+        )
 else:
     forecast_to_plot_title = forecast_to_plot
 START_DATE_dt = datetime.datetime.strptime(START_DATE, '%Y%m%d')
@@ -313,16 +329,6 @@ plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
-
-# Sigma pressure levels for 64 levels
-# taken from VSDB plot2d/maps2d_ensspread.sh
-levsn64p = np.array(
-    [1000, 994, 988, 981, 974, 965, 955, 944, 932, 919, 903,
-     887, 868, 848, 826, 803, 777, 750, 721, 690, 658, 624,
-     590, 555, 520, 484, 449, 415, 381, 349, 317, 288, 260, 234, 209,
-     187, 166, 148, 130, 115, 101, 88, 77, 67, 58, 50, 43, 37, 31,
-     26, 22, 18, 15, 12, 10, 7.7, 5.8, 4.2, 2.9, 1.9, 1.1, 0.7, 0.3, 0.1]
-)
 
 # Loop of variables levels to create
 # indivdual level lat-lon plots
@@ -371,10 +377,12 @@ for stat in plot_stats_list:
                 if RUN_type == 'ens':
                     nsubplots = nmodels
                     get_diff_levels = True
+                    get_levels = True
                 else:
                     nsubplots = nmodels + 1
                     get_inc_levels = True
                     get_diff_levels = True
+                    get_levels = True
                 if nsubplots == 1:
                     x_figsize, y_figsize = 14, 7
                     row, col = 1, 1
@@ -396,7 +404,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.06
                     cbar_height = 0.02
                 elif nsubplots > 2 and nsubplots <= 4:
@@ -408,7 +416,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 4 and nsubplots <= 6:
@@ -420,7 +428,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 6 and nsubplots <= 8:
@@ -432,7 +440,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 elif nsubplots > 8 and nsubplots <= 10:
@@ -444,7 +452,7 @@ for stat in plot_stats_list:
                     noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
                     nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
                     cbar00_width = 0.01
-                    cbar00_left_adjust = 0.09
+                    cbar00_left_adjust = 0.075
                     cbar_bottom = 0.03
                     cbar_height = 0.02
                 else:
@@ -549,16 +557,8 @@ for stat in plot_stats_list:
                 elif RUN_type == 'ens':
                     print(input_file+" exists")
                     model_data = netcdf.Dataset(input_file)
-                    if 'lev' in list(model_data.variables.keys()):
-                        nlev = 64
-                    elif 'pfull' in list(model_data.variables.keys()):
-                        nlev = 128
                     if var_name != 'PRES':
-                        # Get closest matching sigma level pressure
-                        if nlev == 64:
-                            model_levels = levsn64p
-                        elif nlev == 128:
-                            model_levels = model_data.variables['pfull'][:]
+                        model_levels = model_data.variables['pfull'][:]
                         var_level_float = float(var_level.replace('hPa', ''))
                         model_levels_var_level_diff = np.abs(
                             model_levels - var_level_float
@@ -571,56 +571,18 @@ for stat in plot_stats_list:
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
                     # Get index data
-                    if nlev == 64:
-                       model_data_lat = model_data.variables['lat'][:]
-                       model_data_lon = model_data.variables['lon'][:]
-                       if var_name == 'TMP':
-                           model_data_var = (
-                               model_data.variables['t']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'UGRD':
-                           model_data_var = (
-                               model_data.variables['u']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'VGRD':
-                           model_data_var = (
-                               model_data.variables['v']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'SPFH':
-                           model_data_var = (
-                               model_data.variables['q']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'CLWMR':
-                           model_data_var = (
-                               model_data.variables['cw']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'O3MR':
-                           model_data_var = (
-                               model_data.variables['oz']\
-                               [model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       elif var_name == 'PRES':
-                           model_data_var = model_data.variables['ps'][:]
-                    elif nlev == 128:
-                       model_data_lat = np.flipud(
-                           model_data.variables['grid_yt'][:]
-                       )
-                       model_data_lon = model_data.variables['grid_xt'][:]
-                       if var_name == 'PRES':
-                           model_data_var = (
-                               model_data.variables['pressfc'][0,:,:]
-                           )
-                       else:
-                           model_data_var = (
-                               model_data.variables[var_name.lower()]\
-                               [0,model_levels_var_level_diff_min_idx,:,:]
-                           )
-                       model_data_var = np.flipud(model_data_var)
+                    model_data_lat = np.flipud(
+                        model_data.variables['grid_yt'][:]
+                    )
+                    model_data_lon = model_data.variables['grid_xt'][:]
+                    if var_name == 'PRES':
+                        model_data_var = model_data.variables['pressfc'][0,:,:]
+                    else:
+                        model_data_var = (
+                            model_data.variables[var_name.lower()]\
+                            [0,model_levels_var_level_diff_min_idx,:,:]
+                        )
+                        model_data_var = np.flipud(model_data_var)
                     if np.ma.is_masked(model_data_var):
                         np.ma.set_fill_value(model_data_var, np.nan)
                         model_data_var = (
@@ -646,6 +608,15 @@ for stat in plot_stats_list:
                         ax_cntrl_plot_data = model_data_series_cnt_OBAR
                         ax_cntrl_plot_data_lat = model_data_lat
                         ax_cntrl_plot_data_lon = model_data_lon
+                        if get_levels:
+                            if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                            '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                                levels = plot_util.get_clevels(
+                                    ax_cntrl_plot_data, 1.25
+                                 )
+                            else:
+                                levels = np.nan
+                            get_levels = False
                         ax_cntrl_plot_levels = levels
                         ax_cntrl_plot_cmap = cmap
                         CF_ax_cntrl = plot_subplot_data(
@@ -659,8 +630,18 @@ for stat in plot_stats_list:
                     if stat == 'inc':
                         print("Plotting "+model+" increments")
                         if get_inc_levels:
-                            levels_plot = plot_util.get_clevels(stat_data)
-                            cmap_plot = plt.cm.PiYG_r
+                            levels_plot = plot_util.get_clevels(stat_data,
+                                                                1.25)
+                            cmap_plot_original = plt.cm.PiYG_r
+                            colors_plot = cmap_plot_original(
+                                np.append(np.linspace(0,0.3,10),
+                                          np.linspace(0.7,1,10))
+                            )
+                            cmap_plot = (
+                                matplotlib.colors.\
+                                LinearSegmentedColormap.from_list('cmap_plot',
+                                                                  colors_plot)
+                            )
                             get_inc_levels = False
                     elif stat == 'rmse':
                         if model_num == 1:
@@ -671,21 +652,33 @@ for stat in plot_stats_list:
                             print("Plotting "+model+" - "+model1+" "
                                   +"increment RMSE")
                             if get_diff_levels:
-                                levels_plot = plot_util.get_clevels(stat_data)
+                                levels_plot = plot_util.get_clevels(stat_data,
+                                                                    1.25)
                                 cmap_plot = cmap_diff
                                 get_diff_levels = False
                 elif RUN_type == 'ens':
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
-                        levels_plot = np.nan
                         if stat == 'mean':
                             cmap_plot = cmap
+                            if get_levels:
+                                if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                                '4LFTX', 'UFLX', 'VFLX',
+                                                'GFLX']:
+                                    levels_plot = plot_util.get_clevels(
+                                        stat_data, 1.25
+                                    )
+                                else:
+                                    levels_plot = np.nan
+                            get_levels = False
                         elif stat == 'spread':
                             cmap_plot = plt.cm.afmhot_r
+                            levels_plot = np.nan
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
                         if get_diff_levels:
-                            levels_plot = plot_util.get_clevels(stat_data)
+                            levels_plot = plot_util.get_clevels(stat_data,
+                                                                1.25)
                             cmap_plot = cmap_diff
                             get_diff_levels = False
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
@@ -738,8 +731,17 @@ for stat in plot_stats_list:
                                   ticks = subplot_CF_dict['0,0'].levels)
             cax00.yaxis.set_ticks_position('left')
             cax00.yaxis.set_label_position('left')
-            cbar00.ax.set_ylabel(cbar00_title, labelpad = 5)
+            cbar00.ax.set_ylabel(cbar00_title, labelpad = 2)
             cbar00.ax.yaxis.set_tick_params(pad=0)
+            cbar00_tick_labels_list = []
+            for tick in cbar00.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar00_tick_labels_list.append(str(int(tick)))
+                else:
+                    cbar00_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            cbar00.ax.set_yticklabels(cbar00_tick_labels_list)
         if RUN_type == 'ens' or \
                 (RUN_type == 'gdas' and stat == 'inc'):
             if RUN_type == 'ens':
@@ -757,7 +759,7 @@ for stat in plot_stats_list:
                 if cbar_subplot != None:
                     if nsubplots == 2:
                         subplot_pos = ax.get_position()
-                        cbar_left = subplot_pos.x1 + 0.01
+                        cbar_left = subplot_pos.x1 + 0.005
                         cbar_bottom = subplot_pos.y0
                         cbar_width = cbar00_width
                         cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -783,14 +785,26 @@ for stat in plot_stats_list:
                                         ticks = subplot_CF_dict \
                                             [cbar_subplot_loc].levels)
                     if nsubplots == 2:
-                        cbar.ax.set_ylabel(cbar_title, labelpad = 5)
+                        cbar.ax.set_ylabel(cbar_title, labelpad = 2)
                         cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                         cbar.ax.xaxis.set_tick_params(pad=0)
+                    cbar_tick_labels_list = []
+                    for tick in cbar.get_ticks():
+                        if str(tick).split('.')[1] == '0':
+                            cbar_tick_labels_list.append(str(int(tick)))
+                        else:
+                            cbar_tick_labels_list.append(
+                                str(round(tick,3)).rstrip('0')
+                            )
+                    if nsubplots == 2:
+                        cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                    else:
+                        cbar.ax.set_xticklabels(cbar_tick_labels_list)
         elif (RUN_type == 'gdas' and stat == 'rmse'):
             subplot01_pos = ax_model1.get_position()
-            cbar01_left = subplot01_pos.x1 + 0.01
+            cbar01_left = subplot01_pos.x1 + 0.005
             cbar01_bottom = subplot01_pos.y0
             cbar01_width = cbar00_width
             cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
@@ -804,8 +818,17 @@ for stat in plot_stats_list:
                                       orientation = 'vertical',
                                       ticks = subplot_CF_dict['0,1'].levels)
                 cbar01.ax.yaxis.set_tick_params(pad=0)
-                cbar01.ax.set_ylabel('RMSE', labelpad = 5)
+                cbar01.ax.set_ylabel('RMSE', labelpad = 2)
                 cbar01.ax.yaxis.set_tick_params(pad=0)
+                cbar01_tick_labels_list = []
+                for tick in cbar01.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar01_tick_labels_list.append(str(int(tick)))
+                    else:
+                        cbar01_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                cbar01.ax.set_yticklabels(cbar01_tick_labels_list)
             if len(list(subplot_CF_dict.keys())) > 2:
                 cbar_subplot = None
                 for subplot_loc in list(subplot_CF_dict.keys()):
@@ -845,11 +868,23 @@ for stat in plot_stats_list:
                     if nsubplots == 3:
                         cax.yaxis.set_ticks_position('left')
                         cax.yaxis.set_label_position('left')
-                        cbar.ax.set_ylabel('Difference', labelpad = 5)
+                        cbar.ax.set_ylabel('Difference', labelpad = 2)
                         cbar.ax.yaxis.set_tick_params(pad=0)
                     else:
                         cbar.ax.set_xlabel('Difference', labelpad = 0)
                         cbar.ax.xaxis.set_tick_params(pad=0)
+                    cbar_tick_labels_list = []
+                    for tick in cbar.get_ticks():
+                        if str(tick).split('.')[1] == '0':
+                            cbar_tick_labels_list.append(str(int(tick)))
+                        else:
+                            cbar_tick_labels_list.append(
+                                str(round(tick,3)).rstrip('0')
+                            )
+                    if nsubplots == 3:
+                        cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                    else:
+                        cbar.ax.set_xticklabels(cbar_tick_labels_list)
         # Build savefig name
         savefig_name = os.path.join(plotting_out_dir_imgs,
                                     RUN_type+'_'+stat+'_'+var_group

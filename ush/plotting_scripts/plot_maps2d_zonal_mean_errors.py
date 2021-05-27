@@ -4,6 +4,7 @@ import os
 import numpy as np
 import netCDF4 as netcdf
 import re
+import plot_util as plot_util
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
@@ -25,15 +26,21 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 title_loc = 'center'
-cmap_diff = plt.cm.bwr
+cmap_diff_original = plt.cm.bwr
+colors_diff = cmap_diff_original(
+    np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+)
+cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_diff', colors_diff
+)
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -124,7 +131,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Pressure Level (hPa)')
+        ax_tmp.set_ylabel('Pressure Level (hPa)', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -179,6 +186,8 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
         else:
             levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
+    if not np.all(np.diff(plot_levels) > 0):
+        plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lat, plot_data_levels)
     if np.count_nonzero(~np.isnan(plot_data)) != 0:
@@ -191,9 +200,22 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
             )
-            C_tmp_labels = ax_tmp.clabel(
-                C_tmp, C_tmp.levels, fmt='%g', colors='k'
-            )
+            C_tmp_labels_list = []
+            for level in C_tmp.levels:
+                if str(level).split('.')[1] == '0':
+                    C_tmp_labels_list.append(str(int(level)))
+                else:
+                    C_tmp_labels_list.append(
+                        str(round(level,3)).rstrip('0')
+                    )
+            fmt = {}
+            for lev, label in zip(C_tmp.levels, C_tmp_labels_list):
+                fmt[lev] = label
+            ax_tmp.clabel(C_tmp, C_tmp.levels,
+                         fmt=fmt,
+                         inline=True,
+                         fontsize=12.5,
+                         color='k')
     else:
         CF_tmp = None
     return CF_tmp
@@ -275,6 +297,8 @@ if not os.path.exists(plotting_out_dir_imgs):
 # Build data array for all models for all levels
 print("Working on zonal mean error plots for "+var_name)
 model_num = 0
+get_levels = True
+get_diff_levels = True
 for env_var_model in env_var_model_list:
     model_num+=1
     model = os.environ[env_var_model]
@@ -428,6 +452,13 @@ for env_var_model in env_var_model_list:
         ax_obs_plot_data = model_var_levels_zonalmean_OBAR[model_num-1,:,:]
         ax_obs_plot_data_lat = model_data_lat
         ax_obs_plot_data_levels = var_levels_num
+        if get_levels:
+            if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                            '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                levels = plot_util.get_clevels(ax_obs_plot_data, 1.25)
+            else:
+                levels = np.nan
+            get_levels = False
         ax_obs_plot_levels = levels
         ax_obs_plot_cmap = cmap
         CF_ax_obs = plot_subplot_data(
@@ -452,6 +483,9 @@ for env_var_model in env_var_model_list:
         )
         ax_anl_plot_data_lat = model_data_lat
         ax_anl_plot_data_levels = var_levels_num
+        if get_diff_levels:
+            levels_diff = plot_util.get_clevels(ax_anl_plot_data, 1.25)
+            get_diff_levels = False
         ax_anl_plot_levels = levels_diff
         ax_anl_plot_cmap = cmap_diff
         CF_ax_anl = plot_subplot_data(
@@ -469,6 +503,9 @@ for env_var_model in env_var_model_list:
             model_var_levels_zonalmean_FBAR[model_num-1,:,:]
             - model_var_levels_zonalmean_OBAR[model_num-1,:,:]
         )
+        if get_diff_levels:
+            levels_diff = plot_util.get_clevels(ax_plot_data, 1.25)
+            get_diff_levels = False
         ax_plot_levels = levels_diff
         ax_plot_cmap = cmap_diff
     elif RUN_type == 'model2model':
@@ -482,6 +519,13 @@ for env_var_model in env_var_model_list:
             subplot_title = model1_plot_name
             print("Plotting "+model)
             ax_plot_data = model_var_levels_zonalmean_FBAR[model_num-1,:,:]
+            if get_levels:
+                if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                    levels = plot_util.get_clevels(ax_plot_data, 1.25)
+                else:
+                    levels = np.nan
+            get_levels = False
             ax_plot_levels = levels
             ax_plot_cmap = cmap
             model1_var_levels_zonalmean_FBAR = (
@@ -497,6 +541,9 @@ for env_var_model in env_var_model_list:
                 model_var_levels_zonalmean_FBAR[model_num-1,:,:]
                 - model1_var_levels_zonalmean_FBAR
             )
+            if get_diff_levels:
+                levels_diff = plot_util.get_clevels(ax_plot_data, 1.25)
+                get_diff_levels = False
             ax_plot_levels = levels_diff
             ax_plot_cmap = cmap_diff
     ax = draw_subplot_map(
@@ -542,7 +589,7 @@ if len(list(subplot_CF_dict.keys())) > 1:
     if cbar_subplot != None:
         if nsubplots == 2:
             subplot_pos = ax.get_position()
-            cbar_left = subplot_pos.x1 + 0.01
+            cbar_left = subplot_pos.x1 + 0.005
             cbar_bottom = subplot_pos.y0
             cbar_width = cbar_width_vert
             cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -568,11 +615,23 @@ if len(list(subplot_CF_dict.keys())) > 1:
                             ticks = subplot_CF_dict[cbar_subplot_loc] \
                                 .levels)
         if nsubplots == 2:
-            cbar.ax.set_ylabel('Difference', labelpad = 5)
+            cbar.ax.set_ylabel('Difference', labelpad = 2)
             cbar.ax.yaxis.set_tick_params(pad=0)
         else:
             cbar.ax.set_xlabel('Difference', labelpad = 0)
             cbar.ax.xaxis.set_tick_params(pad=0)
+        cbar_tick_labels_list = []
+        for tick in cbar.get_ticks():
+            if str(tick).split('.')[1] == '0':
+                cbar_tick_labels_list.append(str(int(tick)))
+            else:
+                cbar_tick_labels_list.append(
+                    str(round(tick,3)).rstrip('0')
+                )
+        if nsubplots == 2:
+            cbar.ax.set_yticklabels(cbar_tick_labels_list)
+        else:
+            cbar.ax.set_xticklabels(cbar_tick_labels_list)
 # Build savefig name
 savefig_name = os.path.join(plotting_out_dir_imgs,
                             RUN_type+'_'+var_group

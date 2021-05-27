@@ -54,6 +54,13 @@ plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 nticks = 4
 title_loc = 'center'
+cmap_bias_original = plt.cm.PiYG_r
+colors_bias = cmap_bias_original(
+    np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
+)
+cmap_bias = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_bias', colors_bias
+)
 cmap = plt.cm.BuPu_r
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
@@ -454,10 +461,16 @@ for plot_info in plot_info_list:
     logger.info("Calculating and plotting statistics")
     for stat in stats_list:
         logger.debug("Working on "+stat)
-        if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv']:
-            cmap_diff = plt.cm.bwr
+        if stat in ['bias', 'rmse', 'rmse_md', 'rmse_pv', 'fbar_obar']:
+            cmap_diff_original = plt.cm.bwr
         else:
-            cmap_diff = plt.cm.bwr_r
+            cmap_diff_original = plt.cm.bwr_r
+        colors_diff = cmap_diff_original(
+            np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+        )
+        cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+            'cmap_diff', colors_diff
+        )
         stat_values, stat_values_array, stat_plot_name = (
             plot_util.calculate_stat(logger, model_data, stat)
         )
@@ -561,12 +574,12 @@ for plot_info in plot_info_list:
         while subplot_num < nsubplots:
             ax = plt.subplot(gs[subplot_num])
             ax.grid(True)
-            if len(fcst_lead_timedeltas) >= 15:
-                ax.set_xticks(fcst_lead_timedeltas[::2])
-                ax.set_xticklabels(fcst_lead_timedeltas_str[::2])
-            elif len(fcst_lead_timedeltas) >= 25:
+            if len(fcst_lead_timedeltas) >= 25:
                 ax.set_xticks(fcst_lead_timedeltas[::4])
                 ax.set_xticklabels(fcst_lead_timedeltas_str[::4])
+            elif len(fcst_lead_timedeltas) >= 15:
+                ax.set_xticks(fcst_lead_timedeltas[::2])
+                ax.set_xticklabels(fcst_lead_timedeltas_str[::2])
             else:
                 ax.set_xticks(fcst_lead_timedeltas)
                 ax.set_xticklabels(fcst_lead_timedeltas_str)
@@ -611,16 +624,26 @@ for plot_info in plot_info_list:
                         )
                         CF1 = ax.contourf(xmesh, ymesh, obs_stat_values_array,
                                           cmap=cmap,
-                                          locator=matplotlib \
-                                              .ticker.MaxNLocator(
-                                          symmetric=True
-                                          ), extend='both')
+                                          extend='both')
                         C1 = ax.contour(xmesh, ymesh, obs_stat_values_array,
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                         obs_plotted = True
@@ -634,14 +657,11 @@ for plot_info in plot_info_list:
                                  +"with name on plot "+model_plot_name
                                  +" - obs")
                     if get_clevels:
-                        clevels_diff = plot_util.get_clevels(model_obs_diff)
+                        clevels_diff = plot_util.get_clevels(model_obs_diff,
+                                                             1)
                         CF2 = ax.contourf(xmesh, ymesh, model_obs_diff,
                                           levels=clevels_diff,
                                           cmap=cmap_diff,
-                                          locator=matplotlib \
-                                              .ticker.MaxNLocator(
-                                              symmetric=True
-                                          ),
                                           extend='both')
                         get_clevels = False
                         make_colorbar = True
@@ -652,9 +672,6 @@ for plot_info in plot_info_list:
                         CF = ax.contourf(xmesh, ymesh, model_obs_diff,
                                          levels=CF2.levels,
                                          cmap=cmap_diff,
-                                         locator=matplotlib.ticker.MaxNLocator(
-                                             symmetric=True
-                                         ),
                                          extend='both')
             elif stat == 'bias' or stat == 'fbias':
                 ax = plt.subplot(gs[model_idx])
@@ -664,23 +681,39 @@ for plot_info in plot_info_list:
                                  +model_name+" with name on plot "
                                  +model_plot_name)
                     if get_clevels:
+                        if np.max(np.abs(model_stat_values_array)) > 100:
+                            bias_spacing = 2.25
+                        elif np.max(np.abs(model_stat_values_array)) > 10:
+                            bias_spacing = 2
+                        else:
+                            bias_spacing = 1.75
                         clevels_bias = plot_util.get_clevels(
-                            model_stat_values_array
-                         )
+                            model_stat_values_array, bias_spacing
+                        )
                         CF1 = ax.contourf(xmesh, ymesh,
                                           model_stat_values_array,
                                           levels=clevels_bias,
                                           cmap=cmap_bias,
-                                          locator=\
-                                          matplotlib.ticker.MaxNLocator(
-                                              symmetric=True
-                                          ), extend='both')
+                                          extend='both')
                         C1 = ax.contour(xmesh, ymesh, model_stat_values_array,
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                         get_clevels = False
@@ -692,10 +725,6 @@ for plot_info in plot_info_list:
                         CF = ax.contourf(xmesh, ymesh,
                                          model_stat_values_array,
                                          levels=CF1.levels,
-                                         locator=\
-                                         matplotlib.ticker.MaxNLocator(
-                                              symmetric=True
-                                         ),
                                          cmap=cmap_bias,
                                          extend='both')
                         C = ax.contour(xmesh, ymesh,
@@ -703,8 +732,21 @@ for plot_info in plot_info_list:
                                        levels=CF1.levels,
                                        colors='k',
                                        linewidths=1.0)
+                        C_labels_list = []
+                        for level in C.levels:
+                            if str(level).split('.')[1] == '0':
+                                C_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C.levels, C_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C, C.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
             else:
@@ -727,6 +769,24 @@ for plot_info in plot_info_list:
                                               model_stat_values_array,
                                               levels=levels, cmap=cmap,
                                               extend='both')
+                        elif stat in ['rmse', 'rmse_md', 'rmse_pv']:
+                            cmax = np.nanmax(model_stat_values_array)
+                            steps = 12
+                            dx = 1.0 / (steps-1)
+                            if cmax > 100:
+                                spacing = 2.25
+                            elif cmax > 10:
+                                spacing = 2
+                            else:
+                                spacing = 1.75
+                            levels = np.array(
+                                [0+(i*dx)**spacing*cmax for i in range(steps)],
+                                dtype=float
+                            )
+                            CF1 = ax.contourf(xmesh, ymesh,
+                                              model_stat_values_array,
+                                              levels=levels, cmap=cmap,
+                                              extend='both')
                         else:
                             CF1 = ax.contourf(xmesh, ymesh,
                                               model_stat_values_array,
@@ -737,8 +797,21 @@ for plot_info in plot_info_list:
                                         levels=CF1.levels,
                                         colors='k',
                                         linewidths=1.0)
+                        C1_labels_list = []
+                        for level in C1.levels:
+                            if str(level).split('.')[1] == '0':
+                                C1_labels_list.append(
+                                    str(int(level))
+                                 )
+                            else:
+                                C1_labels_list.append(
+                                    str(round(level,3)).rstrip('0')
+                                )
+                        fmt = {}
+                        for lev, label in zip(C1.levels, C1_labels_list):
+                            fmt[lev] = label
                         ax.clabel(C1, C1.levels,
-                                  fmt='%1.2f',
+                                  fmt=fmt,
                                   inline=True,
                                   fontsize=12.5)
                 else:
@@ -753,16 +826,18 @@ for plot_info in plot_info_list:
                                      +"with name on plot "+model_plot_name+" "
                                      +"- "+model1_plot_name)
                         if get_clevels:
-                            clevels_diff = plot_util.get_clevels(
-                                model_model1_diff
-                            )
+                            if stat in ['acc']:
+                                clevels_diff = np.array(
+                                    [-0.5, -0.4, -0.3, -0.2, -0.1, -0.05,
+                                     0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+                                )
+                            else:
+                                clevels_diff = plot_util.get_clevels(
+                                    model_model1_diff, 1.25
+                                )
                             CF2 = ax.contourf(xmesh, ymesh, model_model1_diff,
                                               levels=clevels_diff,
                                               cmap=cmap_diff,
-                                              locator=\
-                                              matplotlib.ticker.MaxNLocator(
-                                                  symmetric=True
-                                              ),
                                               extend='both')
                             get_clevels = False
                             make_colorbar = True
@@ -773,10 +848,6 @@ for plot_info in plot_info_list:
                             CF = ax.contourf(xmesh, ymesh, model_model1_diff,
                                              levels=CF2.levels,
                                              cmap=cmap_diff,
-                                             locator=\
-                                             matplotlib.ticker.MaxNLocator(
-                                                 symmetric=True
-                                             ),
                                              extend='both')
         #### EMC-verif_global build formal plot title
         if verif_grid == vx_mask:
@@ -842,6 +913,17 @@ for plot_info in plot_info_list:
                                 ticks = colorbar_CF_ticks)
             cbar.ax.set_xlabel(colorbar_label, labelpad = 0)
             cbar.ax.xaxis.set_tick_params(pad=0)
+            cbar_tick_labels_list = []
+            for tick in cbar.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar_tick_labels_list.append(
+                        str(int(tick))
+                    )
+                else:
+                    cbar_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            cbar.ax.set_xticklabels(cbar_tick_labels_list)
         #### EMC-verif_global build savefig name
         savefig_name = os.path.join(output_imgs_dir, stat)
         if date_type == 'VALID':

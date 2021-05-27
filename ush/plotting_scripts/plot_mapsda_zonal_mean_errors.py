@@ -26,8 +26,8 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
@@ -125,7 +125,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Pressure Level (hPa)')
+        ax_tmp.set_ylabel('Pressure Level (hPa)', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -180,6 +180,8 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
         else:
             levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
+    if not np.all(np.diff(plot_levels) > 0):
+        plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lat, plot_data_levels)
     if np.count_nonzero(~np.isnan(plot_data)) != 0:
@@ -192,9 +194,22 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
             )
-            C_tmp_labels = ax_tmp.clabel(
-                C_tmp, C_tmp.levels, fmt='%g', colors='k'
-            )
+            C_tmp_labels_list = []
+            for level in C_tmp.levels:
+                if str(level).split('.')[1] == '0':
+                    C_tmp_labels_list.append(str(int(level)))
+                else:
+                    C_tmp_labels_list.append(
+                        str(round(level,3)).rstrip('0')
+                    )
+            fmt = {}
+            for lev, label in zip(C_tmp.levels, C_tmp_labels_list):
+                fmt[lev] = label
+            ax_tmp.clabel(C_tmp, C_tmp.levels,
+                         fmt=fmt,
+                         inline=True,
+                         fontsize=12.5,
+                         color='k')
     else:
         CF_tmp = None
     return CF_tmp
@@ -237,13 +252,23 @@ while hr <= int(hour_end)*3600:
     hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 if RUN_type == 'gdas':
-    forecast_to_plot_title = (
-        'First Guess Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot[3:]
+        )
+    else:
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot
+        )
 elif RUN_type == 'ens':
-    forecast_to_plot_title = (
-        'Forecast Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot[3:]
+        )
+    else:
+         forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot
+        )
 else:
     forecast_to_plot_title = forecast_to_plot
 START_DATE_dt = datetime.datetime.strptime(START_DATE, '%Y%m%d')
@@ -537,6 +562,7 @@ for stat in plot_stats_list:
     )
     model_num = 0
     subplot_CF_dict = {}
+    get_levels = True
     for env_var_model in env_var_model_list:
         model_num+=1
         model = os.environ[env_var_model]
@@ -558,6 +584,15 @@ for stat in plot_stats_list:
             )
             ax_cntrl_plot_data_lat = model_data_lat
             ax_cntrl_plot_data_levels = var_levels_num
+            if get_levels:
+                if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                    levels = plot_util.get_clevels(
+                        ax_cntrl_plot_data, 1.25
+                    )
+                else:
+                    levels = np.nan
+                get_levels = False
             ax_cntrl_plot_levels = levels
             ax_cntrl_plot_cmap = cmap
             CF_ax_cntrl = plot_subplot_data(
@@ -577,8 +612,17 @@ for stat in plot_stats_list:
             stat_data = (model_var_levels_zonalmean_OBAR[model_num-1,:,:]
                          - model_var_levels_zonalmean_FBAR[model_num-1,:,:])
             if model_num == 1:
-                            levels_plot = plot_util.get_clevels(stat_data)
-                            cmap_plot = plt.cm.PiYG_r
+                levels_plot = plot_util.get_clevels(stat_data, 1.25)
+                cmap_plot_original = plt.cm.PiYG_r
+                colors_plot = cmap_plot_original(
+                    np.append(np.linspace(0,0.3,10),
+                              np.linspace(0.7,1,10))
+                )
+                cmap_plot = (
+                    matplotlib.colors.\
+                    LinearSegmentedColormap.from_list('cmap_plot',
+                                                      colors_plot)
+                )
         elif stat == 'rmse':
             if model_num == 1:
                 print("Plotting "+model+" increment RMSE")
@@ -601,7 +645,7 @@ for stat in plot_stats_list:
                      - model_var_levels_zonalmean_FBAR[model_num-1,:,:])**2
                 ) - model1_stat_data
                 if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
+                    levels_plot = plot_util.get_clevels(stat_data, 1.25)
                     cmap_plot = cmap_diff
         elif stat in ['mean', 'spread']:
             subplot_title = model_plot_name
@@ -618,12 +662,21 @@ for stat in plot_stats_list:
                 stat_data = (
                     model_var_levels_zonalmean[model_num-1,:,:] * var_scale
                 )
-                levels_plot = np.nan
                 model1 = model
                 model1_stat_data = stat_data
                 if stat == 'mean':
                     cmap_plot = cmap
+                    if get_levels:
+                        if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                        '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                            levels_plot = plot_util.get_clevels(
+                                stat_data, 1.25
+                            )
+                        else:
+                            levels_plot = np.nan
+                        get_levels = False
                 elif stat == 'spread':
+                    levels_plot = np.nan
                     cmap_plot = plt.cm.afmhot_r
             else:
                 print("Plotting "+model+"-"+model1+" ensemble "+stat)
@@ -632,7 +685,7 @@ for stat in plot_stats_list:
                     - model1_stat_data
                 )
                 if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
+                    levels_plot = plot_util.get_clevels(stat_data, 1.25)
                     cmap_plot = cmap_diff
         ax = draw_subplot_map(
             subplot_num, subplot_title, nsubplots, latlon_area,
@@ -690,7 +743,7 @@ for stat in plot_stats_list:
             if cbar_subplot != None:
                 if nsubplots == 2:
                     subplot_pos = ax.get_position()
-                    cbar_left = subplot_pos.x1 + 0.01
+                    cbar_left = subplot_pos.x1 + 0.005
                     cbar_bottom = subplot_pos.y0
                     cbar_width = cbar_width_vert
                     cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -716,14 +769,26 @@ for stat in plot_stats_list:
                                     ticks = subplot_CF_dict \
                                             [cbar_subplot_loc].levels)
                 if nsubplots == 2:
-                    cbar.ax.set_ylabel(cbar_title, labelpad = 5)
+                    cbar.ax.set_ylabel(cbar_title, labelpad = 2)
                     cbar.ax.yaxis.set_tick_params(pad=0)
                 else:
                     cbar.ax.set_xlabel(cbar_title, labelpad = 0)
                     cbar.ax.xaxis.set_tick_params(pad=0)
+                cbar_tick_labels_list = []
+                for tick in cbar.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar_tick_labels_list.append(str(int(tick)))
+                    else:
+                        cbar_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                if nsubplots == 2:
+                    cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                else:
+                    cbar.ax.set_xticklabels(cbar_tick_labels_list)
     elif (RUN_type == 'gdas' and stat == 'rmse'):
         subplot01_pos = ax_model1.get_position()
-        cbar01_left = subplot01_pos.x1 + 0.01
+        cbar01_left = subplot01_pos.x1 + 0.005
         cbar01_bottom = subplot01_pos.y0
         cbar01_width = cbar_width_vert
         cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
@@ -737,8 +802,17 @@ for stat in plot_stats_list:
                                   orientation = 'vertical',
                                   ticks = subplot_CF_dict['0,1'].levels)
             cbar01.ax.yaxis.set_tick_params(pad=0)
-            cbar01.ax.set_ylabel('RMSE', labelpad = 5)
+            cbar01.ax.set_ylabel('RMSE', labelpad = 2)
             cbar01.ax.yaxis.set_tick_params(pad=0)
+            cbar01_tick_labels_list = []
+            for tick in cbar01.get_ticks():
+                if str(tick).split('.')[1] == '0':
+                    cbar01_tick_labels_list.append(str(int(tick)))
+                else:
+                    cbar01_tick_labels_list.append(
+                        str(round(tick,3)).rstrip('0')
+                    )
+            cbar01.ax.set_yticklabels(cbar01_tick_labels_list)
         if len(list(subplot_CF_dict.keys())) > 2:
             cbar_subplot = None
             for subplot_loc in list(subplot_CF_dict.keys()):
@@ -750,7 +824,7 @@ for stat in plot_stats_list:
             if cbar_subplot != None:
                 if nsubplots == 3:
                     subplot_pos = ax.get_position()
-                    cbar_left = subplot_pos.x0 - 0.09
+                    cbar_left = subplot_pos.x0 - 0.075
                     cbar_bottom = subplot_pos.y0
                     cbar_width = cbar01_width
                     cbar_height = subplot_pos.y1 - subplot_pos.y0
@@ -778,11 +852,23 @@ for stat in plot_stats_list:
                 if nsubplots == 3:
                     cax.yaxis.set_ticks_position('left')
                     cax.yaxis.set_label_position('left')
-                    cbar.ax.set_ylabel('Difference', labelpad = 5)
+                    cbar.ax.set_ylabel('Difference', labelpad = 2)
                     cbar.ax.yaxis.set_tick_params(pad=0)
                 else:
                     cbar.ax.set_xlabel('Difference', labelpad = 0)
                     cbar.ax.xaxis.set_tick_params(pad=0)
+                cbar_tick_labels_list = []
+                for tick in cbar.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar_tick_labels_list.append(str(int(tick)))
+                    else:
+                        cbar_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                if nsubplots == 3:
+                    cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                else:
+                    cbar.ax.set_xticklabels(cbar_tick_labels_list)
     # Build savefig name
     savefig_name = os.path.join(plotting_out_dir_imgs,
                                 RUN_type+'_'+stat+'_'+var_group

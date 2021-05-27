@@ -1073,14 +1073,12 @@ def get_maps2d_plot_settings(var_name, var_level):
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '7': #tropopause
-            levels = np.array(
-               [-30,-20,-10,-5,-2,-1,1,2,5,10,20,30]
-            )
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
             levels_diff = np.array([-10,-5,-3,-2,-1,0,1,2,3,5,10])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.nan
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
             levels_diff = np.array([-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
@@ -1177,7 +1175,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.nan
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
             levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''

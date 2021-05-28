@@ -112,6 +112,10 @@ input_base_dir = os.environ['INPUT_BASE_DIR']
 output_base_dir = os.environ['OUTPUT_BASE_DIR']
 log_metplus = os.environ['LOG_METPLUS']
 log_level = os.environ['LOG_LEVEL']
+if len(fcst_lead_list[0]) < 2:
+    logger.warning("Must provide more than one forecast lead to "
+                   "plot lead average")
+    sys.exit(0)
 #### EMC-verif_global environment variables
 var_name = os.environ['var_name']
 fcst_var_extra = (os.environ['fcst_var_options'].replace(' ', '') \
@@ -140,19 +144,7 @@ formatter = logging.Formatter(
 file_handler = logging.FileHandler(log_metplus, mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-
-for level_list in fcst_var_level_list:
-    for level in level_list:
-        if not level.startswith('P'):
-            logger.warning(f"Forecast level value ({level}) expected "
-                           "to be in pressure, i.e. P500. Exiting.")
-            sys.exit(0)
-
-if len(fcst_lead_list[0]) < 2:
-    logger.warning("Must provide more than one forecast lead to "
-                   "plot lead average")
-    sys.exit(0)
-
+# Output
 output_data_dir = os.path.join(output_base_dir, 'data')
 #output_imgs_dir = os.path.join(output_base_dir, 'imgs')
 #### EMC-verif_global image directory
@@ -166,11 +158,31 @@ model_info_list = list(
 )
 nmodels = len(model_info_list)
 # Plot info
-plot_info_list = list(
-    itertools.product(*[fcst_lead_list,
-                        fcst_var_level_list,
-                        fcst_var_thresh_list])
+if fcst_var_name == 'O3MR':
+    plot_info_list = list(
+        itertools.product(*[fcst_lead_list,
+                          ['all'],
+                          fcst_var_thresh_list])
     )
+else:
+    plot_info_list = list(
+        itertools.product(*[fcst_lead_list,
+                          ['all', 'trop', 'strat'],
+                          fcst_var_thresh_list])
+    )
+# Level info
+fcst_var_level_all_list = []
+fcst_var_level_trop_list = []
+fcst_var_level_strat_list = []
+for fcst_var_level in fcst_var_level_list[0]:
+    fcst_var_level_all_list.append(fcst_var_level)
+    if int(fcst_var_level[1:]) > 100:
+        fcst_var_level_trop_list.append(fcst_var_level)
+    elif int(fcst_var_level[1:]) < 100:
+        fcst_var_level_strat_list.append(fcst_var_level)
+    elif int(fcst_var_level[1:]) == 100:
+        fcst_var_level_trop_list.append(fcst_var_level)
+        fcst_var_level_strat_list.append(fcst_var_level)
 # Date and time infomation and build title for plot
 date_beg = os.environ[date_type+'_BEG']
 date_end = os.environ[date_type+'_END']
@@ -239,10 +251,15 @@ for plot_info in plot_info_list:
         if s != 0:
             tdelta_str+=f":{s:02d}"
         fcst_lead_timedeltas_str.append(tdelta_str)
-    fcst_var_levels = plot_info[1]
-    obs_var_levels = obs_var_level_list[
-        fcst_var_level_list.index(fcst_var_levels)
-    ]
+    if plot_info[1] == 'all':
+        fcst_var_levels = fcst_var_level_all_list
+    elif plot_info[1] == 'trop':
+        fcst_var_levels = fcst_var_level_trop_list
+    elif plot_info[1] == 'strat':
+        fcst_var_levels = fcst_var_level_strat_list
+    logger.info("Working on levels: "+plot_info[1]+" "
+                 +' '.join(fcst_var_levels))
+    obs_var_levels = fcst_var_levels
     fcst_var_thresh = plot_info[2]
     obs_var_thresh = obs_var_thresh_list[
         fcst_var_thresh_list.index(fcst_var_thresh)
@@ -868,9 +885,9 @@ for plot_info in plot_info_list:
                     +fcst_init_hour.split(', ')[0][0:2]+'Z'
                 )
         if verif_case == 'grid2grid' and verif_type == 'anom':
-            savefig_name = savefig_name+'_'+var_name+'_all'
+            savefig_name = savefig_name+'_'+var_name+'_'+plot_info[1]
         else:
-            savefig_name = savefig_name+'_'+fcst_var_name+'_all'
+            savefig_name = savefig_name+'_'+fcst_var_name+'_'+plot_info[1]
         if verif_case == 'precip':
             savefig_name = savefig_name+'_'+fcst_var_thresh
         savefig_name = savefig_name+'_fhrmean_'+grid_vx_mask+'.png'

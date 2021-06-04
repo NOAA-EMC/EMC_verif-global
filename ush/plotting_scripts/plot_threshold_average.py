@@ -167,8 +167,15 @@ if date_type == 'VALID':
 elif date_type == 'INIT':
     start_date = init_beg
     end_date = init_end
+img_quality = os.environ['img_quality']
 
 # General set up and settings
+# Image Quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
+
 # Logging
 logger = logging.getLogger(log_metplus)
 logger.setLevel(log_level)
@@ -854,12 +861,15 @@ for plot_info in plot_info_list:
             +date_info_title+', '+forecast_lead_title
         )
         ax1.set_title(full_title, loc=title_loc)
-        fig.figimage(noaa_logo_img_array,
-                     noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                     zorder=1, alpha=noaa_logo_alpha)
-        fig.figimage(nws_logo_img_array,
-                     nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                     zorder=1, alpha=nws_logo_alpha)
+        noaa_img = fig.figimage(noaa_logo_img_array,
+                                noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                                zorder=1, alpha=noaa_logo_alpha)
+        nws_img = fig.figimage(nws_logo_img_array,
+                               nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                               zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
         #### EMC-verif_global build savefig name
         savefig_name = os.path.join(output_imgs_dir, stat)
         if date_type == 'VALID':

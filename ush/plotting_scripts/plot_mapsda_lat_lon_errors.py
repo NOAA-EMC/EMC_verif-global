@@ -265,6 +265,13 @@ if RUN_type == 'gdas':
     plot_stats_list = ['inc', 'rmse']
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up location of Natural Earth files
 if machine == 'HERA':
@@ -703,11 +710,14 @@ for stat in plot_stats_list:
                      horizontalalignment = title_loc,
                      verticalalignment = title_loc)
         noaa_img = fig.figimage(noaa_logo_img_array,
-                     noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                     zorder=1, alpha=noaa_logo_alpha)
+                                noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                                zorder=1, alpha=noaa_logo_alpha)
         nws_img = fig.figimage(nws_logo_img_array,
-                     nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                     zorder=1, alpha=nws_logo_alpha)
+                               nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                               zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
         plt.subplots_adjust(
             left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
             right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)

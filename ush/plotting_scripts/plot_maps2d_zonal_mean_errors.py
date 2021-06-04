@@ -238,6 +238,13 @@ var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
 forecast_anl_diff = os.environ['forecast_anl_diff']
 RUN_type = os.environ['RUN_type']
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up information
 if forecast_to_plot == 'anl':
@@ -619,6 +626,9 @@ for var_levels_type in list(var_levels_type_dict.keys()):
     nws_img = fig.figimage(nws_logo_img_array,
                            nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                            zorder=1, alpha=nws_logo_alpha)
+    if img_quality in ['low', 'medium']:
+        noaa_img.set_visible(False)
+        nws_img.set_visible(False)
     plt.subplots_adjust(
         left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
         right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)

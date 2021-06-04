@@ -122,8 +122,14 @@ fcst_var_extra = (os.environ['fcst_var_options'].replace(' ', '') \
 obs_var_extra = (os.environ['obs_var_options'].replace(' ', '') \
                  .replace('=','').replace(';','').replace('"','') \
                  .replace("'",'').replace(',','-').replace('_',''))
+img_quality = os.environ['img_quality']
 
 # General set up and settings
+# Image Quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 # Logging
 logger = logging.getLogger(log_metplus)
 logger.setLevel(log_level)
@@ -888,6 +894,9 @@ for plot_info in plot_info_list:
         nws_img = fig.figimage(nws_logo_img_array,
                                nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                                zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
         plt.subplots_adjust(
             left = noaa_img.get_extent()[1] \
                    /(plt.rcParams['figure.dpi']*x_figsize),

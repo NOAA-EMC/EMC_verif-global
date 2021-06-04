@@ -267,6 +267,13 @@ hour_inc = os.environ['maps2d_model2obs_hour_inc']
 model_list = os.environ['model_list'].split(' ')
 model_plot_name_list = os.environ['maps2d_model_plot_name_list'].split(' ')
 machine = os.environ['machine']
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up location of Natural Earth files
 if machine == 'HERA':
@@ -697,6 +704,9 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
     nws_img = fig.figimage(nws_logo_img_array,
                  nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                  zorder=1, alpha=nws_logo_alpha)
+    if img_quality in ['low', 'medium']:
+        noaa_img.set_visible(False)
+        nws_img.set_visible(False)
     plt.subplots_adjust(
         left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
         right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)

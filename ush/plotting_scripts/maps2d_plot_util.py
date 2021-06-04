@@ -133,16 +133,19 @@ def get_maps2d_plot_settings(var_name, var_level):
     elif 'AGL' in var_level:
         if 'hPa' in var_level:
             var_GRIB_lvl_typ = '116'
-            formal_var_level = (var_level.replace('hPaAGL', '')+' hPa '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('hPaAGL', '')+' hPa '
                                 +'Above Ground')
         elif 'm' in var_level:
             var_GRIB_lvl_typ = '105'
-            formal_var_level = (var_level.replace('mAGL', '')+'m '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('mAGL', '')+'m '
                                 +'Above Ground')
     elif 'UGL' in var_level:
         if 'cm' in var_level:
             var_GRIB_lvl_typ = '112'
-            formal_var_level = (var_level.replace('cmUGL', '')+'cm '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('cmUGL', '')+'cm '
                                 +'Under Ground')
     elif 'sfc' in var_level:
         var_GRIB_lvl_typ = '1'

@@ -158,34 +158,37 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
     """
     # Build variable name title
     var_name_title_dict = {
-        'HGT': 'Geopotential Height',
-        'HGT_WV1_0-3': 'Geopotential Height: Waves 0-3',
-        'HGT_WV1_4-9': 'Geopotential Height: Waves 4-9',
-        'HGT_WV1_10-20': 'Geopotential Height: Waves 10-20',
-        'HGT_WV1_0-20': 'Geopotential Height: Waves 0-20',
-        'PRES': 'Pressure',
-        'TMP': 'Temperature',
-        'UGRD': 'Zonal Wind',
-        'VGRD': 'Meridional Wind',
-        'UGRD_VGRD': 'Vector Wind',
-        'PRMSL': 'Pressure Reduced to MSL',
-        'O3MR': 'Ozone Mixing Ratio',
-        'RH': 'Relative Humidity',
-        'SPFH': 'Specific Humidity',
-        'HPBL': 'Planetary Boundary Layer Height',
-        'WEASD': 'Accum. Snow Depth Water Equiv.',
-        'TSOIL': 'Soil Temperature',
-        'SOILW': 'Volumetric Soil Moisture Content',
-        'CWAT': 'Cloud Water',
-        'PWAT': 'Precipitable Water',
-        'TOZNE': 'Total Ozone',
-        'DPT': 'Dewpoint Temperature',
-        'TCDC': 'Total Cloud Cover',
-        'VIS': 'Visibility',
-        'GUST': 'Wind Gust',
-        'APCP_24': '24 hour Accumulated Precipitation',
-        'TMP_Z0_mean': 'Temperature',
-        'ICEC_Z0_mean': 'Sea Ice Concentration'
+        'HGT': 'Geopotential Height (gpm)',
+        'HGT_WV1_0-3': 'Geopotential Height: Waves 0-3 (gpm)',
+        'HGT_WV1_4-9': 'Geopotential Height: Waves 4-9 (gpm)',
+        'HGT_WV1_10-20': 'Geopotential Height: Waves 10-20 (gpm)',
+        'HGT_WV1_0-20': 'Geopotential Height: Waves 0-20 (gpm)',
+        'PRES': 'Pressure (hPa)',
+        'TMP': 'Temperature (K)',
+        'UGRD': 'Zonal Wind (m 'r'$\mathregular{s^{-1}}$'')',
+        'VGRD': 'Meridional Wind (m 'r'$\mathregular{s^{-1}}$'')',
+        'UGRD_VGRD': 'Vector Wind (m 'r'$\mathregular{s^{-1}}$'')',
+        'PRMSL': 'Pressure Reduced to MSL (hPa)',
+        'O3MR': 'Ozone Mixing Ratio (ppmg)',
+        'RH': 'Relative Humidity (%)',
+        'SPFH': 'Specific Humidity (g 'r'$\mathregular{kg^{-1}}$'')',
+        'HPBL': 'Planetary Boundary Layer Height (m)',
+        'WEASD': ('Accum. Snow Depth Water Equiv. '
+                  +'(kg 'r'$\mathregular{m^{-2}}$'')'),
+        'TSOIL': 'Soil Temperature (K)',
+        'SOILW': 'Volumetric Soil Moisture Content (fraction)',
+        'CAPE': 'CAPE (J 'r'$\mathregular{kg^{-1}}$'')',
+        'CWAT': 'Cloud Water (kg 'r'$\mathregular{m^{-2}}$'')',
+        'PWAT': 'Precipitable Water (kg 'r'$\mathregular{m^{-2}}$'')',
+        'TOZNE': 'Total Ozone (Dobson)',
+        'DPT': 'Dewpoint Temperature (K)',
+        'TCDC': 'Total Cloud Cover (%)',
+        'VIS': 'Visibility (m)',
+        'GUST': 'Wind Gust (m 'r'$\mathregular{s^{-1}}$'')',
+        'APCP_24': ('24 hour Accumulated Precipitation '
+                    +'(kg 'r'$\mathregular{m^{-2}}$'')'),
+        'TMP_Z0_mean': 'Temperature (K)',
+        'ICEC_Z0_mean': 'Sea Ice Concentration (fraction)'
     }
     if var_name in list(var_name_title_dict.keys()):
         var_name_title = var_name_title_dict[var_name]
@@ -199,9 +202,9 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
             var_level_title = 'Surface'
         else:
             if var_name in ['TSOIL', 'SOILW']:
-                var_level_title = var_level.replace('Z', '')+' centimeter'
+                var_level_title = var_level.replace('Z', '')+' cm'
             else:
-                var_level_title = var_level.replace('Z', '')+' meter'
+                var_level_title = var_level.replace('Z', '')+' m'
     elif 'L' in var_level:
         var_level_title = ''
     elif 'A' in var_level:
@@ -219,7 +222,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         elif '200' in var_extra:
             var_extra_title = 'Entire Atmosphere'
         elif '215' in var_extra:
-            var_extra_title = 'Cloud Ceiling'
+            var_extra_title = 'Cloud Ceiling (m)'
     else:
         var_extra_title = var_extra
     # Build variable threshold title
@@ -235,7 +238,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         if var_extra_title != '':
             var_info_title = var_info_title+' '+var_extra_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     elif 'Z' in var_level:
         if var_name in ['PRMSL', 'WEASD', 'CAPE']:
             var_info_title = var_name_title
@@ -244,7 +247,7 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         if var_extra_title != '':
             var_info_title = var_info_title+' '+var_extra_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     elif 'L' in var_level:
         if var_name in ['HPBL', 'CWAT', 'PWAT', 'TOZONE', 'TCDC']:
             var_info_title = var_name_title
@@ -253,23 +256,23 @@ def get_var_info_title(var_name, var_level, var_extra, var_thresh):
         else:
             var_info_title = var_extra_title+' '+var_name_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     elif 'A' in var_level:
         var_info_title = var_name_title
         if var_extra_title != '':
             var_info_title = var_info_title+' '+var_extra_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     elif var_level == 'all':
         var_info_title = var_name_title
         if var_extra_title != '':
             var_info_title = var_info_title+' '+var_extra_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     else:
         var_info_title = var_name_title+' '+var_level_title
         if var_extra_title != '':
             var_info_title = var_info_title+' '+var_extra_title
         if var_thresh_title != '':
-            var_info_title = var_info_title+' '+var_thresh_title
+            var_info_title = var_info_title+', '+var_thresh_title
     return var_info_title

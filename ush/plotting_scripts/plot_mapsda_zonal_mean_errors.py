@@ -26,15 +26,15 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['axes.labelpad'] = 10
 plt.rcParams['axes.formatter.useoffset'] = False
 plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['xtick.major.pad'] = 5
-plt.rcParams['ytick.major.pad'] = 5
+plt.rcParams['xtick.major.pad'] = 2.5
+plt.rcParams['ytick.major.pad'] = 0
 plt.rcParams['ytick.labelsize'] = 14
 plt.rcParams['figure.subplot.left'] = 0.1
 plt.rcParams['figure.subplot.right'] = 0.95
 plt.rcParams['figure.titleweight'] = 'bold'
 plt.rcParams['figure.titlesize'] = 16
 title_loc = 'center'
-cmap_diff = plt.cm.coolwarm_r
+cmap_diff = plt.cm.bwr
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
 )
@@ -125,7 +125,7 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
     if ax_tmp.is_first_col():
-        ax_tmp.set_ylabel('Pressure Level (hPa)')
+        ax_tmp.set_ylabel('Pressure Level (hPa)', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
     ax_tmp.set_aspect('auto')
@@ -180,6 +180,8 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
         else:
             levels_min = round(levels_min, 2)
         plot_levels = np.linspace(levels_min, levels_max, 11, endpoint=True)
+    if not np.all(np.diff(plot_levels) > 0):
+        plot_levels = np.linspace(0, 1, 11, endpoint=True)
     # Plot model data
     x, y = np.meshgrid(plot_data_lat, plot_data_levels)
     if np.count_nonzero(~np.isnan(plot_data)) != 0:
@@ -192,9 +194,22 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
             )
-            C_tmp_labels = ax_tmp.clabel(
-                C_tmp, C_tmp.levels, fmt='%g', colors='k'
-            )
+            C_tmp_labels_list = []
+            for level in C_tmp.levels:
+                if str(level).split('.')[1] == '0':
+                    C_tmp_labels_list.append(str(int(level)))
+                else:
+                    C_tmp_labels_list.append(
+                        str(round(level,3)).rstrip('0')
+                    )
+            fmt = {}
+            for lev, label in zip(C_tmp.levels, C_tmp_labels_list):
+                fmt[lev] = label
+            ax_tmp.clabel(C_tmp, C_tmp.levels,
+                         fmt=fmt,
+                         inline=True,
+                         fontsize=12.5,
+                         color='k')
     else:
         CF_tmp = None
     return CF_tmp
@@ -220,8 +235,13 @@ if RUN_type == 'gdas':
     plot_stats_list = ['inc', 'rmse']
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
-    print("ERROR: Currently cannot do zonal means for ens")
-    sys.exit(1)
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up information
 env_var_model_list = []
@@ -239,13 +259,23 @@ while hr <= int(hour_end)*3600:
     hr+=int(hour_inc)
 make_met_data_by_hrs_title = ', '.join(make_met_data_by_hrs)
 if RUN_type == 'gdas':
-    forecast_to_plot_title = (
-        'First Guess Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot[3:]
+        )
+    else:
+        forecast_to_plot_title = (
+            'First Guess Hour '+forecast_to_plot
+        )
 elif RUN_type == 'ens':
-    forecast_to_plot_title = (
-        'Forecast Hour '+forecast_to_plot
-    )
+    if forecast_to_plot[:3] == 'fhr':
+        forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot[3:]
+        )
+    else:
+         forecast_to_plot_title = (
+            'Forecast Hour '+forecast_to_plot
+        )
 else:
     forecast_to_plot_title = forecast_to_plot
 START_DATE_dt = datetime.datetime.strptime(START_DATE, '%Y%m%d')
@@ -273,6 +303,22 @@ plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output',
                                      'imgs')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
+
+# Set up level dictionary
+all_var_levels_list = []
+trop_var_levels_list = []
+strat_var_levels_list = []
+for var_level in var_levels:
+    all_var_levels_list.append(var_level)
+    if int(var_level.replace('hPa','')) >= 100:
+        trop_var_levels_list.append(var_level)
+    if int(var_level.replace('hPa','')) <= 100:
+        strat_var_levels_list.append(var_level)
+var_levels_type_dict = {
+    'all': all_var_levels_list,
+    'trop': trop_var_levels_list,
+    'strat': strat_var_levels_list
+}
 
 # Build data array for all models for all levels
 print("Working on zonal mean error plots for "+var_name)
@@ -314,105 +360,213 @@ for env_var_model in env_var_model_list:
             else:
                 print("WARNING: "+input_file+" does not exist")
         elif RUN_type == 'ens':
-            model_suffix = os.environ[env_var_model+'_suffix']
             if forecast_to_plot == 'anl':
-                input_file = os.path.join(
+                input_mean_file = os.path.join(
                     input_dir, model,
-                    'atmanl.ens'+stat+'.nc'
+                    'atmanl.ensmean.nc'
+                )
+                input_spread_file = os.path.join(
+                    input_dir, model,
+                    'atmanl.ensspread.nc'
                 )
             else:
-                input_file = os.path.join(
+                input_mean_file = os.path.join(
                    input_dir, model,
-                   'atmf0'+forecast_to_plot
-                    +'.ens'+stat+'.nc'
+                   'atmf'+forecast_to_plot[3:].zfill(3)
+                   +'.ensmean.nc'
                 )
-            if os.path.exists(input_file):
-                print(input_file+" exists")
-                model_data = netcdf.Dataset(input_file)
+                input_spread_file = os.path.join(
+                   input_dir, model,
+                   'atmf'+forecast_to_plot[3:].zfill(3)
+                   +'.ensspread.nc'
+                )
+            if os.path.exists(input_mean_file):
+                print(input_mean_file+" exists")
+                model_mean_data = netcdf.Dataset(input_mean_file)
                 if var_name != 'PRES':
                     # Get closest matching sigma level pressure
-                    if model_suffix == 'nc4':
-                        model_levels = levsn64p
-                    else:
-                        model_levels = model_data.variables['pfull'][:]
+                    model_mean_levels = model_mean_data.variables['pfull'][:]
                     var_level_float = float(var_level.replace('hPa', ''))
-                    model_levels_var_level_diff = np.abs(
-                        model_levels - var_level_float
+                    model_mean_levels_var_level_diff = np.abs(
+                        model_mean_levels - var_level_float
                     )
-                    model_levels_var_level_diff_min_idx = np.where(
-                        model_levels_var_level_diff \
-                        == np.min(model_levels_var_level_diff)
+                    model_mean_levels_var_level_diff_min_idx = np.where(
+                        model_mean_levels_var_level_diff \
+                        == np.min(model_mean_levels_var_level_diff)
                     )[0][0]
-                    model_level = (
-                        model_levels[model_levels_var_level_diff_min_idx]
-                    )
+                    model_level = model_mean_levels[
+                        model_mean_levels_var_level_diff_min_idx
+                    ]
                 # Get index data
-                if model_suffix == 'nc4':
-                    model_data_lat = model_data.variables['lat'][:]
-                    model_data_lon = model_data.variables['lon'][:]
-                    if var_name == 'TMP':
-                        model_data_var = (
-                            model_data.variables['t']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'UGRD':
-                        model_data_var = (
-                            model_data.variables['u']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'VGRD':
-                        model_data_var = (
-                            model_data.variables['v']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'SPFH':
-                        model_data_var = (
-                            model_data.variables['q']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'CLWMR':
-                        model_data_var = (
-                            model_data.variables['cw']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'O3MR':
-                        model_data_var = (
-                            model_data.variables['oz']\
-                            [model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    elif var_name == 'PRES':
-                        model_data_var = model_data.variables['ps'][:]
-                elif model_suffix == 'nc':
-                    model_data_lat = np.flipud(
-                       model_data.variables['grid_yt'][:]
+                model_mean_data_lat = np.flipud(
+                   model_mean_data.variables['grid_yt'][:]
+                )
+                model_mean_data_lon = model_mean_data.variables['grid_xt'][:]
+                if var_name == 'PRES':
+                    model_mean_data_var = (
+                        model_mean_data.variables['pressfc'][0,:,:]
                     )
-                    model_data_lon = model_data.variables['grid_xt'][:]
-                    if var_name == 'PRES':
-                        model_data_var = (
-                            model_data.variables['pressfc'][0,:,:]
-                        )
-                    else:
-                        model_data_var = (
-                            model_data.variables[var_name.lower()]\
-                            [0,model_levels_var_level_diff_min_idx,:,:]
-                        )
-                    model_data_var = np.flipud(model_data_var)
-                    if np.ma.is_masked(model_data_var):
-                        np.ma.set_fill_value(model_data_var, np.nan)
-                        model_data_var = (
-                            model_data_var.filled()
-                        )
-                model_data_var = model_data_var * var_scale
-                if not 'model_var_levels_zonalmean' in locals():
-                    model_var_levels_zonalmean = np.ones(
-                        [nmodels, nvar_levels, len(model_data_lat)]
+                else:
+                    model_mean_data_var = (
+                        model_mean_data.variables[var_name.lower()]\
+                        [0,model_mean_levels_var_level_diff_min_idx,:,:]
+                    )
+                model_mean_data_var = np.flipud(model_mean_data_var)
+                if np.ma.is_masked(model_mean_data_var):
+                    np.ma.set_fill_value(model_mean_data_var, np.nan)
+                    model_mean_data_var = (
+                        model_mean_data_var.filled()
+                    )
+                model_mean_data_var = model_mean_data_var
+                if not 'model_mean_var_levels_zonalmean' in locals():
+                    model_mean_var_levels_zonalmean = np.ones(
+                        [nmodels, nvar_levels, len(model_mean_data_lat)]
                     ) * np.nan
-                model_var_levels_zonalmean[model_num-1,var_level_num-1,:] = \
-                    model_data_var.mean(axis=1)
+                model_mean_var_levels_zonalmean[
+                    model_num-1,var_level_num-1,:
+                ] = \
+                    model_mean_data_var.mean(axis=1)
             else:
-                print("WARNING: "+input_file+" does not exist")
+                print("WARNING: "+input_mean_file+" does not exist")
+            if os.path.exists(input_spread_file):
+                print(input_spread_file+" exists")
+                model_spread_data = netcdf.Dataset(input_spread_file)
+                if var_name != 'PRES':
+                    # Get closest matching sigma level pressure
+                    model_spread_levels = model_spread_data.variables[
+                        'pfull'
+                    ][:]
+                    var_level_float = float(var_level.replace('hPa', ''))
+                    model_spread_levels_var_level_diff = np.abs(
+                        model_spread_levels - var_level_float
+                    )
+                    model_spread_levels_var_level_diff_min_idx = np.where(
+                        model_spread_levels_var_level_diff \
+                        == np.min(model_spread_levels_var_level_diff)
+                    )[0][0]
+                    model_level = model_spread_levels[
+                        model_spread_levels_var_level_diff_min_idx
+                    ]
+                # Get index data
+                model_spread_data_lat = np.flipud(
+                   model_spread_data.variables['grid_yt'][:]
+                )
+                model_spread_data_lon = model_spread_data.variables[
+                    'grid_xt'
+                ][:]
+                if var_name == 'PRES':
+                    model_spread_data_var = (
+                        model_spread_data.variables['pressfc'][0,:,:]
+                    )
+                else:
+                    model_spread_data_var = (
+                        model_spread_data.variables[var_name.lower()]\
+                        [0,model_spread_levels_var_level_diff_min_idx,:,:]
+                    )
+                model_spread_data_var = np.flipud(model_spread_data_var)
+                if np.ma.is_masked(model_spread_data_var):
+                    np.ma.set_fill_value(model_spread_data_var, np.nan)
+                    model_spread_data_var = (
+                        model_spread_data_var.filled()
+                    )
+                model_spread_data_var = model_spread_data_var
+                if not 'model_spread_var_levels_zonalmean' in locals():
+                    model_spread_var_levels_zonalmean = np.ones(
+                        [nmodels, nvar_levels, len(model_spread_data_lat)]
+                    ) * np.nan
+                model_spread_var_levels_zonalmean[
+                    model_num-1,var_level_num-1,:
+                ] = \
+                    model_spread_data_var.mean(axis=1)
+            else:
+                print("WARNING: "+input_spread_file+" does not exist")
 
 # Set up plot
+if RUN_type == 'ens':
+    nsubplots = nmodels
+else:
+    nsubplots = nmodels + 1
+if nsubplots == 1:
+    x_figsize, y_figsize = 14, 7
+    row, col = 1, 1
+    hspace, wspace = 0, 0
+    bottom, top = 0.175, 0.825
+    suptitle_y_loc = 0.92125
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+    cbar_bottom = 0.06
+    cbar_height = 0.02
+elif nsubplots == 2:
+    x_figsize, y_figsize = 14, 7
+    row, col = 1, 2
+    hspace, wspace = 0, 0.1
+    bottom, top = 0.175, 0.825
+    suptitle_y_loc = 0.92125
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
+    cbar_width_vert = 0.01
+    cbar_bottom = 0.06
+    cbar_height = 0.02
+elif nsubplots > 2 and nsubplots <= 4:
+    x_figsize, y_figsize = 14, 14
+    row, col = 2, 2
+    hspace, wspace = 0.15, 0.1
+    bottom, top = 0.125, 0.9
+    suptitle_y_loc = 0.9605
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+    cbar_bottom = 0.03
+    cbar_width_vert = 0.01
+    cbar_height = 0.02
+elif nsubplots > 4 and nsubplots <= 6:
+    x_figsize, y_figsize = 14, 14
+    row, col = 3, 2
+    hspace, wspace = 0.15, 0.1
+    bottom, top = 0.125, 0.9
+    suptitle_y_loc = 0.9605
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+    cbar_bottom = 0.03
+    cbar_height = 0.02
+elif nsubplots > 6 and nsubplots <= 8:
+    x_figsize, y_figsize = 14, 14
+    row, col = 4, 2
+    hspace, wspace = 0.175, 0.1
+    bottom, top = 0.125, 0.9
+    suptitle_y_loc = 0.9605
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+    cbar_bottom = 0.03
+    cbar_height = 0.02
+elif nsubplots > 8 and nsubplots <= 10:
+    x_figsize, y_figsize = 14, 14
+    row, col = 5, 2
+    hspace, wspace = 0.225, 0.1
+    bottom, top = 0.125, 0.9
+    suptitle_y_loc = 0.9605
+    noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
+    nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
+    cbar_bottom = 0.03
+    cbar_height = 0.02
+else:
+    logger.error("Too many subplots selected, max. is 10")
+    sys.exit(1)
+suptitle_x_loc = (
+    plt.rcParams['figure.subplot.left']
+    +plt.rcParams['figure.subplot.right']
+)/2.
+noaa_logo_xpixel_loc = (
+    x_figsize * plt.rcParams['figure.dpi'] * noaa_logo_x_scale
+)
+noaa_logo_ypixel_loc = (
+    y_figsize * plt.rcParams['figure.dpi'] * noaa_logo_y_scale
+)
+nws_logo_xpixel_loc = (
+    x_figsize * plt.rcParams['figure.dpi'] * nws_logo_x_scale
+)
+nws_logo_ypixel_loc = (
+    y_figsize * plt.rcParams['figure.dpi'] * nws_logo_y_scale
+)
 for stat in plot_stats_list:
     print("Working on "+stat+" plot")
     if stat == 'inc':
@@ -423,341 +577,364 @@ for stat in plot_stats_list:
         stat_title = 'Ensemble Mean'
     elif stat == 'spread':
         stat_title = 'Ensemble Spread'
-    if RUN_type == 'ens':
-        nsubplots = nmodels
-    else:
-        nsubplots = nmodels + 1
-    if nsubplots == 1:
-        x_figsize, y_figsize = 14, 7
-        row, col = 1, 1
-        hspace, wspace = 0, 0
-        bottom, top = 0.175, 0.825
-        suptitle_y_loc = 0.92125
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
-        cbar_bottom = 0.06
-        cbar_height = 0.02
-    elif nsubplots == 2:
-        x_figsize, y_figsize = 14, 7
-        row, col = 1, 2
-        hspace, wspace = 0, 0.1
-        bottom, top = 0.175, 0.825
-        suptitle_y_loc = 0.92125
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.865
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.865
-        cbar_width_vert = 0.01
-        cbar_bottom = 0.06
-        cbar_height = 0.02
-    elif nsubplots > 2 and nsubplots <= 4:
-        x_figsize, y_figsize = 14, 14
-        row, col = 2, 2
-        hspace, wspace = 0.15, 0.1
-        bottom, top = 0.125, 0.9
-        suptitle_y_loc = 0.9605
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
-        cbar_bottom = 0.03
-        cbar_width_vert = 0.01
-        cbar_height = 0.02
-    elif nsubplots > 4 and nsubplots <= 6:
-        x_figsize, y_figsize = 14, 14
-        row, col = 3, 2
-        hspace, wspace = 0.15, 0.1
-        bottom, top = 0.125, 0.9
-        suptitle_y_loc = 0.9605
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
-        cbar_bottom = 0.03
-        cbar_height = 0.02
-    elif nsubplots > 6 and nsubplots <= 8:
-        x_figsize, y_figsize = 14, 14
-        row, col = 4, 2
-        hspace, wspace = 0.175, 0.1
-        bottom, top = 0.125, 0.9
-        suptitle_y_loc = 0.9605
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
-        cbar_bottom = 0.03
-        cbar_height = 0.02
-    elif nsubplots > 8 and nsubplots <= 10:
-        x_figsize, y_figsize = 14, 14
-        row, col = 5, 2
-        hspace, wspace = 0.225, 0.1
-        bottom, top = 0.125, 0.9
-        suptitle_y_loc = 0.9605
-        noaa_logo_x_scale, noaa_logo_y_scale = 0.1, 0.9325
-        nws_logo_x_scale, nws_logo_y_scale = 0.9, 0.9325
-        cbar_bottom = 0.03
-        cbar_height = 0.02
-    else:
-        logger.error("Too many subplots selected, max. is 10")
-        sys.exit(1)
-    suptitle_x_loc = (
-        plt.rcParams['figure.subplot.left']
-        +plt.rcParams['figure.subplot.right']
-    )/2.
-    fig = plt.figure(figsize=(x_figsize, y_figsize))
-    gs = gridspec.GridSpec(
-        row, col,
-        bottom = bottom, top = top,
-        hspace = hspace, wspace = wspace,
-    )
-    noaa_logo_xpixel_loc = (
-        x_figsize * plt.rcParams['figure.dpi'] * noaa_logo_x_scale
-    )
-    noaa_logo_ypixel_loc = (
-        y_figsize * plt.rcParams['figure.dpi'] * noaa_logo_y_scale
-    )
-    nws_logo_xpixel_loc = (
-        x_figsize * plt.rcParams['figure.dpi'] * nws_logo_x_scale
-    )
-    nws_logo_ypixel_loc = (
-        y_figsize * plt.rcParams['figure.dpi'] * nws_logo_y_scale
-    )
-    model_num = 0
-    subplot_CF_dict = {}
-    for env_var_model in env_var_model_list:
-        model_num+=1
-        model = os.environ[env_var_model]
-        model_obtype = os.environ[env_var_model+'_obtype']
-        model_plot_name = os.environ[env_var_model+'_plot_name']
-        # Set up control analysis subplot map and title for gdas
-        if RUN_type == 'gdas' and model_num == 1:
-            cntrl_subplot_num = 0
-            cntrl_subplot_title = 'A '+model_plot_name
-            ax_cntrl = draw_subplot_map(
-                cntrl_subplot_num, cntrl_subplot_title, nsubplots,
-                latlon_area, var_level_num_list
-            )
-            print("Plotting "+model+" analysis")
-            ax_cntrl_subplot_loc = (str(ax_cntrl.rowNum)
-                                    +','+str(ax_cntrl.colNum))
-            ax_cntrl_plot_data = (
-                model_var_levels_zonalmean_OBAR[model_num-1,:,:]
-            )
-            ax_cntrl_plot_data_lat = model_data_lat
-            ax_cntrl_plot_data_levels = var_levels_num
-            ax_cntrl_plot_levels = levels
-            ax_cntrl_plot_cmap = cmap
-            CF_ax_cntrl = plot_subplot_data(
-                ax_cntrl, ax_cntrl_plot_data, ax_cntrl_plot_data_lat,
-                ax_cntrl_plot_data_levels, ax_cntrl_plot_levels,
-                ax_cntrl_plot_cmap, latlon_area
-            )
-            subplot_CF_dict[ax_cntrl_subplot_loc] = CF_ax_cntrl
-        # Set up model subplot map and title
-        if RUN_type == 'ens':
-            subplot_num =  model_num - 1
-        else:
-            subplot_num =  model_num
-        if stat == 'inc':
-            print("Plotting "+model+" increments")
-            subplot_title = '(A-B) '+model_plot_name
-            stat_data = (model_var_levels_zonalmean_OBAR[model_num-1,:,:]
-                         - model_var_levels_zonalmean_FBAR[model_num-1,:,:])
-            if model_num == 1:
-                            levels_plot = plot_util.get_clevels(stat_data)
-                            cmap_plot = plt.cm.PiYG_r
-        elif stat == 'rmse':
-            if model_num == 1:
-                print("Plotting "+model+" increment RMSE")
-                model1 = model
-                model1_plot_name = model_plot_name
-                subplot_title = 'RMSE(A-B) '+model1_plot_name
-                stat_data = np.sqrt(
-                    (model_var_levels_zonalmean_OBAR[model_num-1,:,:]
-                     - model_var_levels_zonalmean_FBAR[model_num-1,:,:])**2
+    for var_levels_type in list(var_levels_type_dict.keys()):
+        print("Working on "+var_levels_type+": "
+              +' '.join(var_levels_type_dict[var_levels_type]))
+        fig = plt.figure(figsize=(x_figsize, y_figsize))
+        gs = gridspec.GridSpec(
+            row, col,
+            bottom = bottom, top = top,
+            hspace = hspace, wspace = wspace,
+        )
+        var_level_type_num_list = []
+        var_levels_idx_list = []
+        for var_level in var_levels_type_dict[var_levels_type]:
+            var_level_type_num_list.append(var_level.replace('hPa', ''))
+            var_levels_idx_list.append(var_levels.index(var_level))
+        var_levels_type_num = np.asarray(var_level_type_num_list, dtype=float)
+        model_num = 0
+        subplot_CF_dict = {}
+        get_levels = True
+        for env_var_model in env_var_model_list:
+            model_num+=1
+            model = os.environ[env_var_model]
+            model_obtype = os.environ[env_var_model+'_obtype']
+            model_plot_name = os.environ[env_var_model+'_plot_name']
+            # Set up control analysis subplot map and title for gdas
+            if RUN_type == 'gdas' and model_num == 1:
+                cntrl_subplot_num = 0
+                cntrl_subplot_title = 'A '+model_plot_name
+                ax_cntrl = draw_subplot_map(
+                    cntrl_subplot_num, cntrl_subplot_title, nsubplots,
+                    latlon_area, var_level_type_num_list
                 )
-                levels_plot = np.nan
-                cmap_plot = plt.cm.BuPu
-                model1_stat_data = stat_data
+                print("Plotting "+model+" analysis")
+                ax_cntrl_subplot_loc = (str(ax_cntrl.rowNum)
+                                        +','+str(ax_cntrl.colNum))
+                ax_cntrl_plot_data = model_var_levels_zonalmean_OBAR[
+                    model_num-1,var_levels_idx_list,:
+                ]
+                ax_cntrl_plot_data_lat = model_data_lat
+                ax_cntrl_plot_data_levels = var_levels_type_num
+                if get_levels:
+                    if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                    '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                        levels = plot_util.get_clevels(
+                            ax_cntrl_plot_data, 1.25
+                        )
+                    else:
+                        levels = np.nan
+                    get_levels = False
+                ax_cntrl_plot_levels = levels
+                ax_cntrl_plot_cmap = cmap
+                CF_ax_cntrl = plot_subplot_data(
+                    ax_cntrl, ax_cntrl_plot_data, ax_cntrl_plot_data_lat,
+                    ax_cntrl_plot_data_levels, ax_cntrl_plot_levels,
+                    ax_cntrl_plot_cmap, latlon_area
+                )
+                subplot_CF_dict[ax_cntrl_subplot_loc] = CF_ax_cntrl
+            # Set up model subplot map and title
+            if RUN_type == 'ens':
+                subplot_num =  model_num - 1
             else:
-                print("Plotting "+model+" - "+model1+" increment RMSE")
-                subplot_title = ('RMSE(A-B) '+model_plot_name
-                                 +'-'+model1_plot_name)
-                stat_data = np.sqrt(
-                    (model_var_levels_zonalmean_OBAR[model_num-1,:,:]
-                     - model_var_levels_zonalmean_FBAR[model_num-1,:,:])**2
-                ) - model1_stat_data
-                if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
-                    cmap_plot = cmap_diff
-        elif stat in ['mean', 'spread']:
-            subplot_title = model_plot_name
-            if model_num == 1:
-                print("Plotting "+model+" ensemble "+stat)
+                subplot_num =  model_num
+            if stat == 'inc':
+                print("Plotting "+model+" increments")
+                subplot_title = '(A-B) '+model_plot_name
                 stat_data = (
-                    model_var_levels_zonalmean[model_num-1,:,:] * var_scale
+                    model_var_levels_zonalmean_OBAR[
+                        model_num-1,var_levels_idx_list,:
+                    ]
+                    - model_var_levels_zonalmean_FBAR[
+                        model_num-1,var_levels_idx_list,:
+                    ]
                 )
-                levels_plot = np.nan
-                model1 = model
-                model1_stat_data = stat_data
+                if model_num == 1:
+                    levels_plot = plot_util.get_clevels(stat_data, 1.25)
+                    cmap_plot_original = plt.cm.PiYG_r
+                    colors_plot = cmap_plot_original(
+                        np.append(np.linspace(0,0.3,10),
+                                  np.linspace(0.7,1,10))
+                    )
+                    cmap_plot = (
+                        matplotlib.colors.\
+                        LinearSegmentedColormap.from_list('cmap_plot',
+                                                          colors_plot)
+                    )
+            elif stat == 'rmse':
+                if model_num == 1:
+                    print("Plotting "+model+" increment RMSE")
+                    model1 = model
+                    model1_plot_name = model_plot_name
+                    subplot_title = 'RMSE(A-B) '+model1_plot_name
+                    stat_data = np.sqrt(
+                        (model_var_levels_zonalmean_OBAR[
+                             model_num-1,var_levels_idx_list,:
+                         ]
+                         - model_var_levels_zonalmean_FBAR[
+                             model_num-1,var_levels_idx_list,:
+                         ])**2
+                    )
+                    levels_plot = np.nan
+                    cmap_plot = plt.cm.BuPu
+                    model1_stat_data = stat_data
+                else:
+                    print("Plotting "+model+" - "+model1+" increment RMSE")
+                    subplot_title = ('RMSE(A-B) '+model_plot_name
+                                     +'-'+model1_plot_name)
+                    stat_data = np.sqrt(
+                        (model_var_levels_zonalmean_OBAR[
+                             model_num-1,var_levels_idx_list,:
+                         ]
+                         - model_var_levels_zonalmean_FBAR[
+                             model_num-1,var_levels_idx_list,:
+                         ])**2
+                    ) - model1_stat_data
+                    if model_num == 2:
+                        levels_plot = plot_util.get_clevels(stat_data, 1.25)
+                        cmap_plot = cmap_diff
+            elif stat in ['mean', 'spread']:
+                subplot_title = model_plot_name
                 if stat == 'mean':
-                    cmap_plot = cmap
+                    model_var_levels_zonalmean = (
+                        model_mean_var_levels_zonalmean
+                    )
+                    model_data_lat = model_mean_data_lat
+                    model_data_lon = model_mean_data_lon
                 elif stat == 'spread':
-                    cmap_plot = plt.cm.afmhot_r
-            else:
-                print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                stat_data = (
-                    (model_var_levels_zonalmean[model_num-1,:,:] * var_scale)
-                    - model1_stat_data
-                )
-                if model_num == 2:
-                    levels_plot = plot_util.get_clevels(stat_data)
-                    cmap_plot = cmap_diff
-        ax = draw_subplot_map(
-            subplot_num, subplot_title, nsubplots, latlon_area,
-            var_level_num_list
-        )
-        ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
-        ax_plot_data = stat_data
-        ax_plot_data_lat = model_data_lat
-        ax_plot_data_levels = var_levels_num
-        ax_plot_levels = levels_plot
-        ax_plot_cmap = cmap_plot
-        CF_ax = plot_subplot_data(
-            ax, ax_plot_data, ax_plot_data_lat,
-            ax_plot_data_levels, ax_plot_levels, ax_plot_cmap,
-            latlon_area
-        )
-        subplot_CF_dict[ax_subplot_loc] = CF_ax
-        if model_num == 1:
-            ax_model1 = ax
-    # Build formal plot title
-    full_title = (
-        var_info_title.partition(' ')[2]+' Zonal Mean Error\n'
-        +dates_title+' '+make_met_data_by_hrs_title+'\n'
-        +forecast_to_plot_title
-    )
-    fig.suptitle(full_title,
-                 x = suptitle_x_loc, y = suptitle_y_loc,
-                 horizontalalignment = title_loc,
-                 verticalalignment = title_loc)
-    noaa_img = fig.figimage(noaa_logo_img_array,
-                     noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                     zorder=1, alpha=noaa_logo_alpha)
-    nws_img = fig.figimage(nws_logo_img_array,
-                     nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                     zorder=1, alpha=nws_logo_alpha)
-    plt.subplots_adjust(
-        left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
-        right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)
-    )
-    # Add colorbars
-    if RUN_type == 'ens' or \
-            (RUN_type == 'gdas' and stat == 'inc'):
-        if RUN_type == 'ens':
-            cbar_title = 'Difference'
-        elif (RUN_type == 'gdas' and stat == 'inc'):
-            cbar_title = 'Increments'
-        if len(list(subplot_CF_dict.keys())) > 1:
-            cbar_subplot = None
-            for subplot_loc in list(subplot_CF_dict.keys()):
-                if subplot_loc != '0,0' \
-                        and subplot_CF_dict[subplot_loc] != None:
-                    cbar_subplot = subplot_CF_dict[subplot_loc]
-                    cbar_subplot_loc = subplot_loc
-                    break
-            if cbar_subplot != None:
-                if nsubplots == 2:
-                    subplot_pos = ax.get_position()
-                    cbar_left = subplot_pos.x1 + 0.01
-                    cbar_bottom = subplot_pos.y0
-                    cbar_width = cbar_width_vert
-                    cbar_height = subplot_pos.y1 - subplot_pos.y0
-                    cbar_orientation = 'vertical'
-                else:
-                    cbar_left = (
-                        noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
+                    model_var_levels_zonalmean = (
+                        model_spread_var_levels_zonalmean
                     )
-                    cbar_width = (
-                        nws_img.get_extent()[0]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
-                        - noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
+                    model_data_lat = model_spread_data_lat
+                    model_data_lon = model_spread_data_lon
+                if model_num == 1:
+                    print("Plotting "+model+" ensemble "+stat)
+                    stat_data = (
+                        model_var_levels_zonalmean[
+                            model_num-1,var_levels_idx_list,:
+                        ] * var_scale
                     )
-                    cbar_orientation = 'horizontal'
-                cax = fig.add_axes(
-                    [cbar_left, cbar_bottom, cbar_width, cbar_height]
-                )
-                cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
-                                    cax = cax,
-                                    orientation = cbar_orientation,
-                                    ticks = subplot_CF_dict \
-                                            [cbar_subplot_loc].levels)
-                if nsubplots == 2:
-                    cbar.ax.set_ylabel(cbar_title, labelpad = 5)
-                    cbar.ax.yaxis.set_tick_params(pad=0)
+                    model1 = model
+                    model1_stat_data = stat_data
+                    if stat == 'mean':
+                        cmap_plot = cmap
+                        if get_levels:
+                            if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
+                                            '4LFTX', 'UFLX', 'VFLX', 'GFLX']:
+                                levels_plot = plot_util.get_clevels(
+                                    stat_data, 1.25
+                                )
+                            else:
+                                levels_plot = np.nan
+                            get_levels = False
+                    elif stat == 'spread':
+                        levels_plot = np.nan
+                        cmap_plot = plt.cm.afmhot_r
                 else:
-                    cbar.ax.set_xlabel(cbar_title, labelpad = 0)
-                    cbar.ax.xaxis.set_tick_params(pad=0)
-    elif (RUN_type == 'gdas' and stat == 'rmse'):
-        subplot01_pos = ax_model1.get_position()
-        cbar01_left = subplot01_pos.x1 + 0.01
-        cbar01_bottom = subplot01_pos.y0
-        cbar01_width = cbar_width_vert
-        cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
-        if ('0,1' in list(subplot_CF_dict.keys()) \
-                and subplot_CF_dict['0,1'] != None):
-            cax01 = fig.add_axes(
-                [cbar01_left, cbar01_bottom, cbar01_width, cbar01_height]
+                    print("Plotting "+model+"-"+model1+" ensemble "+stat)
+                    stat_data = (
+                        (model_var_levels_zonalmean[
+                             model_num-1,var_levels_idx_list,:
+                         ] * var_scale)
+                         - model1_stat_data
+                    )
+                    if model_num == 2:
+                        levels_plot = plot_util.get_clevels(stat_data, 1.25)
+                        cmap_plot = cmap_diff
+            ax = draw_subplot_map(
+                subplot_num, subplot_title, nsubplots, latlon_area,
+                var_level_type_num_list
             )
-            cbar01 = fig.colorbar(subplot_CF_dict['0,1'],
-                                  cax = cax01,
-                                  orientation = 'vertical',
-                                  ticks = subplot_CF_dict['0,1'].levels)
-            cbar01.ax.yaxis.set_tick_params(pad=0)
-            cbar01.ax.set_ylabel('RMSE', labelpad = 5)
-            cbar01.ax.yaxis.set_tick_params(pad=0)
-        if len(list(subplot_CF_dict.keys())) > 2:
-            cbar_subplot = None
-            for subplot_loc in list(subplot_CF_dict.keys()):
-                if subplot_loc not in ['0,0', '0,1'] \
-                        and subplot_CF_dict[subplot_loc] != None:
-                    cbar_subplot = subplot_CF_dict[subplot_loc]
-                    cbar_subplot_loc = subplot_loc
-                    break
-            if cbar_subplot != None:
-                if nsubplots == 3:
-                    subplot_pos = ax.get_position()
-                    cbar_left = subplot_pos.x0 - 0.09
-                    cbar_bottom = subplot_pos.y0
-                    cbar_width = cbar01_width
-                    cbar_height = subplot_pos.y1 - subplot_pos.y0
-                    cbar_orientation = 'vertical'
-                else:
-                    cbar_left = (
-                        noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
+            ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+            ax_plot_data = stat_data
+            ax_plot_data_lat = model_data_lat
+            ax_plot_data_levels = var_levels_type_num
+            ax_plot_levels = levels_plot
+            ax_plot_cmap = cmap_plot
+            CF_ax = plot_subplot_data(
+                ax, ax_plot_data, ax_plot_data_lat,
+                ax_plot_data_levels, ax_plot_levels, ax_plot_cmap,
+                latlon_area
+            )
+            subplot_CF_dict[ax_subplot_loc] = CF_ax
+            if model_num == 1:
+                ax_model1 = ax
+        # Build formal plot title
+        full_title = (
+            var_info_title.partition(' ')[2]+' Zonal Mean Error\n'
+            +dates_title+' '+make_met_data_by_hrs_title+'\n'
+            +forecast_to_plot_title
+        )
+        fig.suptitle(full_title,
+                     x = suptitle_x_loc, y = suptitle_y_loc,
+                     horizontalalignment = title_loc,
+                     verticalalignment = title_loc)
+        noaa_img = fig.figimage(noaa_logo_img_array,
+                                noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                                zorder=1, alpha=noaa_logo_alpha)
+        nws_img = fig.figimage(nws_logo_img_array,
+                               nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                               zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
+        plt.subplots_adjust(
+            left = noaa_img.get_extent()[1]/(
+                plt.rcParams['figure.dpi']*x_figsize
+            ),
+            right = nws_img.get_extent()[0]/(
+                plt.rcParams['figure.dpi']*x_figsize
+            )
+        )
+        # Add colorbars
+        if RUN_type == 'ens' or \
+                (RUN_type == 'gdas' and stat == 'inc'):
+            if RUN_type == 'ens':
+                cbar_title = 'Difference'
+            elif (RUN_type == 'gdas' and stat == 'inc'):
+                cbar_title = 'Increments'
+            if len(list(subplot_CF_dict.keys())) > 1:
+                cbar_subplot = None
+                for subplot_loc in list(subplot_CF_dict.keys()):
+                    if subplot_loc != '0,0' \
+                            and subplot_CF_dict[subplot_loc] != None:
+                        cbar_subplot = subplot_CF_dict[subplot_loc]
+                        cbar_subplot_loc = subplot_loc
+                        break
+                if cbar_subplot != None:
+                    if nsubplots == 2:
+                        subplot_pos = ax.get_position()
+                        cbar_left = subplot_pos.x1 + 0.005
+                        cbar_bottom = subplot_pos.y0
+                        cbar_width = cbar_width_vert
+                        cbar_height = subplot_pos.y1 - subplot_pos.y0
+                        cbar_orientation = 'vertical'
+                    else:
+                        cbar_left = (
+                            noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_width = (
+                            nws_img.get_extent()[0]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                            - noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_orientation = 'horizontal'
+                    cax = fig.add_axes(
+                        [cbar_left, cbar_bottom, cbar_width, cbar_height]
                     )
-                    cbar_width = (
-                        nws_img.get_extent()[0]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
-                        - noaa_img.get_extent()[1]
-                        /(plt.rcParams['figure.dpi']*x_figsize)
-                    )
-                    cbar_orientation = 'horizontal'
-                cax = fig.add_axes(
-                    [cbar_left, cbar_bottom, cbar_width, cbar_height]
+                    cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
+                                        cax = cax,
+                                        orientation = cbar_orientation,
+                                        ticks = subplot_CF_dict \
+                                                [cbar_subplot_loc].levels)
+                    if nsubplots == 2:
+                        cbar.ax.set_ylabel(cbar_title, labelpad = 2)
+                        cbar.ax.yaxis.set_tick_params(pad=0)
+                    else:
+                        cbar.ax.set_xlabel(cbar_title, labelpad = 0)
+                        cbar.ax.xaxis.set_tick_params(pad=0)
+                    cbar_tick_labels_list = []
+                    for tick in cbar.get_ticks():
+                        if str(tick).split('.')[1] == '0':
+                            cbar_tick_labels_list.append(str(int(tick)))
+                        else:
+                            cbar_tick_labels_list.append(
+                                str(round(tick,3)).rstrip('0')
+                            )
+                    if nsubplots == 2:
+                        cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                    else:
+                        cbar.ax.set_xticklabels(cbar_tick_labels_list)
+        elif (RUN_type == 'gdas' and stat == 'rmse'):
+            subplot01_pos = ax_model1.get_position()
+            cbar01_left = subplot01_pos.x1 + 0.005
+            cbar01_bottom = subplot01_pos.y0
+            cbar01_width = cbar_width_vert
+            cbar01_height = subplot01_pos.y1 - subplot01_pos.y0
+            if ('0,1' in list(subplot_CF_dict.keys()) \
+                    and subplot_CF_dict['0,1'] != None):
+                cax01 = fig.add_axes(
+                    [cbar01_left, cbar01_bottom, cbar01_width, cbar01_height]
                 )
-                cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
-                                    cax = cax,
-                                    orientation = cbar_orientation,
-                                    ticks = subplot_CF_dict \
-                                        [cbar_subplot_loc].levels)
-                if nsubplots == 3:
-                    cax.yaxis.set_ticks_position('left')
-                    cax.yaxis.set_label_position('left')
-                    cbar.ax.set_ylabel('Difference', labelpad = 5)
-                    cbar.ax.yaxis.set_tick_params(pad=0)
-                else:
-                    cbar.ax.set_xlabel('Difference', labelpad = 0)
-                    cbar.ax.xaxis.set_tick_params(pad=0)
-    # Build savefig name
-    savefig_name = os.path.join(plotting_out_dir_imgs,
-                                RUN_type+'_'+stat+'_'+var_group
-                                +'_'+var_name+'_zonalmean.png')
-    print("Saving image as "+savefig_name)
-    plt.savefig(savefig_name)
-    plt.close()
+                cbar01 = fig.colorbar(subplot_CF_dict['0,1'],
+                                      cax = cax01,
+                                      orientation = 'vertical',
+                                      ticks = subplot_CF_dict['0,1'].levels)
+                cbar01.ax.yaxis.set_tick_params(pad=0)
+                cbar01.ax.set_ylabel('RMSE', labelpad = 2)
+                cbar01.ax.yaxis.set_tick_params(pad=0)
+                cbar01_tick_labels_list = []
+                for tick in cbar01.get_ticks():
+                    if str(tick).split('.')[1] == '0':
+                        cbar01_tick_labels_list.append(str(int(tick)))
+                    else:
+                        cbar01_tick_labels_list.append(
+                            str(round(tick,3)).rstrip('0')
+                        )
+                cbar01.ax.set_yticklabels(cbar01_tick_labels_list)
+            if len(list(subplot_CF_dict.keys())) > 2:
+                cbar_subplot = None
+                for subplot_loc in list(subplot_CF_dict.keys()):
+                    if subplot_loc not in ['0,0', '0,1'] \
+                            and subplot_CF_dict[subplot_loc] != None:
+                        cbar_subplot = subplot_CF_dict[subplot_loc]
+                        cbar_subplot_loc = subplot_loc
+                        break
+                if cbar_subplot != None:
+                    if nsubplots == 3:
+                        subplot_pos = ax.get_position()
+                        cbar_left = subplot_pos.x0 - 0.075
+                        cbar_bottom = subplot_pos.y0
+                        cbar_width = cbar01_width
+                        cbar_height = subplot_pos.y1 - subplot_pos.y0
+                        cbar_orientation = 'vertical'
+                    else:
+                        cbar_left = (
+                            noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_width = (
+                            nws_img.get_extent()[0]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                            - noaa_img.get_extent()[1]
+                            /(plt.rcParams['figure.dpi']*x_figsize)
+                        )
+                        cbar_orientation = 'horizontal'
+                    cax = fig.add_axes(
+                        [cbar_left, cbar_bottom, cbar_width, cbar_height]
+                    )
+                    cbar = fig.colorbar(subplot_CF_dict[cbar_subplot_loc],
+                                        cax = cax,
+                                        orientation = cbar_orientation,
+                                        ticks = subplot_CF_dict \
+                                            [cbar_subplot_loc].levels)
+                    if nsubplots == 3:
+                        cax.yaxis.set_ticks_position('left')
+                        cax.yaxis.set_label_position('left')
+                        cbar.ax.set_ylabel('Difference', labelpad = 2)
+                        cbar.ax.yaxis.set_tick_params(pad=0)
+                    else:
+                        cbar.ax.set_xlabel('Difference', labelpad = 0)
+                        cbar.ax.xaxis.set_tick_params(pad=0)
+                    cbar_tick_labels_list = []
+                    for tick in cbar.get_ticks():
+                        if str(tick).split('.')[1] == '0':
+                            cbar_tick_labels_list.append(str(int(tick)))
+                        else:
+                            cbar_tick_labels_list.append(
+                                str(round(tick,3)).rstrip('0')
+                            )
+                    if nsubplots == 3:
+                        cbar.ax.set_yticklabels(cbar_tick_labels_list)
+                    else:
+                        cbar.ax.set_xticklabels(cbar_tick_labels_list)
+        # Build savefig name
+        savefig_name = os.path.join(plotting_out_dir_imgs,
+                                    RUN_type+'_'+stat+'_'+var_group
+                                    +'_'+var_name+'_'+var_levels_type
+                                    +'_zonalmean.png')
+        print("Saving image as "+savefig_name)
+        plt.savefig(savefig_name)
+        plt.close()

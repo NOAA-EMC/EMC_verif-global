@@ -133,16 +133,19 @@ def get_maps2d_plot_settings(var_name, var_level):
     elif 'AGL' in var_level:
         if 'hPa' in var_level:
             var_GRIB_lvl_typ = '116'
-            formal_var_level = (var_level.replace('hPaAGL', '')+' hPa '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('hPaAGL', '')+' hPa '
                                 +'Above Ground')
         elif 'm' in var_level:
             var_GRIB_lvl_typ = '105'
-            formal_var_level = (var_level.replace('mAGL', '')+'m '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('mAGL', '')+'m '
                                 +'Above Ground')
     elif 'UGL' in var_level:
         if 'cm' in var_level:
             var_GRIB_lvl_typ = '112'
-            formal_var_level = (var_level.replace('cmUGL', '')+'cm '
+            formal_var_level = (var_level.split('_')[0] \
+                                .replace('cmUGL', '')+'cm '
                                 +'Under Ground')
     elif 'sfc' in var_level:
         var_GRIB_lvl_typ = '1'
@@ -214,12 +217,10 @@ def get_maps2d_plot_settings(var_name, var_level):
     # Get settings
     if var_name == '4LFTX': #best (4 layer) lifted index (K)
         formal_var_name = 'Best (4-Layer) Lifted Index'
-        cmap = plt.cm.magma
+        cmap = plt.cm.RdGy_r
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([-20,-15,-10,-8,-6,-4,-2,-1,1,2,4,6,8,10,15,20])
-            levels_diff = np.array(
-                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
-            )
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'K'
         else:
@@ -244,10 +245,8 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Albedo'
         cmap = plt.cm.cubehelix_r
         if var_GRIB_lvl_typ == '1': #surface
-            levels = np.array([5,10,15,20,25,30,35,40,45,50])
-            levels_diff = np.array(
-                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
-            )
+            levels = np.array([5,10,15,20,25,30,35,40,45,50,75,100])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = '%'
         else:
@@ -275,9 +274,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [100,300,500,700,900,1000,1200,1300,1400,1500,1600,1700,1800]
             )
-            levels_diff = np.array(
-                [-300,-200,-100,-50,-30,-10,0,10,30,50,100,200,300]
-            )
+            levels_diff = np.array([-150,-100,-50,-25,-10,0,10,25,50,100,150])
             var_scale = 1
             var_units = 'J 'r'$\mathregular{kg^{-1}}$'''
         elif var_GRIB_lvl_typ == '116': #layer between two levels at specified pressure difference from ground to level (hPa)
@@ -301,7 +298,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'yes=1; no=0'
@@ -313,7 +310,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'yes=1; no=0'
@@ -324,7 +321,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [-500,-450,-400,-350,-300,-250,-200,-150,-100,-50,-25]
             )
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = 'J 'r'$\mathregular{kg^{-1}}$'''
         elif var_GRIB_lvl_typ == '116': #layer between two levels at specified pressure difference from ground to level (hPa)
@@ -344,10 +341,8 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Cloud Mixing Ratio'
         cmap = plt.cm.Blues
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array([0.5,1,5,10,20,40,60,80,100,120,140])
-            levels_diff = np.array(
-                [-40,-20,-10,-6,-3,-1,-0.1,0,0.1,1,3,6,10,20,40]
-            )
+            levels = np.nan
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1000000
             var_units = 'ppmg'
         else:
@@ -362,7 +357,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'yes=1; no=0'
@@ -374,7 +369,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'yes=1; no=0'
@@ -383,7 +378,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.BuGn
         if var_GRIB_lvl_typ == '200': #entire atmosphere/column
             levels = np.array([20,40,60,80,100,120,140,160,180,200])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-50,-25,-15,-10,-5,0,5,10,15,25,50])
             var_scale = 1000
             var_units = 'g 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -429,7 +424,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -454,7 +449,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1])
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'fraction'
@@ -467,7 +462,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.PiYG
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([-30,-20,-15,-10,-5,-2,2,5,10,15,20,30])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = 'W 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -479,7 +474,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.pink_r
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([0.5,1,2,4,6,8,10,12,14,16,18,20])
-            levels_diff = np.array([-3,-2,-1,-0.5,-0.2,0,0.2,0.5,1,2,3])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -494,9 +489,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [100,500,1000,1500,2000,2500,3000,3500,4000,4500,5000,6000,
                  7000,8000]
             )
-            levels_diff = np.array(
-                [-400,-200,-100,-50,-20,-10,0,10,20,50,100,200,400]
-            )
+            levels_diff = np.array([-1,-0.5,-0.25,-0.05,0,0.05,0.25,0.5,1])
             var_scale = 1
             var_units = 'gpm'
         elif var_GRIB_lvl_typ == '6': #maximum wind level
@@ -515,9 +508,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             var_units = 'km'
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
-            levels_diff = np.array(
-                [-120,-80,-40,-20,-10,-5,0,5,10,20,40,80,120]
-            )
+            levels_diff = np.array([-120,-80,-40,-20,-10,0,10,20,40,80,120])
             var_scale = 1
             var_units = 'gpm'
         elif var_GRIB_lvl_typ == '204': #highest tropospheric freezing level
@@ -526,7 +517,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                  4000,4500,5000,6000,7000,8000]
             )
             levels_diff = np.array(
-                [-400,-200,-100,-50,-20,-10,0,10,20,50,100,200,400]
+                [-200,-100,-75,-50,-25,-10,0,10,25,50,75,100,200]
             )
             var_scale = 1
             var_units = 'gpm'
@@ -540,7 +531,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([1,2,3,4,5,6,7,8,9])
             levels_diff = np.array(
-                [-3,-2,-1,-0.5,-0.1,-0.01,0,0.01,0.1,0.5,1,2,3]
+                [-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3]
             )
             var_scale = 1
             var_units = ''
@@ -555,9 +546,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [300,400,500,600,700,800,900,1000,1100,1200,1400,1600,1800]
             )
-            levels_diff = np.array(
-                [-600,-400,-200,-100,-50,-20,0,20,50,100,200,400,600]
-            )
+            levels_diff = np.array([-150,-100,-50,-25,-10,0,10,25,50,150])
             var_scale = 1
             var_units = 'm'
         else:
@@ -593,7 +582,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.1,-0.05,-0.025,-0.01,0,0.01,0.025,0.05,0.1]
             )
             var_scale = 1
             var_units = 'fraction'
@@ -603,12 +592,10 @@ def get_maps2d_plot_settings(var_name, var_level):
             sys.exit(1)
     elif var_name == 'LFTX': #lifted index (K)
         formal_var_name = 'Lifted Index'
-        cmap = plt.cm.magma
+        cmap = plt.cm.RdGy_r
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([-20,-15,-10,-8,-6,-4,-2,-1,1,2,4,6,8,10,15,20])
-            levels_diff = np.array(
-                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
-            )
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'K'
         else:
@@ -620,7 +607,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.Reds
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([5,10,20,40,60,80,100,120,140,160,180,200])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = 'W 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -647,7 +634,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
             levels_diff = np.array(
-                [-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5]
+                [-2,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,2]
             )
             var_scale = 1000000
             var_units = 'ppmg'
@@ -676,7 +663,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -690,9 +677,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [0.1,0.2,0.4,0.6,0.8,1,1.5,2,2.5,3]
             )
-            levels_diff = np.array(
-                [-3,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,3]
-            )
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 24*3600
             var_units = 'mm 'r'$\mathregular{day^{-1}}$'''
     elif var_name == 'PRES': #pressure (Pa)
@@ -714,63 +699,63 @@ def get_maps2d_plot_settings(var_name, var_level):
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '7': #tropopause
             levels = np.array([100,120,140,160,180,200,220,240,260,280,300])
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '212': #low cloud bottom level
             levels = np.array(
                 [780,800,820,840,860,880,900,920,940,960,980,1000,1020]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '213': #low cloud top level
             levels = np.array(
                 [600,620,640,660,680,700,720,740,760,780,800,820,840]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '222': #mid cloud bottom level
             levels = np.array(
                 [460,480,500,520,540,560,580,600,620,640,660,680,700]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '223': #mid cloud top level
             levels = np.array(
                 [300,320,340,360,380,400,420,440,460,480,500,520,540]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '232': #high cloud bottom level
             levels = np.array(
                 [180,200,220,240,260,280,300,320,340,360,380,400,420]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '233': #high cloud top level
             levels = np.array(
                 [80,100,120,140,160,180,200,220,240,260,280,300,320]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '242': #convective cloud bottom level
             levels = np.array(
                 [780,800,820,840,860,880,900,920,940,960,980,1000,1020]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         elif var_GRIB_lvl_typ == '243': #convective cloud top level
             levels = np.array(
                 [150,200,250,300,350,400,450,500,550,600,650,700,800,850]
             )
-            levels_diff = np.array([-20,-15,-10,-5,-2,-1,0,1,2,5,10,15,20])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 0.01
             var_units = 'hPa'
         else:
@@ -811,30 +796,28 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Relative Humidity'
         cmap = plt.cm.Greens
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array([1,5,10,30,50,70,90])
-            levels_diff = np.array(
-                [-50,-40,-30,-20,-10,-5,0,5,10,20,30,40,50]
-            )
+            levels = np.nan
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '105': #height level above ground (m)
             levels = np.array([10,20,30,40,50,60,70,80,90,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-10,-7,-5,-2,-1,0,1,2,5,7,10])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '107': #sigma level (sigma value in 1/10000)
             levels = np.array([10,20,30,40,50,60,70,80,90,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-10,-7,-5,-2,-1,0,1,2,5,7,10])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '200': #entire atmosphere/column
             levels = np.array([10,20,30,40,50,60,70,80,90,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '204': #highest tropospheric freezing level
             levels = np.array([10,20,30,40,50,60,70,80,90,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = '%'
         else:
@@ -846,7 +829,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.Reds
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([5,10,20,40,60,80,100,120,140,160,180,200])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
             var_scale = 1
             var_units = 'W 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -859,9 +842,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '1': #surface
             var_info_title = 'Surface Snow Depth (cm)'
             levels = np.array([1,5,10,20,40,60,80,100,150,200,250])
-            levels_diff = np.array(
-                [-40,-20,-10,-5,-1,-0.1,0,0.1,1,5,10,20,40]
-            )
+            levels_diff = np.array([-15,-10,-5,-1,0,1,5,10,15])
             var_scale = 100
             var_units = 'cm'
         else:
@@ -873,9 +854,9 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.summer_r
         if var_GRIB_lvl_typ == '112': #layer between two depths below land surface (cm)
             levels = np.array([10,20,30,40,50,60,70,80,90,100])
-            levels_diff = np.array([-20,-15,-10,-5,-3,-1,0,1,3,5,10,15,20])
+            levels_diff = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5])
             var_scale = 100
-            var_units = 'fraction'
+            var_units = '%'
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
@@ -884,16 +865,16 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Specific Humidity'
         cmap = plt.cm.Greens
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array([1,2,4,6,8,10,12,14,16,18])
+            levels = np.nan
             levels_diff = np.array(
-                [-3,-2,-1,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,1,2,3]
+                [-3,-2,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,2,3]
             )
             var_scale = 1000
             var_units = 'g 'r'$\mathregular{kg^{-1}}$'''
         elif var_GRIB_lvl_typ == '105': #height level above ground (m)
             levels = np.array([1,2,4,6,8,10,12,14,16,18])
             levels_diff = np.array(
-                [-3,-2,-1,-0.6,-0.3,-0.1,0,0.1,0.3,0.6,1,2,3]
+                [-3,-2,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,2,3]
             )
             var_scale = 1000
             var_units = 'g 'r'$\mathregular{kg^{-1}}$'''
@@ -906,8 +887,8 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.YlOrBr
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([0.01,0.05,0.1,0.5,1,2,3,4,5,6])
-            levels_diff = np.array([-2,-1,-0.5,-0.1,0,0.1,0.5,1,2])
-            var_scale = (1./360.)
+            levels_diff = np.array([-2,-1,-0.5,-0.25,0,0.25,0.5,1,2])
+            var_scale = (1./3600.)
             var_units = 'hour'
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
@@ -953,9 +934,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array(
-                [-5,-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4,5]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -969,9 +948,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array(
-                [-5,-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4,5]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -985,67 +962,61 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array(
-                [-5,-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4,5]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '6': #maximum wind level
             levels = np.array(
                 [160,180,185,190,195,200,205,210,215,220,225,230,235,240]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '7': #tropopause
             levels = np.array(
                 [160,180,185,190,195,200,205,210,215,220,225,230,235,240]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
-            levels_diff = np.array(
-                [-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '105': #height level above ground (m)
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array(
-                [-5,-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4,5]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '107': #sigma level (sigma value in 1/10000)
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '213': #low cloud top level
             levels = np.array(
                 [220,225,230,235,240,245,250,255,260,265,270,275,280]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '223': #mid cloud top level
             levels = np.array(
                 [200,205,210,215,220,225,230,235,240,245,250,255,260]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '233': #high cloud top level
             levels = np.array(
                 [180,185,190,195,200,205,210,215,220,225,230,235,240]
             )
-            levels_diff = np.array([-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -1073,9 +1044,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array(
-                [-5,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,5]
-            )
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         else:
@@ -1089,9 +1058,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [-200,-160,-120,-80,-40,-10,10,40,80,120,160,200]
             )
-            levels_diff = np.array(
-                [-100,-50,-30,-20,-10,-5,0,5,10,20,30,50,100]
-            )
+            levels_diff = np.array([-75,-50,-25,-10,-5,0,5,10,25,50,75])
             var_scale = 1000
             var_units = '1000 * N 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -1103,46 +1070,34 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.PRGn
         if var_GRIB_lvl_typ == '6': #maximum wind level
             levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
+                [-50,-25,-10,-5,-3,-1,1,3,5,10,25,50]
             )
-            levels_diff = np.array([-20,-10,-5,-3,-2,-1,0,1,2,3,5,10,20])
+            levels_diff = np.array([-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '7': #tropopause
-            levels = np.array(
-               [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
+            levels_diff = np.array([-10,-5,-3,-2,-1,0,1,2,3,5,10])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array(
-                [-100,-70,-50,-30,-20,-10,-5,5,10,20,30,50,70,100]
-            )
-            levels_diff = np.array(
-                [-10,-7,-5,-3,-2,-1,0,1,2,3,5,7,10]
-            )
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
+            levels_diff = np.array([-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '105': #height level above ground (m)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-15,-10,-5,-2,-1,1,2,5,10,15])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '107': #sigma level (sigma value in 1/10000)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-15,-10,-5,-2,-1,1,2,5,10,15])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '220': #planetary Boundary Layer (derived from Richardson number)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-15,-10,-5,-2,-1,1,2,5,10,15])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -1154,9 +1109,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.PuRd
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([5,10,20,40,60,80,100,120,140,160,180])
-            levels_diff = np.array(
-                [-50,-30,-20,-10,-5,-2,0,2,5,10,20,30,50]
-            )
+            levels_diff = np.array([-50,-30,-20,-10,-5,0,5,10,20,30,50])
             var_scale = 1000
             var_units = '1000 * N 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -1204,9 +1157,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [-200,-160,-120,-80,-40,-10,10,40,80,120,160,200]
             )
-            levels_diff = np.array(
-                [-100,-50,-30,-20,-10,-5,0,5,10,20,30,50,100]
-            )
+            levels_diff = np.array([-75,-50,-25,-10,-5,0,5,10,25,50,75])
             var_scale = 1000
             var_units = '1000 * N 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -1217,49 +1168,33 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Meridional Wind'
         cmap = plt.cm.PRGn
         if var_GRIB_lvl_typ == '6': #maximum wind level
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-20,-10,-5,-3,-2,-1,0,1,2,3,5,10,20])
+            levels = np.array([-20,-10,-7,-5,-2,2,5,7,10,20])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '7': #tropopause
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array(
-                [-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10]
-            )
+            levels = np.array([-20,-10,-7,-5,-2,2,5,7,10,20])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array(
-                [-50,-30,-20,-10,-5,-1,1,5,10,20,30,50]
-            )
-            levels_diff = np.array(
-                [-10,-7,-5,-3,-2,-1,-0.5,-0.2,0,0.2,0.5,1,2,3,5,7,10]
-            )
+            levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '105': #height level above ground (m)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-10,-7,-5,-2,-1,1,2,5,7,10])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '107': #sigma level (sigma value in 1/10000)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-10,-7,-5,-2,-1,1,2,5,7,10])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         elif var_GRIB_lvl_typ == '220': #planetary Boundary Layer (derived from Richardson number)
-            levels = np.array(
-                [-50,-40,-30,-20,-10,-5,-3,-1,1,3,5,10,20,30,40,50]
-            )
-            levels_diff = np.array([-10,-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5,10])
+            levels = np.array([-10,-7,-5,-2,-1,1,2,5,7,10])
+            levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -1271,7 +1206,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.PuRd
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([5,10,20,40,60,80,100,120,140,160,180])
-            levels_diff = np.array([-50,-30,-20,-10,-5,-2,0,2,5,10,20,30,50])
+            levels_diff = np.array([-50,-30,-20,-10,-5,0,5,10,20,30,50])
             var_scale = 1000
             var_units = '1000 * N 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -1283,7 +1218,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.gray
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([1,2,4,6,8,10,15,20])
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 0.001
             var_units = 'km'
         else:
@@ -1295,7 +1230,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.magma_r
         if var_GRIB_lvl_typ == '220': #planetary Boundary Layer (derived from Richardson number)
             levels = np.array([5,10,15,20,25,30,35,40,45])
-            levels_diff = np.array([-15,-12,-9,-6,-3,-1,0,1,3,6,9,12,15])
+            levels_diff = np.array([-15,-10,-7,-5,-2,0,2,5,7,10,15])
             var_scale = 0.001
             var_units = ''r'$\mathregular{km^{2}}$'' 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -1306,13 +1241,13 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Vertical Velocity'
         cmap = plt.cm.PRGn
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.array([-4,-3,-2,-1,-0.5,-0.1,0.1,0.5,1,2,3,4])
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4])
+            levels = np.array([-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 36
             var_units = 'hPa 'r'$\mathregular{hour^{-1}}$'''
         elif var_GRIB_lvl_typ == '107': #sigma level (sigma value in 1/10000)
-            levels = np.array([-4,-3,-2,-1,-0.5,-0.1,0.1,0.5,1,2,3,4])
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4])
+            levels = np.array([-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 36
             var_units = 'hPa 'r'$\mathregular{hour^{-1}}$'''
         else:
@@ -1323,10 +1258,8 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_name = 'Vertical Speed Shear'
         cmap = plt.cm.PRGn
         if var_GRIB_lvl_typ == '7': #tropopause
-            levels = np.array(
-                [-100,-50,-40,-30,-20,-10,-5,-3,3,5,10,20,30,40,50,100]
-            )
-            levels_diff = np.array([-10,-5,-4,-3,-2,-1,0,1,2,3,4,5,10])
+            levels = np.array([-30,-20,-10,-5,-3,3,5,10,20,30])
+            levels_diff = np.array([-15,-10,-5,-2,0,2,5,10,15])
             var_scale = 3600
             var_units = ''r'$\mathregular{hour^{-1}}$'''
         else:
@@ -1341,7 +1274,7 @@ def get_maps2d_plot_settings(var_name, var_level):
                 [0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1]
             )
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'kg 'r'$\mathregular{m^{-2}}$'''
@@ -1354,7 +1287,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         cmap = plt.cm.Blues
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([0.1,0.5,1,3,6,10,20,30,40,50,70,90])
-            levels_diff = np.array([-8,-6,-4,-2,-1,-0.1,0,0.1,1,2,4,6,8])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'kg 'r'$\mathregular{m^{-2}}$'''
         else:
@@ -1367,7 +1300,7 @@ def get_maps2d_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '1': #surface
             levels = np.array([0.01,0.02,0.04,0.06,0.08,0.1,0.2,0.4,0.6,0.8,1])
             levels_diff = np.array(
-                [-1,-0.5,-0.1,-0.05,-0.01,0,0.01,0.05,0.1,0.5,1]
+                [-0.5,-0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5]
             )
             var_scale = 1
             var_units = 'fraction'

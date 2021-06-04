@@ -41,7 +41,7 @@ legend_ncol = 1
 title_loc = 'center'
 model_obs_plot_settings_dict = {
     'model1': {'color': '#000000',
-               'marker': 'None', 'markersize': 0,
+               'marker': 'o', 'markersize': 6,
                'linestyle': 'solid', 'linewidth': 3},
     'model2': {'color': '#FB2020',
                'marker': '^', 'markersize': 7,
@@ -112,6 +112,13 @@ plotting_out_dir_imgs = os.path.join(DATA, RUN, 'metplus_output', 'plot',
                                      plot_info, 'images')
 if not os.path.exists(plotting_out_dir_imgs):
     os.makedirs(plotting_out_dir_imgs)
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Read and plot stats
 print("Working on track and intensity error plots for "+plot_info)
@@ -425,12 +432,15 @@ if os.path.exists(summary_tcst_filename):
             full_title = (full_title+'Cycles: '+', '.join(init_hour_list)+', '
                           +' Valid Hours: '+', '.join(valid_hour_list))
             ax.set_title(full_title)
-            fig.figimage(noaa_logo_img_array,
-                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                 zorder=1, alpha=noaa_logo_alpha)
-            fig.figimage(nws_logo_img_array,
-                 nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                 zorder=1, alpha=nws_logo_alpha)
+            noaa_img = fig.figimage(noaa_logo_img_array,
+                                    noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                                    zorder=1, alpha=noaa_logo_alpha)
+            nws_img = fig.figimage(nws_logo_img_array,
+                                   nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                                   zorder=1, alpha=nws_logo_alpha)
+            if img_quality in ['low', 'medium']:
+                noaa_img.set_visible(False)
+                nws_img.set_visible(False)
             # Build savefig name
             savefig_name = os.path.join(
                 plotting_out_dir_imgs,

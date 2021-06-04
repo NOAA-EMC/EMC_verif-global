@@ -51,6 +51,7 @@ export SEND2WEB="NO"
 export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus_${PSLOT}"
+export img_quality="low"
 ## METPLUS SETTINGS
 export MET_version="9.1"
 export METplus_version="3.1"

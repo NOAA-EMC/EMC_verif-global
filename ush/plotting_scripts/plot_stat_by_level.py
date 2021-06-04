@@ -65,7 +65,7 @@ legend_ncol = 1
 title_loc = 'center'
 model_obs_plot_settings_dict = {
     'model1': {'color': '#000000',
-               'marker': 'None', 'markersize': 0,
+               'marker': 'o', 'markersize': 6,
                'linestyle': 'solid', 'linewidth': 3},
     'model2': {'color': '#FB2020',
                'marker': '^', 'markersize': 7,
@@ -167,8 +167,12 @@ if date_type == 'VALID':
 elif date_type == 'INIT':
     start_date = init_beg
     end_date = init_end
+img_quality = os.environ['img_quality']
 
 # General set up and settings
+# Image Quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
 # Logging
 logger = logging.getLogger(log_metplus)
 logger.setLevel(log_level)
@@ -180,6 +184,7 @@ formatter = logging.Formatter(
 file_handler = logging.FileHandler(log_metplus, mode='a')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+#Output
 output_data_dir = os.path.join(output_base_dir, 'data')
 #output_imgs_dir = os.path.join(output_base_dir, 'imgs')
 #### EMC-verif_global image directory
@@ -193,11 +198,31 @@ model_info_list = list(
 )
 nmodels = len(model_info_list)
 # Plot info
-plot_info_list = list(
-    itertools.product(*[fcst_lead_list,
-                        fcst_var_level_list,
-                        fcst_var_thresh_list])
+if fcst_var_name == 'O3MR':
+    plot_info_list = list(
+        itertools.product(*[fcst_lead_list,
+                          ['all'],
+                          fcst_var_thresh_list])
     )
+else:
+    plot_info_list = list(
+        itertools.product(*[fcst_lead_list,
+                          ['all', 'trop', 'strat'],
+                          fcst_var_thresh_list])
+    )
+# Level info
+fcst_var_level_all_list = []
+fcst_var_level_trop_list = []
+fcst_var_level_strat_list = []
+for fcst_var_level in fcst_var_level_list[0]:
+    fcst_var_level_all_list.append(fcst_var_level)
+    if int(fcst_var_level[1:]) > 100:
+        fcst_var_level_trop_list.append(fcst_var_level)
+    elif int(fcst_var_level[1:]) < 100:
+        fcst_var_level_strat_list.append(fcst_var_level)
+    elif int(fcst_var_level[1:]) == 100:
+        fcst_var_level_trop_list.append(fcst_var_level)
+        fcst_var_level_strat_list.append(fcst_var_level)
 # Date and time infomation and build title for plot
 date_beg = os.environ[date_type+'_BEG']
 date_end = os.environ[date_type+'_END']
@@ -245,10 +270,15 @@ nbase_columns = len(stat_file_base_columns)
 # Start looping to make plots
 for plot_info in plot_info_list:
     fcst_lead = plot_info[0]
-    fcst_var_levels = plot_info[1]
-    obs_var_levels = obs_var_level_list[
-        fcst_var_level_list.index(fcst_var_levels)
-    ]
+    if plot_info[1] == 'all':
+        fcst_var_levels = fcst_var_level_all_list
+    elif plot_info[1] == 'trop':
+        fcst_var_levels = fcst_var_level_trop_list
+    elif plot_info[1] == 'strat':
+        fcst_var_levels = fcst_var_level_strat_list
+    logger.info("Working on levels: "+plot_info[1]+" "
+                 +' '.join(fcst_var_levels))
+    obs_var_levels = fcst_var_levels
     fcst_var_thresh = plot_info[2]
     obs_var_thresh = obs_var_thresh_list[
         fcst_var_thresh_list.index(fcst_var_thresh)
@@ -549,9 +579,14 @@ for plot_info in plot_info_list:
             grid_vx_mask = verif_grid
         else:
             grid_vx_mask = verif_grid+vx_mask
-        var_info_title = plot_title.get_var_info_title(
-            fcst_var_name, 'all', fcst_var_extra, fcst_var_thresh
-        )
+        if verif_type in ['sfc', 'conus_sfc']:
+            var_info_title = plot_title.get_var_info_title(
+                fcst_var_name, 'all', fcst_var_extra, fcst_var_thresh
+            )
+        else:
+            var_info_title = plot_title.get_var_info_title(
+                var_name, 'all', fcst_var_extra, fcst_var_thresh
+            )
         vx_mask_title = plot_title.get_vx_mask_title(vx_mask)
         date_info_title = plot_title.get_date_info_title(
             date_type, fcst_valid_hour.split(', '),
@@ -571,12 +606,15 @@ for plot_info in plot_info_list:
             +date_info_title+', '+forecast_lead_title
         )
         ax.set_title(full_title, loc=title_loc)
-        fig.figimage(noaa_logo_img_array,
-                     noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
-                     zorder=1, alpha=noaa_logo_alpha)
-        fig.figimage(nws_logo_img_array,
-                     nws_logo_xpixel_loc, nws_logo_ypixel_loc,
-                     zorder=1, alpha=nws_logo_alpha)
+        noaa_img = fig.figimage(noaa_logo_img_array,
+                                noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
+                                zorder=1, alpha=noaa_logo_alpha)
+        nws_img = fig.figimage(nws_logo_img_array,
+                               nws_logo_xpixel_loc, nws_logo_ypixel_loc,
+                               zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
         #### EMC-verif_global build savefig name
         savefig_name = os.path.join(output_imgs_dir, stat)
         if date_type == 'VALID':
@@ -601,9 +639,9 @@ for plot_info in plot_info_list:
                     savefig_name+'_init'+fcst_init_hour.split(', ')[0][0:2]+'Z'
                 )
         if verif_case == 'grid2grid' and verif_type == 'anom':
-            savefig_name = savefig_name+'_'+var_name+'_all'
+            savefig_name = savefig_name+'_'+var_name+'_'+plot_info[1]
         else:
-            savefig_name = savefig_name+'_'+fcst_var_name+'_all'
+            savefig_name = savefig_name+'_'+fcst_var_name+'_'+plot_info[1]
         if verif_case == 'precip':
             savefig_name = savefig_name+'_'+fcst_var_thresh
         savefig_name = (savefig_name+'_fhr'+fcst_lead[:-4]

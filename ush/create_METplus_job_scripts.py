@@ -29,7 +29,7 @@ def init_env_dict():
                             environment variable values
     """
     env_var_list = [
-        'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
+        'machine', 'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
         'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
         'log_MET_output_to_METplus', 'METplus_verbosity', 'MET_version',
         'HOMEMET', 'HOMEMET_bin_exec', 'MET_verbosity', 'DATA', 'RUN', 'RM',
@@ -878,6 +878,7 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
     job_env_dict['plot_by'] = os.environ['plot_by']
+    job_env_dict['img_quality'] = os.environ['img_quality']
     if job_env_dict['plot_by'] == 'VALID':
         job_env_dict['VALID_BEG'] = start_date_dt.strftime('%Y%m%d')
         job_env_dict['VALID_END'] = end_date_dt.strftime('%Y%m%d')
@@ -1080,6 +1081,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         njob = int(os.environ['ncount_job'])
     # Initialize environment variable job dictionary
     job_env_dict = init_env_dict()
+    job_env_dict['img_quality'] = os.environ['img_quality']
     # Set important METplus paths
     make_met_data_conf_dir = os.path.join(conf_dir, case, 'make_met_data')
     gather_conf_dir = os.path.join(conf_dir, case, 'gather')
@@ -1493,6 +1495,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
     job_env_dict['END_DATE'] = end_date_dt.strftime('%Y%m%d')
     job_env_dict['latlon_area'] = os.environ[case_abbrev+'_latlon_area']
     job_env_dict['plot_diff'] = os.environ[case_abbrev+'_plot_diff']
+    job_env_dict['img_quality'] = os.environ['img_quality']
     # Set important METplus paths
     case_conf_dir = os.path.join(conf_dir, case)
     # Set up model environment variables in dictionary

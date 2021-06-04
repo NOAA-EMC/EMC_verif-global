@@ -340,14 +340,17 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
             ]
     return stat_file_line_type_columns
 
-def get_clevels(data):
-    """! Get contour levels for plotting
+def get_clevels(data, spacing):
+    """! Get contour levels for plotting differences
+         or bias (centered on 0)
 
               Args:
                   data    - array of data to be contoured
-
+                  spacing - float for spacing for power function,
+                            value of 1.0 gives evenly spaced
+                            contour intervals
               Returns:
-                  clevels - array of contoure levels
+                  clevels - array of contour levels
     """
     if np.abs(np.nanmin(data)) > np.nanmax(data):
        cmax = np.abs(np.nanmin(data))
@@ -355,13 +358,25 @@ def get_clevels(data):
     else:
        cmax = np.nanmax(data)
        cmin = -1 * np.nanmax(data)
+    if cmax > 100:
+        cmax = cmax - (cmax * 0.2)
+        cmin = cmin + (cmin * 0.2)
+    elif cmax > 10:
+        cmax = cmax - (cmax * 0.1)
+        cmin = cmin + (cmin * 0.1)
     if cmax > 1:
        cmin = round(cmin-1,0)
        cmax = round(cmax+1,0)
     else:
        cmin = round(cmin-0.1,1)
        cmax = round(cmax+0.1,1)
-    clevels = np.linspace(cmin, cmax, 11, endpoint=True)
+    steps = 6
+    span = cmax
+    dx = 1.0 / (steps-1)
+    pos = np.array([0 + (i*dx)**spacing*span for i in range(steps)],
+                   dtype=float)
+    neg = np.array(pos[1:], dtype=float) * -1
+    clevels = np.append(neg[::-1], pos)
     return clevels
 
 def calculate_average(logger, average_method, stat, model_dataframe,

@@ -235,6 +235,13 @@ if RUN_type == 'gdas':
     plot_stats_list = ['inc', 'rmse']
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up information
 env_var_model_list = []
@@ -768,6 +775,9 @@ for stat in plot_stats_list:
         nws_img = fig.figimage(nws_logo_img_array,
                                nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                                zorder=1, alpha=nws_logo_alpha)
+        if img_quality in ['low', 'medium']:
+            noaa_img.set_visible(False)
+            nws_img.set_visible(False)
         plt.subplots_adjust(
             left = noaa_img.get_extent()[1]/(
                 plt.rcParams['figure.dpi']*x_figsize

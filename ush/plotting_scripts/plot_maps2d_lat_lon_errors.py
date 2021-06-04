@@ -273,6 +273,13 @@ if RUN_type == 'model2model':
         forecast_anl_diff = 'NO'
 if RUN_type == 'model2obs':
    use_monthly_mean = os.environ['use_monthly_mean']
+img_quality = os.environ['img_quality']
+
+# Set image quality
+if img_quality == 'low':
+    plt.rcParams['savefig.dpi'] = 50
+elif img_quality == 'medium':
+    plt.rcParams['savefig.dpi'] = 75
 
 # Set up location of Natural Earth files
 if machine == 'HERA':
@@ -644,6 +651,9 @@ for var_level in var_levels:
     nws_img = fig.figimage(nws_logo_img_array,
                  nws_logo_xpixel_loc, nws_logo_ypixel_loc,
                  zorder=1, alpha=nws_logo_alpha)
+    if img_quality in ['low', 'medium']:
+        noaa_img.set_visible(False)
+        nws_img.set_visible(False)
     plt.subplots_adjust(
         left = noaa_img.get_extent()[1]/(plt.rcParams['figure.dpi']*x_figsize),
         right = nws_img.get_extent()[0]/(plt.rcParams['figure.dpi']*x_figsize)

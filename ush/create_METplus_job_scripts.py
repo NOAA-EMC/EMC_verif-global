@@ -100,12 +100,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 if case_type == 'upper_air':
                     obtype = 'gdas'
                 elif case_type == 'conus_sfc':
-                    if date_dt \
-                            >= datetime.datetime.strptime('20170320',
-                                                          '%Y%m%d'):
                         obtype = 'nam'
-                    else:
-                        obtype = 'ndas'
                 elif case_type == 'polar_sfc':
                     obtype = 'iabp'
                 job_env_dict['obtype'] = obtype

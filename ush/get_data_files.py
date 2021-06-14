@@ -1093,128 +1093,69 @@ elif RUN == 'grid2obs_step1':
                         prepbufr_dict['file_type'] = prepbufr
                         prepbufr_dict_list.append(prepbufr_dict)
                     elif RUN_type == 'conus_sfc':
-                        if valid_time \
-                                >= datetime.datetime.strptime('20170320',
-                                                              '%Y%m%d'):
-                            prepbufr = 'nam'
-                        else:
-                            prepbufr = 'ndas'
+                        prepbufr = 'nam'
                         link_prepbufr_file = os.path.join(
                             link_prepbufr_dir, 'prepbufr.'+prepbufr+'.'
                             +YYYYmmddHH
                         )
-                        if prepbufr == 'nam':
-                            offset_hr = str(int(HH)%6).zfill(2)
-                            offset_time = valid_time + datetime.timedelta(
-                                hours=int(offset_hr)
+                        offset_hr = str(int(HH)%6).zfill(2)
+                        offset_time = valid_time + datetime.timedelta(
+                            hours=int(offset_hr)
+                        )
+                        offset_YYYYmmddHH = offset_time.strftime('%Y%m%d%H')
+                        offset_YYYYmmdd = offset_time.strftime('%Y%m%d')
+                        offset_YYYYmm = offset_time.strftime('%Y%m')
+                        offset_YYYY = offset_time.strftime('%Y')
+                        offset_mm = offset_time.strftime('%m')
+                        offset_dd = offset_time.strftime('%d')
+                        offset_HH = offset_time.strftime('%H')
+                        offset_filename = (
+                            'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
+                        )
+                        prepbufr_prod_file = os.path.join(
+                            prepbufr_prod_conus_sfc_dir, 'nam.'
+                            +offset_YYYYmmdd, offset_filename
+                        )
+                        prepbufr_arch_file = os.path.join(
+                            prepbufr_arch_dir, 'nam', 'nam.'
+                            +offset_YYYYmmdd, offset_filename
+                        )
+                        if offset_time \
+                                >= datetime.datetime.strptime('20200227',
+                                                              '%Y%m%d') \
+                                or offset_time \
+                                == datetime.datetime.strptime('20170320'
+                                                              +offset_HH,
+                                                              '%Y%m%d%H'):
+                            prepbufr_hpss_tar_prefix = 'com_nam_prod_nam.'
+                        elif offset_time \
+                                >= datetime.datetime.strptime('20190821',
+                                                              '%Y%m%d') \
+                                and offset_time \
+                                < datetime.datetime.strptime('20200227',
+                                                             '%Y%m%d'):
+                            prepbufr_hpss_tar_prefix = (
+                                'gpfs_dell1_nco_ops_com_nam_prod_nam.'
                             )
-                            offset_YYYYmmddHH = offset_time.strftime('%Y%m%d%H')
-                            offset_YYYYmmdd = offset_time.strftime('%Y%m%d')
-                            offset_YYYYmm = offset_time.strftime('%Y%m')
-                            offset_YYYY = offset_time.strftime('%Y')
-                            offset_mm = offset_time.strftime('%m')
-                            offset_dd = offset_time.strftime('%d')
-                            offset_HH = offset_time.strftime('%H')
-                            offset_filename = (
-                                'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
-                            )
-                            prepbufr_prod_file = os.path.join(
-                                prepbufr_prod_conus_sfc_dir, 'nam.'
-                                +offset_YYYYmmdd, offset_filename
-                            )
-                            prepbufr_arch_file = os.path.join(
-                                prepbufr_arch_dir, 'nam', 'nam.'
-                                +offset_YYYYmmdd, offset_filename
-                            )
-                            if offset_time \
-                                    >= datetime.datetime.strptime('20200227',
-                                                                  '%Y%m%d') \
-                                   or offset_time \
-                                   == datetime.datetime.strptime('20170320'
-                                                                 +offset_HH,
-                                                                 '%Y%m%d%H'):
-                                prepbufr_hpss_tar_prefix = 'com_nam_prod_nam.'
-                            elif offset_time \
-                                    >= datetime.datetime.strptime('20190821',
-                                                                  '%Y%m%d') \
-                                    and offset_time \
-                                    < datetime.datetime.strptime('20200227',
-                                                                 '%Y%m%d'):
-                                prepbufr_hpss_tar_prefix = (
-                                    'gpfs_dell1_nco_ops_com_nam_prod_nam.'
-                                )
-                            else:
-                                prepbufr_hpss_tar_prefix = 'com2_nam_prod_nam.'
-                            prepbufr_hpss_tar = os.path.join(
-                                hpss_prod_base_dir, 'rh'+offset_YYYY,
-                                offset_YYYYmm, offset_YYYYmmdd,
-                                prepbufr_hpss_tar_prefix
-                                +offset_YYYYmmddHH+'.bufr.tar')
-                            prepbufr_hpss_file = offset_filename
-                            prepbufr_dict = {}
-                            prepbufr_dict['prod_file'] = prepbufr_prod_file
-                            prepbufr_dict['arch_file'] = prepbufr_arch_file
-                            prepbufr_dict['hpss_tar'] = prepbufr_hpss_tar
-                            prepbufr_dict['hpss_file'] = prepbufr_hpss_file
-                            prepbufr_dict['hpss_job_filename'] = os.path.join(
-                                link_prepbufr_dir, 'HPSS_jobs', 'HPSS_'
-                                +prepbufr_hpss_tar.rpartition('/')[2]
-                                +'_'+prepbufr_hpss_file.replace('/', '_')+'.sh'
-                            )
-                            prepbufr_dict_list.append(prepbufr_dict)
-                        elif prepbufr == 'ndas':
-                            ndas_date_dict = {}
-                            for xhr in ['00', '03', '06', '09',
-                                        '12', '15', '18', '21']:
-                                xdate = valid_time + datetime.timedelta(hours=int(xhr))
-                                ndas_date_dict['YYYY'+xhr] = xdate.strftime('%Y')
-                                ndas_date_dict['YYYYmm'+xhr] = xdate.strftime('%Y%m')
-                                ndas_date_dict['YYYYmmdd'+xhr] = xdate.strftime('%Y%m%d')
-                                ndas_date_dict['HH'+xhr] = xdate.strftime('%H')
-                            if ndas_date_dict['HH00'] in ['00', '06', '12', '18']:
-                                ndas_hour_list = ['12', '06', '00']
-                            elif ndas_date_dict['HH00'] in ['03', '09', '15', '21']:
-                                ndas_hour_list = ['09', '03']
-                            for ndas_hour in ndas_hour_list:
-                                ndas_hour_filename = (
-                                    'ndas.t'+ndas_date_dict['HH'+ndas_hour]
-                                     +'z.prepbufr.tm'+ndas_hour
-                                )
-                                prepbufr_prod_file = os.path.join(
-                                    prepbufr_prod_conus_sfc_dir, 'ndas.'
-                                    +ndas_date_dict['YYYYmmdd'+ndas_hour],
-                                    ndas_hour_filename
-                                )
-                                prepbufr_arch_file = os.path.join(
-                                    prepbufr_arch_dir, 'ndas', 'ndas.'
-                                    +ndas_date_dict['YYYYmmdd'+ndas_hour],
-                                    ndas_hour_filename
-                                )
-                                prepbufr_hpss_tar = os.path.join(
-                                    hpss_prod_base_dir, 'rh'
-                                    +ndas_date_dict['YYYY'+ndas_hour],
-                                    ndas_date_dict['YYYYmm'+ndas_hour],
-                                    ndas_date_dict['YYYYmmdd'+ndas_hour],
-                                    'com_nam_prod_ndas.'
-                                    +ndas_date_dict['YYYYmmdd'+ndas_hour]
-                                    +ndas_date_dict['HH'+ndas_hour]
-                                    +'.bufr.tar'
-                                )
-                                prepbufr_hpss_file = ndas_hour_filename
-                                prepbufr_dict = {}
-                                prepbufr_dict['prod_file'] = prepbufr_prod_file
-                                prepbufr_dict['arch_file'] = prepbufr_arch_file
-                                prepbufr_dict['hpss_tar'] = prepbufr_hpss_tar
-                                prepbufr_dict['hpss_file'] = prepbufr_hpss_file
-                                prepbufr_dict['hpss_job_filename'] = (
-                                    os.path.join(link_prepbufr_dir,
-                                                 'HPSS_jobs', 'HPSS_'
-                                                 +prepbufr_hpss_tar \
-                                                 .rpartition('/')[2]
-                                                 +'_'+prepbufr_hpss_file \
-                                                 .replace('/', '_')+'.sh')
-                                )
-                                prepbufr_dict_list.append(prepbufr_dict)
+                        else:
+                            prepbufr_hpss_tar_prefix = 'com2_nam_prod_nam.'
+                        prepbufr_hpss_tar = os.path.join(
+                            hpss_prod_base_dir, 'rh'+offset_YYYY,
+                            offset_YYYYmm, offset_YYYYmmdd,
+                            prepbufr_hpss_tar_prefix
+                            +offset_YYYYmmddHH+'.bufr.tar')
+                        prepbufr_hpss_file = offset_filename
+                        prepbufr_dict = {}
+                        prepbufr_dict['prod_file'] = prepbufr_prod_file
+                        prepbufr_dict['arch_file'] = prepbufr_arch_file
+                        prepbufr_dict['hpss_tar'] = prepbufr_hpss_tar
+                        prepbufr_dict['hpss_file'] = prepbufr_hpss_file
+                        prepbufr_dict['hpss_job_filename'] = os.path.join(
+                            link_prepbufr_dir, 'HPSS_jobs', 'HPSS_'
+                            +prepbufr_hpss_tar.rpartition('/')[2]
+                            +'_'+prepbufr_hpss_file.replace('/', '_')+'.sh'
+                        )
+                        prepbufr_dict_list.append(prepbufr_dict)
                     # Get prepbufr file
                     if not os.path.exists(link_prepbufr_file):
                         for prepbufr_dict in prepbufr_dict_list:

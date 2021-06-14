@@ -304,6 +304,8 @@ if not os.path.exists(plotting_out_dir_imgs):
 # Set up level dictionary
 all_var_levels_list = []
 trop_var_levels_list = []
+lower_trop_var_levels_list = []
+upper_trop_var_levels_list = []
 strat_var_levels_list = []
 for var_level in var_levels:
     all_var_levels_list.append(var_level)
@@ -311,9 +313,16 @@ for var_level in var_levels:
         trop_var_levels_list.append(var_level)
     if int(var_level.replace('hPa','')) <= 100:
         strat_var_levels_list.append(var_level)
+    if int(var_level.replace('hPa','')) >= 500:
+        lower_trop_var_levels_list.append(var_level)
+    if int(var_level.replace('hPa','')) <= 500 \
+            and int(var_level.replace('hPa','')) >= 100:
+        upper_trop_var_levels_list.append(var_level)
 var_levels_type_dict = {
     'all': all_var_levels_list,
     'trop': trop_var_levels_list,
+    'lowertrop': lower_trop_var_levels_list,
+    'uppertrop': upper_trop_var_levels_list,
     'strat': strat_var_levels_list
 }
 

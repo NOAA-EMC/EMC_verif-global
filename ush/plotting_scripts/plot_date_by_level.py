@@ -164,12 +164,14 @@ if fcst_var_name == 'O3MR':
 else:
     plot_info_list = list(
         itertools.product(*[fcst_lead_list,
-                          ['all', 'trop', 'strat'],
+                          ['all', 'trop', 'lowertrop', 'uppertrop', 'strat'],
                           fcst_var_thresh_list])
     )
 # Level info
 fcst_var_level_all_list = []
 fcst_var_level_trop_list = []
+fcst_var_level_lower_trop_list = []
+fcst_var_level_upper_trop_list = []
 fcst_var_level_strat_list = []
 for fcst_var_level in fcst_var_level_list[0]:
     fcst_var_level_all_list.append(fcst_var_level)
@@ -180,6 +182,10 @@ for fcst_var_level in fcst_var_level_list[0]:
     elif int(fcst_var_level[1:]) == 100:
         fcst_var_level_trop_list.append(fcst_var_level)
         fcst_var_level_strat_list.append(fcst_var_level)
+    if int(fcst_var_level[1:]) >= 500:
+        fcst_var_level_lower_trop_list.append(fcst_var_level)
+    if int(fcst_var_level[1:]) <= 500 and int(fcst_var_level[1:]) >= 100:
+        fcst_var_level_upper_trop_list.append(fcst_var_level)
 # Date and time infomation and build title for plot
 date_beg = os.environ[date_type+'_BEG']
 date_end = os.environ[date_type+'_END']
@@ -230,6 +236,10 @@ for plot_info in plot_info_list:
         fcst_var_levels = fcst_var_level_all_list
     elif plot_info[1] == 'trop':
         fcst_var_levels = fcst_var_level_trop_list
+    elif plot_info[1] == 'lowertrop':
+        fcst_var_levels = fcst_var_level_lower_trop_list
+    elif plot_info[1] == 'uppertrop':
+        fcst_var_levels = fcst_var_level_upper_trop_list
     elif plot_info[1] == 'strat':
         fcst_var_levels = fcst_var_level_strat_list
     logger.info("Working on levels: "+plot_info[1]+" "

@@ -100,12 +100,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 if case_type == 'upper_air':
                     obtype = 'gdas'
                 elif case_type == 'conus_sfc':
-                    if date_dt \
-                            >= datetime.datetime.strptime('20170320',
-                                                          '%Y%m%d'):
                         obtype = 'nam'
-                    else:
-                        obtype = 'ndas'
                 elif case_type == 'polar_sfc':
                     obtype = 'iabp'
                 job_env_dict['obtype'] = obtype
@@ -629,7 +624,23 @@ def create_job_scripts_step2(start_date_dt, end_date_dt, case, case_abbrev,
                                                'P150', 'P100', 'P50',
                                                'P10', 'P5', 'P1'],
                            'obs_var_thresholds': '',
-                           'obs_var_options': ''}
+                           'obs_var_options': ''},
+                    'SPFH': {'fcst_var_name': 'SPFH',
+                             'fcst_var_levels': ['P1000', 'P925', 'P850',
+                                                 'P700', 'P500', 'P400',
+                                                 'P300', 'P250', 'P200',
+                                                 'P150', 'P100', 'P50',
+                                                 'P10', 'P5', 'P1'],
+                             'fcst_var_thresholds': '',
+                             'fcst_var_options': '',
+                             'obs_var_name': 'SPFH',
+                             'obs_var_levels': ['P1000', 'P925', 'P850',
+                                                'P700', 'P500', 'P400',
+                                                'P300', 'P250', 'P200',
+                                                'P150', 'P100', 'P50',
+                                                'P10', 'P5', 'P1'],
+                             'obs_var_thresholds': '',
+                             'obs_var_options': ''},
                 }
             },
             'VL1L2': {

@@ -384,9 +384,9 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    elif machine == 'ORION':
-        print("ERROR: No HPSS access from Orion")
-    if machine != 'ORION':
+    elif machine in ['ORION', 'S4']:
+        print("ERROR: No HPSS access from "+machine)
+    if machine not in ['ORION', 'S4']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)
@@ -611,8 +611,8 @@ hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 cwd = os.getcwd()
 
 # No HPSS access from Orion
-if machine == 'ORION':
-    print("WARNING: Orion does not currently have access to HPSS..."
+if machine in ['ORION', 'S4']:
+    print("WARNING: "+machine+" does not currently have access to HPSS..."
           +"setting model_data_runhpss to NO")
     model_data_run_hpss = 'NO'
 
@@ -817,8 +817,8 @@ elif RUN == 'grid2obs_step1':
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     iabp_ftp = os.environ['iabp_ftp']
     # No HPSS access from Orion
-    if machine == 'ORION':
-        print("WARNING: Orion does not currently have access to HPSS..."
+    if machine in ['ORION', 'S4']:
+        print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_prepbufr_data_run_hpss to NO")
         prepbufr_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
@@ -1225,8 +1225,9 @@ elif RUN == 'grid2obs_step1':
                             hpss_job_filename = (
                                 prepbufr_dict['hpss_job_filename']
                             )
-                            #Make sure using non restricted data for Orion
-                            if machine == 'ORION':
+                            #Make sure using non restricted data for
+                            #Orion and S4
+                            if machine in ['ORION', 'S4']:
                                 prod_file = prod_file+'.nr'
                                 arch_file = arch_file+'.nr'
                                 hpss_file = hpss_file+'.nr'
@@ -1324,8 +1325,8 @@ elif RUN == 'precip_step1':
     ccpa_accum24hr_prod_dir = os.environ['ccpa_24hr_prod_dir']
     ccpa_accum24hr_arch_dir = os.environ['ccpa_24hr_arch_dir']
     # No HPSS access from Orion
-    if machine == 'ORION':
-        print("WARNING: Orion does not currently have access to HPSS..."
+    if machine in ['ORION', 'S4']:
+        print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_obs_data_run_hpss to NO")
         obs_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list

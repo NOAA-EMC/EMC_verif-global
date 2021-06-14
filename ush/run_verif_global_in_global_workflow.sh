@@ -211,7 +211,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -267,6 +267,11 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
+elif [ $machine = "S4" ]; then
+    export global_archive=""
+    export prepbufr_arch_dir=""
+    export ccpa_24hr_arch_dir=""
+
 fi
 
 ## Set operational directories

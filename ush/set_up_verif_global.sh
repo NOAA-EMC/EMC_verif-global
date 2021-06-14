@@ -74,7 +74,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -110,6 +110,8 @@ elif [ $machine = "WCOSS_C" ] ; then
     export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS_DELL_P3" ]; then
     export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
+elif [ $machine = "S4" ]; then
+    export FIXverif_global="/data/prod/glopara/fix/fix_verif"
 fi
 
 ## Set machine specific account, queues, and run settings
@@ -140,6 +142,14 @@ elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
     elif [ $machine = "WCOSS_DELL_P3" ]; then
         export nproc="28"
     fi
+    export MPMD="YES"
+elif [ $machine = "S4" ]; then
+    export ACCOUNT="star"
+    export QUEUE="s4"
+    export QUEUESHARED="s4"
+    export QUEUESERV="service"
+    export PARTITION_BATCH="s4"
+    export nproc="32"
     export MPMD="YES"
 fi
 
@@ -188,6 +198,17 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export obdata_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
+elif [ $machine = "S4" ]; then
+    export NWROOT=${NWROOT:-"/data/prod/glopara/nwpara"}
+    export HOMEDIR="/data/users/$USER"
+    export STMP="/scratch/short/users/$USER"
+    export PTMP="/scratch/users/$USER"
+    export NOSCRUB="/data/users/$USER"
+    export global_archive=""
+    export prepbufr_arch_dir=""
+    export obdata_dir=""
+    export ccpa_24hr_arch_dir=""
+    export METviewer_AWS_scripts_dir=""
 fi
 
 ## Set operational directories

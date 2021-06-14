@@ -149,6 +149,31 @@ elif [ $machine = ORION ]; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module load grib_util/1.2.0
     module load prod_util/1.2.0
+elif [ $machine = S4 ]; then
+    source /opt/apps/lmod/init/sh
+    module purge
+    module load license_intel/S4
+    module load intel/18.0.3
+    if [ $MET_version = 9.1 ]; then
+        module load met/9.1
+        export HOMEMET=""
+        export HOMEMET_bin_exec=""
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 3.1 ]; then
+        module load metplus/3.1
+        export HOMEMETplus="${METPLUS_PATH}"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
+    module load netcdf/4.7.4
+    module load wgrib2/2.0.8v6
+    module load grib_util/1.2.2
+    module load prod_util/1.2.1
+    module load nco/4.9.3
 else
     echo "ERROR: $machine is not supported"
     exit 1

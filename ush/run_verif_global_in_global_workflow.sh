@@ -268,10 +268,9 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
 elif [ $machine = "S4" ]; then
-    export global_archive=""
-    export prepbufr_arch_dir=""
-    export ccpa_24hr_arch_dir=""
-
+    export global_archive="/data/prod/glopara/MET_data/archive"
+    export prepbufr_arch_dir="/data/prod/glopara/MET_data/prepbufr"
+    export ccpa_24hr_arch_dir="/data/prod/glopara/MET_data/obdata/ccpa_accum24hr"
 fi
 
 ## Set operational directories

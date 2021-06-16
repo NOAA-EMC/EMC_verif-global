@@ -204,11 +204,11 @@ elif [ $machine = "S4" ]; then
     export STMP="/scratch/short/users/$USER"
     export PTMP="/scratch/users/$USER"
     export NOSCRUB="/data/users/$USER"
-    export global_archive=""
-    export prepbufr_arch_dir=""
-    export obdata_dir=""
-    export ccpa_24hr_arch_dir=""
-    export METviewer_AWS_scripts_dir=""
+    export global_archive="/data/prod/glopara/MET_data/archive"
+    export prepbufr_arch_dir="/data/prod/glopara/MET_data/prepbufr"
+    export obdata_dir="/data/prod/glopara/MET_data/obdata"
+    export ccpa_24hr_arch_dir="/data/prod/glopara/MET_data/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/data/prod/glopara/MET_data/METviewer_AWS"
 fi
 
 ## Set operational directories

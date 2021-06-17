@@ -82,7 +82,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA -o $machine = ORION ]; then
+        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -97,7 +97,7 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine != "ORION" ]; then
+if [ $machine != "ORION" -o $machine = S4 ]; then
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 

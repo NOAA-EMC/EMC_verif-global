@@ -154,23 +154,34 @@ elif [ $machine = S4 ]; then
     module purge
     module load license_intel/S4
     module load intel/18.0.3
+    module load emc-hpc-stack/2020-q3
+    module load netcdf/4.7.4
+    module load hdf5/1.10.6
+    module load zlib/1.2.11
+    module load png/1.6.35
+    module load jasper/2.0.22
+    module load wgrib2/2.0.8v6
+    module load bufr/11.4.0
+    module load gsl/2.6
+    module load hdf/4.2.14
+    module load hdfeos2/2.20
+    module load g2c/1.6.2
+    module load miniconda/3.8-s4
     if [ $MET_version = 9.1 ]; then
-        module load met/9.1
-        export HOMEMET=""
-        export HOMEMET_bin_exec=""
+        #module load met/9.1
+        export HOMEMET="/data/users/dhuber/MET"
+        export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module load metplus/3.1
-        export HOMEMETplus="${METPLUS_PATH}"
+        #module load metplus/3.1
+        export HOMEMETplus="/data/users/dhuber/METplus"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load netcdf/4.7.4
-    module load wgrib2/2.0.8v6
     module load grib_util/1.2.2
     module load prod_util/1.2.1
     module load nco/4.9.3
@@ -185,7 +196,11 @@ if [ $machine != "ORION" ]; then
     export NCAP2=`which ncap2`
     export CONVERT=`which convert`
     export NCDUMP=`which ncdump`
-    export HTAR=`which htar`
+    if [ $machine == "S4" ]; then
+        export HTAR="/null/htar"
+    else
+        export HTAR=`which htar`
+    fi
 fi
 if [ $machine = "ORION" ]; then
     export RM=`which rm | sed 's/rm is //g'`

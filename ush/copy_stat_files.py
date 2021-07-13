@@ -120,7 +120,7 @@ for RUN_type in RUN_type_list:
                             os.makedirs(COMOUT)
                         print("Copying "+verif_global_file+" to "+comout_file)
                         os.system('cpfs '+verif_global_file+' '+comout_file)
-                        if SENDDBM == 'YES':
+                        if SENDDBN == 'YES':
                             os.system(
                                 os.getenv('DBNROOT', '')+'/bin/dbn_alert '
                                 +'MODEL VERIF_GLOBAL '+os.environ['job']+' '

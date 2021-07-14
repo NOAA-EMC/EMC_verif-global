@@ -49,7 +49,7 @@ if 'machine' not in vars():
     )
     venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
                            hostname)
-    vars_match2 = re.match(
+    venus_match2 = re.match(
         re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
     )
     s4_match = re.match(re.compile(r"s4-submit.ssec.wisc.edu"), hostname)

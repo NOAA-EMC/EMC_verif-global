@@ -44,15 +44,21 @@ if 'machine' not in vars():
     luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
     mars_match = re.match(re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
                           hostname)
+    mars_match2 = re.match(
+        re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
+    )
     venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
                            hostname)
+    vars_match2 = re.match(
+        re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
+    )
     if hera_match:
         machine = 'HERA'
     elif orion_match:
         machine = 'ORION'
     elif surge_match or luna_match:
         machine = 'WCOSS_C'
-    elif mars_match or venus_match:
+    elif mars_match or venus_match or mars_match2 or venus_match2:
         machine = 'WCOSS_DELL_P3'
     else:
         print("Cannot find match for "+hostname)

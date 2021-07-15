@@ -1166,11 +1166,20 @@ elif RUN == 'grid2obs_step1':
                             hpss_job_filename = (
                                 prepbufr_dict['hpss_job_filename']
                             )
-                            #Make sure using non restricted data for Orion
+                            #Check for rstprod access on Orion
                             if machine == 'ORION':
-                                prod_file = prod_file+'.nr'
-                                arch_file = arch_file+'.nr'
-                                hpss_file = hpss_file+'.nr'
+                                groups_output = subprocess.check_output(
+                                    'groups', shell=True, encoding='UTF-8'
+                                )
+                                if 'rstprod' in groups_output:
+                                    arch_file = arch_file.replace(
+                                        prepbufr_arch_dir,
+                                        '/work/noaa/rstprod/verif/prepbufr'
+                                    )
+                                else:
+                                    prod_file = prod_file+'.nr'
+                                    arch_file = arch_file+'.nr'
+                                    hpss_file = hpss_file+'.nr'
                             if os.path.exists(prod_file):
                                 os.system('ln -sf '+prod_file+' '
                                           +link_prepbufr_file)

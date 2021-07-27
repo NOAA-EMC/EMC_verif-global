@@ -150,7 +150,7 @@ elif [ $machine = ORION ]; then
     module load grib_util/1.2.0
     module load prod_util/1.2.0
 elif [ $machine = S4 ]; then
-    source /opt/apps/lmod/init/sh
+    source /opt/apps/lmod/lmod/init/sh
     module purge
     module load license_intel/S4
     module load intel/18.0.3

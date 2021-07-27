@@ -199,13 +199,14 @@ if [ $machine != "ORION" ]; then
     export RM=`which rm`
     export CUT=`which cut`
     export TR=`which tr`
-    export NCAP2=`which ncap2`
     export CONVERT=`which convert`
     export NCDUMP=`which ncdump`
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
     else
         export HTAR=`which htar`
+        export NCAP2=`which ncap2`
     fi
 fi
 if [ $machine = "ORION" ]; then

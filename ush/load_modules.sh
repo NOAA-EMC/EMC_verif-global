@@ -154,13 +154,21 @@ elif [ $machine = S4 ]; then
     module purge
     module load license_intel/S4
     module load intel/18.0.3
-    module load emc-hpc-stack/2020-q3
+    module load license_intel/S4
+    module use /data/prod/hpc-stack/modulefiles/stack
+    module use /data/prod/glopara/contrib/MET/modulefiles
+    module load hpc/1.1.0
+    module load hpc-intel/18.0.4
+    module load hpc-impi/18.0.4
+    module load met/9.1
+    module use /data/prod/glopara/contrib/METplus/modulefiles
+    module load metplus/3.1
     module load netcdf/4.7.4
     module load hdf5/1.10.6
     module load zlib/1.2.11
     module load png/1.6.35
-    module load jasper/2.0.22
-    module load wgrib2/2.0.8v6
+    module load jasper/2.0.25
+    module load wgrib2/2.0.8
     module load bufr/11.4.0
     module load gsl/2.6
     module load hdf/4.2.14

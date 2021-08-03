@@ -153,8 +153,6 @@ elif [ $machine = S4 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge
     module load license_intel/S4
-    module load intel/18.0.3
-    module load license_intel/S4
     module use /data/prod/hpc-stack/modulefiles/stack
     module load hpc/1.1.0
     module load hpc-intel/18.0.4

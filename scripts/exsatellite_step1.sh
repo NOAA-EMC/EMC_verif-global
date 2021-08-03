@@ -28,7 +28,7 @@ mkdir -p $RUN
 cd $RUN
 
 # Check machine to be sure we can get the data
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|S4)$ ]]; then
     echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
     exit
 fi
@@ -88,7 +88,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA -o $machine = ORION ]; then
+        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

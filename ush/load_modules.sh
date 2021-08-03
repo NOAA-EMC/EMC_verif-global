@@ -149,6 +149,48 @@ elif [ $machine = ORION ]; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module load grib_util/1.2.0
     module load prod_util/1.2.0
+elif [ $machine = S4 ]; then
+    source /usr/share/lmod/lmod/init/sh
+    module purge
+    module load license_intel/S4
+    module load intel/18.0.3
+    module load license_intel/S4
+    module use /data/prod/hpc-stack/modulefiles/stack
+    module load hpc/1.1.0
+    module load hpc-intel/18.0.4
+    module load hpc-impi/18.0.4
+    module load netcdf/4.7.4
+    module load hdf5/1.10.6
+    module load zlib/1.2.11
+    module load png/1.6.35
+    module load jasper/2.0.25
+    module load wgrib2/2.0.8
+    module load bufr/11.4.0
+    module load gsl/2.6
+    module load hdf/4.2.14
+    module load hdfeos2/2.20
+    module load g2c/1.6.2
+    module load miniconda/3.8-s4
+    if [ $MET_version = 9.1 ]; then
+        module use /data/prod/glopara/contrib/MET/modulefiles
+        module load met/9.1
+        export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
+        export HOMEMET_bin_exec="bin"
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 3.1 ]; then
+        module use /data/prod/glopara/contrib/METplus/modulefiles
+        module load metplus/3.1
+        export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
+    module load grib_util/1.2.2
+    module load prod_util/1.2.1
+    module load nco/4.9.3
 else
     echo "ERROR: $machine is not supported"
     exit 1
@@ -157,10 +199,15 @@ if [ $machine != "ORION" ]; then
     export RM=`which rm`
     export CUT=`which cut`
     export TR=`which tr`
-    export NCAP2=`which ncap2`
     export CONVERT=`which convert`
     export NCDUMP=`which ncdump`
-    export HTAR=`which htar`
+    if [ $machine == "S4" ]; then
+        export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
+    else
+        export HTAR=`which htar`
+        export NCAP2=`which ncap2`
+    fi
 fi
 if [ $machine = "ORION" ]; then
     export RM=`which rm | sed 's/rm is //g'`

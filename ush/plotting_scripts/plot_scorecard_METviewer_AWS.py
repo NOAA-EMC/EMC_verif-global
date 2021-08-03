@@ -436,7 +436,7 @@ if SEND2WEB == 'YES':
                   +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
                   +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '
                   +web_job_filename)
-    elif machine in ['HERA', 'ORION']:
+    elif machine in ['HERA', 'ORION', 'S4']:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '

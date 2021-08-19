@@ -53,7 +53,7 @@ if 'machine' not in vars():
         re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
     )
     s4_match = re.match(re.compile(r"s4-submit.ssec.wisc.edu"), hostname)
-    jet_match = re.match(re.compile(r"^fe[0-9]{2}"), hostname)
+    jet_match = re.match(re.compile(r"^fe[0-9]{1}"), hostname)
     if hera_match:
         machine = 'HERA'
     elif orion_match:

@@ -1708,7 +1708,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                         +'job'+str(njob)+'_'
                                                         +model+'.sh')+'\n')
                         job_file.write('\n')
-                    if os.environ['machine'] == 'ORION':
+                    if os.environ['machine'] in ['ORION', 'S4', 'JET']:
                         job_file.write('echo "WARNING: Cartopy not installed '
                                        +'on Orion, cannot create plots."\n')
                     else:
@@ -1841,7 +1841,7 @@ if MPMD == 'YES':
         node = 1
     while njob <= njob_files:
         job = 'job'+str(njob)
-        if machine in ['HERA', 'ORION', 'S4']:
+        if machine in ['HERA', 'ORION', 'S4', 'JET']:
             if iproc >= nproc:
                 poe_file.close()
                 iproc = 0
@@ -1851,7 +1851,7 @@ if MPMD == 'YES':
         if iproc == 0:
             poe_file = open(poe_filename, 'w')
         iproc+=1
-        if machine in ['HERA', 'ORION', 'S4']:
+        if machine in ['HERA', 'ORION', 'S4', 'JET']:
             poe_file.write(
                 str(iproc-1)+' '
                 +os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'

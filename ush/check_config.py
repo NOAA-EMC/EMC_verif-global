@@ -154,6 +154,10 @@ RUN_type_env_vars_dict = {
                             'sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh',
                             'sat2_ghrsst_ospo_geopolar_anl_event_eq',
                             'sat2_ghrsst_ospo_geopolar_anl_grid'],
+    'RUN_FIT2OBS_PLOTS': ['fit2obs_plots_expnlist', 'fit2obs_plots_expdlist',
+                          'fit2obs_plots_endianlist', 'fit2obs_plots_cycle',
+                          'fit2obs_plots_oinc', 'fit2obs_plots_finc',
+                          'fit2obs_plots_fmax', 'fit2obs_plots_scrdir'],
     'RUN_TROPCYC': ['tropcyc_model_atcf_name_list',
                     'tropcyc_model_plot_name_list',
                     'tropcyc_storm_list', 'tropcyc_fcyc_list',
@@ -199,7 +203,7 @@ for RUN_type_env_check in RUN_type_env_check_list:
                   +"under "+RUN_type_env_check+" settings")
             sys.exit(1)
 
-if RUN != 'tropcyc':
+if RUN not in ['tropcyc', 'fit2obs_plots']:
     RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 
 # Do date check
@@ -241,7 +245,7 @@ valid_RUN_type_opts_dict = {
     'maps2d': ['model2model', 'model2obs'],
     'mapsda': ['gdas', 'ens']
 }
-if RUN != 'tropcyc':
+if RUN not in ['tropcyc', 'fit2obs_plots']:
     for RUN_type in RUN_type_list:
         if RUN_type not in valid_RUN_type_opts_dict[RUN]:
             print("ERROR: "+RUN_type+" not a valid option for "
@@ -255,7 +259,11 @@ check_config_var_len_list = ['model_dir_list', 'model_stat_dir_list',
 if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
            'satellite_step2', 'maps2d', 'mapda']:
     check_config_var_len_list.append(RUN_abbrev+'_model_plot_name_list')
-if RUN == 'tropcyc':
+if RUN == 'fit2obs_plots':
+    check_config_var_len_list.append(RUN+'_expnlist')
+    check_config_var_len_list.append(RUN+'_expdlist')
+    check_config_var_len_list.append(RUN+'_endianlist')
+elif RUN == 'tropcyc':
     check_config_var_len_list.append(RUN+'_model_atcf_name_list')
     check_config_var_len_list.append(RUN+'_model_plot_name_list')
     check_config_var_len_list.append(RUN+'_model_file_format_list')
@@ -500,6 +508,22 @@ elif RUN == 'satellite_step2':
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")
             sys.exit(1)
+elif RUN == 'fit2obs_plots':
+    if not os.path.exists(os.environ[RUN+'_scrdir']):
+        print("ERROR: "+RUN+"_scrdir ("+os.environ[RUN+'_scrdir']
+              +") does not exist")
+        sys.exit(1)
+    if len(os.environ['model_list'].split(' ')) == 1:
+        print("ERROR: To run "+RUN+" length of model_list (length="
+              +str(len(os.environ['model_list'].split(' ')))+", values="
+              +os.environ['model_list']+") must be > 1")
+        sys.exit(1)
+    if len(os.environ[RUN+'_cycle'].split(' ')) != 1:
+        print("ERROR: length of "+RUN+"_cycle (length="
+              +str(len(os.environ[RUN+'_cycle'].split(' ')))+", values="
+              +os.environ[RUN+'_cycle']+") must be 1")
+        sys.exit(1)
+    valid_config_var_values_dict[RUN+'_endianlist'] = ['big', 'little']
 elif RUN == 'tropcyc':
     import get_tc_info
     tc_dict = get_tc_info.get_tc_dict()

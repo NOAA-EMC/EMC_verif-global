@@ -43,6 +43,8 @@ elif [ $machine = HERA ]; then
     module load grads/2.2.1
 elif [ $machine = ORION ]; then
     module load grads/2.2.1
+elif [ $machine = JET ]; then
+    module load grads/2.2.1
 elif [ $machine = S4 ]; then
     module load grads/2.2.1
 fi

@@ -102,6 +102,14 @@ if [ $RUN_SATELLITE_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
+if [ $RUN_FIT2OBS_PLOTS = YES ] ; then
+    echo
+    echo "===== RUNNING FIT-TO-OBS PLOTTING  ====="
+    echo "===== plotting fit-to-obs data ====="
+    export RUN="fit2obs_plots"
+    python $HOMEverif_global/ush/run_batch.py
+fi
+
 if [ $RUN_TROPCYC = YES ] ; then
     echo
     echo "===== RUNNING TROPICAL CYCLONE VERIFICATION  ====="

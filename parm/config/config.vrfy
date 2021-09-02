@@ -25,6 +25,7 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_PRECIP_STEP2:    runs METplus stat_analysis, make_plots
 #RUN_SATELLITE_STEP1: runs METplus grid_stat, stat_analysis
 #RUN_SATELLITE_STEP2: runs METplus stat_analysis, make_plots
+#RUN_FIT2OBS_PLOTS:   runs fit2obs code to make plots
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
@@ -36,6 +37,7 @@ export RUN_PRECIP_STEP1="YES"
 export RUN_PRECIP_STEP2="NO"
 export RUN_SATELLITE_STEP1="NO"
 export RUN_SATELLITE_STEP2="NO"
+export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
 export RUN_MAPS2D="NO"
 export RUN_MAPSDA="NO"
@@ -162,12 +164,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #####    g2g2_[type]_fhr_max:         forecast hour to end verification HH[H]
     #####    g2g2_[type]_event_eq:        do event equalization (True) or not (False)
     #####    g2g2_[type]_grid:            NCEP grid verification was done on
-    #g2g2_make_scorecard: create scorecard on METviewer AWS (YES) or not(NO)
-    #g2g2_sc_mv_database_list: list of METviewer databases to use for scorecard
-    #g2g2_sc_valid_start_date: scorecard valid start date, format YYYYMMDD
-    #g2g2_sc_valid_end_date: scorecard valid end date, format YYYYMMDD
-    #g2g2_sc_fcyc_list: all forecst cycles to be included in scorecard: HH
-    #g2g2_sc_vhr_list: all valid hours to be included in scorecard: HH
+    #g2g2_make_scorecard: create scorecard (YES) or not (NO)
     export g2g2_model_plot_name_list="ops_gfs"
     export g2g2_type_list="anom pres sfc"
     export g2g2_anom_truth_name_list="self_anl"
@@ -195,11 +192,6 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_sfc_event_eq="True"
     export g2g2_sfc_grid="G002"
     export g2g2_make_scorecard="NO"
-    export g2g2_sc_mv_database_list="mv_gfs_grid2grid_metplus_TEST"
-    export g2g2_sc_valid_start_date="20190101"
-    export g2g2_sc_valid_end_date="20190105"
-    export g2g2_sc_fcyc_list="00"
-    export g2g2_sc_vhr_list="00"
 fi
 
 if [ $RUN_GRID2OBS_STEP1 = YES ]; then
@@ -396,6 +388,25 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     export sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
     export sat2_ghrsst_ospo_geopolar_anl_event_eq="True"
     export sat2_ghrsst_ospo_geopolar_anl_grid="G003"
+fi
+
+if [ $RUN_FIT2OBS_PLOTS = YES ]; then
+   #fit2obs_plots_expnlist:   experiment names, only 7 allowed, fnl is operational GFS
+   #fit2obs_plots_expdlist:   fcst data directories, can be different
+   #fit2obs_plots_endianlist: endian of fits data: big or little
+   #fit2obs_plots_cycle:      forecast cycle to verify, only one cycle allowed
+   #fit2obs_plots_oinc:       increment (hours) between observation verify times for timeout plots
+   #fit2obs_plots_finc:       increment (hours) between forecast lengths for timeout plots
+   #fit2obs_plots_fmax:       max forecast length to show for timeout plots
+   #fit2obs_plots_scrdir:     source directory of fit-to-obs scripts
+   export fit2obs_plots_expnlist="fnl"
+   export fit2obs_plots_expdlist="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/fit2obs"
+   export fit2obs_plots_endianlist="little"
+   export fit2obs_plots_cycle="00"
+   export fit2obs_plots_oinc=24
+   export fit2obs_plots_finc=12
+   export fit2obs_plots_fmax=120
+   export fit2obs_plots_scrdir="/gpfs/dell6/emc/modeling/noscrub/Jack.Woollen/verify/plotfits.git"
 fi
 
 if [ $RUN_TROPCYC = YES ]; then

@@ -67,11 +67,6 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
 
-# Submit METviewer AWS scorecard job, if needed
-if [ $g2g2_make_scorecard = YES ]; then
-    python $USHverif_global/plotting_scripts/plot_scorecard_METviewer_AWS.py
-fi
-
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*
 if [ $MPMD = YES ]; then
@@ -99,6 +94,14 @@ else
         nc=$((nc+1))
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
+fi
+
+# Create scorecard, if needed
+if [ $g2g2_make_scorecard = YES ]; then
+    python $USHverif_global/plotting_scripts/plot_scorecard.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran plot_scorecard.py"
 fi
 
 # Send images to web

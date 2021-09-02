@@ -228,8 +228,8 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export obdata_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata"
-    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/METviewer_AWS"
+    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/VRFY/METviewer_AWS"
 fi
 
 ## Set operational directories

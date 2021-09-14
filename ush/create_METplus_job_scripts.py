@@ -1868,7 +1868,7 @@ if MPMD == 'YES':
     poe_file = open(poe_filename, 'a')
     iproc+=1
     while iproc <= nproc:
-        if machine in ['HERA', 'ORION', 'S4']:
+        if machine in ['HERA', 'ORION', 'S4', 'JET']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )

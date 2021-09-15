@@ -274,7 +274,7 @@ elif [ $machine = "S4" ]; then
 elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
-    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/ccpa_accum24hr"
+    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
 fi
 
 ## Set operational directories

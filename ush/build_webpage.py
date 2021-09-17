@@ -940,10 +940,14 @@ elif machine == 'WCOSS_DELL_P3':
               +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
               +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '+web_job_filename)
 elif machine in ['HERA', 'JET']:
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-              +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-              +'--output='+web_job_output+' '
-              +'--job-name='+web_job_name+' '+web_job_filename)
+    if webhost == 'emcrzdm.ncep.noaa.gov':
+        print("ERROR: Currently "+machine.title()+" cannot connect to "
+              +webhost)
+    else:
+        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
+                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+                  +'--output='+web_job_output+' '
+                  +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'ORION':
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently Orion cannot connect to "+webhost)

@@ -97,7 +97,7 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine != "ORION" -o $machine != "S4" -o $machine != "JET" ]; then
+if [ $machine != "ORION" -a $machine != "S4" -a $machine != "JET" ]; then
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 

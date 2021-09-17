@@ -189,6 +189,41 @@ elif [ $machine = S4 ]; then
     module load grib_util/1.2.2
     module load prod_util/1.2.1
     module load nco/4.9.3
+elif [ $machine = JET ]; then
+    source /apps/lmod/lmod/init/sh
+    module purge
+    module use /lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/modulefiles/stack
+    module load hpc/1.1.0
+    module load hpc-intel/18.0.5.274
+    module load hpc-impi/2018.4.274
+    module load wgrib/1.8.1.0b
+    module load wgrib2/2.0.8
+    module load hpss
+    module load nco/4.9.1
+    module load prod_util/1.2.2
+    module load grib_util/1.2.2
+    module load netcdf/4.6.1
+    module load hdf5/1.10.4
+    module load intel
+    module load intelpython/3.6.5
+    if [ $MET_version = 9.1 ]; then
+        module use /contrib/met/modulefiles
+        module load met/9.1
+        export HOMEMET="/contrib/met/9.1"
+        export HOMEMET_bin_exec="bin"
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 3.1 ]; then
+        module use /contrib/met/METplus/modulefiles
+        module load R/4.0.2        
+        module load metplus/3.1.1
+        export HOMEMETplus="${METPLUS_PATH}"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
 else
     echo "ERROR: $machine is not supported"
     exit 1
@@ -201,6 +236,9 @@ if [ $machine != "ORION" ]; then
     export NCDUMP=`which ncdump`
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
+    elif [ $machine == "JET" ]; then
+        export HTAR=`which htar`
         export NCAP2="/null/ncap2"
     else
         export HTAR=`which htar`
@@ -216,6 +254,7 @@ if [ $machine = "ORION" ]; then
     export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
     export HTAR="/null/htar"
 fi
+
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 

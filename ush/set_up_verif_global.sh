@@ -159,7 +159,7 @@ elif [ $machine = "JET" ]; then
     export QUEUESHARED="batch"
     export QUEUESERV="service"
     export PARTITION_BATCH="xjet"
-    export nproc="24"
+    export nproc="10"
     export MPMD="YES"
 fi
 

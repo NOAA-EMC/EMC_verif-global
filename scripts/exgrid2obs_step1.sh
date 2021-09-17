@@ -28,7 +28,7 @@ mkdir -p $RUN
 cd $RUN
 
 # Check machine to be sure we can get the data
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|S4)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|S4|JET)$ ]]; then
     if grep -q "polar_sfc" <<< "$g2o1_type_list"; then
         echo "WARNING: Cannot run ${RUN} polar_sfc on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
         export g2o1_type_list=`echo $g2o1_type_list | sed 's/ polar_sfc //'`
@@ -92,7 +92,7 @@ if [ $MPMD = YES ]; then
             launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 ]; then
+        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

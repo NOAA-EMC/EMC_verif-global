@@ -40,7 +40,7 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## OUTPUT DATA SETTINGS
-export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/vrfy/metplus_exp}
+export OUTPUTROOT=${OUTPUTROOT:-$RUNDIR/$CDUMP/$CDATE/metp/metplus_exp}
 ## DATE SETTINGS
 export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
@@ -180,7 +180,7 @@ fi
 echo
 
 ## Output set up
-export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/vrfy"}
+export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/metp"}
 export DATA=$OUTPUTROOT
 mkdir -p $DATA
 cd $DATA
@@ -211,7 +211,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -271,6 +271,10 @@ elif [ $machine = "S4" ]; then
     export global_archive="/data/prod/glopara/MET_data/archive"
     export prepbufr_arch_dir="/data/prod/glopara/MET_data/prepbufr"
     export ccpa_24hr_arch_dir="/data/prod/glopara/MET_data/obdata/ccpa_accum24hr"
+elif [ $machine = "JET" ]; then
+    export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
+    export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
 fi
 
 ## Set operational directories

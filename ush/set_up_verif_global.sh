@@ -74,7 +74,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -112,6 +112,8 @@ elif [ $machine = "WCOSS_DELL_P3" ]; then
     export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "S4" ]; then
     export FIXverif_global="/data/prod/glopara/fix/fix_verif"
+elif [ $machine = "JET" ]; then
+    export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_verif"
 fi
 
 ## Set machine specific account, queues, and run settings
@@ -150,6 +152,14 @@ elif [ $machine = "S4" ]; then
     export QUEUESERV="service"
     export PARTITION_BATCH="s4"
     export nproc="32"
+    export MPMD="YES"
+elif [ $machine = "JET" ]; then
+    export ACCOUNT="hfv3gfs"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="service"
+    export PARTITION_BATCH="xjet"
+    export nproc="10"
     export MPMD="YES"
 fi
 
@@ -209,6 +219,17 @@ elif [ $machine = "S4" ]; then
     export obdata_dir="/data/prod/glopara/MET_data/obdata"
     export ccpa_24hr_arch_dir="/data/prod/glopara/MET_data/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/data/prod/glopara/MET_data/METviewer_AWS"
+elif [ $machine = "JET" ]; then
+    export NWROOT=${NWROOT:-"/lfs4/HFIP/hfv3gfs/glopara/nwpara"}
+    export HOMEDIR="/lfs4/HFIP/hfv3gfs/$USER"
+    export STMP="/lfs4/HFIP/hfv3gfs/$USER/stmp"
+    export PTMP="lfs4/HFIP/hfv3gfs/$USER/ptmp"
+    export NOSCRUB="$HOMEDIR"
+    export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
+    export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
+    export obdata_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata"
+    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/VRFY/METviewer_AWS"
 fi
 
 ## Set operational directories

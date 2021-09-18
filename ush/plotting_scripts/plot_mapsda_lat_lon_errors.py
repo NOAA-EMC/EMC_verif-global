@@ -54,6 +54,60 @@ nws_logo_img_array = matplotlib.image.imread(
 nws_logo_alpha = 0.5
 
 # Functions
+def bilin_interp(input_data, input_lat, input_lon, output_lat, output_lon):
+    output_data = np.ones([len(output_lat), len(output_lon)]) * np.nan
+    # for poles
+    sumn,sums = 0.0, 0.0
+    for i in range(len(input_lon)):
+        sums = sums + input_data[0,i]
+        sumn = sumn + input_data[-1,i]
+    for i in range(len(output_lon)):
+        output_data[0,i] = sums/(len(input_lon))
+        output_data[-1,i] = sumn/(len(input_lon))
+    dy1 = np.empty(len(input_lat))
+    dy2 = np.empty(len(input_lat))
+    iy = np.empty(len(input_lat), dtype=int)
+    for j in range(len(output_lat)):
+        for jj in range(len(input_lat)-1):
+            if output_lat[j] >= input_lat[jj] \
+                    and output_lat[j] < input_lat[jj+1]:
+                dy1[j] = output_lat[j] - input_lat[jj]
+                dy2[j] = input_lat[jj+1] - output_lat[j]
+                iy[j] = jj
+                break
+    dx1 = np.empty(len(input_lon))
+    dx2 = np.empty(len(input_lon))
+    ix = np.empty(len(input_lon), dtype=int)
+    for i in range(len(output_lon)):
+        for ii in range(len(input_lon)-1):
+            if output_lon[i] == 0:
+                dx1[i] = input_lon[-1] - 360
+                dx2[i] = input_lon[0]
+                ix[i] = 0
+            else:
+                if output_lon[i] >= input_lon[ii] \
+                        and output_lon[i] < input_lon[ii+1]:
+                    dx1[i] = output_lon[i] - input_lon[ii]
+                    dx2[i] = input_lon[ii+1] - output_lon[i]
+                    ix[i] = ii
+                    break
+    for j in range(1,len(output_lat)-1):
+        jj = iy[j]
+        for i in range(len(output_lon)):
+            ii = ix[i]
+            tmp1 = (
+                (input_data[jj,ii]*dy2[j])
+                 +(input_data[jj+1,ii]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            tmp2 = (
+                (input_data[jj,ii+1]*dy2[j])
+                 +(input_data[jj+1,ii+1]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            output_data[j,i] = (
+                (tmp1*dx2[i])+(tmp2*dx1[i])
+            )/(dx1[i]+dx2[i])
+    return output_data
+
 def read_series_analysis_file(series_analysis_file, var_scale):
     print(series_analysis_file+" exists")
     series_analysis_data = netcdf.Dataset(series_analysis_file)
@@ -581,7 +635,9 @@ for stat in plot_stats_list:
                     model_data_lat = np.flipud(
                         model_data.variables['grid_yt'][:]
                     )
+                    model_data_lat_res = len(model_data_lat)
                     model_data_lon = model_data.variables['grid_xt'][:]
+                    model_data_lon_res = len(model_data_lon)
                     if var_name == 'PRES':
                         model_data_var = model_data.variables['pressfc'][0,:,:]
                     else:
@@ -599,13 +655,36 @@ for stat in plot_stats_list:
                     if model_num == 1:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
+                        model1_data_lat = model_data_lat
+                        model1_data_lon = model_data_lon
+                        model1_data_lat_res = model_data_lat_res
+                        model1_data_lon_res = model_data_lon_res
                     else:
                         if np.size(model1_stat_data) == 0:
                             stat_data = (model_data_var
                                          - (np.ones_like(model_data_var)
                                             * np.nan))
                         else:
-                            stat_data = model_data_var - model1_stat_data
+                            if model_data_lat_res != model1_data_lat_res \
+                                    and model_data_lon_res \
+                                    != model1_data_lon_res:
+                                print("WARNING: Differening resolutions "
+                                      +"between "+model1+" ("
+                                      +str(model1_data_lat_res)+","
+                                      +str(model1_data_lon_res)+") and "
+                                      +model+" ("+str(model_data_lat_res)+","
+                                      +str(model_data_lon_res)+"), "
+                                      +"interpolating "+model1+" to "
+                                      +model)
+                                model1_stat_data_interp = bilin_interp(
+                                    model1_stat_data, model1_data_lat,
+                                    model1_data_lon, model_data_lat,
+                                    model_data_lon
+                                )
+                                stat_data = (model_data_var
+                                             - model1_stat_data_interp)
+                            else: 
+                                stat_data = model_data_var - model1_stat_data
                 # Plot model data
                 if RUN_type == 'gdas':
                     if model_num == 1:

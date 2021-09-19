@@ -402,6 +402,37 @@ for stat in plot_stats_list:
         stat_title = 'Ensemble Mean'
     elif stat == 'spread':
         stat_title = 'Ensemble Spread'
+    # Get coarsest grid information for ens plots
+    # for any needed regridding
+    if RUN_type == 'ens':
+        for env_var_model in env_var_model_list:
+            model = os.environ[env_var_model]
+            if forecast_to_plot == 'anl':
+                input_file = os.path.join(input_dir, model,
+                                          'atmanl.ens'+stat+'.nc')
+            else:
+                input_file = os.path.join(input_dir, model,
+                                          'atmf'+forecast_to_plot[3:].zfill(3)
+                                          +'.ens'+stat+'.nc')
+            if os.path.exists(input_file):
+                tmp_model_data = netcdf.Dataset(input_file)
+                tmp_model_data_lat = np.flipud(
+                    tmp_model_data.variables['grid_yt'][:]
+                )
+                tmp_model_data_lat_res = len(tmp_model_data_lat)
+                tmp_model_data_lon = tmp_model_data.variables['grid_xt'][:]
+                tmp_model_data_lon_res = len(tmp_model_data_lon)
+                if not 'regrid_lat' in locals():
+                    regrid_lat = tmp_model_data_lat
+                    regrid_lat_res = tmp_model_data_lat_res
+                    regrid_lon = tmp_model_data_lon
+                    regrid_lon_res = tmp_model_data_lon_res
+                if regrid_lat_res > tmp_model_data_lat_res:
+                    regrid_lat = tmp_model_data_lat
+                    regrid_lat_res = tmp_model_data_lat_res
+                if regrid_lon_res > tmp_model_data_lon_res:
+                    regrid_lon = tmp_model_data_lon
+                    regrid_lon_res = tmp_model_data_lon_res
     for var_level in var_levels:
         var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
             maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
@@ -651,40 +682,31 @@ for stat in plot_stats_list:
                         model_data_var = (
                             model_data_var.filled()
                         )
-                    model_data_var = model_data_var * var_scale
+                    # Regrid data if needed
+                    if model_data_lat_res != regrid_lat_res \
+                            and model_data_lon_res != regrid_lon_res:
+                        print("WARNING: Regridding "+model+" from ("
+                              +str(model_data_lat_res)+","
+                              +str(model_data_lon_res)+") to "
+                              +"("+str(regrid_lat_res)+","
+                              +str(regrid_lon_res)+")")
+                        model_data_var = bilin_interp(
+                            model_data_var * var_scale, model_data_lat,
+                            model_data_lon, regrid_lat,
+                            regrid_lon
+                        )
+                    else:
+                        model_data_var = model_data_var * var_scale
                     if model_num == 1:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
-                        model1_data_lat = model_data_lat
-                        model1_data_lon = model_data_lon
-                        model1_data_lat_res = model_data_lat_res
-                        model1_data_lon_res = model_data_lon_res
                     else:
                         if np.size(model1_stat_data) == 0:
                             stat_data = (model_data_var
                                          - (np.ones_like(model_data_var)
                                             * np.nan))
                         else:
-                            if model_data_lat_res != model1_data_lat_res \
-                                    and model_data_lon_res \
-                                    != model1_data_lon_res:
-                                print("WARNING: Differening resolutions "
-                                      +"between "+model1+" ("
-                                      +str(model1_data_lat_res)+","
-                                      +str(model1_data_lon_res)+") and "
-                                      +model+" ("+str(model_data_lat_res)+","
-                                      +str(model_data_lon_res)+"), "
-                                      +"interpolating "+model1+" to "
-                                      +model)
-                                model1_stat_data_interp = bilin_interp(
-                                    model1_stat_data, model1_data_lat,
-                                    model1_data_lon, model_data_lat,
-                                    model_data_lon
-                                )
-                                stat_data = (model_data_var
-                                             - model1_stat_data_interp)
-                            else: 
-                                stat_data = model_data_var - model1_stat_data
+                            stat_data = model_data_var - model1_stat_data
                 # Plot model data
                 if RUN_type == 'gdas':
                     if model_num == 1:
@@ -769,8 +791,12 @@ for stat in plot_stats_list:
                             get_diff_levels = False
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
-                ax_plot_data_lat = model_data_lat
-                ax_plot_data_lon = model_data_lon
+                if RUN_type == 'ens':
+                    ax_plot_data_lat = regrid_lat
+                    ax_plot_data_lon = regrid_lon
+                else:
+                    ax_plot_data_lat = model_data_lat
+                    ax_plot_data_lon = model_data_lon
                 ax_plot_levels = levels_plot
                 ax_plot_cmap = cmap_plot
                 CF_ax = plot_subplot_data(

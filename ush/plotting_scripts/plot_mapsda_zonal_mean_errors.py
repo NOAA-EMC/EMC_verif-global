@@ -45,6 +45,60 @@ nws_logo_img_array = matplotlib.image.imread(
 nws_logo_alpha = 0.5
 
 # Functions
+def bilin_interp(input_data, input_lat, input_lon, output_lat, output_lon):
+    output_data = np.ones([len(output_lat), len(output_lon)]) * np.nan
+    # for poles
+    sumn,sums = 0.0, 0.0
+    for i in range(len(input_lon)):
+        sums = sums + input_data[0,i]
+        sumn = sumn + input_data[-1,i]
+    for i in range(len(output_lon)):
+        output_data[0,i] = sums/(len(input_lon))
+        output_data[-1,i] = sumn/(len(input_lon))
+    dy1 = np.empty(len(input_lat))
+    dy2 = np.empty(len(input_lat))
+    iy = np.empty(len(input_lat), dtype=int)
+    for j in range(len(output_lat)):
+        for jj in range(len(input_lat)-1):
+            if output_lat[j] >= input_lat[jj] \
+                    and output_lat[j] < input_lat[jj+1]:
+                dy1[j] = output_lat[j] - input_lat[jj]
+                dy2[j] = input_lat[jj+1] - output_lat[j]
+                iy[j] = jj
+                break
+    dx1 = np.empty(len(input_lon))
+    dx2 = np.empty(len(input_lon))
+    ix = np.empty(len(input_lon), dtype=int)
+    for i in range(len(output_lon)):
+        for ii in range(len(input_lon)-1):
+            if output_lon[i] == 0:
+                dx1[i] = input_lon[-1] - 360
+                dx2[i] = input_lon[0]
+                ix[i] = 0
+            else:
+                if output_lon[i] >= input_lon[ii] \
+                        and output_lon[i] < input_lon[ii+1]:
+                    dx1[i] = output_lon[i] - input_lon[ii]
+                    dx2[i] = input_lon[ii+1] - output_lon[i]
+                    ix[i] = ii
+                    break
+    for j in range(1,len(output_lat)-1):
+        jj = iy[j]
+        for i in range(len(output_lon)):
+            ii = ix[i]
+            tmp1 = (
+                (input_data[jj,ii]*dy2[j])
+                 +(input_data[jj+1,ii]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            tmp2 = (
+                (input_data[jj,ii+1]*dy2[j])
+                 +(input_data[jj+1,ii+1]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            output_data[j,i] = (
+                (tmp1*dx2[i])+(tmp2*dx1[i])
+            )/(dx1[i]+dx2[i])
+    return output_data
+
 def read_series_analysis_file(series_analysis_file, var_scale):
     print(series_analysis_file+" exists")
     series_analysis_data = netcdf.Dataset(series_analysis_file)
@@ -328,6 +382,61 @@ var_levels_type_dict = {
     'uppertrop': upper_trop_var_levels_list,
     'strat': strat_var_levels_list
 }
+# Get coarsest grid information for ens plots
+# for any needed regridding
+if RUN_type == 'ens':
+    for env_var_model in env_var_model_list:
+        model = os.environ[env_var_model]
+        if forecast_to_plot == 'anl':
+            spread_input_file = os.path.join(input_dir, model,
+                                             'atmanl.ensspread.nc')
+            mean_input_file = os.path.join(input_dir, model,
+                                             'atmanl.ensmean.nc')
+        else:
+            spread_input_file = os.path.join(input_dir, model,
+                                             'atmf'+forecast_to_plot[3:].zfill(3)
+                                             +'.ensspread.nc')
+            mean_input_file = os.path.join(input_dir, model,
+                                             'atmf'+forecast_to_plot[3:].zfill(3)
+                                             +'.ensmean.nc')
+        if os.path.exists(spread_input_file):
+            spread_tmp_model_data = netcdf.Dataset(spread_input_file)
+            spread_tmp_model_data_lat = np.flipud(
+                spread_tmp_model_data.variables['grid_yt'][:]
+            )
+            spread_tmp_model_data_lat_res = len(spread_tmp_model_data_lat)
+            spread_tmp_model_data_lon = spread_tmp_model_data.variables['grid_xt'][:]
+            spread_tmp_model_data_lon_res = len(spread_tmp_model_data_lon)
+            if not 'spread_regrid_lat' in locals():
+                spread_regrid_lat = spread_tmp_model_data_lat
+                spread_regrid_lat_res = spread_tmp_model_data_lat_res
+                spread_regrid_lon = spread_tmp_model_data_lon
+                spread_regrid_lon_res = spread_tmp_model_data_lon_res
+            if spread_regrid_lat_res > spread_tmp_model_data_lat_res:
+                spread_regrid_lat = spread_tmp_model_data_lat
+                spread_regrid_lat_res = spread_tmp_model_data_lat_res
+            if spread_regrid_lon_res > spread_tmp_model_data_lon_res:
+                spread_regrid_lon = spread_tmp_model_data_lon
+                spread_regrid_lon_res = spread_tmp_model_data_lon_res
+        if os.path.exists(mean_input_file):
+            mean_tmp_model_data = netcdf.Dataset(mean_input_file)
+            mean_tmp_model_data_lat = np.flipud(
+                mean_tmp_model_data.variables['grid_yt'][:]
+            )
+            mean_tmp_model_data_lat_res = len(mean_tmp_model_data_lat)
+            mean_tmp_model_data_lon = mean_tmp_model_data.variables['grid_xt'][:]
+            mean_tmp_model_data_lon_res = len(mean_tmp_model_data_lon)
+            if not 'mean_regrid_lat' in locals():
+                mean_regrid_lat = mean_tmp_model_data_lat
+                mean_regrid_lat_res = mean_tmp_model_data_lat_res
+                mean_regrid_lon = mean_tmp_model_data_lon
+                mean_regrid_lon_res = mean_tmp_model_data_lon_res
+            if mean_regrid_lat_res > mean_tmp_model_data_lat_res:
+                mean_regrid_lat = mean_tmp_model_data_lat
+                mean_regrid_lat_res = mean_tmp_model_data_lat_res
+            if mean_regrid_lon_res > mean_tmp_model_data_lon_res:
+                mean_regrid_lon = mean_tmp_model_data_lon
+                mean_regrid_lon_res = mean_tmp_model_data_lon_res
 
 # Build data array for all models for all levels
 print("Working on zonal mean error plots for "+var_name)
@@ -410,7 +519,9 @@ for env_var_model in env_var_model_list:
                 model_mean_data_lat = np.flipud(
                    model_mean_data.variables['grid_yt'][:]
                 )
+                model_mean_data_lat_res = len(model_mean_data_lat)
                 model_mean_data_lon = model_mean_data.variables['grid_xt'][:]
+                model_mean_data_lon_res = len(model_mean_data_lon)
                 if var_name == 'PRES':
                     model_mean_data_var = (
                         model_mean_data.variables['pressfc'][0,:,:]
@@ -426,10 +537,24 @@ for env_var_model in env_var_model_list:
                     model_mean_data_var = (
                         model_mean_data_var.filled()
                     )
-                model_mean_data_var = model_mean_data_var
+                # Regrid data if needed
+                if model_mean_data_lat_res != mean_regrid_lat_res \
+                        and model_mean_data_lon_res != mean_regrid_lon_res:
+                    print("WARNING: Regridding "+model+" from ("
+                          +str(model_mean_data_lat_res)+","
+                          +str(model_mean_data_lon_res)+") to "
+                          +"("+str(mean_regrid_lat_res)+","
+                          +str(mean_regrid_lon_res)+")")
+                    model_mean_data_var = bilin_interp(
+                        model_mean_data_var, model_mean_data_lat,
+                        model_mean_data_lon, mean_regrid_lat,
+                        mean_regrid_lon
+                    )
+                else:
+                    model_mean_data_var = model_mean_data_var
                 if not 'model_mean_var_levels_zonalmean' in locals():
                     model_mean_var_levels_zonalmean = np.ones(
-                        [nmodels, nvar_levels, len(model_mean_data_lat)]
+                        [nmodels, nvar_levels, len(mean_regrid_lat)]
                     ) * np.nan
                 model_mean_var_levels_zonalmean[
                     model_num-1,var_level_num-1,:
@@ -460,9 +585,11 @@ for env_var_model in env_var_model_list:
                 model_spread_data_lat = np.flipud(
                    model_spread_data.variables['grid_yt'][:]
                 )
+                model_spread_data_lat_res = len(model_spread_data_lat)
                 model_spread_data_lon = model_spread_data.variables[
                     'grid_xt'
                 ][:]
+                model_spread_data_lon_res = len(model_spread_data_lon)
                 if var_name == 'PRES':
                     model_spread_data_var = (
                         model_spread_data.variables['pressfc'][0,:,:]
@@ -478,10 +605,24 @@ for env_var_model in env_var_model_list:
                     model_spread_data_var = (
                         model_spread_data_var.filled()
                     )
-                model_spread_data_var = model_spread_data_var
+                # Regrid data if needed
+                if model_spread_data_lat_res != spread_regrid_lat_res \
+                        and model_spread_data_lon_res != spread_regrid_lon_res:
+                    print("WARNING: Regridding "+model+" from ("
+                          +str(model_spread_data_lat_res)+","
+                          +str(model_spread_data_lon_res)+") to "
+                          +"("+str(spread_regrid_lat_res)+","
+                          +str(spread_regrid_lon_res)+")")
+                    model_spread_data_var = bilin_interp(
+                        model_spread_data_var, model_spread_data_lat,
+                        model_spread_data_lon, spread_regrid_lat,
+                        spread_regrid_lon
+                    )
+                else:
+                    model_spread_data_var = model_spread_data_var
                 if not 'model_spread_var_levels_zonalmean' in locals():
                     model_spread_var_levels_zonalmean = np.ones(
-                        [nmodels, nvar_levels, len(model_spread_data_lat)]
+                        [nmodels, nvar_levels, len(spread_regrid_lat)]
                     ) * np.nan
                 model_spread_var_levels_zonalmean[
                     model_num-1,var_level_num-1,:

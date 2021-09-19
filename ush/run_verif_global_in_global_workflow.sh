@@ -166,7 +166,7 @@ g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${SDATE_GFS_YY
 if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
     export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
-g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
+g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list:-2}"
 g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
 if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
     export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
@@ -180,7 +180,9 @@ fi
 echo
 
 ## Output set up
-export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/metp"}
+export pid=${pid:-$$}
+export jobid=${job}.${pid}
+export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/metp.${jobid}"}
 export DATA=$OUTPUTROOT
 mkdir -p $DATA
 cd $DATA

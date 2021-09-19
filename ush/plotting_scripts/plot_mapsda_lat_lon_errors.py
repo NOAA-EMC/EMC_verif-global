@@ -54,6 +54,60 @@ nws_logo_img_array = matplotlib.image.imread(
 nws_logo_alpha = 0.5
 
 # Functions
+def bilin_interp(input_data, input_lat, input_lon, output_lat, output_lon):
+    output_data = np.ones([len(output_lat), len(output_lon)]) * np.nan
+    # for poles
+    sumn,sums = 0.0, 0.0
+    for i in range(len(input_lon)):
+        sums = sums + input_data[0,i]
+        sumn = sumn + input_data[-1,i]
+    for i in range(len(output_lon)):
+        output_data[0,i] = sums/(len(input_lon))
+        output_data[-1,i] = sumn/(len(input_lon))
+    dy1 = np.empty(len(input_lat))
+    dy2 = np.empty(len(input_lat))
+    iy = np.empty(len(input_lat), dtype=int)
+    for j in range(len(output_lat)):
+        for jj in range(len(input_lat)-1):
+            if output_lat[j] >= input_lat[jj] \
+                    and output_lat[j] < input_lat[jj+1]:
+                dy1[j] = output_lat[j] - input_lat[jj]
+                dy2[j] = input_lat[jj+1] - output_lat[j]
+                iy[j] = jj
+                break
+    dx1 = np.empty(len(input_lon))
+    dx2 = np.empty(len(input_lon))
+    ix = np.empty(len(input_lon), dtype=int)
+    for i in range(len(output_lon)):
+        for ii in range(len(input_lon)-1):
+            if output_lon[i] == 0:
+                dx1[i] = input_lon[-1] - 360
+                dx2[i] = input_lon[0]
+                ix[i] = 0
+            else:
+                if output_lon[i] >= input_lon[ii] \
+                        and output_lon[i] < input_lon[ii+1]:
+                    dx1[i] = output_lon[i] - input_lon[ii]
+                    dx2[i] = input_lon[ii+1] - output_lon[i]
+                    ix[i] = ii
+                    break
+    for j in range(1,len(output_lat)-1):
+        jj = iy[j]
+        for i in range(len(output_lon)):
+            ii = ix[i]
+            tmp1 = (
+                (input_data[jj,ii]*dy2[j])
+                 +(input_data[jj+1,ii]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            tmp2 = (
+                (input_data[jj,ii+1]*dy2[j])
+                 +(input_data[jj+1,ii+1]*dy1[j])
+            )/(dy1[j]+dy2[j])
+            output_data[j,i] = (
+                (tmp1*dx2[i])+(tmp2*dx1[i])
+            )/(dx1[i]+dx2[i])
+    return output_data
+
 def read_series_analysis_file(series_analysis_file, var_scale):
     print(series_analysis_file+" exists")
     series_analysis_data = netcdf.Dataset(series_analysis_file)
@@ -348,6 +402,37 @@ for stat in plot_stats_list:
         stat_title = 'Ensemble Mean'
     elif stat == 'spread':
         stat_title = 'Ensemble Spread'
+    # Get coarsest grid information for ens plots
+    # for any needed regridding
+    if RUN_type == 'ens':
+        for env_var_model in env_var_model_list:
+            model = os.environ[env_var_model]
+            if forecast_to_plot == 'anl':
+                input_file = os.path.join(input_dir, model,
+                                          'atmanl.ens'+stat+'.nc')
+            else:
+                input_file = os.path.join(input_dir, model,
+                                          'atmf'+forecast_to_plot[3:].zfill(3)
+                                          +'.ens'+stat+'.nc')
+            if os.path.exists(input_file):
+                tmp_model_data = netcdf.Dataset(input_file)
+                tmp_model_data_lat = np.flipud(
+                    tmp_model_data.variables['grid_yt'][:]
+                )
+                tmp_model_data_lat_res = len(tmp_model_data_lat)
+                tmp_model_data_lon = tmp_model_data.variables['grid_xt'][:]
+                tmp_model_data_lon_res = len(tmp_model_data_lon)
+                if not 'regrid_lat' in locals():
+                    regrid_lat = tmp_model_data_lat
+                    regrid_lat_res = tmp_model_data_lat_res
+                    regrid_lon = tmp_model_data_lon
+                    regrid_lon_res = tmp_model_data_lon_res
+                if regrid_lat_res > tmp_model_data_lat_res:
+                    regrid_lat = tmp_model_data_lat
+                    regrid_lat_res = tmp_model_data_lat_res
+                if regrid_lon_res > tmp_model_data_lon_res:
+                    regrid_lon = tmp_model_data_lon
+                    regrid_lon_res = tmp_model_data_lon_res
     for var_level in var_levels:
         var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
             maps2d_plot_util.get_maps2d_plot_settings(var_name, var_level)
@@ -581,7 +666,9 @@ for stat in plot_stats_list:
                     model_data_lat = np.flipud(
                         model_data.variables['grid_yt'][:]
                     )
+                    model_data_lat_res = len(model_data_lat)
                     model_data_lon = model_data.variables['grid_xt'][:]
+                    model_data_lon_res = len(model_data_lon)
                     if var_name == 'PRES':
                         model_data_var = model_data.variables['pressfc'][0,:,:]
                     else:
@@ -595,7 +682,21 @@ for stat in plot_stats_list:
                         model_data_var = (
                             model_data_var.filled()
                         )
-                    model_data_var = model_data_var * var_scale
+                    # Regrid data if needed
+                    if model_data_lat_res != regrid_lat_res \
+                            and model_data_lon_res != regrid_lon_res:
+                        print("WARNING: Regridding "+model+" from ("
+                              +str(model_data_lat_res)+","
+                              +str(model_data_lon_res)+") to "
+                              +"("+str(regrid_lat_res)+","
+                              +str(regrid_lon_res)+")")
+                        model_data_var = bilin_interp(
+                            model_data_var * var_scale, model_data_lat,
+                            model_data_lon, regrid_lat,
+                            regrid_lon
+                        )
+                    else:
+                        model_data_var = model_data_var * var_scale
                     if model_num == 1:
                         stat_data = model_data_var
                         model1_stat_data = stat_data
@@ -690,8 +791,12 @@ for stat in plot_stats_list:
                             get_diff_levels = False
                 ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
                 ax_plot_data = stat_data
-                ax_plot_data_lat = model_data_lat
-                ax_plot_data_lon = model_data_lon
+                if RUN_type == 'ens':
+                    ax_plot_data_lat = regrid_lat
+                    ax_plot_data_lon = regrid_lon
+                else:
+                    ax_plot_data_lat = model_data_lat
+                    ax_plot_data_lon = model_data_lon
                 ax_plot_levels = levels_plot
                 ax_plot_cmap = cmap_plot
                 CF_ax = plot_subplot_data(

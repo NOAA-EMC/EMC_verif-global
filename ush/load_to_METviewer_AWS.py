@@ -71,7 +71,7 @@ if os.path.exists(load_xml_file):
 with open(load_xml_file, 'a') as xml:
     xml.write('<load_spec>\n')
     xml.write('  <connection>\n')
-    xml.write('    <host>metviewer-dev-cluster.cluster-czbts4gd2wm2.'
+    xml.write('    <host>metviewer-dev-2-cluster.cluster-c0bl5kb6fffo.'
               +'us-east-1.rds.amazonaws.com:3306</host>\n')
     xml.write('    <database>'+mv_database+'</database>\n')
     xml.write('    <user>rds_user</user>\n')

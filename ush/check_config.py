@@ -551,11 +551,6 @@ elif RUN == 'tropcyc':
                 print("ERROR: name value of "+name+" in "+basin_year_name+" "
                       +"in "+basin_year_name+" not supported")
                 sys.exit(1)
-    for atcf_name in os.environ[RUN+'_model_atcf_name_list'].split(' '):
-        if len(atcf_name) != 4:
-            print("ERROR: length of "+atcf_name+" in "
-                  +RUN+"_model_atcf_name_list != to 4")
-            sys.exit(1)
     valid_config_var_values_dict[RUN+'_storm_level_list'] = ['DB', 'TD', 'TS',
                                                              'TY', 'ST', 'TC',
                                                              'HU', 'SD', 'SS',

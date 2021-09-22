@@ -7,6 +7,7 @@ Abstract: This script is called by get_data_files.py.
 '''
 
 import pandas as pd
+import datetime
 
 def get_tc_dict():
     """! Get supported TC dictionary
@@ -257,9 +258,8 @@ def get_tc_dates(bdeck_file):
          in a given basin for a given year
 
          Args:
-             basin - string of two letter basin identifier
-             year  - string of four number year
-             name  - string of storm name
+             bdeck_file - string of path to the
+                          storm's bdeck file
 
          Returns:
              start_date - string of the start date (YYYYMMDD)
@@ -286,3 +286,63 @@ def get_tc_dates(bdeck_file):
     start_date = str(date_list[0])
     end_date = str(date_list[-1])
     return start_date, end_date
+
+def get_tc_include_exclude(bdeck_file, user_storm_level_list):
+    """! Get valid/init dates to include/exclude
+         for a named TC
+
+         Args:
+             bdeck_file            - string of path to the
+                                     storm's bdeck file
+             user_storm_level_list - list of strings of storm levels
+                                     selected by user
+
+         Returns:
+             tc_valid_include - list of strings of
+                                valid dates (YYYYMMDD_hh)
+                                to include
+             tc_init_include  - list of strings of
+                                valid dates (YYYYMMDD_hh)
+                                to exclude
+             tc_valid_exclude - list of strings
+                                init dates (YYYYMMDD_hh)
+                                to include
+             tc_init_exclude  - list of strings
+                                init dates (YYYYMMDD_hh)
+                                to exclude
+    """
+    valid_include = []
+    init_include = []
+    valid_exclude = []
+    init_exclude = []
+    bdeck_cols = ['BASIN', 'CY', 'YYYYMMDDHH', 'TECHNUM/MIN', 'TECH', 'TAU',
+                  'LatN/S', 'LonE/W', 'VMAX', 'MSLP', 'TY', 'RAD', 'WINDCODE',
+                  'RAD1', 'RAD2', 'RAD3', 'RAD4', 'POUTER', 'ROUTER', 'RMW',
+                  'GUSTS', 'EYE', 'SUBREGION', 'MAXSEAS', 'INITIALS', 'DIR',
+                  'SPEED', 'STORMNAME', 'DEPTH', 'SEAS', 'SEASCODE', 'SEAS1',
+                  'SEAS2', 'SEAS3', 'SEAS4', 'USERDEFINED1', 'userdata1',
+                  'USERDEFINED2', 'userdata2', 'USERDEFINED3', 'userdata3',
+                  'USERDEFINED4', 'userdata4', 'USERDEFINED5', 'userdata5',
+                  'misc']
+    bdeck_data = pd.read_csv(
+        bdeck_file, sep=",",
+        skipinitialspace=True, header=None,
+        names=bdeck_cols, dtype=str
+    )
+    for index, row in bdeck_data.iterrows():
+        row_storm_level = row['TY']
+        row_date = row['YYYYMMDDHH']
+        row_date_MET_format = datetime.datetime.strptime(
+            row_date, '%Y%m%d%H'
+        ).strftime('%Y%m%d_%H0000')
+        if row_storm_level in user_storm_level_list:
+            if row_date_MET_format not in valid_include:
+                valid_include.append(row_date_MET_format)
+            if row_date_MET_format not in init_include:
+                init_include.append(row_date_MET_format)
+        else:
+            if row_date_MET_format not in valid_exclude:
+                valid_exclude.append(row_date_MET_format)
+            if row_date_MET_format not in init_exclude:
+                init_exclude.append(row_date_MET_format)
+    return valid_include, init_include, valid_exclude, init_exclude

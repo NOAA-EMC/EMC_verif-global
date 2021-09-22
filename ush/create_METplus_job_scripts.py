@@ -1146,12 +1146,12 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['valid_hour_list'] = (
             os.environ[case_abbrev+'_valid_hr_list'].replace(' ','')
         )
-        job_env_dict['model_list'] = ', '.join(model_list)
-        job_env_dict['model_atcf_name_list'] = ', '.join(model_atcf_name_list)
-        job_env_dict['model_tmp_atcf_name_list'] = ', '.join(
+        job_env_dict['model_list'] = ','.join(model_list)
+        job_env_dict['model_atcf_name_list'] = ','.join(model_atcf_name_list)
+        job_env_dict['model_tmp_atcf_name_list'] = ','.join(
             model_tmp_atcf_name_list
         )
-        job_env_dict['model_plot_name_list'] = ', '.join(model_plot_name_list)
+        job_env_dict['model_plot_name_list'] = ','.join(model_plot_name_list)
         job_env_dict['stat_list'] = ','.join(stat_list)
         job_env_dict['storm_level_list'] = ','.join(storm_level_list)
     basin_list = []
@@ -1183,6 +1183,15 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['tc_num'] = tc_id[2:4]
         # Write job scripts for METplus process
         if METplus_process == 'tc_pairs':
+            tc_valid_include, tc_init_include, \
+            tc_valid_exclude, tc_init_exclude = (
+                get_tc_info.get_tc_include_exclude(bdeck_file,
+                                                   storm_level_list)
+            )
+            job_env_dict['tc_valid_include'] = ', '.join(tc_valid_include)
+            job_env_dict['tc_valid_exclude'] = ', '.join(tc_valid_exclude)
+            job_env_dict['tc_init_include'] = ', '.join(tc_init_include)
+            job_env_dict['tc_init_exclude'] = ', '.join(tc_init_exclude)
             for model in model_list:
                 job_env_dict['model'] = model
                 model_idx = model_list.index(model)

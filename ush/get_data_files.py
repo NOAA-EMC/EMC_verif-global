@@ -456,10 +456,10 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
             if any(g in model_file for g in grib2_file_names):
                 convert_grib2_grib1(model_file, link_model_file)
             else:
-                if 'track' in link_filename:
-                    os.system('cp '+model_file+' '+link_model_file)
-                else:
-                    os.system('ln -sf '+model_file+' '+link_model_file)
+                #if 'track' in link_filename:
+                #    os.system('cp '+model_file+' '+link_model_file)
+                #else:
+                os.system('ln -sf '+model_file+' '+link_model_file)
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -1957,51 +1957,89 @@ elif RUN == 'tropcyc':
                             RUN_model_data_run_hpss = 'NO'
                         else:
                             RUN_model_data_run_hpss = model_data_run_hpss
-                        link_track_file = os.path.join(
-                           link_model_dir,
+                        if not os.path.exists(os.path.join(link_model_dir,
+                                                           tc)):
+                            os.mkdir(os.path.join(link_model_dir, tc))
+                        link_tc_init_track_file = os.path.join(
+                           link_model_dir, tc,
                            format_filler('track.{init?fmt=%Y%m%d%H}.dat',
-                                          valid_time, init_time, '00')
+                           valid_time, init_time, '00')
                         )
-                        if not os.path.exists(link_track_file):
+                        if not os.path.exists(link_tc_init_track_file):
                             if model_file_format != 'ADECK':
-                                get_model_file(valid_time, init_time, lead,
-                                               model, model_dir,
-                                               model_file_format,
-                                               RUN_model_data_run_hpss,
-                                               model_hpss_dir, link_model_dir,
-                                              'track.{init?fmt=%Y%m%d%H}.dat')
-                            if not os.path.exists(link_track_file) \
+                                link_init_track_file = os.path.join(
+                                    link_model_dir,
+                                    format_filler('track.{init?fmt=%Y%m%d%H}'
+                                                  +'.dat', valid_time,
+                                                  init_time, '00')
+                                )
+                                if not os.path.exists(link_init_track_file):
+                                    get_model_file(
+                                        valid_time, init_time, lead,
+                                        model, model_dir, model_file_format,
+                                        RUN_model_data_run_hpss,
+                                        model_hpss_dir, link_model_dir,
+                                        'track.{init?fmt=%Y%m%d%H}.dat'
+                                    )
+                                    if os.path.exists(link_init_track_file):
+                                        try:
+                                            init_track_grep = (
+                                                subprocess.check_output(
+                                                    'grep -R "'+basin+', '
+                                                    +tc_id[2:4]+', '
+                                                    +init_time.strftime(
+                                                        '%Y%m%d%H'
+                                                    )+'" '
+                                                    +link_init_track_file,
+                                                    shell=True,
+                                                    encoding='UTF-8'
+                                                )
+                                            )
+                                            if len(init_track_grep) > 0:
+                                                with open(
+                                                    link_tc_init_track_file,
+                                                    'w'
+                                                ) as ltf:
+                                                    ltf.write(init_track_grep)
+                                        except:
+                                            print("WARNING: Could not make "+
+                                                  link_tc_init_track_file
+                                                  +" from "
+                                                  +link_init_track_file)
+                                            pass
+                            if not os.path.exists(link_tc_init_track_file) \
                                     and os.path.exists(link_adeck_file):
                                 print("Going to try to make "
-                                      +link_track_file+" from adeck file "
-                                      +link_adeck_file+" for "+model+" "
-                                      +"searching for ATCF name "
+                                      +link_tc_init_track_file+" from "
+                                      +"adeck file "+link_adeck_file+" for "
+                                      +model+" searching for ATCF name "
                                       +model_atcf_name+" and init time "
                                       +init_time.strftime('%Y%m%d%H'))
                                 try:
                                     adeck_grep = subprocess.check_output(
-                                        'grep -R "'+model_atcf_name+'" '
+                                        'grep -R "'+model_atcf_name+'," '
                                         +link_adeck_file+' | grep "'
                                         +init_time.strftime('%Y%m%d%H')+'"',
                                         shell=True, encoding='UTF-8'
                                     )
                                     if len(adeck_grep) > 0:
-                                        with open(link_track_file, 'w') as ltf:
+                                        with open(link_tc_init_track_file,
+                                                  'w') as ltf:
                                              ltf.write(adeck_grep)
                                 except:
                                     print("WARNING: Could not make "
-                                          +link_track_file+" from adeck file "
-                                          +link_adeck_file)
+                                          +link_tc_init_track_file+" from "
+                                          +"adeck file "+link_adeck_file)
                                     pass
                             ## Check to make sure listed ATCF name in the file
                             ## and do replacements
-                            if os.path.exists(link_track_file):
+                            if os.path.exists(link_tc_init_track_file):
                                 try:
                                     model_atcf_name_grep = (
                                         subprocess.check_output(
                                             'grep -R "'+model_atcf_name+'" '
-                                             +link_track_file, shell=True,
-                                             encoding='UTF-8'
+                                             +link_tc_init_track_file,
+                                             shell=True, encoding='UTF-8'
                                         )
                                     )
                                     model_tmp_atcf_name = (
@@ -2010,14 +2048,14 @@ elif RUN == 'tropcyc':
                                     print("Replacing "+model+" ATCF name "
                                           +model_atcf_name+" with "
                                           +model_tmp_atcf_name+" in "
-                                          +link_track_file)
+                                          +link_tc_init_track_file)
                                     os.system('sed -i s/'+model_atcf_name+'/'
                                               +model_tmp_atcf_name+'/g '
-                                              +link_track_file)
+                                              +link_tc_init_track_file)
                                 except:
                                      print("WARNING: "+model_atcf_name+" "
                                            +"ATCF name for "+model+" not in "
-                                           +link_track_file)
+                                           +link_tc_init_track_file)
                                      pass
 elif RUN == 'maps2d':
     # Read in RUN related environment variables

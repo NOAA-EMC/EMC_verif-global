@@ -96,9 +96,9 @@ fhr_list = os.environ['fhr_list'].split(',')
 fhrs = np.asarray(fhr_list, dtype=int)
 init_hour_list = os.environ['init_hour_list'].split(',')
 valid_hour_list = os.environ['valid_hour_list'].split(',')
-model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
-model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(', ')
-model_plot_name_list = os.environ['model_plot_name_list'].split(', ')
+model_atcf_name_list = os.environ['model_atcf_name_list'].split(',')
+model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(',')
+model_plot_name_list = os.environ['model_plot_name_list'].split(',')
 basin = os.environ['basin']
 if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']

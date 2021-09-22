@@ -1371,12 +1371,26 @@ elif RUN == 'precip_step1':
                     if len(lead_in_accum_list) == nfiles_in_accum:
                         for lead in lead_in_accum_list:
                             if model_var == 'PRATE':
+                                if not os.path.exists(
+                                        os.path.join(link_model_dir,
+                                                     'PRATE_files')
+                                ):
+                                    os.mkdir(os.path.join(link_model_dir,
+                                                          'PRATE_files'))
                                 get_model_file(
                                     valid_time, init_time, lead, model,
                                     model_dir, model_file_format,
                                     model_data_run_hpss, model_hpss_dir,
-                                    link_model_dir,
-                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}.PRATE'
+                                    os.path.join(link_model_dir, 'PRATE_files'),
+                                    'PRATE.f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                                )
+                                link_PRATE_model_file = os.path.join(
+                                    link_model_dir, 'PRATE_files',
+                                    format_filler(
+                                        'PRATE.f{lead?fmt=%3H}.'
+                                         +'{init?fmt=%Y%m%d%H}',
+                                         valid_time, init_time, lead
+                                    )
                                 )
                                 link_model_file = os.path.join(
                                     link_model_dir, format_filler(
@@ -1384,7 +1398,7 @@ elif RUN == 'precip_step1':
                                          valid_time, init_time, lead
                                     )
                                 )
-                                if os.path.exists(link_model_file+'.PRATE') \
+                                if os.path.exists(link_PRATE_model_file) \
                                        and not os.path.exists(link_model_file):
                                     cnvgrib = os.environ['CNVGRIB']
                                     wgrib2 = os.environ['WGRIB2']
@@ -1395,7 +1409,7 @@ elif RUN == 'precip_step1':
                                     )
                                     os.system(
                                         cnvgrib+' -g12 '
-                                        +link_model_file+'.PRATE'+' '
+                                        +link_PRATE_model_file+' '
                                         +tmp_gb2_file
                                     )
                                     os.system(

@@ -126,7 +126,7 @@ print("Reading in data")
 summary_tcst_filename = os.path.join(tc_stat_file_dir, 'summary.tcst')
 if os.path.exists(summary_tcst_filename):
     nrow = sum(1 for line in open(summary_tcst_filename))
-    if nrow == 0:
+    if nrow == 3:
         print("ERROR: "+summary_tcst_filename+" empty")
         sys.exit(1)
     else:

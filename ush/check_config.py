@@ -160,7 +160,7 @@ RUN_type_env_vars_dict = {
                     'tropcyc_vhr_list', 'tropcyc_fhr_min',
                     'tropcyc_model_file_format_list',
                     'tropcyc_stat_list', 'tropcyc_init_storm_level_list',
-                    'tropcyc_valid_storm_level_list'],
+                    'tropcyc_valid_storm_level_list', 'tropcyc_plot_CI_bars'],
     'RUN_MAPS2D': ['maps2d_model_plot_name_list', 'maps2d_latlon_area',
                    'maps2d_plot_diff', 'maps2d_anl_file_format_list',
                    'maps2d_type_list',
@@ -557,6 +557,7 @@ elif RUN == 'tropcyc':
             'DB', 'TD', 'TS', 'TY', 'ST', 'TC','HU', 'SD', 'SS',
             'EX', 'IN', 'DS', 'LO', 'WV', 'ET','XX'
         ]
+    valid_config_var_values_dict[RUN+'_plot_CI_bars'] = ['YES', 'NO']
 elif RUN == 'maps2d':
     valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:

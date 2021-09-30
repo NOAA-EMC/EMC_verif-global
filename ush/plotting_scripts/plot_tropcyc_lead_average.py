@@ -100,6 +100,7 @@ model_atcf_name_list = os.environ['model_atcf_name_list'].split(',')
 model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(',')
 model_plot_name_list = os.environ['model_plot_name_list'].split(',')
 basin = os.environ['basin']
+plot_CI_bars = os.environ['plot_CI_bars']
 if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']
     year = plot_info.split('_')[1]
@@ -304,20 +305,22 @@ if os.path.exists(summary_tcst_filename):
                     if fhrs_column_amodel_mean.max() > stat_max \
                             or np.ma.is_masked(stat_max):
                         stat_max = fhrs_column_amodel_mean.max()
-                for fhr in fhrs:
-                    fhr_idx = np.where(fhr == fhrs)[0][0]
-                    ax.bar(fhrs[fhr_idx],
-                           (fhrs_column_amodel_mean_ncu[fhr_idx]
-                            - fhrs_column_amodel_mean_ncl[fhr_idx]),
-                           bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
-                           color='None',
-                           width=CI_bar_max_widths-(CI_bar_intvl_widths*(model_num-1)),
-                           edgecolor= model_plot_settings_dict['color'],
-                           linewidth=0.5)
-                    if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
-                            or np.ma.is_masked(stat_max):
-                        if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
-                            stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
+                if plot_CI_bars == 'YES':
+                    for fhr in fhrs:
+                        fhr_idx = np.where(fhr == fhrs)[0][0]
+                        ax.bar(fhrs[fhr_idx],
+                               (fhrs_column_amodel_mean_ncu[fhr_idx]
+                                - fhrs_column_amodel_mean_ncl[fhr_idx]),
+                               bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
+                               color='None',
+                               width=CI_bar_max_widths-(CI_bar_intvl_widths
+                                                        *(model_num-1)),
+                               edgecolor= model_plot_settings_dict['color'],
+                               linewidth=0.5)
+                        if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
+                                or np.ma.is_masked(stat_max):
+                            if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
+                                stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
             # Adjust y axis limits and ticks
             preset_y_axis_tick_min = ax.get_yticks()[0]
             preset_y_axis_tick_max = ax.get_yticks()[-1]

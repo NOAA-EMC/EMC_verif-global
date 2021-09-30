@@ -1133,6 +1133,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
     valid_storm_level_list = (
         os.environ[case_abbrev+'_valid_storm_level_list'].split(' ')
     )
+    plot_CI_bars = os.environ[case_abbrev+'_plot_CI_bars']
     model_tmp_atcf_name_list = []
     for model in model_list:
         model_idx = model_list.index(model)
@@ -1162,6 +1163,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['valid_storm_level_list'] = ','.join(
             valid_storm_level_list
         )
+        job_env_dict['plot_CI_bars'] = plot_CI_bars
     basin_list = []
     # Set up tropical cyclone environment variables in dictionary
     for tc in tc_list:

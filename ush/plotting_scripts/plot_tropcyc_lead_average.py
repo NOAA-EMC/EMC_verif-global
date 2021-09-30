@@ -104,6 +104,7 @@ if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']
     year = plot_info.split('_')[1]
     name = plot_info.split('_')[2]
+    tc_num = os.environ['tc_num']
 else:
     plot_info = basin
 tc_stat_file_dir = os.path.join(DATA, RUN, 'metplus_output', 'gather',
@@ -426,7 +427,7 @@ if os.path.exists(summary_tcst_filename):
                 full_title = full_title+formal_basin+' Mean\n'
             else:
                 full_title = (
-                    full_title+name.title()+' '
+                    full_title+str(tc_num)+'-'+name.title()+' '
                     +'('+formal_basin+' '+year+')\n'
                 )
             full_title = (full_title+'Cycles: '+', '.join(init_hour_list)+', '

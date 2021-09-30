@@ -189,7 +189,8 @@ if os.path.exists(summary_tcst_filename):
             )
             for AMODEL in model_tmp_atcf_name_list:
                 AMODEL_idx = model_tmp_atcf_name_list.index(AMODEL)
-                AMODEL_plot_name = model_plot_name_list[AMODEL_idx]
+                AMODEL_plot_name = (model_plot_name_list[AMODEL_idx]+' '
+                                    +'('+model_atcf_name_list[AMODEL_idx]+')')
                 print("Plotting "+AMODEL_plot_name)
                 model_num+=1
                 model_plot_settings_dict = (

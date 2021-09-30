@@ -287,15 +287,20 @@ def get_tc_dates(bdeck_file):
     end_date = str(date_list[-1])
     return start_date, end_date
 
-def get_tc_include_exclude(bdeck_file, user_storm_level_list):
+def get_tc_include_exclude(bdeck_file, user_valid_storm_level_list,
+                           user_init_storm_level_list):
     """! Get valid/init dates to include/exclude
          for a named TC
 
          Args:
-             bdeck_file            - string of path to the
-                                     storm's bdeck file
-             user_storm_level_list - list of strings of storm levels
-                                     selected by user
+             bdeck_file                  - string of path to the
+                                           storm's bdeck file
+             user_valid_storm_level_list - list of strings of storm levels
+                                           selected by user for valid
+                                           times
+             user_init_storm_level_list  - list of strings of storm levels
+                                           selected by user for initialization
+                                           times
 
          Returns:
              tc_valid_include - list of strings of
@@ -335,14 +340,16 @@ def get_tc_include_exclude(bdeck_file, user_storm_level_list):
         row_date_MET_format = datetime.datetime.strptime(
             row_date, '%Y%m%d%H'
         ).strftime('%Y%m%d_%H0000')
-        if row_storm_level in user_storm_level_list:
+        if row_storm_level in user_valid_storm_level_list:
             if row_date_MET_format not in valid_include:
                 valid_include.append(row_date_MET_format)
-            if row_date_MET_format not in init_include:
-                init_include.append(row_date_MET_format)
         else:
             if row_date_MET_format not in valid_exclude:
                 valid_exclude.append(row_date_MET_format)
+        if row_storm_level in user_init_storm_level_list:
+            if row_date_MET_format not in init_include:
+                init_include.append(row_date_MET_format)
+        else:
             if row_date_MET_format not in init_exclude:
                 init_exclude.append(row_date_MET_format)
     return valid_include, init_include, valid_exclude, init_exclude

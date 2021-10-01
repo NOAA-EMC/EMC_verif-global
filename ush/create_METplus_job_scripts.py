@@ -1127,7 +1127,13 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         sys.exit(1)
     # Other jobs scripts
     stat_list = os.environ[case_abbrev+'_stat_list'].split(' ')
-    storm_level_list = os.environ[case_abbrev+'_storm_level_list'].split(' ')
+    init_storm_level_list = (
+        os.environ[case_abbrev+'_init_storm_level_list'].split(' ')
+    )
+    valid_storm_level_list = (
+        os.environ[case_abbrev+'_valid_storm_level_list'].split(' ')
+    )
+    plot_CI_bars = os.environ[case_abbrev+'_plot_CI_bars']
     model_tmp_atcf_name_list = []
     for model in model_list:
         model_idx = model_list.index(model)
@@ -1146,14 +1152,18 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['valid_hour_list'] = (
             os.environ[case_abbrev+'_valid_hr_list'].replace(' ','')
         )
-        job_env_dict['model_list'] = ', '.join(model_list)
-        job_env_dict['model_atcf_name_list'] = ', '.join(model_atcf_name_list)
-        job_env_dict['model_tmp_atcf_name_list'] = ', '.join(
+        job_env_dict['model_list'] = ','.join(model_list)
+        job_env_dict['model_atcf_name_list'] = ','.join(model_atcf_name_list)
+        job_env_dict['model_tmp_atcf_name_list'] = ','.join(
             model_tmp_atcf_name_list
         )
-        job_env_dict['model_plot_name_list'] = ', '.join(model_plot_name_list)
+        job_env_dict['model_plot_name_list'] = ','.join(model_plot_name_list)
         job_env_dict['stat_list'] = ','.join(stat_list)
-        job_env_dict['storm_level_list'] = ','.join(storm_level_list)
+        job_env_dict['init_storm_level_list'] = ','.join(init_storm_level_list)
+        job_env_dict['valid_storm_level_list'] = ','.join(
+            valid_storm_level_list
+        )
+        job_env_dict['plot_CI_bars'] = plot_CI_bars
     basin_list = []
     # Set up tropical cyclone environment variables in dictionary
     for tc in tc_list:
@@ -1181,8 +1191,16 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['name'] = name
         job_env_dict['tc_id'] = tc_id.upper()
         job_env_dict['tc_num'] = tc_id[2:4]
+        tc_valid_include, tc_init_include, \
+        tc_valid_exclude, tc_init_exclude = (
+            get_tc_info.get_tc_include_exclude(bdeck_file,
+                                               valid_storm_level_list,
+                                               init_storm_level_list)
+        )
         # Write job scripts for METplus process
         if METplus_process == 'tc_pairs':
+            job_env_dict['tc_init_include'] = ','.join(tc_init_include)
+            job_env_dict['tc_init_exclude'] = ','.join(tc_init_exclude)
             for model in model_list:
                 job_env_dict['model'] = model
                 model_idx = model_list.index(model)
@@ -1209,6 +1227,28 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
                                +'-c '+metplus_conf)
                 job_file.close()
         elif METplus_process == 'tc_stat':
+            tc_valid_init_inc_exc = ''
+            if len(tc_valid_include) != 0:
+                tc_valid_init_inc_exc = (
+                    tc_valid_init_inc_exc
+                    +'-valid_inc '+','.join(tc_valid_include)+' '
+                )
+            if len(tc_valid_exclude) != 0:
+                tc_valid_init_inc_exc = (
+                    tc_valid_init_inc_exc
+                    +'-valid_exc '+','.join(tc_valid_exclude)+' '
+                )
+            if len(tc_init_include) != 0:
+                tc_valid_init_inc_exc = (
+                    tc_valid_init_inc_exc
+                    +'-init_inc '+','.join(tc_init_include)+' '
+                )
+            if len(tc_init_exclude) != 0:
+                tc_valid_init_inc_exc = (
+                    tc_valid_init_inc_exc
+                    +'-init_exc '+','.join(tc_init_exclude)+' '
+                )
+            job_env_dict['tc_valid_init_inc_exc'] = tc_valid_init_inc_exc
             # Create job file
             njob+=1
             job_filename = os.path.join(job_env_dict['DATA'],
@@ -1227,6 +1267,17 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             metplus_conf = os.path.join(gather_conf_dir, 'tc.conf')
             job_file.write(master_metplus+' -c '+machine_conf+' '
                            +'-c '+metplus_conf+'\n')
+            job_file.write('\n')
+            job_file.write('cp '
+                           +os.path.join(job_env_dict['DATA'],
+                                         job_env_dict['RUN'], 'metplus_output',
+                                         'gather', 'tc_stat', tc,
+                                         'dump_row.tcst')+' '
+                           +os.path.join(job_env_dict['DATA'],
+                                         job_env_dict['RUN'], 'metplus_output',
+                                         'gather', 'tc_stat',
+                                         'all_storms_dump_row',
+                                         tc+'_dump_row.tcst')+'\n')
             job_file.write('\n')
             job_file.write(
                 'python '
@@ -1252,7 +1303,7 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
     # Write basin mean job scripts
     if METplus_process == 'tc_stat':
         for del_key in ['TC_START_DATE', 'TC_END_DATE', 'tc', 'basin',
-                        'year', 'name', 'tc_id', 'tc_num']:
+                        'year', 'name', 'tc_id', 'tc_valid_init_inc_exc']:
             if del_key in list(job_env_dict.keys()):
                 del job_env_dict[del_key]
         for basin in basin_list:
@@ -1270,6 +1321,10 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
             # Write environment variables
             for name, value in job_env_dict.items():
                 job_file.write('export '+name+'="'+value+'"\n')
+            job_file.write('\n')
+            # Write sleep command to make sure dump row files
+            # have all been written
+            job_file.write('sleep 300\n')
             job_file.write('\n')
             # Write METplus commands
             metplus_conf = os.path.join(gather_conf_dir, 'basin.conf')

@@ -96,14 +96,16 @@ fhr_list = os.environ['fhr_list'].split(',')
 fhrs = np.asarray(fhr_list, dtype=int)
 init_hour_list = os.environ['init_hour_list'].split(',')
 valid_hour_list = os.environ['valid_hour_list'].split(',')
-model_atcf_name_list = os.environ['model_atcf_name_list'].split(', ')
-model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(', ')
-model_plot_name_list = os.environ['model_plot_name_list'].split(', ')
+model_atcf_name_list = os.environ['model_atcf_name_list'].split(',')
+model_tmp_atcf_name_list = os.environ['model_tmp_atcf_name_list'].split(',')
+model_plot_name_list = os.environ['model_plot_name_list'].split(',')
 basin = os.environ['basin']
+plot_CI_bars = os.environ['plot_CI_bars']
 if 'tc' in list(os.environ.keys()):
     plot_info = os.environ['tc']
     year = plot_info.split('_')[1]
     name = plot_info.split('_')[2]
+    tc_num = os.environ['tc_num']
 else:
     plot_info = basin
 tc_stat_file_dir = os.path.join(DATA, RUN, 'metplus_output', 'gather',
@@ -126,7 +128,7 @@ print("Reading in data")
 summary_tcst_filename = os.path.join(tc_stat_file_dir, 'summary.tcst')
 if os.path.exists(summary_tcst_filename):
     nrow = sum(1 for line in open(summary_tcst_filename))
-    if nrow == 0:
+    if nrow == 3:
         print("ERROR: "+summary_tcst_filename+" empty")
         sys.exit(1)
     else:
@@ -161,6 +163,12 @@ if os.path.exists(summary_tcst_filename):
             summary_tcst_data_COLUMN_groupby_AMODEL = (
                 summary_tcst_data_COLUMN.groupby(['AMODEL'])
             )
+            nmodels = len(
+                summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
+            )
+            if nmodels != len(model_tmp_atcf_name_list):
+                print("ERROR: Model(s) missing in "+summary_tcst_filename)
+                continue
             stat_max = np.ma.masked_invalid(np.nan)
             fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
             ax.grid(True)
@@ -173,9 +181,6 @@ if os.path.exists(summary_tcst_filename):
             ax.set_xlim([fhrs[0], fhrs[-1]])
             ax.set_ylabel(formal_stat_name)
             model_num = 0
-            nmodels = len(
-                summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
-            )
             CI_bar_max_widths = np.append(np.diff(fhrs),
                                           fhrs[-1]-fhrs[-2])/1.5
             CI_bar_min_widths = np.append(np.diff(fhrs),
@@ -188,7 +193,8 @@ if os.path.exists(summary_tcst_filename):
             )
             for AMODEL in model_tmp_atcf_name_list:
                 AMODEL_idx = model_tmp_atcf_name_list.index(AMODEL)
-                AMODEL_plot_name = model_plot_name_list[AMODEL_idx]
+                AMODEL_plot_name = (model_plot_name_list[AMODEL_idx]+' '
+                                    +'('+model_atcf_name_list[AMODEL_idx]+')')
                 print("Plotting "+AMODEL_plot_name)
                 model_num+=1
                 model_plot_settings_dict = (
@@ -302,20 +308,22 @@ if os.path.exists(summary_tcst_filename):
                     if fhrs_column_amodel_mean.max() > stat_max \
                             or np.ma.is_masked(stat_max):
                         stat_max = fhrs_column_amodel_mean.max()
-                for fhr in fhrs:
-                    fhr_idx = np.where(fhr == fhrs)[0][0]
-                    ax.bar(fhrs[fhr_idx],
-                           (fhrs_column_amodel_mean_ncu[fhr_idx]
-                            - fhrs_column_amodel_mean_ncl[fhr_idx]),
-                           bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
-                           color='None',
-                           width=CI_bar_max_widths-(CI_bar_intvl_widths*(model_num-1)),
-                           edgecolor= model_plot_settings_dict['color'],
-                           linewidth=0.5)
-                    if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
-                            or np.ma.is_masked(stat_max):
-                        if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
-                            stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
+                if plot_CI_bars == 'YES':
+                    for fhr in fhrs:
+                        fhr_idx = np.where(fhr == fhrs)[0][0]
+                        ax.bar(fhrs[fhr_idx],
+                               (fhrs_column_amodel_mean_ncu[fhr_idx]
+                                - fhrs_column_amodel_mean_ncl[fhr_idx]),
+                               bottom=fhrs_column_amodel_mean_ncl[fhr_idx],
+                               color='None',
+                               width=CI_bar_max_widths-(CI_bar_intvl_widths
+                                                        *(model_num-1)),
+                               edgecolor= model_plot_settings_dict['color'],
+                               linewidth=0.5)
+                        if fhrs_column_amodel_mean_ncu[fhr_idx] > stat_max \
+                                or np.ma.is_masked(stat_max):
+                            if not np.ma.is_masked(fhrs_column_amodel_mean_ncu[fhr_idx]):
+                                stat_max = fhrs_column_amodel_mean_ncu[fhr_idx]
             # Adjust y axis limits and ticks
             preset_y_axis_tick_min = ax.get_yticks()[0]
             preset_y_axis_tick_max = ax.get_yticks()[-1]
@@ -426,7 +434,7 @@ if os.path.exists(summary_tcst_filename):
                 full_title = full_title+formal_basin+' Mean\n'
             else:
                 full_title = (
-                    full_title+name.title()+' '
+                    full_title+str(tc_num)+'-'+name.title()+' '
                     +'('+formal_basin+' '+year+')\n'
                 )
             full_title = (full_title+'Cycles: '+', '.join(init_hour_list)+', '

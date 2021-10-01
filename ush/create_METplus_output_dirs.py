@@ -113,6 +113,10 @@ elif RUN == 'tropcyc':
             os.path.join('gather', 'tc_stat', tc)
         )
         metplus_output_subdir_list.append(
+            os.path.join('gather', 'tc_stat',
+                         'all_storms_dump_row')
+        )
+        metplus_output_subdir_list.append(
             os.path.join('plot', tc, 'images')
         )
         if (os.path.join('gather', 'tc_stat', basin)

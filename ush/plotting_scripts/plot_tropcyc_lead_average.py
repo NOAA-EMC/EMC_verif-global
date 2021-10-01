@@ -163,6 +163,12 @@ if os.path.exists(summary_tcst_filename):
             summary_tcst_data_COLUMN_groupby_AMODEL = (
                 summary_tcst_data_COLUMN.groupby(['AMODEL'])
             )
+            nmodels = len(
+                summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
+            )
+            if nmodels != len(model_tmp_atcf_name_list):
+                print("ERROR: Model(s) missing in "+summary_tcst_filename)
+                continue
             stat_max = np.ma.masked_invalid(np.nan)
             fig, ax = plt.subplots(1,1,figsize=(x_figsize, y_figsize))
             ax.grid(True)
@@ -175,9 +181,6 @@ if os.path.exists(summary_tcst_filename):
             ax.set_xlim([fhrs[0], fhrs[-1]])
             ax.set_ylabel(formal_stat_name)
             model_num = 0
-            nmodels = len(
-                summary_tcst_data_COLUMN_groupby_AMODEL.groups.keys()
-            )
             CI_bar_max_widths = np.append(np.diff(fhrs),
                                           fhrs[-1]-fhrs[-2])/1.5
             CI_bar_min_widths = np.append(np.diff(fhrs),

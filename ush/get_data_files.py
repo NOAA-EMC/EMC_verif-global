@@ -390,7 +390,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
         os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
                   +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
-                  +hpss_job_filename)
+                  +'-l select=1:ncpus=1 '+hpss_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
     if machine not in ['ORION', 'S4']:

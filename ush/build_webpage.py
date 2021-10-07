@@ -969,6 +969,7 @@ elif machine == 'S4':
 elif machine == 'WCOSS2':
     os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
               +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
-              +'-e '+web_job_output+' -N '+web_job_name+' '+web_job_filename)
+              +'-e '+web_job_output+' -N '+web_job_name+' '
+              +'-l select=1:ncpus=1 '+web_job_filename)
 
 print("END: "+os.path.basename(__file__))

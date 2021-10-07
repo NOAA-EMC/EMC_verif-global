@@ -16,7 +16,8 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 EMC_verif_global_machine_list = [
-    'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3', 'S4', 'JET'
+    'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3', 'S4', 'JET',
+    'WCOSS2'
 ]
 
 # Read in environment variables
@@ -52,6 +53,18 @@ if 'machine' not in vars():
     venus_match2 = re.match(
         re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
     )
+    cactus_match = re.match(
+        re.compile(r"^clogin[0-9]{2}$"), hostname
+    )
+    cactus_match2 = re.match(
+        re.compile(r"^cdecflow[0-9]{2}$"), hostname
+    )
+    dogwood_match = re.match(
+        re.compile(r"^dlogin[0-9]{2}$"), hostname
+    )
+    dogwood_match2 = re.match(
+        re.compile(r"^ddecflow[0-9]{2}$"), hostname
+    )
     s4_match = re.match(re.compile(r"s4-submit.ssec.wisc.edu"), hostname)
     jet_match = re.match(re.compile(r"^fe[0-9]{1}"), hostname)
     if hera_match:
@@ -66,6 +79,8 @@ if 'machine' not in vars():
         machine = 'S4'
     elif jet_match:
         machine = 'JET'
+    elif cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
+        machine = 'WCOSS2'
     else:
         print("Cannot find match for "+hostname)
         sys.exit(1)

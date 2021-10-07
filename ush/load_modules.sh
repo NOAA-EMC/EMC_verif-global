@@ -224,6 +224,43 @@ elif [ $machine = JET ]; then
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+elif [ $machine = WCOSS2 ]; then
+    source /usr/share/lmod/lmod/init/sh
+    module purge
+    module load envvar/1.0
+    module load PrgEnv-intel/8.1.0
+    module load craype/2.7.10
+    module load intel/19.1.3.304
+    module load cray-mpich/8.1.7
+    module load cray-pals/1.0.17
+    module load cfp/2.0.4
+    export USE_CFP="YES"
+    module load libjpeg/9c
+    module load libpng/1.6.37
+    module load zlib/1.2.11
+    module load jasper/2.0.25
+    module load proj/7.1.0
+    module load geos/3.8.1
+    module load hdf5/1.10.6
+    module load netcdf/4.7.4
+    module load nco/4.7.9
+    module load prod_util/2.0.9
+    module load grib_util/1.2.3
+    module load imagemagick/7.0.8-7
+    module load python/3.8.6
+    if [ $MET_version = 9.1 ]; then
+        export HOMEMET=""
+        export HOMEMET_bin_exec=""
+    else
+        "ERROR: $MET_version is not supported on $machine"
+        exit 1
+    fi
+    if [ $METplus_version = 3.1 ]; then
+        export HOMEMETplus="${METPLUS_PATH}"
+    else
+        "ERROR: $METplus_version is not supported on $machine"
+        exit 1
+    fi
 else
     echo "ERROR: $machine is not supported"
     exit 1
@@ -237,7 +274,7 @@ if [ $machine != "ORION" ]; then
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
         export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" ]; then
+    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
         export HTAR=`which htar`
         export NCAP2="/null/ncap2"
     else

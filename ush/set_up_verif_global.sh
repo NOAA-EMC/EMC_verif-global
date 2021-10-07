@@ -40,23 +40,18 @@ fi
 
 echo "Output will be in: $OUTPUTROOT"
 export COMROOT="$OUTPUTROOT/com"
-export NWGESROOT="$OUTPUTROOT/nwges"
 export DCOMROOT="$OUTPUTROOT/dcom"
-export PCOMROOT="$OUTPUTROOT/pcom"
-export DATAROOT="$OUTPUTROOT/tmpnw${envir}"
+export DATAROOT="$OUTPUTROOT/tmp"
 export job=${job:-$LSB_JOBNAME}
 export jobid=${jobid:-$$}
 export DATA=${DATAROOT}/$NET.$jobid
-mkdir -p $COMROOT $NWGESROOT $DCOMROOT $PCOMROOT $DATAROOT $DATA
+mkdir -p $COMROOT $DCOMROOT $DATAROOT $DATA
 mkdir -p $COMROOT/$NET/$envir
 mkdir -p $COMROOT/logs/jlogfiles
 mkdir -p $COMROOT/output/$envir/today
 mkdir -p $COMROOT/output/$envir/$(date +%Y%m%d)
 export DCOM=${DCOM:-$DCOMROOT/$NET}
-export PCOM=${PCOM:-$PCOMROOT/$NET}
-export GESIN=${GESIN:-$GESROOT/$envir}
-export GESOUT=${GESOUT:-$GESROOT/$envir}
-mkdir -p $DCOM $PCOM
+mkdir -p $DCOM
 cd $DATA
 echo
 
@@ -74,7 +69,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET|WCOSS2)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -114,6 +109,8 @@ elif [ $machine = "S4" ]; then
     export FIXverif_global="/data/prod/glopara/fix/fix_verif"
 elif [ $machine = "JET" ]; then
     export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_verif"
+elif [ $machine = "WCOSS2" ]; then
+    export FIXverif_global="/lfs/h2/emc/eib/noscrub/Kate.Friedman/glopara/fix_nco_gfsv16/fix_verif"
 fi
 
 ## Set machine specific account, queues, and run settings
@@ -160,6 +157,14 @@ elif [ $machine = "JET" ]; then
     export QUEUESERV="service"
     export PARTITION_BATCH="xjet"
     export nproc="10"
+    export MPMD="YES"
+elif [ $machine = "WCOSS2" ]; then
+    export ACCOUNT="GFS-DEV"
+    export QUEUE="dev"
+    export QUEUESHARED="dev_shared"
+    export QUEUESERV="dev_transfer"
+    export PARTITION_BATCH=""
+    export nproc="24"
     export MPMD="YES"
 fi
 
@@ -230,6 +235,17 @@ elif [ $machine = "JET" ]; then
     export obdata_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/VRFY/METviewer_AWS"
+elif [ $machine = "WCOSS2" ]; then
+    export NWROOT=${NWROOT:-"/lfs/h1/ops/prod"}
+    export HOMEDIR="/lfs/h2/emc/global/noscrub/$USER"
+    export STMP="/lfs/h2/emc/stmp/$USER"
+    export PTMP="/lfs/h2/emc/ptmp/$USER"
+    export NOSCRUB="$HOMEDIR"
+    export global_archive=""
+    export prepbufr_arch_dir=""
+    export obdata_dir=""
+    export ccpa_24hr_arch_dir=""
+    export METviewer_AWS_scripts_dir=""
 fi
 
 ## Set operational directories
@@ -240,6 +256,15 @@ export nhc_atcfnoaa_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/btk"
 export nhc_atcfnoaa_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/aid_nws"
 export nhc_atcfnavy_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/btk"
 export nhc_atcfnavy_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/aid"
+if [ $machine = "WCOSS2" ]; then
+    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/gfs/v16.2"
+    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/nam/v4.2"
+    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/ccpa/v4.2"
+    export nhc_atcfnoaa_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/btk"
+    export nhc_atcfnoaa_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/aid_nws"
+    export nhc_atcfnavy_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/btk"
+    export nhc_atcfnavy_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/aid"
+fi
 
 ## Set online and FTP sites
 export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"

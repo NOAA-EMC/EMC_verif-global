@@ -213,7 +213,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET|WCOSS2)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -277,13 +277,21 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+elif [ $machine = "WCOSS2" ]; then
+    export global_archive=""
+    export prepbufr_arch_dir=""
+    export ccpa_24hr_arch_dir=""
 fi
 
 ## Set operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
-
+if [ $machine = "WCOSS2" ]; then
+    export prepbufr_prod_upper_air_dir=""
+    export prepbufr_prod_conus_sfc_dir=""
+    export ccpa_24hr_prod_dir=""
+fi
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 

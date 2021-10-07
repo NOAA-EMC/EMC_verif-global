@@ -503,6 +503,8 @@ if SEND2WEB == 'YES':
                                     +'_scorecard_web.sh')
     with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')
+        if machine == 'WCOSS2':
+            web_job_file.write('cd $PBS_O_WORKDIR\n')
         web_job_file.write('ssh -q -l '+webhostid+' '+webhost+' " ls -l '
                            +webdir+' "'+'\n')
         web_job_file.write('if [ $? -ne 0 ]; then'+'\n')
@@ -545,3 +547,9 @@ if SEND2WEB == 'YES':
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
+    elif machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
+                  +'-e '+web_job_output+' -N '+web_job_name+' 
+                  '+web_job_filename)
+

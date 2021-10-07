@@ -84,6 +84,8 @@ if [ $MPMD = YES ]; then
             launcher="mpirun -n $((${nproc}*3)) cfp"
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
+	elif [ $machine = WCOSS2 ]; then
+            launcher="mpiexec -np $((${nproc}*3)) --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done

@@ -47,6 +47,9 @@ elif [ $machine = JET ]; then
     module load grads/2.2.1
 elif [ $machine = S4 ]; then
     module load grads/2.2.1
+elif [ $machine = WCOSS2 ]; then
+    module use /apps/test/lmodules/core
+    module load GrADS/2.2.1
 fi
 if [ $machine = "ORION" ]; then
     export GRADS=`which grads | sed 's/grads is //g'`

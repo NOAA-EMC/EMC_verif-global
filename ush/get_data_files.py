@@ -386,6 +386,13 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'S4']:
         print("ERROR: No HPSS access from "+machine)
+    elif machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
+                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
+                  +hpss_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+hpss_job_name+' | wc -l')
     if machine not in ['ORION', 'S4']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:

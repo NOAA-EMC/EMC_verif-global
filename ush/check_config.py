@@ -348,7 +348,9 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_truth_name'] = ['self_anl', 'self_f00',
-                                                        'gfs_anl', 'gfs_f00']
+                                                        'gfs_anl', 'gfs_f00',
+                                                        'gdas_anl', 'gdas_f00',
+                                                        'ecm_anl', 'ecm_f00']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
         if 'anl' in os.environ[RUN_abbrev_type+'_truth_name']:

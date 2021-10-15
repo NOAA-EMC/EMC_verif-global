@@ -674,26 +674,38 @@ if RUN == 'grid2grid_step1':
                 model_RUN_abbrev_type_truth_dir = model_dir
                 RUN_abbrev_type_truth_name_short = model
                 model_RUN_abbrev_type_truth_hpss_dir = model_hpss_dir
-            elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00']:
+            elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00',
+                                                'gdas_anl', 'gdas_f00',
+                                                'ecm_anl', 'ecm_f00']:
                 model_RUN_abbrev_type_truth_dir = global_archive
                 RUN_abbrev_type_truth_name_short = (
                     RUN_abbrev_type_truth_name.split('_')[0]
                 )
-                model_RUN_abbrev_type_truth_hpss_dir = hpss_prod_base_dir
+                if RUN_abbrev_type_truth_name_short == 'ecm':
+                    model_RUN_abbrev_type_truth_hpss_dir = '/null'
+                else:
+                    model_RUN_abbrev_type_truth_hpss_dir = hpss_prod_base_dir
                 if RUN_abbrev_type_truth_name \
-                        == 'gfs_'+RUN_abbrev_type_truth_name_lead \
+                        == RUN_abbrev_type_truth_name_short \
+                           +'_'+RUN_abbrev_type_truth_name_lead \
                         and model_RUN_abbrev_type_truth_file_format != \
                         ('pgb'+RUN_abbrev_type_truth_name_lead
-                         +'.gfs.{valid?fmt=%Y%m%d%H}'):
+                         +'.'+RUN_abbrev_type_truth_name_short
+                         +'.{valid?fmt=%Y%m%d%H}'):
                     print("WARNING: "+RUN_abbrev_type+"_truth_name set to "
-                          +"gfs_"+RUN_abbrev_type_truth_name_lead+" but "
+                          +RUN_abbrev_type_truth_name_short+"_"
+                          +RUN_abbrev_type_truth_name_lead+" but "
                           +"file format does not match expected value. "
                           +"Using to pgb"+RUN_abbrev_type_truth_name_lead
-                          +".gfs.{valid?fmt=%Y%m%d%H}")
+                          +"."+RUN_abbrev_type_truth_name_short
+                          +".{valid?fmt=%Y%m%d%H}")
                     model_RUN_abbrev_type_truth_file_format = (
                         'pgb'+RUN_abbrev_type_truth_name_lead
-                        +'.gfs.{valid?fmt=%Y%m%d%H}'
+                        +'.'+RUN_abbrev_type_truth_name_short
+                        +'.{valid?fmt=%Y%m%d%H}'
                     )
+                if RUN_abbrev_type_truth_name_short == 'gdas':
+                    RUN_abbrev_type_truth_name_short = 'gfs'
             if RUN_abbrev_type_truth_name_lead == 'f00':
                 RUN_abbrev_type_truth_name_lead = '00'
             # Get model forecast and truth files
@@ -711,15 +723,26 @@ if RUN == 'grid2grid_step1':
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
-                    get_model_file(valid_time, valid_time,
-                                   RUN_abbrev_type_truth_name_lead,
-                                   RUN_abbrev_type_truth_name_short,
-                                   model_RUN_abbrev_type_truth_dir,
-                                   model_RUN_abbrev_type_truth_file_format,
-                                   model_data_run_hpss,
-                                   model_RUN_abbrev_type_truth_hpss_dir,
-                                   link_model_dir,
-                                   RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
+                    if RUN_abbrev_type_truth_name in ['ecm_anl', 'ecm_f00']:
+                        get_model_file(valid_time, valid_time,
+                                       RUN_abbrev_type_truth_name_lead,
+                                       RUN_abbrev_type_truth_name_short,
+                                       model_RUN_abbrev_type_truth_dir,
+                                       model_RUN_abbrev_type_truth_file_format,
+                                       'NO',
+                                       model_RUN_abbrev_type_truth_hpss_dir,
+                                       link_model_dir,
+                                       RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
+                    else:
+                        get_model_file(valid_time, valid_time,
+                                       RUN_abbrev_type_truth_name_lead,
+                                       RUN_abbrev_type_truth_name_short,
+                                       model_RUN_abbrev_type_truth_dir,
+                                       model_RUN_abbrev_type_truth_file_format,
+                                       model_data_run_hpss,
+                                       model_RUN_abbrev_type_truth_hpss_dir,
+                                       link_model_dir,
+                                       RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
                     # Check model RUN_type truth file exists, if not try
                     # to use model's own f00 file
                     truth_file = os.path.join(

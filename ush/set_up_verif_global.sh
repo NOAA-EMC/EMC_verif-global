@@ -110,7 +110,7 @@ elif [ $machine = "S4" ]; then
 elif [ $machine = "JET" ]; then
     export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "WCOSS2" ]; then
-    export FIXverif_global="/lfs/h2/emc/eib/noscrub/Kate.Friedman/glopara/fix_nco_gfsv16/fix_verif"
+    export FIXverif_global="/lfs/h2/emc/global/noscrub/Kate.Friedman/glopara/FIX/fix/fix_verif"
 fi
 
 ## Set machine specific account, queues, and run settings

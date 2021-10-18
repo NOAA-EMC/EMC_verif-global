@@ -376,7 +376,11 @@ elif RUN == 'grid2grid_step2':
                                      +'_truth_name_list'] = ['self_anl',
                                                              'self_f00',
                                                              'gfs_anl',
-                                                             'gfs_f00']
+                                                             'gfs_f00',
+                                                             'gdas_anl',
+                                                             'gdas_f00',
+                                                             'ecm_anl',
+                                                             'ecm_f00']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']

@@ -186,7 +186,8 @@ def tropcyc_write_template_body1(template_filename):
     template_file.write('    <span class="close">&times;</span>\n')
     template_file.write('    Tropical Cyclone Verification Information\n')
     template_file.write(
-        '    <embed width=100% height=100% src="../main.php">\n'
+        '    <iframe width=100% height=90% src="../main.php" '
+        +'style="border:none;"></iframe>\n'
     )
     template_file.write('  </div>\n')
     template_file.write('</div>\n')

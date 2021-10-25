@@ -142,39 +142,39 @@ echo
 # Check forecast max hours, adjust if before experiment SDATE_GFS
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
-g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
 if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_anom_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_anom_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2g1_pres_check_vhour="${g2g1_pres_vhr_list: -2}"
-g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${VDATE}${g2g1_pres_check_vhour})"
 if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_pres_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_pres_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2g1_sfc_check_vhour="${g2g1_sfc_vhr_list: -2}"
-g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${VDATE}${g2g1_sfc_check_vhour})"
 if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2o1_upper_air_check_vhour="${g2o1_upper_air_vhr_list: -2}"
-g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${VDATE}${g2o1_upper_air_check_vhour})"
 if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2o1_conus_sfc_check_vhour="${g2o1_conus_sfc_vhr_list: -2}"
-g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${VDATE}${g2o1_conus_sfc_check_vhour})"
 if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
-g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list:-2}"
-g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
+g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${VDATE}${g2o1_polar_sfc_check_vhour})"
 if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${start_date}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 precip1_ccpa_accum24hr_check_vhour="12"
-precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${SDATE_GFS_YYYYMMDDHH})"
+precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${VDATE}${precip1_ccpa_accum24hr_check_vhour})"
 if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${start_date}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${VDATE}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 
 echo

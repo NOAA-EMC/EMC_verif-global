@@ -1152,6 +1152,12 @@ def create_job_scripts_tropcyc(start_date_dt, end_date_dt, case, case_abbrev,
         job_env_dict['valid_hour_list'] = (
             os.environ[case_abbrev+'_valid_hr_list'].replace(' ','')
         )
+        job_env_dict['valid_hour_beg'] = (
+            os.environ[case_abbrev+'_valid_hr_beg']
+        )
+        job_env_dict['valid_hour_end'] = (
+            os.environ[case_abbrev+'_valid_hr_end']
+        )
         job_env_dict['model_list'] = ','.join(model_list)
         job_env_dict['model_atcf_name_list'] = ','.join(model_atcf_name_list)
         job_env_dict['model_tmp_atcf_name_list'] = ','.join(

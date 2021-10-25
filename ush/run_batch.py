@@ -67,11 +67,6 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')
         job_card.write('#SBATCH --job-name='+job_name+'\n')
         job_card.write('#SBATCH --output='+job_output_filename+'\n')
-        if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
-                   'maps2d', 'mapsda']:
-            job_card.write('#SBATCH --mem=10g\n')
-        else:
-            job_card.write('#SBATCH --mem=3g\n')
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
         job_card.write('#SBATCH --time=6:00:00\n')
@@ -82,7 +77,6 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')
         job_card.write('#SBATCH --job-name='+job_name+'\n')
         job_card.write('#SBATCH --output='+job_output_filename+'\n')
-        job_card.write('#SBATCH --mem=3g\n')
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
         job_card.write('#SBATCH --time=6:00:00\n')

@@ -29,6 +29,8 @@ EMC_verif-global is supported on the following machines:
 * WCOSS-Cray (Luna and Surge)
 * Hera
 * Orion
+* S4
+* Jet
 
 For questions or issues, please e-mail Mallory Row at mallory.row@noaa.gov.
 

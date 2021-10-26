@@ -284,10 +284,12 @@ elif img_quality == 'medium':
 # Set up location of Natural Earth files
 if machine == 'HERA':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
-if machine == 'WCOSS_C':
+elif machine == 'WCOSS_C':
     config['data_dir']='/u/emc.verif/.local/share/cartopy'
-if machine == 'WCOSS_DELL_P3':
+elif machine == 'WCOSS_DELL_P3':
     config['data_dir']='/u/emc.verif/.local/share/cartopy'
+elif machine == 'S4':
+    config['data_dir']='/home/dhuber/.local/share/cartopy'
 
 # Set up information
 env_var_model_list = []

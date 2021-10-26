@@ -1769,7 +1769,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                         +'job'+str(njob)+'_'
                                                         +model+'.sh')+'\n')
                         job_file.write('\n')
-                    if os.environ['machine'] in ['ORION', 'S4', 'JET']:
+                    if os.environ['machine'] in ['ORION', 'JET']:
                         job_file.write('echo "WARNING: Cartopy not installed '
                                        +'on '+os.environ['machine'].title()
                                        +', cannot create plots."\n')

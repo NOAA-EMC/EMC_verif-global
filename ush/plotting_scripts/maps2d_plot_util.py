@@ -152,7 +152,9 @@ def get_maps2d_plot_settings(var_name, var_level):
         formal_var_level = 'Surface'
     elif 'sigma' in var_level:
         var_GRIB_lvl_typ = '107'
-        formal_var_level = var_level.replace('sigma', '')+' Sigma Level'
+        formal_var_level = (var_level.split('_')[0] \
+                            .replace('sigma', '')+' Sigma Level')
+        var_level.replace('sigma', '')+' Sigma Level'
     elif 'msl' in var_level:
         var_GRIB_lvl_typ = '102'
         formal_var_level = 'Mean Sea Level Pressure'
@@ -214,6 +216,18 @@ def get_maps2d_plot_settings(var_name, var_level):
     elif 'convective' in var_level:
         var_GRIB_lvl_typ = '244'
         formal_var_level = 'Convective Cloud Layer'
+    if '_' in var_level:
+        if 'range' in var_level.split('_')[1]:
+            formal_var_time_range = (', '+var_level.split('_')[1] \
+                                     .replace('range','')+' range')
+        elif 'avg' in var_level.split('_')[1]:
+            formal_var_time_range = (', '+var_level.split('_')[1] \
+                                     .replace('avg','')+' average')
+        elif 'accum' in var_level.split('_')[1]:
+            formal_var_time_range = (', '+var_level.split('_')[1] \
+                                     .replace('accum','')+' accumulation')
+    else: #instanteous
+        formal_var_time_range = ''
     # Get settings
     if var_name == '4LFTX': #best (4 layer) lifted index (K)
         formal_var_name = 'Best (4-Layer) Lifted Index'
@@ -481,6 +495,14 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
+    elif var_name == 'HCDC': #high cloud cover (%)
+        formal_var_name = 'High Cloud Cover'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '234': #high layer cloud layer
+            levels = np.array([0,10,20,30,40,50,60,80,100])
+            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            var_scale = 1
+            var_units = '%'
     elif var_name == 'HGT': #geopotential height (gpm)
         formal_var_name = 'Geopotential Height'
         cmap = plt.cm.cubehelix_r
@@ -590,6 +612,14 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
+    elif var_name == 'LCDC': #low cloud cover (%)
+        formal_var_name = 'Low Cloud Cover'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '214': #low layer cloud layer
+            levels = np.array([0,10,20,30,40,50,60,80,100])
+            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            var_scale = 1
+            var_units = '%'
     elif var_name == 'LFTX': #lifted index (K)
         formal_var_name = 'Lifted Index'
         cmap = plt.cm.RdGy_r
@@ -614,6 +644,14 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
+    elif var_name == 'MCDC': #medium cloud cover (%)
+        formal_var_name = 'Medium Cloud Cover'
+        cmap = plt.cm.Blues
+        if var_GRIB_lvl_typ == '224': #medium layer cloud layer
+            levels = np.array([0,10,20,30,40,50,60,80,100])
+            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
+            var_scale = 1
+            var_units = '%'
     elif var_name == 'MSLET': #mean sea-level pressure (NAM reduction) (Pa)
         formal_var_name = 'Mean Sea Level Pressure (NAM Reduction)'
         cmap = plt.cm.rainbow
@@ -903,21 +941,6 @@ def get_maps2d_plot_settings(var_name, var_level):
             var_scale = 1
             var_units = '%'
         elif var_GRIB_lvl_typ == '211': #boundary layer cloud layer
-            levels = np.array([0,10,20,30,40,50,60,80,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
-            var_scale = 1
-            var_units = '%'
-        elif var_GRIB_lvl_typ == '214': #low layer cloud layer
-            levels = np.array([0,10,20,30,40,50,60,80,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
-            var_scale = 1
-            var_units = '%'
-        elif var_GRIB_lvl_typ == '224': #mid layer cloud layer
-            levels = np.array([0,10,20,30,40,50,60,80,100])
-            levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
-            var_scale = 1
-            var_units = '%'
-        elif var_GRIB_lvl_typ == '234': #high layer cloud layer
             levels = np.array([0,10,20,30,40,50,60,80,100])
             levels_diff = np.array([-30,-20,-15,-10,-5,-2,0,2,5,10,15,20,30])
             var_scale = 1
@@ -1313,11 +1336,12 @@ def get_maps2d_plot_settings(var_name, var_level):
         sys.exit(1)
     if var_name in ['PRMSL', 'MSLET', 'HPBL']:
         var_info_title = (
-            formal_var_name+' ('+var_units+')'
+            formal_var_name+' ('+var_units+')'+formal_var_time_range
         )
     else:
         var_info_title = (
             formal_var_level+' '+formal_var_name+' ('+var_units+')'
+            +formal_var_time_range
         )
     return (var_info_title, levels, levels_diff, cmap, var_scale,
             formal_var_name)

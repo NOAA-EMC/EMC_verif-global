@@ -214,8 +214,7 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
             ax_tmp.clabel(C_tmp, C_tmp.levels,
                          fmt=fmt,
                          inline=True,
-                         fontsize=12.5,
-                         color='k')
+                         fontsize=12.5)
     else:
         CF_tmp = None
     return CF_tmp

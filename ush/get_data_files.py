@@ -676,7 +676,7 @@ if RUN == 'grid2grid_step1':
                 model_RUN_abbrev_type_truth_hpss_dir = model_hpss_dir
             elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00',
                                                 'gdas_anl', 'gdas_f00',
-                                                'ecm_anl', 'ecm_f00']:
+                                                'ecm_f00']:
                 model_RUN_abbrev_type_truth_dir = global_archive
                 RUN_abbrev_type_truth_name_short = (
                     RUN_abbrev_type_truth_name.split('_')[0]
@@ -723,7 +723,7 @@ if RUN == 'grid2grid_step1':
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
-                    if RUN_abbrev_type_truth_name in ['ecm_anl', 'ecm_f00']:
+                    if RUN_abbrev_type_truth_name in ['ecm_f00']:
                         get_model_file(valid_time, valid_time,
                                        RUN_abbrev_type_truth_name_lead,
                                        RUN_abbrev_type_truth_name_short,

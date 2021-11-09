@@ -424,6 +424,25 @@ def convert_grib2_grib1(grib2_file, grib1_file):
     os.system(cnvgrib+' -g21 '+grib2_file+' '
               +grib1_file+' > /dev/null 2>&1')
 
+def convert_grib1_grib2(grib1_file, grib2_file):
+    """! This converts GRIB2 data to GRIB1
+
+         Args:
+             grib1_file - string of the path to
+                          the GRIB1 file to
+                          convert
+             grib2_file - string of the path to
+                          save the converted GRIB2
+                          file
+
+         Returns:
+    """
+    print("Converting GRIB1 file "+grib1_file+" "
+          +"to GRIB2 file "+grib2_file)
+    cnvgrib = os.environ['CNVGRIB']
+    os.system(cnvgrib+' -g12 '+grib1_file+' '
+              +grib2_file+' > /dev/null 2>&1')
+
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
                    hpss_data_dir, link_data_dir, link_file_format):
@@ -521,6 +540,256 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         else:
             print("WARNING: "+model_file+" does not exist")
 
+def create_mean_truth(mean_model_list, mean_model_dir_list,
+                      mean_model_file_format_list, valid_time_dt,
+                      grid, output_dir):
+    """! This creates a mean from a list of model files.
+
+         Args:
+             mean_model_list             - list of strings of
+                                           model names
+             mean_model_dir_list         - list of string of the
+                                           model directories
+             mean_model_file_format_list - list of strings of the
+                                           file formats
+             valid_time_dt               - datetime object of
+                                           the valid time
+             grid                        - the grid verification
+                                           is done on, used for
+                                           regridding
+             output_dir                  - string of path to the
+                                           base output
+                                           directory
+
+         Returns:
+    """
+    # Models
+    mean_file = os.path.join(
+        output_dir, output_dir.rpartition('/')[2]
+        +'.'+valid_time_dt.strftime('%Y%m%d%H')
+    )
+    mean_grib2_file = (mean_file+'.grib2')
+    mean_model_file_list = []
+    nmean_models = len(mean_model_list)
+    # Variables
+    variable_name_level_dict = {
+        'HGT': ['P1000', 'P850', 'P700', 'P500', 'P250', 'P200', 'P100',
+                'P50', 'P20', 'P10', 'P5', 'P1', 'L0_7'],
+        'TMP': ['P1000','P850', 'P700', 'P500', 'P250', 'P200', 'P100',
+                'P50', 'P20', 'P10', 'P5', 'P1', 'Z2', 'Z0', 'L0_7'],
+        'UGRD': ['P1000','P850', 'P700', 'P500', 'P250', 'P200', 'P100',
+                 'P50', 'P20', 'P10', 'P5', 'P1', 'Z10'],
+        'VGRD': ['P1000','P850', 'P700', 'P500', 'P250', 'P200', 'P100',
+                 'P50', 'P20', 'P10', 'P5', 'P1', 'Z10'],
+        'O3MR': ['P100', 'P70', 'P50', 'P30', 'P20', 'P10', 'P5', 'P1'],
+        'PRMSL': ['Z0'],
+        'RH': ['Z2'],
+        'SPFH': ['Z2'],
+        'HPBL': ['Z0'],
+        'PRES': ['Z0', 'L0_7'],
+        'TSOIL': ['Z0-10'],
+        'SOILW': ['Z0-10'],
+        'WEASD': ['Z0'],
+        'CAPE': ['Z0'],
+        'CWAT': ['L0_200'],
+        'PWAT': ['L0_200'],
+        'TOZNE': ['L0_200']
+    }
+    # Executables
+    regrid_data_plane = os.path.join(
+        os.environ['HOMEMET'], os.environ['HOMEMET_bin_exec'],
+        'regrid_data_plane'
+    )
+    wgrib = os.environ['WGRIB']
+    wgrib2 = os.environ['WGRIB2']
+    copygb = os.environ['COPYGB']
+    ncea = os.environ['NCEA']
+    ncdump = os.environ['NCDUMP']
+    # Get model files
+    for mean_model in mean_model_list:
+        mean_model_dir = os.path.join(output_dir, mean_model)
+        mean_model_idx = mean_model_list.index(mean_model)
+        mean_model_dir = mean_model_dir_list[mean_model_idx]
+        mean_model_file_format = mean_model_file_format_list[mean_model_idx]
+        save_mean_model_file_format = (
+            mean_model_file_format_list[mean_model_idx]\
+            .replace('.grib2', '').replace('.grb2', '')
+        )
+        output_mean_model_dir = os.path.join(output_dir, mean_model)
+        if not os.path.exists(output_mean_model_dir):
+            os.makedirs(output_mean_model_dir)
+        get_model_file(valid_time_dt, valid_time_dt, '00',
+                       mean_model, mean_model_dir, mean_model_file_format,
+                       'NO', '/null', output_mean_model_dir,
+                       save_mean_model_file_format)
+        mean_model_file = os.path.join(output_mean_model_dir,
+                                       format_filler(
+                                           save_mean_model_file_format,
+                                           valid_time_dt, valid_time_dt, '00'
+                                       ))
+        if os.path.exists(mean_model_file):
+            mean_model_file_list.append(mean_model_file)
+    # Regrid files indivdually for variables for each model, and
+    # take mean if available for all models
+    # Create invdivdual grib2 template file for variable
+    # NCEP only use GFS files for this (center = 7)
+    if len(mean_model_file_list) == nmean_models:
+        print("Creating mean truth file "+mean_file+" using "
+              +', '.join(mean_model_file_list))
+        for var_name in variable_name_level_dict:
+            for var_level in variable_name_level_dict[var_name]:
+                all_models_have_var = True
+                create_var_template = True
+                mean_model_var_nc_file_list = []
+                for mean_model in mean_model_list:
+                    mean_model_idx = mean_model_list.index(mean_model)
+                    save_mean_model_file_format = mean_model_file_format_list[
+                        mean_model_idx
+                    ].replace('.grib2', '').replace('.grb2', '')
+                    output_mean_model_dir = os.path.join(output_dir,
+                                                         mean_model)
+                    save_mean_model_file = os.path.join(
+                        output_mean_model_dir,
+                        format_filler(save_mean_model_file_format,
+                                      valid_time_dt, valid_time_dt, '00')
+                    )
+                    # Create template
+                    if create_var_template:
+                        output_template_dir = os.path.join(output_dir,
+                                                          'template')
+                        if not os.path.exists(output_template_dir):
+                            os.makedirs(output_template_dir)
+                        template_regrid_file = os.path.join(
+                            output_template_dir, 'template.'
+                            +valid_time_dt.strftime('%Y%m%d%H')+'_regrid'
+                        )
+                        template_grib2_file = os.path.join(
+                            output_template_dir, 'template.'
+                            +valid_time_dt.strftime('%Y%m%d%H')+'.grib2'
+                        )
+                        template_var_grib2_file = os.path.join(
+                            output_template_dir, 'template.'
+                            +valid_time_dt.strftime('%Y%m%d%H')+'_'
+                            +var_name+'_'+var_level+'.grib2'
+                        )
+                        if not os.path.exists(template_regrid_file):
+                            check_center = subprocess.check_output(
+                                wgrib+' -V '+save_mean_model_file, shell=True,
+                                encoding='UTF-8'
+                            )
+                            if 'center 7 ' in check_center:
+                                os.system(copygb+' -'+grid.lower()+' -x '
+                                          +save_mean_model_file+' '
+                                          +template_regrid_file+' '
+                                          +'> /dev/null 2>&1')
+                            if os.path.exists(template_regrid_file):
+                                convert_grib1_grib2(template_regrid_file,
+                                                    template_grib2_file)
+                        if 'P' in var_level:
+                            var_level_grib2 = var_level[1:]+' mb'
+                        elif 'Z' in var_level:
+                            if var_level == 'Z0':
+                                if var_name == 'PRMSL':
+                                    var_level_grib2 = 'mean sea level'
+                                else:
+                                    var_level_grib2 = 'surface'
+                            elif var_level == 'Z0-10':
+                                var_level_grib2 = '0-0.1 m below ground'
+                            else:
+                                var_level_grib2 = (var_level[1:]+' m above '
+                                                   +'ground')
+                        elif var_level == 'L0_7':
+                            var_level_grib2 = 'tropopause'
+                        elif var_level == 'L0_200':
+                            var_level_grib2 = ('entire atmosphere \('
+                                               +'considered as a single '
+                                               +'layer)')
+                        if os.path.exists(template_grib2_file):
+                            os.system(wgrib2+' '+template_grib2_file+' '
+                                      +'-match ":'+var_name+':" '
+                                      +'-match ":'+var_level_grib2+':" '
+                                      +'-grib_out '
+                                      +template_var_grib2_file+' '
+                                      +'> /dev/null 2>&1')
+                        if os.path.exists(template_var_grib2_file):
+                            create_var_template = False
+                    # Regrid
+                    mean_model_var_nc_file = os.path.join(
+                        output_mean_model_dir,
+                        format_filler(save_mean_model_file_format,
+                                      valid_time_dt, valid_time_dt, '00')+'_'
+                        +var_name+'_'+var_level+'.nc'
+                    )
+                    mean_model_var_nc_file_list.append(
+                         mean_model_var_nc_file
+                    )
+                    nc_var = var_name+'_'+var_level.replace(' ', '')
+                    if '_' in var_level:
+                        field_info = ("'"+'name="'+var_name+'"; '
+                                      +'level="'+var_level.split('_')[0]
+                                      +'"; GRIB_lvl_typ='
+                                      +var_level.split('_')[1]+";'")
+                    else:
+                        field_info = ("'"+'name="'+var_name+'"; '
+                                      +'level="'+var_level+'";'+"'")
+                    run_rdp = subprocess.run(
+                        regrid_data_plane+' '+save_mean_model_file+' '
+                        +grid+' '+mean_model_var_nc_file+' '
+                        +'-field '+field_info+' -method BILIN '
+                        +'-width 2 -name '+nc_var+' -v 1 '
+                        +'> /dev/null 2>&1', shell=True
+                    )
+                    if run_rdp.returncode != 0:
+                        all_models_have_var = False
+                # Take mean
+                if all_models_have_var:
+                    mean_var_nc_file = (mean_file+'_'+var_name+'_'
+                                        +var_level+'.nc')
+                    os.system(ncea+' '
+                              +' '.join(mean_model_var_nc_file_list)+' '
+                              +'-O -o '+mean_var_nc_file)
+                    lat_dim_output = subprocess.check_output(
+                        ncdump+' -h '+mean_var_nc_file+' '
+                        +'| grep ":Nlat = "', shell=True,
+                        encoding='UTF-8'
+                    )
+                    lat_dim = ''
+                    for string in lat_dim_output:
+                        if string.isdigit():
+                            lat_dim = lat_dim + string
+                    lon_dim_output = subprocess.check_output(
+                        ncdump+' -h '+mean_var_nc_file+' '
+                        +'| grep ":Nlon = "', shell=True,
+                        encoding='UTF-8'
+                    )
+                    lon_dim = ''
+                    for string in lon_dim_output:
+                        if string.isdigit():
+                            lon_dim = lon_dim + string
+                    # Fill using template
+                    os.environ['HDF5_DISABLE_VERSION_CHECK'] = '1'
+                    mean_var_grib2_file = (mean_file+'_'+var_name+'_'
+                                           +var_level+'.grib2')
+                    os.system(wgrib2+' '
+                              +template_var_grib2_file+' '
+                              +'-import_netcdf '
+                              +mean_var_nc_file+' '
+                              +'"'+nc_var+'" "0:'+lat_dim+':0:'
+                              +lon_dim+'"  -grib_out '
+                              +mean_var_grib2_file+' '
+                              +'> /dev/null 2>&1')
+                    os.system('cat '+mean_var_grib2_file+' >> '
+                              +mean_grib2_file)
+        # Convert mean analysis to grib1
+        if os.path.exists(mean_grib2_file):
+            convert_grib2_grib1(mean_grib2_file, mean_file)
+        if os.path.exists(mean_file):
+            print("Created "+mean_file)
+    else:
+        print("WARNING: Do not have all files to create "+mean_file+" from "
+              +"models "+', '.join(mean_model_list)+", only have files "
+              +', '.join(mean_model_file_list))
+
 def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
                         name, stat_data_dir, gather_by, RUN_dir_name,
                         RUN_sub_dir_name, link_data_dir):
@@ -551,12 +820,14 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
                                                 RUN_sub_dir_name)
     if gather_by == 'VALID':
          model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
-                                        valid_time.strftime('%H')+'Z', name,
-                                        name+'_'+valid_time.strftime('%Y%m%d')
+                                        valid_time_dt.strftime('%H')+'Z', name,
+                                        name+'_'
+                                        +valid_time_dt.strftime('%Y%m%d')
                                         +'.stat')
          link_model_stat_file = os.path.join(link_data_dir, name+'_valid'
-                                             +valid_time.strftime('%Y%m%d')
-                                             +'_valid'+valid_time.strftime('%H')
+                                             +valid_time_dt.strftime('%Y%m%d')
+                                             +'_valid'
+                                             +valid_time_dt.strftime('%H')
                                              +'.stat')
     elif gather_by == 'INIT':
          model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
@@ -570,23 +841,27 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
     elif gather_by == 'VSDB':
          if RUN_dir_name in ['grid2grid', 'satellite']:
              model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
-                                            valid_time.strftime('%H')+'Z',
+                                            valid_time_dt.strftime('%H')+'Z',
                                             name, name+'_'
-                                            +valid_time.strftime('%Y%m%d')
+                                            +valid_time_dt.strftime('%Y%m%d')
                                             +'.stat')
              link_model_stat_file = os.path.join(link_data_dir, name+'_valid'
-                                                 +valid_time.strftime('%Y%m%d')
+                                                 +valid_time_dt.strftime(
+                                                     '%Y%m%d'
+                                                 )
                                                  +'_valid'
-                                                 +valid_time.strftime('%H')
+                                                 +valid_time_dt.strftime('%H')
                                                  +'.stat')
          elif RUN_dir_name in ['grid2obs', 'precip']:
              model_stat_file = os.path.join(model_stat_gather_by_RUN_dir,
                                             init_time.strftime('%H')+'Z',
                                             name, name+'_'
-                                            +valid_time.strftime('%Y%m%d')
+                                            +valid_time_dt.strftime('%Y%m%d')
                                             +'.stat')
              link_model_stat_file = os.path.join(link_data_dir, name+'_valid'
-                                                 +valid_time.strftime('%Y%m%d')
+                                                 +valid_time_dt.strftime(
+                                                     '%Y%m%d'
+                                                 )
                                                  +'_init'
                                                  +init_time.strftime('%H')
                                                  +'.stat')
@@ -660,50 +935,17 @@ if RUN == 'grid2grid_step1':
             RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
             RUN_abbrev_type_fhr_list, make_met_data_by
         )
-        # Get forecast and truth files for each model
+        RUN_abbrev_type_valid_time_list = []
+        # Get forecast files for each model
         for model in model_list:
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
-            model_RUN_abbrev_type_truth_file_format = (
-                RUN_abbrev_type_truth_file_format_list[model_idx]
-            )
             link_model_dir = os.path.join(cwd, 'data', model)
             if not os.path.exists(link_model_dir):
                 os.makedirs(link_model_dir)
                 os.makedirs(os.path.join(link_model_dir, 'HPSS_jobs'))
-            # Set up model RUN_type truth info
-            RUN_abbrev_type_truth_name_lead = (
-                RUN_abbrev_type_truth_name.split('_')[1]
-            )
-            if RUN_abbrev_type_truth_name in ['self_anl', 'self_f00']:
-                model_RUN_abbrev_type_truth_dir = model_dir
-                RUN_abbrev_type_truth_name_short = model
-                model_RUN_abbrev_type_truth_hpss_dir = model_hpss_dir
-            elif RUN_abbrev_type_truth_name in ['gfs_anl', 'gfs_f00']:
-                model_RUN_abbrev_type_truth_dir = global_archive
-                RUN_abbrev_type_truth_name_short = (
-                    RUN_abbrev_type_truth_name.split('_')[0]
-                )
-                model_RUN_abbrev_type_truth_hpss_dir = hpss_prod_base_dir
-                if RUN_abbrev_type_truth_name \
-                        == 'gfs_'+RUN_abbrev_type_truth_name_lead \
-                        and model_RUN_abbrev_type_truth_file_format != \
-                        ('pgb'+RUN_abbrev_type_truth_name_lead
-                         +'.gfs.{valid?fmt=%Y%m%d%H}'):
-                    print("WARNING: "+RUN_abbrev_type+"_truth_name set to "
-                          +"gfs_"+RUN_abbrev_type_truth_name_lead+" but "
-                          +"file format does not match expected value. "
-                          +"Using to pgb"+RUN_abbrev_type_truth_name_lead
-                          +".gfs.{valid?fmt=%Y%m%d%H}")
-                    model_RUN_abbrev_type_truth_file_format = (
-                        'pgb'+RUN_abbrev_type_truth_name_lead
-                        +'.gfs.{valid?fmt=%Y%m%d%H}'
-                    )
-            if RUN_abbrev_type_truth_name_lead == 'f00':
-                RUN_abbrev_type_truth_name_lead = '00'
-            # Get model forecast and truth files
             for time in RUN_abbrev_type_time_info_dict:
                 valid_time = time['valid_time']
                 init_time = time['init_time']
@@ -713,35 +955,133 @@ if RUN == 'grid2grid_step1':
                 elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                     continue
                 else:
+                    if valid_time not in RUN_abbrev_type_valid_time_list:
+                        RUN_abbrev_type_valid_time_list.append(valid_time)
                     get_model_file(valid_time, init_time, lead,
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
-                    get_model_file(valid_time, valid_time,
-                                   RUN_abbrev_type_truth_name_lead,
-                                   RUN_abbrev_type_truth_name_short,
-                                   model_RUN_abbrev_type_truth_dir,
-                                   model_RUN_abbrev_type_truth_file_format,
-                                   model_data_run_hpss,
-                                   model_RUN_abbrev_type_truth_hpss_dir,
-                                   link_model_dir,
-                                   RUN_type+'.truth.{valid?fmt=%Y%m%d%H}')
-                    # Check model RUN_type truth file exists, if not try
-                    # to use model's own f00 file
-                    truth_file = os.path.join(
-                        model_RUN_abbrev_type_truth_dir,
-                        RUN_abbrev_type_truth_name_short,
-                        format_filler(model_RUN_abbrev_type_truth_file_format,
-                                      valid_time, valid_time,
-                                      RUN_abbrev_type_truth_name_lead)
-                    )
+        # Get truth files for each model
+        RUN_abbrev_type_truth_name_short = (
+            RUN_abbrev_type_truth_name.split('_')[0]
+        )
+        RUN_abbrev_type_truth_name_lead = (
+            RUN_abbrev_type_truth_name.split('_')[1]
+        )
+        if RUN_abbrev_type_truth_name_lead == 'f00':
+            RUN_abbrev_type_truth_name_lead = '00'
+        for model in model_list:
+            model_idx = model_list.index(model)
+            model_dir = model_dir_list[model_idx]
+            model_hpss_dir = model_hpss_dir_list[model_idx]
+            link_model_dir = os.path.join(cwd, 'data', model)
+            if not os.path.exists(link_model_dir):
+                os.makedirs(link_model_dir)
+                os.makedirs(os.path.join(link_model_dir, 'HPSS_jobs'))
+            for valid_time in RUN_abbrev_type_valid_time_list:
+                if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
+                    continue
+                else:
                     link_truth_file = os.path.join(
                         link_model_dir,
                         format_filler(RUN_type+'.truth.{valid?fmt=%Y%m%d%H}',
                                       valid_time, valid_time,
                                       RUN_abbrev_type_truth_name_lead)
                     )
+                    if RUN_abbrev_type_truth_name in ['self_anl', 'self_f00',
+                                                      'gfs_anl', 'gfs_f00',
+                                                      'gdas_anl', 'gdas_f00',
+                                                      'ecm_f00']:
+                        if RUN_abbrev_type_truth_name in ['self_anl',
+                                                          'self_f00']:
+                            model_RUN_abbrev_type_truth_dir = model_dir
+                            model_RUN_abbrev_type_truth_file_format = (
+                                 RUN_abbrev_type_truth_file_format_list\
+                                 [model_idx]
+                            )
+                            RUN_abbrev_type_truth_name_short = model
+                            model_RUN_abbrev_type_data_run_hpss = (
+                                model_data_run_hpss
+                            )
+                            model_RUN_abbrev_type_truth_hpss_dir = (
+                                model_hpss_dir
+                            )
+                        else:
+                            model_RUN_abbrev_type_truth_dir = global_archive
+                            model_RUN_abbrev_type_truth_file_format = (
+                                RUN_abbrev_type_truth_file_format_list[0]
+                            )
+                            if RUN_abbrev_type_truth_name_short == 'ecm':
+                                model_RUN_abbrev_type_truth_hpss_dir = '/null'
+                                model_RUN_abbrev_type_data_run_hpss = 'NO'
+                            else:
+                                model_RUN_abbrev_type_truth_hpss_dir = (
+                                    hpss_prod_base_dir
+                                )
+                                model_RUN_abbrev_type_data_run_hpss = (
+                                    model_data_run_hpss
+                                )
+                            if RUN_abbrev_type_truth_name_short == 'gdas':
+                                RUN_abbrev_type_truth_name_short = 'gfs'
+                        get_model_file(
+                            valid_time, valid_time,
+                            RUN_abbrev_type_truth_name_lead,
+                            RUN_abbrev_type_truth_name_short,
+                            model_RUN_abbrev_type_truth_dir,
+                            model_RUN_abbrev_type_truth_file_format,
+                            model_RUN_abbrev_type_data_run_hpss,
+                            model_RUN_abbrev_type_truth_hpss_dir,
+                            link_model_dir,
+                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}'
+                        )
+                        truth_file = os.path.join(
+                            model_RUN_abbrev_type_truth_dir,
+                            RUN_abbrev_type_truth_name_short,
+                            format_filler(
+                                model_RUN_abbrev_type_truth_file_format,
+                                valid_time, valid_time,
+                                RUN_abbrev_type_truth_name_lead
+                            )
+                        )
+                    elif RUN_abbrev_type_truth_name in ['common_anl',
+                                                        'common_f00',
+                                                        'model_mean']:
+                        if 'common' in RUN_abbrev_type_truth_name:
+                            mean_truth_dir = os.path.join(
+                                cwd, 'data', RUN_abbrev_type_truth_name
+                            )
+                        elif RUN_abbrev_type_truth_name == 'model_mean':
+                            mean_truth_dir = os.path.join(
+                                cwd, 'data',
+                                RUN_type+'_'+RUN_abbrev_type_truth_name
+                            )
+                        if not os.path.exists(mean_truth_dir):
+                            os.makedirs(mean_truth_dir)
+                        truth_file = os.path.join(
+                            mean_truth_dir, mean_truth_dir.rpartition('/')[2]
+                            +'.'+valid_time.strftime('%Y%m%d%H')
+                        )
+                        if not os.path.exists(truth_file):
+                            if 'common' in RUN_abbrev_type_truth_name:
+                                mean_truth_model_list = ['gfs', 'ecm',
+                                                         'ukm', 'cmc']
+                                mean_truth_model_dir_list = [global_archive]*4
+                            elif RUN_abbrev_type_truth_name == 'model_mean':
+                                mean_truth_model_list = model_list
+                                mean_truth_model_dir_list = model_dir_list
+                            create_mean_truth(
+                                mean_truth_model_list,
+                                mean_truth_model_dir_list,
+                                RUN_abbrev_type_truth_file_format_list,
+                                valid_time, os.environ[RUN_abbrev_type+'_grid'],
+                                mean_truth_dir
+                            )
+                        if os.path.exists(truth_file):
+                            os.system('ln -sf '+truth_file+' '
+                                      +link_truth_file)
+                    # Check model RUN_type truth file exists, if not try
+                    # to use model's own f00 file
                     if not os.path.exists(link_truth_file) \
                             and RUN_abbrev_type_truth_name != 'self_f00':
                         print("WARNING: "+RUN_type+" truth file ("
@@ -755,9 +1095,9 @@ if RUN == 'grid2grid_step1':
                         if os.path.exists(link_model_f00_file):
                             os.system('ln -sf '+link_model_f00_file+' '
                                        +link_truth_file)
-                    if not os.path.exists(link_truth_file):
-                        print("WARNING: Unable to link model f00 file as "
-                              +"subsitute truth file for "+RUN_type)
+                        if not os.path.exists(link_truth_file):
+                            print("WARNING: Unable to link model f00 file as "
+                                  +"subsitute truth file "+link_truth_file)
 elif RUN == 'grid2grid_step2':
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
@@ -1714,9 +2054,10 @@ elif RUN == 'satellite_step1':
                         os.system(ncap2+' -s "'
                                   +'mask=float(mask) " '
                                   +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
-                        gen_vx_mask = subprocess.check_output(
-                            'which gen_vx_mask', shell=True, encoding='UTF-8'
-                        ).replace('\n', '')
+                        gen_vx_mask = os.path.join(
+                            os.environ['HOMEMET'],
+                            os.environ['HOMEMET_bin_exec'], 'gen_vx_mask'
+                        )
                         os.system(
                             gen_vx_mask+' '+link_RUN_type_file+' '
                             +link_RUN_type_file+' '
@@ -2492,9 +2833,7 @@ elif RUN == 'mapsda':
                     print("Creating average files for "+model+" "
                           +"ens"+ens_file_type+" from available data. "
                           +"Saving as "+avg_file)
-                    ncea = subprocess.check_output(
-                        'which ncea', shell=True, encoding='UTF-8'
-                    ).replace('\n', '')
+                    ncea = os.environ['NCEA']
                     if '.nc4' in model_file_format:
                         process_vars = ''
                     else:

@@ -270,9 +270,25 @@ else:
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN == 'grid2grid_step1':
-            check_config_var_len_list.append(
-                RUN_abbrev_type+'_truth_file_format_list'
-            )
+            if os.environ[RUN_abbrev_type+'_truth_name'] \
+                    in ['self_anl', 'self_f00', 'mean_anl', 'mean_f00']:
+                check_config_var_len_list.append(
+                    RUN_abbrev_type+'_truth_file_format_list'
+                )
+            elif os.environ[RUN_abbrev_type+'_truth_name'] \
+                    in ['gfs_anl', 'gfs_f00', 'gdas_anl', 'gdas_f00',
+                        'ecm_f00', 'common_anl', 'common_f00']:
+                if 'common' in os.environ[RUN_abbrev_type+'_truth_name']:
+                    expected_truth_file_format_list_len = 4
+                else:
+                    expected_truth_file_format_list_len = 1
+                if len(os.environ[RUN_abbrev_type+'_truth_file_format_list']
+                       .split(' ')) != expected_truth_file_format_list_len:
+                    print("ERROR: length of "+RUN_abbrev_type
+                          +"_truth_file_format_list should be "
+                          +str(expected_truth_file_format_list_len)+" for "
+                          +os.environ[RUN_abbrev_type+'_truth_name'])
+                    sys.exit(1)
         elif RUN == 'grid2grid_step2':
             check_config_var_len_list.append(
                 RUN_abbrev_type+'_truth_name_list'
@@ -348,25 +364,68 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_truth_name'] = ['self_anl', 'self_f00',
-                                                        'gfs_anl', 'gfs_f00']
+                                                        'gfs_anl', 'gfs_f00',
+                                                        'gdas_anl', 'gdas_f00',
+                                                        'ecm_f00',
+                                                        'common_anl',
+                                                        'common_f00',
+                                                        'model_mean']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by'] = ['VALID', 'INIT', 'VSDB']
-        if 'anl' in os.environ[RUN_abbrev_type+'_truth_name']:
-            truth_opt_list = ['anl', 'anal', 'analysis']
-        elif 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
-            truth_opt_list = ['f0', 'f00', 'f000']
-        if 'anl' in os.environ[RUN_abbrev_type+'_truth_name'] \
-                or 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
-            for truth_file_format \
-                    in os.environ[RUN_abbrev_type+'_truth_file_format_list'] \
-                    .split(' '):
-                if not any(opt in truth_file_format for opt in truth_opt_list):
-                    print("ERROR: "+truth_file_format+" in "+RUN_abbrev_type
-                          +"_truth_file_format_list does not contain an "
-                          +"expected string ("+', '.join(truth_opt_list)+") "
-                          +"for "+RUN_abbrev_type+"_truth_name set as "
-                          +os.environ[RUN_abbrev_type+'_truth_name'])
-                    sys.exit(1)
+        if os.environ[RUN_abbrev_type+'_truth_name'] in ['gfs_anl', 'gfs_f00',
+                                                         'gdas_anl',
+                                                         'gdas_f00',
+                                                         'ecm_f00']:
+            expected_truth_file_format = (
+                'pgb'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[1]
+                +'.'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[0]
+                +'.{valid?fmt=%Y%m%d%H}'
+            )
+            if os.environ[RUN_abbrev_type+'_truth_file_format_list'] \
+                    != expected_truth_file_format:
+                print("ERROR: For "+RUN_abbrev_type+"_truth_name set to "
+                      +os.environ[RUN_abbrev_type+'_truth_name']+" expected "
+                      +expected_truth_file_format+", but got "
+                      +os.environ[RUN_abbrev_type+'_truth_file_format_list'])
+                sys.exit(1)
+        elif os.environ[RUN_abbrev_type+'_truth_name'] in ['common_anl',
+                                                           'common_f00']:
+            expected_truth_file_format_list = (
+                'pgb'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[1]
+                +'.gfs.{valid?fmt=%Y%m%d%H} '
+                'pgbf00.ecm.{valid?fmt=%Y%m%d%H} '
+                'pgbf00.ukm.{valid?fmt=%Y%m%d%H} '
+                'pgbf00.cmc.{valid?fmt=%Y%m%d%H}'
+            )
+            if os.environ[RUN_abbrev_type+'_truth_file_format_list'] != \
+                    expected_truth_file_format_list:
+                print("ERROR: For "+RUN_abbrev_type+"_truth_name set to "
+                      +os.environ[RUN_abbrev_type+'_truth_name']+" "
+                      +"expected "+expected_truth_file_format_list+" "
+                      +"but got "
+                      +os.environ[RUN_abbrev_type+'_truth_file_format_list'])
+                sys.exit(1)
+        elif os.environ[RUN_abbrev_type+'_truth_name'] in ['self_anl',
+                                                           'self_f00']:
+            if 'anl' in os.environ[RUN_abbrev_type+'_truth_name']:
+                truth_opt_list = ['anl', 'anal', 'analysis']
+            elif 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
+                truth_opt_list = ['f0', 'f00', 'f000']
+            if 'anl' in os.environ[RUN_abbrev_type+'_truth_name'] \
+                    or 'f00' in os.environ[RUN_abbrev_type+'_truth_name']:
+                for truth_file_format \
+                        in os.environ[
+                            RUN_abbrev_type+'_truth_file_format_list'
+                        ].split(' '):
+                    if not any(opt in truth_file_format
+                               for opt in truth_opt_list):
+                        print("ERROR: "+truth_file_format+" in "
+                              +RUN_abbrev_type+"_truth_file_format_list does "
+                              +"not contain an expected string ("
+                              +', '.join(truth_opt_list)+") for "
+                              +RUN_abbrev_type+"_truth_name set as "
+                              +os.environ[RUN_abbrev_type+'_truth_name'])
+                        sys.exit(1)
 elif RUN == 'grid2grid_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -374,7 +433,13 @@ elif RUN == 'grid2grid_step2':
                                      +'_truth_name_list'] = ['self_anl',
                                                              'self_f00',
                                                              'gfs_anl',
-                                                             'gfs_f00']
+                                                             'gfs_f00',
+                                                             'gdas_anl',
+                                                             'gdas_f00',
+                                                             'ecm_f00',
+                                                             'common_anl',
+                                                             'common_f00',
+                                                             'model_mean']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']

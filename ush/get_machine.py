@@ -22,7 +22,7 @@ EMC_verif_global_machine_list = [
 # Read in environment variables
 if not 'HOSTNAME' in list(os.environ.keys()):
     hostname = subprocess.check_output(
-        'hostname', shell=True
+        'hostname', shell=True, encoding='UTF-8'
     ).replace('\n', '')
 else:
     hostname = os.environ['HOSTNAME']

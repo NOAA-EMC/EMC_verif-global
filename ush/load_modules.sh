@@ -247,7 +247,7 @@ elif [ $machine = WCOSS2 ]; then
     module load nco/${nco_ver:-4.7.9}
     module load prod_util/${prod_util_ver:-2.0.9}
     module load grib_util/${grib_util_ver:-1.2.3}
-    module load wgrib2/${wgrib2_ver:-2.0.8}
+    module load wgrib2/${wgrib2_ver:-2.0.7}
     module load imagemagick/${imagemagick_ver:-7.0.8-7}
     module load python/${python_ver:-3.8.6}
     if [ $MET_version = 9.1 ]; then

@@ -234,6 +234,7 @@ if [ $machine != "ORION" ]; then
     export TR=`which tr`
     export CONVERT=`which convert`
     export NCDUMP=`which ncdump`
+    export NCEA=`which ncea`
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
         export NCAP2="/null/ncap2"
@@ -252,6 +253,7 @@ if [ $machine = "ORION" ]; then
     export NCAP2=`which ncap2 | sed 's/ncap2 is //g'`
     export CONVERT=`which convert | sed 's/convert is //g'`
     export NCDUMP=`which ncdump | sed 's/ncdump is //g'`
+    export NCEA=`which ncea | sed 's/ncea is //g'`
     export HTAR="/null/htar"
 fi
 

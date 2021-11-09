@@ -112,7 +112,9 @@ if [ $RUN_GRID2GRID_STEP1 = YES ]; then
     #g2g1_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc
     #### For each type the followings can be set, where [type] is anom, pres, or sfc
     #####    g2g1_[type]_truth_name:             analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
-    #####                                                                            gdas_anl, gdas_f00, ecm_f00
+    #####                                                                            gdas_anl, gdas_f00, ecm_f00, common_anl,
+    #####                                                                            common_f00, model_mean
+    #####                                        see GitHub Wiki for more details
     #####    g2g1_[type]_truth_file_format_list: list of analysis file format(s), more than 1 if g2g1_anl_name is self
     #####    g2g1_[type]_fyc_list:                all forecst cycles to be included in verification: HH
     #####    g2g1_[type]_vhr_list:               all valid hours to be included in verification: HH
@@ -158,7 +160,8 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #g2g2_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc
     #### For each type the followings can be set, where [type] is anom, pres, or sfc
     #####    g2g2_[type]_truth_name_list: list of analysis type used for model in step 1: self_anl, self_f00, gfs_anl, gfs_f00
-    #####                                                                                 gdas_anl, gdas_f00, ecm_f00
+    #####                                                                                 gdas_anl, gdas_f00, ecm_f00, common_anl,
+    #####                                                                                 common_f00, model_mean
     #####    g2g2_[type]_gather_by_list:  list of how model data was gathered in step 1
     #####    g2g2_[type]_fyc_list:        all forecst cycles to be included in verification: HH
     #####    g2g2_[type]_vhr_list:        all valid hours to be included in verification: HH

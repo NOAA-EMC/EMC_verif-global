@@ -24,4 +24,4 @@ export python_ver=3.8.6
 
 export gfs_ver=v16.2
 export nam_ver=v4.2
-export ccpa_ver=v4.2
+export verf_ver=v4.5

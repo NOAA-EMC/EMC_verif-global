@@ -228,28 +228,8 @@ elif [ $machine = WCOSS2 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge
     source ${HOMEverif_global}/versions/run.ver
-    module load envvar/${envvar_ver:-1.0}
-    module load PrgEnv-intel/${PrgEnv_intel_ver:-8.1.0}
-    module load craype/${craype_ver:-2.7.8}
-    module load intel/${intel_ver:-19.1.3.304}
-    module load cray-mpich/${cray_mpic_ver:-8.1.9}
-    module load cray-pals/${cray_pals_ver:-1.0.12}
-    module load cfp/${cfp_ver:-2.0.4}
-    export USE_CFP="YES"
-    module load libjpeg/${libjpeg_ver:-9c}
-    module load libpng/${libpng_ver:-1.6.37}
-    module load zlib/${zlib_ver:-1.2.11}
-    module load jasper/${jasper_ver:-2.0.25}
-    module load proj/${proj_ver:-7.1.0}
-    module load geos/${geos_ver:-3.8.1}
-    module load hdf5/${hdf5_ver:-1.10.6}
-    module load netcdf/${netcdf_ver:-4.7.4}
-    module load nco/${nco_ver:-4.7.9}
-    module load prod_util/${prod_util_ver:-2.0.9}
-    module load grib_util/${grib_util_ver:-1.2.3}
-    module load wgrib2/${wgrib2_ver:-2.0.7}
-    module load imagemagick/${imagemagick_ver:-7.0.8-7}
-    module load python/${python_ver:-3.8.6}
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_wcoss2
     if [ $MET_version = 9.1 ]; then
         export HOMEMET=""
         export HOMEMET_bin_exec=""

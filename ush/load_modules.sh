@@ -226,7 +226,7 @@ elif [ $machine = JET ]; then
     fi
 elif [ $machine = WCOSS2 ]; then
     source /usr/share/lmod/lmod/init/sh
-    module purge
+    module reset
     source ${HOMEverif_global}/versions/run.ver
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_wcoss2

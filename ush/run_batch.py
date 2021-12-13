@@ -89,6 +89,7 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#PBS -o '+job_output_filename+'\n')
         job_card.write('#PBS -e '+job_output_filename+'\n')
         job_card.write('#PBS -l walltime=6:00:00\n')
+        job_card.write('#PBS -l debug=true\n')
         if RUN in ['grid2grid_step2']:
             job_card.write('#PBS -l place=vscatter,select=1'
                            +':ncpus='+str(int(nproc)*3)+':mem=4GB'+'\n')

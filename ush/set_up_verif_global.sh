@@ -241,11 +241,11 @@ elif [ $machine = "WCOSS2" ]; then
     export STMP="/lfs/h2/emc/stmp/$USER"
     export PTMP="/lfs/h2/emc/ptmp/$USER"
     export NOSCRUB="$HOMEDIR"
-    export global_archive=""
-    export prepbufr_arch_dir=""
-    export obdata_dir=""
-    export ccpa_24hr_arch_dir=""
-    export METviewer_AWS_scripts_dir=""
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
 fi
 
 ## Set operational directories

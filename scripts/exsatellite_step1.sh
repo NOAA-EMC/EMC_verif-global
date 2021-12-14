@@ -27,6 +27,13 @@ export RUN_abbrev="sat1"
 mkdir -p $RUN
 cd $RUN
 
+# WCOSS2: Remove cray-mpich if loaded
+if [ $machine = "WCOSS2" ]; then
+    if [[ "$MODULEPATH" == *"cray-mpich"* ]]; then
+        module unload cray-mpich
+    fi
+fi
+
 # Check machine to be sure we can get the data
 if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|S4|JET)$ ]]; then
     echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"

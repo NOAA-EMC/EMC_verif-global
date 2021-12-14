@@ -27,6 +27,13 @@ export RUN_abbrev="g2g1"
 mkdir -p $RUN
 cd $RUN
 
+# WCOSS2: Remove cray-mpich if loaded
+if [ $machine = "WCOSS2" ]; then
+    if [[ "$MODULEPATH" == *"cray-mpich"* ]]; then
+        module unload cray-mpich
+    fi
+fi
+
 # Check user's configuration file
 python $USHverif_global/check_config.py
 status=$?

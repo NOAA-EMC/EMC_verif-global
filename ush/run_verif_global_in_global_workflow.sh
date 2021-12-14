@@ -264,9 +264,9 @@ elif [ $machine = "JET" ]; then
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS2" ]; then
-    export global_archive=""
-    export prepbufr_arch_dir=""
-    export ccpa_24hr_arch_dir=""
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
 fi
 
 ## Set operational directories
@@ -274,9 +274,10 @@ export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
 if [ $machine = "WCOSS2" ]; then
-    export prepbufr_prod_upper_air_dir=""
-    export prepbufr_prod_conus_sfc_dir=""
-    export ccpa_24hr_prod_dir=""
+    source ${HOMEverif_global}/versions/run.ver
+    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/gfs/${gfs_ver}"
+    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/nam/${nam_ver}"
+    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/${verf_ver}"
 fi
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"

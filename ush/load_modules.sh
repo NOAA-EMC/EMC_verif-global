@@ -231,8 +231,8 @@ elif [ $machine = WCOSS2 ]; then
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_wcoss2
     if [ $MET_version = 9.1 ]; then
-        export HOMEMET=""
-        export HOMEMET_bin_exec=""
+        export HOMEMET="$MET_ROOT"
+        export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1

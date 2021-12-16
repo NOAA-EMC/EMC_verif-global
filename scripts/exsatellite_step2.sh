@@ -27,11 +27,15 @@ export RUN_abbrev="sat2"
 mkdir -p $RUN
 cd $RUN
 
-# WCOSS2: Remove cray-mpich if loaded
+# WCOSS2: Remove cray-mpich, proj if loaded
 if [ $machine = "WCOSS2" ]; then
-    if [[ "$MODULEPATH" == *"cray-mpich"* ]]; then
+    if [[ "$_LMFILES_" == *"/cray-mpich/"* ]]; then
         module unload cray-mpich
     fi
+    if [[ "$_LMFILES_" == *"/proj/"* ]]; then
+        module unload proj
+    fi
+    module list
 fi
 
 # Check user's configuration file

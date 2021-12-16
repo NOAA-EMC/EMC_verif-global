@@ -100,7 +100,6 @@ with open(job_card_filename, 'a') as job_card:
             job_card.write('#PBS -l place=vscatter,select=1'
                            +':ncpus='+nproc+':mem=4GB'+'\n')
         job_card.write('\n')
-        job_card.write('export OMP_NUM_THREADS=1\n')
         job_card.write('cd $PBS_O_WORKDIR\n')
     job_card.write('\n')
     job_card.write('/bin/sh '+script)

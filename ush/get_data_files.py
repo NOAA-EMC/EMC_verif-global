@@ -142,6 +142,76 @@ def format_filler(unfilled_file_format, dt_valid_time, dt_init_time, str_lead):
                                           filled_file_format_chunk)
     return filled_file_format
 
+def wget_data(wget_job_filename, wget_job_name, wget_job_output):
+    """! This submits a job to the transfer queue
+          to use wget to retrieve data
+
+         Args:
+             wget_job_filename - string of the path to
+                                 the wget job file
+             wget_job_name     - string of job submission
+                                 name
+             wget_job_output   - string of the path to
+                                 write job submission
+                                 output
+         Returns:
+    """
+    wget_walltime = os.environ['hpss_walltime']
+    machine = os.environ['machine']
+    QUEUESERV = os.environ['QUEUESERV']
+    ACCOUNT = os.environ['ACCOUNT']
+    # Set up job wall time information
+    walltime_seconds = (
+        datetime.timedelta(minutes=int(wget_walltime)).total_seconds()
+    )
+    walltime = (datetime.datetime.min
+                + datetime.timedelta(minutes=int(wget_walltime))).time()
+    # Submit job
+    print("Submitting "+wget_job_filename+" to "+QUEUESERV)
+    print("Output sent to "+wget_job_output)
+    if machine == 'WCOSS_C':
+        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
+                  +wget_job_output+' '
+                  +'-J '+wget_job_name+' -R rusage[mem=2048] '
+                  +wget_job_filename)
+        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
+                         +'-noheader -J '+wget_job_name
+                         +'| grep "RUN\|PEND" | wc -l')
+    elif machine == 'WCOSS_DELL_P3':
+        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
+                  +wget_job_output+' '
+                  +'-J '+wget_job_name+' -M 2048 -R "affinity[core(1)]" '
+                  +wget_job_filename)
+        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
+                         +'-noheader -J '+wget_job_name
+                         +'| grep "RUN\|PEND" | wc -l')
+    elif machine in ['HERA', 'ORION', 'S4', 'JET']:
+        os.system('sbatch --ntasks=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
+                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
+                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +wget_job_name+' -t R,PD -h | wc -l')
+    elif machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
+                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
+                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+wget_job_name+' | wc -l')
+    sleep_counter, sleep_checker = 1, 10
+    while (sleep_counter*sleep_checker) <= walltime_seconds:
+        sleep(sleep_checker)
+        print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
+              +"out of "+str(int(walltime_seconds))+" seconds")
+        check_job = subprocess.check_output(job_check_cmd, shell=True,
+                                            encoding='UTF-8')
+        if check_job[0] == '0':
+            break
+        sleep_counter+=1
+
 def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
                          hpss_file_suffix, save_data_dir):
     """! This sets up HPSS and job information specifically
@@ -1240,6 +1310,7 @@ elif RUN == 'grid2obs_step1':
                     iabp_dir = os.path.join(cwd, 'data', 'iabp')
                     if not os.path.exists(iabp_dir):
                         os.makedirs(iabp_dir)
+                        os.makedirs(os.path.join(iabp_dir, 'wget_jobs'))
                     iabp_YYYYmmdd_file = os.path.join(iabp_dir,
                                                       'iabp.'+YYYYmmdd)
                     iabp_region_list = ['Arctic', 'Antarctic']
@@ -1262,12 +1333,32 @@ elif RUN == 'grid2obs_step1':
                             )
                             if not os.path.exists(iabp_region_YYYYmmdd_file):
                                 iabp_ftp_region_YYYYmmdd_file = os.path.join(
-                                    iabp_ftp, iabp_region,'FR_'+YYYYmmdd+'.dat'
+                                    iabp_ftp, iabp_region,
+                                    'FR_'+YYYYmmdd+'.dat'
                                 )
-                                os.system('wget -q '
-                                          +iabp_ftp_region_YYYYmmdd_file+' '
-                                          +'--no-check-certificate -O '
-                                          +iabp_region_YYYYmmdd_file)
+                                iabp_wget_job_filename = os.path.join(
+                                    iabp_dir, 'wget_jobs',
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd+'.sh'
+                                )
+                                iabp_wget_job_output = os.path.join(
+                                    iabp_dir, 'wget_jobs',
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd+'.out'
+                                )
+                                iabp_wget_job_name = (
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd
+                                )
+                                with open(iabp_wget_job_filename, 'w') \
+                                        as iabp_wget_job_file:
+                                    iabp_wget_job_file.write('#!/bin/sh'+'\n')
+                                    iabp_wget_job_file.write(
+                                        'wget '
+                                         +iabp_ftp_region_YYYYmmdd_file+' '
+                                         +'--no-check-certificate -O '
+                                        +iabp_region_YYYYmmdd_file
+                                    )
+                                wget_data(iabp_wget_job_filename,
+                                          iabp_wget_job_name,
+                                          iabp_wget_job_output)
                             if not os.path.exists(iabp_region_YYYYmmdd_file):
                                 print("WARNING: Could not get IABP files from "
                                       +"FTP for "+iabp_region+" on "+YYYYmmdd)
@@ -1291,7 +1382,11 @@ elif RUN == 'grid2obs_step1':
                                     in iabp_reg_YYYYmmdd_file_list:
                                 iabp_reg_YYYYmmdd_data = pd.read_csv(
                                     iabp_reg_YYYYmmdd_file, sep=";",
-                                    skipinitialspace=True, header=0, dtype=str
+                                    skipinitialspace=True, header=None,
+                                    dtype=str, names=['BuoyID', 'Year', 'Hour',
+                                                      'Min', 'DOY', 'POS_DOY',
+                                                      'Lat', 'Lon', 'BP', 'Ts',
+                                                      'Ta']
                                 )
                                 niabp_reg_YYYYmmdd_data = len(
                                     iabp_reg_YYYYmmdd_data.index

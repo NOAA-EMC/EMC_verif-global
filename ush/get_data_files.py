@@ -1819,6 +1819,9 @@ elif RUN == 'precip_step1':
                                 ):
                                     os.mkdir(os.path.join(link_model_dir,
                                                           'PRATE_files'))
+                                    os.mkdir(os.path.join(link_model_dir,
+                                                          'PRATE_files',
+                                                          'HPSS_jobs'))
                                 get_model_file(
                                     valid_time, init_time, lead, model,
                                     model_dir, model_file_format,

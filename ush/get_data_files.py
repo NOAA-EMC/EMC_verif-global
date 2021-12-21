@@ -13,6 +13,7 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
+import netCDF4 as nc
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -2115,6 +2116,7 @@ elif RUN == 'satellite_step1':
                 link_RUN_type_dir = os.path.join(cwd, 'data', RUN_type)
                 if not os.path.exists(link_RUN_type_dir):
                     os.makedirs(link_RUN_type_dir)
+                    os.makedirs(os.path.join(link_RUN_type_dir, 'wget_jobs'))
                 link_RUN_type_file = os.path.join(link_RUN_type_dir,
                                                   RUN_type+'.'+YYYYmmddHH)
                 if RUN_type in ['ghrsst_ncei_avhrr_anl',
@@ -2128,7 +2130,7 @@ elif RUN == 'satellite_step1':
                             +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
                             +'v02.0-fv02.1.nc'
                         )
-                        adjust_time = '86400'
+                        adjust_time = 86400
                     # ghrsst_ospo_geopolar_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
                     elif RUN_type == 'ghrsst_ospo_geopolar_anl':
                         RUN_type_ftp_file = os.path.join(
@@ -2138,20 +2140,61 @@ elif RUN == 'satellite_step1':
                             +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
                             +'-GLOB-v02.0-fv01.0.nc'
                         )
-                        adjust_time = '43200'
-                    os.system('wget -q '+RUN_type_ftp_file+' '
-                               +'-O '+link_RUN_type_file)
+                        adjust_time = 43200
+                    RUN_type_wget_job_filename = os.path.join(
+                        link_RUN_type_dir, 'wget_jobs',
+                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
+                    )
+                    RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
+                    RUN_type_wget_job_output = os.path.join(
+                        link_RUN_type_dir, 'wget_jobs',
+                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
+                    )
+                    with open(RUN_type_wget_job_filename, 'w') \
+                            as RUN_type_wget_job_file:
+                        RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
+                        RUN_type_wget_job_file.write('wget '+RUN_type_ftp_file
+                                                     +' -O '
+                                                     +link_RUN_type_file)
+                    wget_data(RUN_type_wget_job_filename,
+                              RUN_type_wget_job_name,
+                              RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
-                        ncap2 = os.environ['NCAP2']
-                        os.system(ncap2+' -s "time=time+'+adjust_time+'" -O '
-                                  +link_RUN_type_file+' '+link_RUN_type_file)
-                        os.system(ncap2+' -s "'
-                                  +'sea_ice_fraction=float(sea_ice_fraction) " '
-                                  +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
-                        os.system(ncap2+' -s "'
-                                  +'mask=float(mask) " '
-                                  +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
+                        link_RUN_type_file_data = nc.Dataset(
+                            link_RUN_type_file,'r+'
+                        )
+                        link_RUN_type_file_data.variables['time'][:] = (
+                            float(link_RUN_type_file_data.variables['time']\
+                                  [:][0]) \
+                            +adjust_time
+                        )
+                        link_RUN_type_file_data.renameVariable(
+                            'mask', 'mask_byte'
+                        )
+                        link_RUN_type_file_data.renameVariable(
+                            'sea_ice_fraction', 'sea_ice_fraction_byte'
+                        )
+                        link_RUN_type_file_data.close()
+                        link_RUN_type_file_data = nc.Dataset(
+                            link_RUN_type_file,'r+'
+                        )
+                        for var_name in ['mask', 'sea_ice_fraction']:
+                            new_var = link_RUN_type_file_data.createVariable(
+                                var_name,"f4",("time","lat","lon",)
+                            )
+                            for attname in link_RUN_type_file_data\
+                                    .variables[var_name+'_byte'].ncattrs():
+                                if attname != '_FillValue':
+                                    new_var.setncatts(
+                                        {attname: \
+                                         link_RUN_type_file_data\
+                                         .variables[var_name+'_byte']\
+                                         .getncattr(attname)}
+                                    )
+                            new_var[:] = (link_RUN_type_file_data\
+                                          .variables[var_name+'_byte'][:]/1.)
+                        link_RUN_type_file_data.close()
                         gen_vx_mask = os.path.join(
                             os.environ['HOMEMET'],
                             os.environ['HOMEMET_bin_exec'], 'gen_vx_mask'

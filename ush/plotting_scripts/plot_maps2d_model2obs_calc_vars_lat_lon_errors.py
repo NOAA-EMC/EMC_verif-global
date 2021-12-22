@@ -60,7 +60,7 @@ nws_logo_alpha = 0.5
 # aka not running model2obs
 type_list = os.environ['maps2d_type_list'].split(' ')
 if 'model2obs' not in type_list:
-    print("model2obs verification no requested..."
+    print("model2obs verification not requested..."
           +"no need to calculate special variables")
     sys.exit(1)
 

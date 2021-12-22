@@ -2350,7 +2350,7 @@ elif RUN == 'tropcyc':
                     RUN_abbrev_tc_list.append(byn)
         else:
             RUN_abbrev_tc_list.append(config_storm)
-    # Get bdeck/truth and  model track files
+    # Get bdeck/truth and model track files
     for tc in RUN_abbrev_tc_list:
         basin = tc.split('_')[0]
         year = tc.split('_')[1]
@@ -2361,6 +2361,7 @@ elif RUN == 'tropcyc':
             link_deck_dir = os.path.join(cwd, 'data', deck+'deck')
             if not os.path.exists(link_deck_dir):
                 os.makedirs(link_deck_dir)
+                os.makedirs(os.path.join(link_deck_dir, 'wget_jobs'))
             deck_filename = deck+tc_id+'.dat'
             link_deck_file = os.path.join(link_deck_dir, deck_filename)
             if deck == 'a':
@@ -2383,14 +2384,52 @@ elif RUN == 'tropcyc':
                 if basin in ['AL', 'CP', 'EP']:
                     nhc_ftp_deck_file = os.path.join(nhc_atcf_deck_ftp,
                                                      deck_filename)
-                    os.system('wget -q '+nhc_ftp_deck_file+' -P '
-                              +link_deck_dir)
+                    nhc_ftp_deck_file_wget_job_filename = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_'+deck_filename+'.sh'
+                    )
+                    nhc_ftp_deck_file_wget_job_output = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_'+deck_filename+'.out'
+                    )
+                    nhc_ftp_deck_file_wget_job_name = (
+                        'wget_nhc_'+deck_filename
+                    )
+                    with open(nhc_ftp_deck_file_wget_job_filename, 'w') \
+                            as nhc_ftp_deck_file_wget_job_file:
+                        nhc_ftp_deck_file_wget_job_file.write('#!/bin/sh'+'\n')
+                        nhc_ftp_deck_file_wget_job_file.write(
+                            'wget -q '+nhc_ftp_deck_file+' -P '+link_deck_dir
+                        )
+                    wget_data(nhc_ftp_deck_file_wget_job_filename,
+                              nhc_ftp_deck_file_wget_job_name,
+                              nhc_ftp_deck_file_wget_job_output)
                     nhc_ftp_deck_gzfile = os.path.join(nhc_atfc_arch_ftp, year,
                                                        deck_filename+'.gz')
                     nhc_deck_gzfile = os.path.join(link_deck_dir,
                                                    deck_filename+'.gz')
-                    os.system('wget -q '+nhc_ftp_deck_gzfile+' -P '
-                              +link_deck_dir)
+                    nhc_ftp_deck_gzfile_wget_job_filename = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_gz_'+deck_filename+'.sh'
+                    )
+                    nhc_ftp_deck_gzfile_wget_job_output = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_gz_'+deck_filename+'.out'
+                    )
+                    nhc_ftp_deck_gzfile_wget_job_name = (
+                        'wget_nhc_gz_'+deck_filename
+                    )
+                    with open(nhc_ftp_deck_gzfile_wget_job_filename, 'w') \
+                            as nhc_ftp_deck_gzfile_wget_job_file:
+                        nhc_ftp_deck_gzfile_wget_job_file.write(
+                            '#!/bin/sh'+'\n'
+                        )
+                        nhc_ftp_deck_gzfile_wget_job_file.write(
+                            'wget -q '+nhc_ftp_deck_gzfile+' -P '+link_deck_dir
+                        )
+                    wget_data(nhc_ftp_deck_gzfile_wget_job_filename,
+                              nhc_ftp_deck_gzfile_wget_job_name,
+                              nhc_ftp_deck_gzfile_wget_job_output)
                     if os.path.exists(nhc_deck_gzfile):
                         os.system('gunzip -q -f '+nhc_deck_gzfile)
                     if not os.path.exists(link_deck_file):
@@ -2405,8 +2444,30 @@ elif RUN == 'tropcyc':
                     navy_bdeck_zipfile = os.path.join(link_deck_dir,
                                                       'bwp'+year+'.zip')
                     if not os.path.exists(navy_bdeck_zipfile):
-                        os.system('wget -q '+navy_ftp_bdeck_zipfile+' -P '
-                                  +link_deck_dir)
+                        navy_ftp_bdeck_zfile_wget_job_filename = os.path.join(
+                            link_deck_dir, 'wget_jobs',
+                            'wget_navy_zip_bwp'+year+'.sh'
+                        )
+                        navy_ftp_bdeck_zfile_wget_job_output = os.path.join(
+                            link_deck_dir, 'wget_jobs',
+                            'wget_navy_zip_bwp'+year+'.out'
+                        )
+                        navy_ftp_bdeck_zfile_wget_job_name = (
+                            'wget_navy_zip_bwp'+year
+                        )
+                        with open(navy_ftp_bdeck_zfile_wget_job_filename,
+                                  'w') \
+                                as navy_ftp_bdeck_zfile_wget_job_file:
+                            navy_ftp_bdeck_zfile_wget_job_file.write(
+                                '#!/bin/sh'+'\n'
+                            )
+                            navy_ftp_bdeck_zfile_wget_job_file.write(
+                                'wget -q '+navy_ftp_bdeck_zipfile+' -P '
+                                +link_deck_dir
+                            )
+                        wget_data(navy_ftp_bdeck_zfile_wget_job_filename,
+                                  navy_ftp_bdeck_zfile_wget_job_name,
+                                  navy_ftp_bdeck_zfile_wget_job_output)
                     if os.path.exists(navy_bdeck_zipfile):
                         os.system('unzip -qq -o -d '+link_deck_dir+' '
                                   +navy_bdeck_zipfile+' '+deck_filename)

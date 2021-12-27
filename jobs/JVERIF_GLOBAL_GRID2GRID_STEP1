@@ -95,7 +95,7 @@ mkdir -p $COMOUT $DCOM $PCOM $GESOUT
 env
 
 # Execute the script.
-msg="HAS BEGUN on `hostname`"
+msg="HAS BEGUN on $(hostname)"
 postmsg "$jlogfile" "$msg"
 sh $HOMEverif_global/scripts/exgrid2grid_step1.sh
 status=$?

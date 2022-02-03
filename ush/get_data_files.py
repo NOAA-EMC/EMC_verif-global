@@ -168,6 +168,7 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     walltime = (datetime.datetime.min
                 + datetime.timedelta(minutes=int(wget_walltime))).time()
     # Submit job
+    os.chmod(wget_job_filename, 0o755)
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
     if machine == 'WCOSS_C':

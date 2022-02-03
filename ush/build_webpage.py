@@ -942,7 +942,12 @@ elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
               +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
               +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '+web_job_filename)
-elif machine in ['HERA', 'JET']:
+elif machine == 'HERA':
+    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
+                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+                  +'--output='+web_job_output+' '
+                  +'--job-name='+web_job_name+' '+web_job_filename)
+elif machine == 'JET':
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently "+machine.title()+" cannot connect to "
               +webhost)

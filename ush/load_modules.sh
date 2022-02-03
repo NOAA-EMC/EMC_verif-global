@@ -116,9 +116,12 @@ elif [ $machine = HERA ]; then
     module load hpss/hpss
     module load netcdf/4.6.1
     module load nco/4.9.1
-    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-    module load prod_util/1.1.0
-    module load grib_util/1.1.1
+    module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
+    module load hpc/1.1.0
+    module load hpc-intel/18.0.5.274
+    module load hpc-impi/2018.0.4
+    module load prod_util/1.2.2
+    module load grib_util/1.2.2
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module purge

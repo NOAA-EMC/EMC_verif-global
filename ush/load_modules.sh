@@ -92,12 +92,9 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
     module purge
-    module load intel/18.0.5.274
-    module use /contrib/anaconda/modulefiles
-    module load anaconda/latest
+    module use ${HOMEverif_global}/modulefiles
+    module load run.hera.intel
     if [ $MET_version = 9.1 ]; then
-        module use /contrib/met/modulefiles
-        module load met/9.1
         export HOMEMET="/contrib/met/9.1"
         export HOMEMET_bin_exec="bin"
     else
@@ -105,23 +102,11 @@ elif [ $machine = HERA ]; then
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /contrib/METplus/modulefiles
-        module load metplus/3.1
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load impi/2018.4.274
-    module load hpss/hpss
-    module load netcdf/4.6.1
-    module load nco/4.9.1
-    module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
-    module load hpc/1.1.0
-    module load hpc-intel/18.0.5.274
-    module load hpc-impi/2018.0.4
-    module load prod_util/1.2.2
-    module load grib_util/1.2.2
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module purge

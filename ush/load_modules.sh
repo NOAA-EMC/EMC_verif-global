@@ -110,12 +110,9 @@ elif [ $machine = HERA ]; then
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module purge
-    module load slurm/19.05.3-2
-    module load contrib
-    module load intel/2020
-    module load intelpython3/2020
+    module use ${HOMEverif_global}/modulefiles
+    module load run.orion.intel
     if [ $MET_version = 9.1 ]; then
-        module load met/9.1
         export HOMEMET="/apps/contrib/MET/9.1"
         export HOMEMET_bin_exec="bin"
     else
@@ -123,20 +120,11 @@ elif [ $machine = ORION ]; then
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /apps/contrib/modulefiles
-        module load metplus/3.1
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load impi/2020
-    module load netcdf/4.7.2
-    module load nco/4.9.3
-    module use /apps/contrib/NCEPLIBS/orion/modulefiles
-    module use /apps/contrib/NCEPLIBS/lib/modulefiles
-    module load grib_util/1.2.0
-    module load prod_util/1.2.0
 elif [ $machine = S4 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge

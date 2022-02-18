@@ -231,6 +231,7 @@ elif [ $machine = WCOSS2 ]; then
     source /usr/share/lmod/lmod/init/sh
     module reset
     source ${HOMEverif_global}/versions/run.ver
+    export HPC_OPT=/apps/ops/para/libs
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_wcoss2
     if [ $MET_version = 9.1 ]; then

@@ -19,6 +19,7 @@ export PrgEnv_intel_ver=8.1.0
 export prod_util_ver=2.0.9
 export proj_ver=7.1.0
 export python_ver=3.8.6
+export udunits_ver=2.2.28
 export wgrib2_ver=2.0.7
 export zlib_ver=1.2.11
 

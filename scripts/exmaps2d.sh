@@ -111,6 +111,9 @@ fi
 
 # Run special calculated variables for model2obs
 if [ $machine != "ORION" -a $machine != "JET" ]; then
+    if [ $machine = "WCOSS2" ]; then
+        module load proj
+    fi
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 

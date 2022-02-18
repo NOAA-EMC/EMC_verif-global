@@ -91,13 +91,16 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#PBS -l walltime=6:00:00\n')
         job_card.write('#PBS -l debug=true\n')
         if RUN in ['grid2grid_step2']:
-            job_card.write('#PBS -l place=vscatter,select=1'
+            job_card.write('#PBS -l place=vscatter:excl,select=1'
+                           +':mpiprocs='+str(int(nproc)*3)+':ompthreads=1'
                            +':ncpus='+str(int(nproc)*3)+'\n')
         elif RUN in ['grid2obs_step2', 'maps2d']:
-            job_card.write('#PBS -l place=vscatter,select=1'
+            job_card.write('#PBS -l place=vscatter:excl,select=1'
+                           +':mpiprocs='+str(int(nproc)*4)+':ompthreads=1'
                            +':ncpus='+str(int(nproc)*4)+'\n')
         else:
-            job_card.write('#PBS -l place=vscatter,select=1'
+            job_card.write('#PBS -l place=vscatter:excl,select=1'
+                           +':mpiprocs='+nproc+':ompthreads=1'
                            +':ncpus='+nproc+'\n')
         job_card.write('\n')
         job_card.write('cd $PBS_O_WORKDIR\n')

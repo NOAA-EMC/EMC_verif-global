@@ -80,10 +80,11 @@ status=$?
 
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*
+ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
+ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
 if [ $MPMD = YES ]; then
-    ncount=$(ls -l  metplus_job_scripts/poe* |wc -l)
     nc=0
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_poe ]; do
         nc=$((nc+1))
         poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs${nc}
         chmod 775 $poe_script
@@ -95,15 +96,14 @@ if [ $MPMD = YES ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
-	elif [ $machine = WCOSS2 ]; then
-	    launcher="mpiexec -np ${nproc} --cpu-bind verbose,core cfp"
+        elif [ $machine = WCOSS2 ]; then
+            launcher="mpiexec -np ${ncount_job} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done
 else
-    ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
     nc=0
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_job ]; do
         nc=$((nc+1))
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done

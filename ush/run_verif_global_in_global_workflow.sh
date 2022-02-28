@@ -39,8 +39,9 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
-export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
-export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export start_date="$VDATE"
+export end_date="$VDATE"
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
 ## WEB SETTINGS
@@ -137,6 +138,7 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
+export SDATE_GFS=${SDATE_GFS:-SDATE}
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
@@ -330,7 +332,8 @@ RUN_METPCASE=${!emc_verif_switch_name}
 export METPCASE_type_list=$(eval echo \${${emc_verif_name}_type_list})
 
 ## Get data for temporary archive directory for model_stat_dir_list
-export tmp_archive_dir=$DATAROOT/tmp_archive
+export DATAROOT=$OUTPUTROOT
+export tmp_archive_dir=$OUTPUTROOT/tmp_archive
 mkdir -p $tmp_archive_dir/$PSLOT
 export model_dir_list=$tmp_archive_dir
 cat >tmp_archive_dir_get_data.py <<END

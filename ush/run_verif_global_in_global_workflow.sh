@@ -277,8 +277,8 @@ export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
 if [ $machine = "WCOSS2" ]; then
     source ${HOMEverif_global}/versions/run.ver
-    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/gfs/${gfs_ver}"
-    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/nam/${nam_ver}"
+    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
     export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/${verf_ver}"
 fi
 ## Some online sites

@@ -99,7 +99,7 @@ if [ $MPMD = YES ]; then
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
         elif [ $machine = WCOSS2 ]; then
-            launcher="mpiexec -np ${ncount_job} --cpu-bind verbose,core cfp"
+            launcher="mpiexec -np ${ncount_job} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done
@@ -142,7 +142,7 @@ if [ $MPMD = YES ]; then
             launcher="srun --export=ALL --multi-prog"
 	elif [ $machine = WCOSS2 ]; then
             ncount_job2_run=$(($ncount_job2-$ncount_job))
-            launcher="mpiexec -np ${ncount_job2_run} --cpu-bind verbose,core cfp"
+            launcher="mpiexec -np ${ncount_job2_run} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done

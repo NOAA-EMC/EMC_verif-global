@@ -164,7 +164,7 @@ elif [ $machine = "WCOSS2" ]; then
     export QUEUESHARED="dev_shared"
     export QUEUESERV="dev_transfer"
     export PARTITION_BATCH=""
-    export nproc="24"
+    export nproc="128"
     export MPMD="YES"
 fi
 

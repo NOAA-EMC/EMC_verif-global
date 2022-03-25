@@ -28,6 +28,12 @@ export RUN_abbrev="$RUN"
 mkdir -p $RUN
 cd $RUN
 
+# Temporarily disable running on WCOSS2
+if [ $machine = "WCOSS2" ]; then
+    echo "Running of maps2d currently not supported on WCOSS2"
+    exit
+fi
+
 # WCOSS2: Remove cray-mpich, proj if loaded
 if [ $machine = "WCOSS2" ]; then
     if [[ "$_LMFILES_" == *"/cray-mpich/"* ]]; then

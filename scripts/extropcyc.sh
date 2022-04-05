@@ -99,7 +99,7 @@ if [ $MPMD = YES ]; then
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
         elif [ $machine = WCOSS2 ]; then
-            launcher="mpiexec -np ${ncount_job} -ppn ${nproc} --cpu-bind verbose,core cfp"
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done
@@ -126,6 +126,7 @@ status=$?
 chmod u+x metplus_job_scripts/job*
 export ncount_poe2=$(ls -l  metplus_job_scripts/poe* |wc -l)
 export ncount_job2=$(ls -l  metplus_job_scripts/job* |wc -l)
+export ncount_job2_run=$(($ncount_job2-$ncount_job))
 if [ $MPMD = YES ]; then
     nc=$ncount_poe
     while [ $nc -lt $ncount_poe2 ]; do
@@ -141,8 +142,7 @@ if [ $MPMD = YES ]; then
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
 	elif [ $machine = WCOSS2 ]; then
-            ncount_job2_run=$(($ncount_job2-$ncount_job))
-            launcher="mpiexec -np ${ncount_job2_run} -ppn ${nproc} --cpu-bind verbose,core cfp"
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done

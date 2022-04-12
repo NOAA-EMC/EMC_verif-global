@@ -39,8 +39,9 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
-export start_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
-export end_date="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+export start_date="$VDATE"
+export end_date="$VDATE"
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
 ## WEB SETTINGS
@@ -137,6 +138,7 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
+export SDATE_GFS=${SDATE_GFS:-SDATE}
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
@@ -199,7 +201,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET|WCOSS2)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -263,13 +265,22 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+elif [ $machine = "WCOSS2" ]; then
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
 fi
 
 ## Set operational directories
 export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
 export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
 export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
-
+if [ $machine = "WCOSS2" ]; then
+    source ${HOMEverif_global}/versions/run.ver
+    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/${verf_ver}"
+fi
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 
@@ -321,7 +332,8 @@ RUN_METPCASE=${!emc_verif_switch_name}
 export METPCASE_type_list=$(eval echo \${${emc_verif_name}_type_list})
 
 ## Get data for temporary archive directory for model_stat_dir_list
-export tmp_archive_dir=$DATAROOT/tmp_archive
+export DATAROOT=$OUTPUTROOT
+export tmp_archive_dir=$OUTPUTROOT/tmp_archive
 mkdir -p $tmp_archive_dir/$PSLOT
 export model_dir_list=$tmp_archive_dir
 cat >tmp_archive_dir_get_data.py <<END

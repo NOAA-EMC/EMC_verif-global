@@ -1789,8 +1789,6 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                             plotting_script_list.append(
                                 'plot_'+case+'_zonal_mean_errors.py'
                             )
-                        if machine == 'WCOSS2':
-                            job_file.write('module load proj\n')
                         for plotting_script in plotting_script_list:
                             job_file.write(
                                 'python '

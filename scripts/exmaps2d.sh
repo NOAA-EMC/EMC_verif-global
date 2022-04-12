@@ -27,21 +27,11 @@ export RUN_abbrev="$RUN"
 mkdir -p $RUN
 cd $RUN
 
-# Temporarily disable running on WCOSS2
-if [ $machine = "WCOSS2" ]; then
-    echo "Running of maps2d currently not supported on WCOSS2"
-    exit
-fi
-
 # WCOSS2: Remove cray-mpich, proj if loaded
 if [ $machine = "WCOSS2" ]; then
     if [[ "$_LMFILES_" == *"/cray-mpich/"* ]]; then
         module unload cray-mpich
     fi
-    if [[ "$_LMFILES_" == *"/proj/"* ]]; then
-        module unload proj
-    fi
-    module list
 fi
 
 # Check user's configuration file
@@ -103,6 +93,7 @@ if [ $MPMD = YES ]; then
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
         elif [ $machine = WCOSS2 ]; then
+            export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
@@ -117,9 +108,6 @@ fi
 
 # Run special calculated variables for model2obs
 if [ $machine != "ORION" -a $machine != "JET" ]; then
-    if [ $machine = "WCOSS2" ]; then
-        module load proj
-    fi
     python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 

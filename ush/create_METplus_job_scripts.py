@@ -1946,6 +1946,6 @@ if MPMD == 'YES':
                 '/bin/echo '+str(iproc)+'\n'
             )
         iproc+=1
-poe_file.close()
+    poe_file.close()
 
 print("END: "+os.path.basename(__file__))

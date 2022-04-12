@@ -47,16 +47,19 @@ elif [ $machine = JET ]; then
     module load grads/2.2.1
 elif [ $machine = S4 ]; then
     module load grads/2.2.1
+elif [ $machine = WCOSS2 ]; then
+    module use /apps/test/lmodules/core
+    module load GrADS/2.2.1
 fi
 if [ $machine = "ORION" ]; then
-    export GRADS=`which grads | sed 's/grads is //g'`
+    export GRADS=$(which grads | sed 's/grads is //g')
 else
-    export GRADS=`which grads`
+    export GRADS=$(which grads)
 fi
-export GRADSBIN=`dirname $GRADS`
+export GRADSBIN=$(dirname $GRADS)
 
 # Set directories
-export FITS=`eval "pwd"`
+export FITS=$(eval "pwd")
 export tmpdir=$FITS/fit2obs
 mkdir -p $tmpdir
 export DATA=$FITS/data
@@ -102,12 +105,12 @@ n=1
 while [ $n -le 2 ]; do
   fnltype=0
   CLIENT=${compname[n]}
-  myclient=`echo $CLIENT |cut -c 1-1 `
+  myclient=$(echo $CLIENT |cut -c 1-1 )
   exp=${expname[$n]}
   export exp$n=$exp                      
   export endian$n=${endianname[$n]}
   export dir$n=${exppdir[$n]}/$exp
-n=`expr $n + 1 `
+n=$(expr $n + 1 )
 done
 export mctl=1
 dotp=1
@@ -161,27 +164,27 @@ if [ ! -d $hz1dir ] ; then
   mkdir -p $hz1dir
 fi
 echo $sdate
-export sdate12=` $NDATE  12 $sdate`
-export edate12=` $NDATE -12 $edate`
-yy=`echo $sdate | cut -c1-4`
-mm=`echo $sdate | cut -c5-6`
-dd=`echo $sdate | cut -c7-8`
-hh=`echo $sdate | cut -c9-10`
-mon=`$SCRIPTS/cmon.sh $mm`
+export sdate12=$( $NDATE  12 $sdate)
+export edate12=$( $NDATE -12 $edate)
+yy=$(echo $sdate | cut -c1-4)
+mm=$(echo $sdate | cut -c5-6)
+dd=$(echo $sdate | cut -c7-8)
+hh=$(echo $sdate | cut -c9-10)
+mon=$($SCRIPTS/cmon.sh $mm)
 hts00=${hh}z${dd}${mon}${yy}
 echo "00z horiz plot start date $hts00"
-nhours=` $NHOUR $edate $sdate`
-ndays=`expr $nhours \/ 24`
+nhours=$( $NHOUR $edate $sdate)
+ndays=$(expr $nhours \/ 2)
 echo "ndays is $ndays"
 export perc=75
 echo "perc is $perc"
-export minday=`expr $ndays \* $perc \/ 100`
+export minday=$(expr $ndays \* $perc \/ 100)
 echo "minday is $minday"
-yy=`echo $sdate12 | cut -c1-4`
-mm=`echo $sdate12 | cut -c5-6`
-dd=`echo $sdate12 | cut -c7-8`
-hh=`echo $sdate12 | cut -c9-10`
-mon=`$SCRIPTS/cmon.sh $mm`
+yy=$(echo $sdate12 | cut -c1-4)
+mm=$(echo $sdate12 | cut -c5-6)
+dd=$(echo $sdate12 | cut -c7-8)
+hh=$(echo $sdate12 | cut -c9-10)
+mon=$($SCRIPTS/cmon.sh $mm)
 hts12=${hh}z${dd}${mon}${yy}
 echo "12z horiz plot start date $hts12"
 leglist='legf00af06_0z legf00af06_12z legf00af06 legf12af36 legf24af48'
@@ -328,10 +331,10 @@ fi
 
 # Make time plots control files
 if [[ $mctl -eq 1 ]] ; then
-yy=`echo $sdate | cut -c1-4`
-mm=`echo $sdate | cut -c5-6`
-dd=`echo $sdate | cut -c7-8`
-mon=`$SCRIPTS/cmon.sh $mm`
+yy=$(echo $sdate | cut -c1-4)
+mm=$(echo $sdate | cut -c5-6)
+dd=$(echo $sdate | cut -c7-8)
+mon=$($SCRIPTS/cmon.sh $mm)
 timedate=${dd}${mon}${yy}
 echo $timedate
 typelist='raob sfc acar acft'

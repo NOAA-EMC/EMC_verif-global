@@ -8,7 +8,7 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-export HOMEverif_global=`eval "cd ../;pwd"`  # Home base of verif_global
+export HOMEverif_global=$(eval "cd ../;pwd")  # Home base of verif_global
 
 echo "=============== SOURCING CONFIGS ==============="
 passed_config=$1

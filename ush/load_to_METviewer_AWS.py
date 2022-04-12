@@ -130,6 +130,8 @@ AWS_job_filename = os.path.join(DATA, 'batch_jobs',
 with open(AWS_job_filename, 'a') as AWS_job_file:
     AWS_job_file.write('#!/bin/sh'+'\n')
     AWS_job_file.write('set -x'+'\n')
+    if machine == 'WCOSS2':
+        AWS_job_file.write('cd $PBS_O_WORKDIR\n')
     if new_or_add == 'new':
         AWS_job_file.write('echo "Creating database on METviewer AWS using '
                            +os.path.join(METviewer_AWS_scripts_dir,
@@ -183,5 +185,9 @@ elif machine in ['HERA', 'ORION', 'S4', 'JET']:
               +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
               +'--output='+AWS_job_output+' '
               +'--job-name='+AWS_job_name+' '+AWS_job_filename)
-
+elif machine == 'WCOSS2':
+    os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+              +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+AWS_job_output+' '
+              +'-e '+AWS_job_output+' -N '+AWS_job_name+' '
+              +'-l select=1:ncpus=1 '+AWS_job_filename)
 print("END: "+os.path.basename(__file__))

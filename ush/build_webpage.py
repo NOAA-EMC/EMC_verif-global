@@ -877,6 +877,8 @@ web_job_filename = os.path.join(DATA, 'batch_jobs',
 with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')
         web_job_file.write('set -x'+'\n')
+        if machine == 'WCOSS2':
+            web_job_file.write('cd $PBS_O_WORKDIR\n')
         web_job_file.write('ssh -q -l '+webhostid+' '+webhost+' " ls -l '
                            +webdir+' "'+'\n')
         web_job_file.write('if [ $? -ne 0 ]; then'+'\n')
@@ -940,7 +942,12 @@ elif machine == 'WCOSS_DELL_P3':
     os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
               +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
               +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '+web_job_filename)
-elif machine in ['HERA', 'JET']:
+elif machine == 'HERA':
+    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
+                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
+                  +'--output='+web_job_output+' '
+                  +'--job-name='+web_job_name+' '+web_job_filename)
+elif machine == 'JET':
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently "+machine.title()+" cannot connect to "
               +webhost)
@@ -965,5 +972,10 @@ elif machine == 'S4':
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
+elif machine == 'WCOSS2':
+    os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+              +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
+              +'-e '+web_job_output+' -N '+web_job_name+' '
+              +'-l select=1:ncpus=1 '+web_job_filename)
 
 print("END: "+os.path.basename(__file__))

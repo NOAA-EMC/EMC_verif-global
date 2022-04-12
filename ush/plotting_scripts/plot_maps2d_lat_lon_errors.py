@@ -292,6 +292,10 @@ elif machine == 'WCOSS_DELL_P3':
     config['data_dir']='/u/emc.verif/.local/share/cartopy'
 elif machine == 'S4':
     config['data_dir']='/home/dhuber/.local/share/cartopy'
+elif machine == 'JET':
+    config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
+elif machine == 'WCOSS2':
+    config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
 
 # Set up information
 env_var_model_list = []

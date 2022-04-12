@@ -13,6 +13,7 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
+import netCDF4 as nc
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -141,6 +142,77 @@ def format_filler(unfilled_file_format, dt_valid_time, dt_init_time, str_lead):
         filled_file_format = os.path.join(filled_file_format,
                                           filled_file_format_chunk)
     return filled_file_format
+
+def wget_data(wget_job_filename, wget_job_name, wget_job_output):
+    """! This submits a job to the transfer queue
+          to use wget to retrieve data
+
+         Args:
+             wget_job_filename - string of the path to
+                                 the wget job file
+             wget_job_name     - string of job submission
+                                 name
+             wget_job_output   - string of the path to
+                                 write job submission
+                                 output
+         Returns:
+    """
+    wget_walltime = os.environ['hpss_walltime']
+    machine = os.environ['machine']
+    QUEUESERV = os.environ['QUEUESERV']
+    ACCOUNT = os.environ['ACCOUNT']
+    # Set up job wall time information
+    walltime_seconds = (
+        datetime.timedelta(minutes=int(wget_walltime)).total_seconds()
+    )
+    walltime = (datetime.datetime.min
+                + datetime.timedelta(minutes=int(wget_walltime))).time()
+    # Submit job
+    os.chmod(wget_job_filename, 0o755)
+    print("Submitting "+wget_job_filename+" to "+QUEUESERV)
+    print("Output sent to "+wget_job_output)
+    if machine == 'WCOSS_C':
+        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
+                  +wget_job_output+' '
+                  +'-J '+wget_job_name+' -R rusage[mem=2048] '
+                  +wget_job_filename)
+        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
+                         +'-noheader -J '+wget_job_name
+                         +'| grep "RUN\|PEND" | wc -l')
+    elif machine == 'WCOSS_DELL_P3':
+        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
+                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
+                  +wget_job_output+' '
+                  +'-J '+wget_job_name+' -M 2048 -R "affinity[core(1)]" '
+                  +wget_job_filename)
+        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
+                         +'-noheader -J '+wget_job_name
+                         +'| grep "RUN\|PEND" | wc -l')
+    elif machine in ['HERA', 'ORION', 'S4', 'JET']:
+        os.system('sbatch --ntasks=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
+                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
+                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +wget_job_name+' -t R,PD -h | wc -l')
+    elif machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
+                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
+                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+wget_job_name+' | wc -l')
+    sleep_counter, sleep_checker = 1, 10
+    while (sleep_counter*sleep_checker) <= walltime_seconds:
+        sleep(sleep_checker)
+        print("Walltime checker: "+str(sleep_counter*sleep_checker)+" "
+              +"out of "+str(int(walltime_seconds))+" seconds")
+        check_job = subprocess.check_output(job_check_cmd, shell=True,
+                                            encoding='UTF-8')
+        if check_job[0] == '0':
+            break
+        sleep_counter+=1
 
 def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
                          hpss_file_suffix, save_data_dir):
@@ -386,6 +458,13 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'S4']:
         print("ERROR: No HPSS access from "+machine)
+    elif machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
+                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
+                  +'-l select=1:ncpus=1 '+hpss_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+hpss_job_name+' | wc -l')
     if machine not in ['ORION', 'S4']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
@@ -1233,6 +1312,7 @@ elif RUN == 'grid2obs_step1':
                     iabp_dir = os.path.join(cwd, 'data', 'iabp')
                     if not os.path.exists(iabp_dir):
                         os.makedirs(iabp_dir)
+                        os.makedirs(os.path.join(iabp_dir, 'wget_jobs'))
                     iabp_YYYYmmdd_file = os.path.join(iabp_dir,
                                                       'iabp.'+YYYYmmdd)
                     iabp_region_list = ['Arctic', 'Antarctic']
@@ -1255,12 +1335,32 @@ elif RUN == 'grid2obs_step1':
                             )
                             if not os.path.exists(iabp_region_YYYYmmdd_file):
                                 iabp_ftp_region_YYYYmmdd_file = os.path.join(
-                                    iabp_ftp, iabp_region,'FR_'+YYYYmmdd+'.dat'
+                                    iabp_ftp, iabp_region,
+                                    'FR_'+YYYYmmdd+'.dat'
                                 )
-                                os.system('wget -q '
-                                          +iabp_ftp_region_YYYYmmdd_file+' '
-                                          +'--no-check-certificate -O '
-                                          +iabp_region_YYYYmmdd_file)
+                                iabp_wget_job_filename = os.path.join(
+                                    iabp_dir, 'wget_jobs',
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd+'.sh'
+                                )
+                                iabp_wget_job_output = os.path.join(
+                                    iabp_dir, 'wget_jobs',
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd+'.out'
+                                )
+                                iabp_wget_job_name = (
+                                    'wget_'+iabp_region+'_FR_'+YYYYmmdd
+                                )
+                                with open(iabp_wget_job_filename, 'w') \
+                                        as iabp_wget_job_file:
+                                    iabp_wget_job_file.write('#!/bin/sh'+'\n')
+                                    iabp_wget_job_file.write(
+                                        'wget '
+                                         +iabp_ftp_region_YYYYmmdd_file+' '
+                                         +'--no-check-certificate -O '
+                                        +iabp_region_YYYYmmdd_file
+                                    )
+                                wget_data(iabp_wget_job_filename,
+                                          iabp_wget_job_name,
+                                          iabp_wget_job_output)
                             if not os.path.exists(iabp_region_YYYYmmdd_file):
                                 print("WARNING: Could not get IABP files from "
                                       +"FTP for "+iabp_region+" on "+YYYYmmdd)
@@ -1284,7 +1384,11 @@ elif RUN == 'grid2obs_step1':
                                     in iabp_reg_YYYYmmdd_file_list:
                                 iabp_reg_YYYYmmdd_data = pd.read_csv(
                                     iabp_reg_YYYYmmdd_file, sep=";",
-                                    skipinitialspace=True, header=0, dtype=str
+                                    skipinitialspace=True, header=None,
+                                    dtype=str, names=['BuoyID', 'Year', 'Hour',
+                                                      'Min', 'DOY', 'POS_DOY',
+                                                      'Lat', 'Lon', 'BP', 'Ts',
+                                                      'Ta']
                                 )
                                 niabp_reg_YYYYmmdd_data = len(
                                     iabp_reg_YYYYmmdd_data.index
@@ -1717,6 +1821,9 @@ elif RUN == 'precip_step1':
                                 ):
                                     os.mkdir(os.path.join(link_model_dir,
                                                           'PRATE_files'))
+                                    os.mkdir(os.path.join(link_model_dir,
+                                                          'PRATE_files',
+                                                          'HPSS_jobs'))
                                 get_model_file(
                                     valid_time, init_time, lead, model,
                                     model_dir, model_file_format,
@@ -2010,6 +2117,7 @@ elif RUN == 'satellite_step1':
                 link_RUN_type_dir = os.path.join(cwd, 'data', RUN_type)
                 if not os.path.exists(link_RUN_type_dir):
                     os.makedirs(link_RUN_type_dir)
+                    os.makedirs(os.path.join(link_RUN_type_dir, 'wget_jobs'))
                 link_RUN_type_file = os.path.join(link_RUN_type_dir,
                                                   RUN_type+'.'+YYYYmmddHH)
                 if RUN_type in ['ghrsst_ncei_avhrr_anl',
@@ -2023,7 +2131,7 @@ elif RUN == 'satellite_step1':
                             +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
                             +'v02.0-fv02.1.nc'
                         )
-                        adjust_time = '86400'
+                        adjust_time = 86400
                     # ghrsst_ospo_geopolar_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
                     elif RUN_type == 'ghrsst_ospo_geopolar_anl':
                         RUN_type_ftp_file = os.path.join(
@@ -2033,20 +2141,61 @@ elif RUN == 'satellite_step1':
                             +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
                             +'-GLOB-v02.0-fv01.0.nc'
                         )
-                        adjust_time = '43200'
-                    os.system('wget -q '+RUN_type_ftp_file+' '
-                               +'-O '+link_RUN_type_file)
+                        adjust_time = 43200
+                    RUN_type_wget_job_filename = os.path.join(
+                        link_RUN_type_dir, 'wget_jobs',
+                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
+                    )
+                    RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
+                    RUN_type_wget_job_output = os.path.join(
+                        link_RUN_type_dir, 'wget_jobs',
+                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
+                    )
+                    with open(RUN_type_wget_job_filename, 'w') \
+                            as RUN_type_wget_job_file:
+                        RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
+                        RUN_type_wget_job_file.write('wget '+RUN_type_ftp_file
+                                                     +' -O '
+                                                     +link_RUN_type_file)
+                    wget_data(RUN_type_wget_job_filename,
+                              RUN_type_wget_job_name,
+                              RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
-                        ncap2 = os.environ['NCAP2']
-                        os.system(ncap2+' -s "time=time+'+adjust_time+'" -O '
-                                  +link_RUN_type_file+' '+link_RUN_type_file)
-                        os.system(ncap2+' -s "'
-                                  +'sea_ice_fraction=float(sea_ice_fraction) " '
-                                  +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
-                        os.system(ncap2+' -s "'
-                                  +'mask=float(mask) " '
-                                  +'-O '+link_RUN_type_file+' '+link_RUN_type_file)
+                        link_RUN_type_file_data = nc.Dataset(
+                            link_RUN_type_file,'r+'
+                        )
+                        link_RUN_type_file_data.variables['time'][:] = (
+                            float(link_RUN_type_file_data.variables['time']\
+                                  [:][0]) \
+                            +adjust_time
+                        )
+                        link_RUN_type_file_data.renameVariable(
+                            'mask', 'mask_byte'
+                        )
+                        link_RUN_type_file_data.renameVariable(
+                            'sea_ice_fraction', 'sea_ice_fraction_byte'
+                        )
+                        link_RUN_type_file_data.close()
+                        link_RUN_type_file_data = nc.Dataset(
+                            link_RUN_type_file,'r+'
+                        )
+                        for var_name in ['mask', 'sea_ice_fraction']:
+                            new_var = link_RUN_type_file_data.createVariable(
+                                var_name,"f4",("time","lat","lon",)
+                            )
+                            for attname in link_RUN_type_file_data\
+                                    .variables[var_name+'_byte'].ncattrs():
+                                if attname != '_FillValue':
+                                    new_var.setncatts(
+                                        {attname: \
+                                         link_RUN_type_file_data\
+                                         .variables[var_name+'_byte']\
+                                         .getncattr(attname)}
+                                    )
+                            new_var[:] = (link_RUN_type_file_data\
+                                          .variables[var_name+'_byte'][:]/1.)
+                        link_RUN_type_file_data.close()
                         gen_vx_mask = os.path.join(
                             os.environ['HOMEMET'],
                             os.environ['HOMEMET_bin_exec'], 'gen_vx_mask'
@@ -2202,7 +2351,7 @@ elif RUN == 'tropcyc':
                     RUN_abbrev_tc_list.append(byn)
         else:
             RUN_abbrev_tc_list.append(config_storm)
-    # Get bdeck/truth and  model track files
+    # Get bdeck/truth and model track files
     for tc in RUN_abbrev_tc_list:
         basin = tc.split('_')[0]
         year = tc.split('_')[1]
@@ -2213,6 +2362,7 @@ elif RUN == 'tropcyc':
             link_deck_dir = os.path.join(cwd, 'data', deck+'deck')
             if not os.path.exists(link_deck_dir):
                 os.makedirs(link_deck_dir)
+                os.makedirs(os.path.join(link_deck_dir, 'wget_jobs'))
             deck_filename = deck+tc_id+'.dat'
             link_deck_file = os.path.join(link_deck_dir, deck_filename)
             if deck == 'a':
@@ -2235,14 +2385,52 @@ elif RUN == 'tropcyc':
                 if basin in ['AL', 'CP', 'EP']:
                     nhc_ftp_deck_file = os.path.join(nhc_atcf_deck_ftp,
                                                      deck_filename)
-                    os.system('wget -q '+nhc_ftp_deck_file+' -P '
-                              +link_deck_dir)
+                    nhc_ftp_deck_file_wget_job_filename = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_'+deck_filename+'.sh'
+                    )
+                    nhc_ftp_deck_file_wget_job_output = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_'+deck_filename+'.out'
+                    )
+                    nhc_ftp_deck_file_wget_job_name = (
+                        'wget_nhc_'+deck_filename
+                    )
+                    with open(nhc_ftp_deck_file_wget_job_filename, 'w') \
+                            as nhc_ftp_deck_file_wget_job_file:
+                        nhc_ftp_deck_file_wget_job_file.write('#!/bin/sh'+'\n')
+                        nhc_ftp_deck_file_wget_job_file.write(
+                            'wget -q '+nhc_ftp_deck_file+' -P '+link_deck_dir
+                        )
+                    wget_data(nhc_ftp_deck_file_wget_job_filename,
+                              nhc_ftp_deck_file_wget_job_name,
+                              nhc_ftp_deck_file_wget_job_output)
                     nhc_ftp_deck_gzfile = os.path.join(nhc_atfc_arch_ftp, year,
                                                        deck_filename+'.gz')
                     nhc_deck_gzfile = os.path.join(link_deck_dir,
                                                    deck_filename+'.gz')
-                    os.system('wget -q '+nhc_ftp_deck_gzfile+' -P '
-                              +link_deck_dir)
+                    nhc_ftp_deck_gzfile_wget_job_filename = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_gz_'+deck_filename+'.sh'
+                    )
+                    nhc_ftp_deck_gzfile_wget_job_output = os.path.join(
+                        link_deck_dir, 'wget_jobs',
+                        'wget_nhc_gz_'+deck_filename+'.out'
+                    )
+                    nhc_ftp_deck_gzfile_wget_job_name = (
+                        'wget_nhc_gz_'+deck_filename
+                    )
+                    with open(nhc_ftp_deck_gzfile_wget_job_filename, 'w') \
+                            as nhc_ftp_deck_gzfile_wget_job_file:
+                        nhc_ftp_deck_gzfile_wget_job_file.write(
+                            '#!/bin/sh'+'\n'
+                        )
+                        nhc_ftp_deck_gzfile_wget_job_file.write(
+                            'wget -q '+nhc_ftp_deck_gzfile+' -P '+link_deck_dir
+                        )
+                    wget_data(nhc_ftp_deck_gzfile_wget_job_filename,
+                              nhc_ftp_deck_gzfile_wget_job_name,
+                              nhc_ftp_deck_gzfile_wget_job_output)
                     if os.path.exists(nhc_deck_gzfile):
                         os.system('gunzip -q -f '+nhc_deck_gzfile)
                     if not os.path.exists(link_deck_file):
@@ -2257,8 +2445,30 @@ elif RUN == 'tropcyc':
                     navy_bdeck_zipfile = os.path.join(link_deck_dir,
                                                       'bwp'+year+'.zip')
                     if not os.path.exists(navy_bdeck_zipfile):
-                        os.system('wget -q '+navy_ftp_bdeck_zipfile+' -P '
-                                  +link_deck_dir)
+                        navy_ftp_bdeck_zfile_wget_job_filename = os.path.join(
+                            link_deck_dir, 'wget_jobs',
+                            'wget_navy_zip_bwp'+year+'.sh'
+                        )
+                        navy_ftp_bdeck_zfile_wget_job_output = os.path.join(
+                            link_deck_dir, 'wget_jobs',
+                            'wget_navy_zip_bwp'+year+'.out'
+                        )
+                        navy_ftp_bdeck_zfile_wget_job_name = (
+                            'wget_navy_zip_bwp'+year
+                        )
+                        with open(navy_ftp_bdeck_zfile_wget_job_filename,
+                                  'w') \
+                                as navy_ftp_bdeck_zfile_wget_job_file:
+                            navy_ftp_bdeck_zfile_wget_job_file.write(
+                                '#!/bin/sh'+'\n'
+                            )
+                            navy_ftp_bdeck_zfile_wget_job_file.write(
+                                'wget -q '+navy_ftp_bdeck_zipfile+' -P '
+                                +link_deck_dir
+                            )
+                        wget_data(navy_ftp_bdeck_zfile_wget_job_filename,
+                                  navy_ftp_bdeck_zfile_wget_job_name,
+                                  navy_ftp_bdeck_zfile_wget_job_output)
                     if os.path.exists(navy_bdeck_zipfile):
                         os.system('unzip -qq -o -d '+link_deck_dir+' '
                                   +navy_bdeck_zipfile+' '+deck_filename)

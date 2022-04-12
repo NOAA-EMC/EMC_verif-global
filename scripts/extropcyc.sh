@@ -28,10 +28,11 @@ export RUN_abbrev="$RUN"
 mkdir -p $RUN
 cd $RUN
 
-# Check machine to be sure we can get the data
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|S4|JET)$ ]]; then
-    echo "ERROR: Cannot run ${RUN} on ${machine}, cannot retrieve data from web in queue ${QUEUE}"
-    exit
+# WCOSS2: Remove cray-mpich, proj if loaded
+if [ $machine = "WCOSS2" ]; then
+    if [[ "$_LMFILES_" == *"/cray-mpich/"* ]]; then
+        module unload cray-mpich
+    fi
 fi
 
 # Check user's configuration file
@@ -77,34 +78,35 @@ status=$?
 
 # Run METplus job scripts for tc_pairs
 chmod u+x metplus_job_scripts/job*
+export ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
+export ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
 if [ $MPMD = YES ]; then
-    ncount=$(ls -l  metplus_job_scripts/poe* |wc -l)
     nc=0
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_poe ]; do
         nc=$((nc+1))
         poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs${nc}
         chmod 775 $poe_script
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n ${nproc} -N ${nproc} -d 1 cfp"
+            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
         elif [ $machine = WCOSS_DELL_P3 ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
+        elif [ $machine = WCOSS2 ]; then
+            export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done
 else
-    ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
     nc=0
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_job ]; do
         nc=$((nc+1))
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
 fi
-export ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
-export ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
 
 # Create job scripts to run METplus for tc_stat
 # and plotting scripts for individual
@@ -119,10 +121,12 @@ status=$?
 # and plotting scripts for individual
 # storms and all storms in a given basin
 chmod u+x metplus_job_scripts/job*
+export ncount_poe2=$(ls -l  metplus_job_scripts/poe* |wc -l)
+export ncount_job2=$(ls -l  metplus_job_scripts/job* |wc -l)
+export ncount_job2_run=$(($ncount_job2-$ncount_job))
 if [ $MPMD = YES ]; then
-    ncount=$(ls -l  metplus_job_scripts/poe* |wc -l)
     nc=$ncount_poe
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_poe2 ]; do
         nc=$((nc+1))
         poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs${nc}
         chmod 775 $poe_script
@@ -134,13 +138,14 @@ if [ $MPMD = YES ]; then
             launcher="mpirun -n ${nproc} cfp"
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
+	elif [ $machine = WCOSS2 ]; then
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done
 else
-    ncount=$(ls -l  metplus_job_scripts/job* |wc -l)
     nc=$ncount_job
-    while [ $nc -lt $ncount ]; do
+    while [ $nc -lt $ncount_job2 ]; do
         nc=$((nc+1))
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done

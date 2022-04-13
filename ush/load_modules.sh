@@ -93,7 +93,7 @@ elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
     module purge
     module use ${HOMEverif_global}/modulefiles
-    module load run.hera.intel
+    module load emc_verif_global_hera
     if [ $MET_version = 9.1 ]; then
         export HOMEMET="/contrib/met/9.1"
         export HOMEMET_bin_exec="bin"
@@ -111,7 +111,7 @@ elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module purge
     module use ${HOMEverif_global}/modulefiles
-    module load run.orion.intel
+    module load emc_verif_global_orion
     if [ $MET_version = 9.1 ]; then
         export HOMEMET="/apps/contrib/MET/9.1"
         export HOMEMET_bin_exec="bin"

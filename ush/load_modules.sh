@@ -58,6 +58,7 @@ if [ $machine = WCOSS_C ]; then
     module use /usrx/local/dev/modulefiles
     module load NetCDF-intel-sandybridge/4.5.0
     module load python/3.6.3
+    module load GrADS/2.0.2
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
     module purge
@@ -87,6 +88,7 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load prod_util/1.1.5
     module load grib_util/1.1.1
     module load NetCDF/4.5.0
+    module load GrADS/2.2.0
     module use /usrx/local/dev/modulefiles
     module load compiler_third/ips/18.0.1/NCO/4.7.0
 elif [ $machine = HERA ]; then
@@ -145,6 +147,7 @@ elif [ $machine = S4 ]; then
     module load hdfeos2/2.20
     module load g2c/1.6.2
     module load miniconda/3.8-s4
+    module load grads/2.2.1
     if [ $MET_version = 9.1 ]; then
         module use /data/prod/glopara/contrib/MET/modulefiles
         module load met/9.1
@@ -182,6 +185,7 @@ elif [ $machine = JET ]; then
     module load hdf5/1.10.4
     module load intel
     module load intelpython/3.6.5
+    module load grads/2.2.1
     if [ $MET_version = 9.1 ]; then
         module use /contrib/met/modulefiles
         module load met/9.1

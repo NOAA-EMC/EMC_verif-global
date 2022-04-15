@@ -28,6 +28,9 @@ load(pathJoin("prod_util", prod_util_ver))
 grib_util_ver=os.getenv("grib_util_ver") or "1.2.2"
 load(pathJoin("grib_util", grib_util_ver))
 
+grads_ver=os.getenv("grads_ver") or "2.2.1"
+load(pathJoin("grads", grads_ver))
+
 prepend_path("MODULEPATH", "/contrib/anaconda/modulefiles")
 
 anaconda_ver=os.getenv("anaconda_ver") or "latest"

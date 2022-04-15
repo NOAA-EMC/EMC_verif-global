@@ -58,6 +58,7 @@ if [ $machine = WCOSS_C ]; then
     module use /usrx/local/dev/modulefiles
     module load NetCDF-intel-sandybridge/4.5.0
     module load python/3.6.3
+    module load GrADS/2.0.2
 elif [ $machine = WCOSS_DELL_P3 ]; then
     source /usrx/local/prod/lmod/lmod/init/sh
     module purge
@@ -87,17 +88,15 @@ elif [ $machine = WCOSS_DELL_P3 ]; then
     module load prod_util/1.1.5
     module load grib_util/1.1.1
     module load NetCDF/4.5.0
+    module load GrADS/2.2.0
     module use /usrx/local/dev/modulefiles
     module load compiler_third/ips/18.0.1/NCO/4.7.0
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
     module purge
-    module load intel/18.0.5.274
-    module use /contrib/anaconda/modulefiles
-    module load anaconda/latest
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_hera
     if [ $MET_version = 9.1 ]; then
-        module use /contrib/met/modulefiles
-        module load met/9.1
         export HOMEMET="/contrib/met/9.1"
         export HOMEMET_bin_exec="bin"
     else
@@ -105,32 +104,17 @@ elif [ $machine = HERA ]; then
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /contrib/METplus/modulefiles
-        module load metplus/3.1
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load impi/2018.4.274
-    module load hpss/hpss
-    module load netcdf/4.6.1
-    module load nco/4.9.1
-    module use /scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack
-    module load hpc/1.1.0
-    module load hpc-intel/18.0.5.274
-    module load hpc-impi/2018.0.4
-    module load prod_util/1.2.2
-    module load grib_util/1.2.2
 elif [ $machine = ORION ]; then
     source /apps/lmod/lmod/init/sh
     module purge
-    module load slurm/19.05.3-2
-    module load contrib
-    module load intel/2020
-    module load intelpython3/2020
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_orion
     if [ $MET_version = 9.1 ]; then
-        module load met/9.1
         export HOMEMET="/apps/contrib/MET/9.1"
         export HOMEMET_bin_exec="bin"
     else
@@ -138,20 +122,11 @@ elif [ $machine = ORION ]; then
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /apps/contrib/modulefiles
-        module load metplus/3.1
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load impi/2020
-    module load netcdf/4.7.2
-    module load nco/4.9.3
-    module use /apps/contrib/NCEPLIBS/orion/modulefiles
-    module use /apps/contrib/NCEPLIBS/lib/modulefiles
-    module load grib_util/1.2.0
-    module load prod_util/1.2.0
 elif [ $machine = S4 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge
@@ -172,6 +147,7 @@ elif [ $machine = S4 ]; then
     module load hdfeos2/2.20
     module load g2c/1.6.2
     module load miniconda/3.8-s4
+    module load grads/2.2.1
     if [ $MET_version = 9.1 ]; then
         module use /data/prod/glopara/contrib/MET/modulefiles
         module load met/9.1
@@ -209,6 +185,7 @@ elif [ $machine = JET ]; then
     module load hdf5/1.10.4
     module load intel
     module load intelpython/3.6.5
+    module load grads/2.2.1
     if [ $MET_version = 9.1 ]; then
         module use /contrib/met/modulefiles
         module load met/9.1

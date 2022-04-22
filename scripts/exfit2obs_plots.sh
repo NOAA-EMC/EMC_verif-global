@@ -158,7 +158,7 @@ mon=$($SCRIPTS/cmon.sh $mm)
 hts00=${hh}z${dd}${mon}${yy}
 echo "00z horiz plot start date $hts00"
 nhours=$( $NHOUR $edate $sdate)
-ndays=$(expr $nhours \/ 2)
+ndays=$(expr $nhours \/ 24)
 echo "ndays is $ndays"
 export perc=75
 echo "perc is $perc"

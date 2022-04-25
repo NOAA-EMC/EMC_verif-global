@@ -208,12 +208,64 @@ else
     exit 1
 fi
 
-## Load modules and set machine specific paths
-. $HOMEverif_global/ush/load_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
-echo
+## Environment variables
+if [ $machine != "ORION" ]; then
+    export RM=$(which rm)
+    export CUT=$(which cut)
+    export TR=$(which tr)
+    export CONVERT=$(which convert)
+    export NCDUMP=$(which ncdump)
+    export NCEA=$(which ncea)
+    if [ $machine == "S4" ]; then
+        export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
+    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+        export HTAR=$(which htar)
+        export NCAP2="/null/ncap2"
+    else
+        export HTAR=$(which htar)
+        export NCAP2=$(which ncap2)
+    fi
+fi
+if [ $machine = "ORION" ]; then
+    export RM=$(which rm | sed 's/rm is //g')
+    export CUT=$(which cut | sed 's/cut is //g')
+    export TR=$(which tr | sed 's/tr is //g')
+    export NCAP2=$(which ncap2 | sed 's/ncap2 is //g')
+    export CONVERT=$(which convert | sed 's/convert is //g')
+    export NCDUMP=$(which ncdump | sed 's/ncdump is //g')
+    export NCEA=$(which ncea | sed 's/ncea is //g')
+    export HTAR="/null/htar"
+fi
+if [ $machine = WCOSS_C ]; then
+    export HOMEMET="/gpfs/hps/nco/ops/nwprod/met.v${MET_version}.3"
+    export HOMEMET_bin_exec="exec"
+elif [ $machine = WCOSS_DELL_P3 ]; then
+    export HOMEMET="/gpfs/dell1/nco/ops/nwprod/met.v${MET_version}.3"
+    export HOMEMET_bin_exec="exec"
+elif [ $machine = HERA ]; then
+    export HOMEMET="/contrib/met/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = ORION ]; then
+    export HOMEMET="/apps/contrib/MET/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = S4 ]; then
+    export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = JET ]; then
+    export HOMEMET="/contrib/met/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = WCOSS2 ]; then
+    export HOMEMET="$MET_ROOT"
+    export HOMEMET_bin_exec="bin"
+fi
+if [ $machine = S4 ]; then
+    export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
+else
+    export HOMEMETplus=${METPLUS_PATH}
+fi
+echo "Using HOMEMET=${HOMEMET}"
+echo "Using HOMEMETplus=${HOMEMETplus}"
 
 ## Account and queues for machines
 export ACCOUNT=${ACCOUNT:-"GFS-DEV"}

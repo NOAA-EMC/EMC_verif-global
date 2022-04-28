@@ -156,6 +156,16 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                         if all(truth == model+'_f00'
                                 for truth in link_truth_name_list):
                             job_env_dict['obtype'] = model+'_f00'
+                        elif all(truth == link_truth_name_list[0]
+                                for truth in link_truth_name_list):
+                            job_env_dict['obtype'] = link_truth_name_list[0]
+                        else:
+                            print("ERROR: mismatched truth types ["
+                                  +', '.join(link_truth_name_list)+"] for "
+                                  +"files "+', '.join(truth_file_list))
+                            sys.exit(1)
+                    else:
+                        job_env_dict['obtype'] =  model+'_f00'
                 # Create job file
                 job_filename = os.path.join(job_env_dict['DATA'],
                                             job_env_dict['RUN'],

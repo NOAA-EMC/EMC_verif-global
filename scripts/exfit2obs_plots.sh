@@ -34,23 +34,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
 echo
 
-# Load GrADS
-if [ $machine = WCOSS_C ]; then
-    module load GrADS/2.0.2 
-elif [ $machine = WCOSS_DELL_P3 ]; then
-    module load GrADS/2.2.0
-elif [ $machine = HERA ]; then
-    module load grads/2.2.1
-elif [ $machine = ORION ]; then
-    module load grads/2.2.1
-elif [ $machine = JET ]; then
-    module load grads/2.2.1
-elif [ $machine = S4 ]; then
-    module load grads/2.2.1
-elif [ $machine = WCOSS2 ]; then
-    module use /apps/test/lmodules/core
-    module load GrADS/2.2.1
-fi
+# Set GrADS paths
 if [ $machine = "ORION" ]; then
     export GRADS=$(which grads | sed 's/grads is //g')
 else
@@ -174,7 +158,7 @@ mon=$($SCRIPTS/cmon.sh $mm)
 hts00=${hh}z${dd}${mon}${yy}
 echo "00z horiz plot start date $hts00"
 nhours=$( $NHOUR $edate $sdate)
-ndays=$(expr $nhours \/ 2)
+ndays=$(expr $nhours \/ 24)
 echo "ndays is $ndays"
 export perc=75
 echo "perc is $perc"

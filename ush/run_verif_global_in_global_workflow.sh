@@ -279,7 +279,7 @@ if [ $machine = "WCOSS2" ]; then
     source ${HOMEverif_global}/versions/run.ver
     export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
     export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/${verf_ver}"
+    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
 fi
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"

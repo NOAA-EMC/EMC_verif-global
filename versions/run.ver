@@ -26,4 +26,4 @@ export wgrib2_ver=2.0.7
 export zlib_ver=1.2.11
 
 export obsproc_ver=v1.0
-export verf_ver=v4.5
+export verf_precip_ver=v4.5

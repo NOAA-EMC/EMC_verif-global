@@ -3,7 +3,7 @@
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
 ##
-## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPGB
+## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPPGB
 ## PURPOSE: Set up configurations to run user requested verification
 ##---------------------------------------------------------------------------
 ##--------------------------------------------------------------------------
@@ -54,22 +54,22 @@ export RUN_MAPSDA="NO"
 #model_data_run_hpss:    get files from HPSS ("YES") if not online
 #hpss_walltime:          how long to run HPSS job to get data in minutes
 export model_list="gfs"
-export model_dir_list="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-export model_stat_dir_list="/gpfs/dell2/emc/modeling/noscrub/$USER/archive"
+export model_dir_list="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+export model_stat_dir_list="/lfs/h2/emc/vpppg/noscrub/$USER/archive"
 export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"
 export model_data_run_hpss="NO"
 export model_hpss_dir_list="/NCEPPROD/hpssprod/runhistory"
 export hpss_walltime="10"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/dell2/stmp/$USER/verif_global_standalone"
+export OUTPUTROOT="/lfs/h2/emc/stmp/$USER/verif_global_standalone"
 ## DATE SETTINGS
 #start_date:       verification start date, format YYYYMMDD
 #end_date:         verification end date, format YYYYMMDD
 #make_met_data_by: how to treat dates, "VALID" or "INIT"
 #plot_by:          how to plot data, "VALID" or "INIT"
-export start_date="20210101"
-export end_date="20210101"
+export start_date=$(date -d "24 hours ago" '+%Y%m%d')
+export end_date=$(date -d "24 hours ago" '+%Y%m%d')
 export make_met_data_by="VALID"
 export plot_by="VALID"
 ## WEB SETTINGS
@@ -84,7 +84,7 @@ export plot_by="VALID"
 export SEND2WEB="NO"
 export webhost="emcrzdm.ncep.noaa.gov"
 export webhostid="$USER"
-export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus/TEST"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/TEST"
 export img_quality="low"
 ## METPLUS SETTINGS
 #MET_version:               MET version to use: 9.1
@@ -100,7 +100,7 @@ export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
 export SENDMETVIEWER="NO"
-export KEEPDATA="YES"
+export KEEPDATA="NO"
 export SENDECF="NO"
 export SENDCOM="NO"
 export SENDDBN="NO"
@@ -405,13 +405,13 @@ if [ $RUN_FIT2OBS_PLOTS = YES ]; then
    #fit2obs_plots_fmax:       max forecast length to show for timeout plots
    #fit2obs_plots_scrdir:     source directory of fit-to-obs scripts
    export fit2obs_plots_expnlist="fnl"
-   export fit2obs_plots_expdlist="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/fit2obs"
+   export fit2obs_plots_expdlist="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/fit2obs_data"
    export fit2obs_plots_endianlist="little"
    export fit2obs_plots_cycle="00"
    export fit2obs_plots_oinc=24
    export fit2obs_plots_finc=12
    export fit2obs_plots_fmax=120
-   export fit2obs_plots_scrdir="/gpfs/dell6/emc/modeling/noscrub/Jack.Woollen/verify/plotfits.git"
+   export fit2obs_plots_scrdir="/lfs/h2/emc/global/noscrub/Jack.Woollen/plotfits"
 fi
 
 if [ $RUN_TROPCYC = YES ]; then
@@ -429,7 +429,7 @@ if [ $RUN_TROPCYC = YES ]; then
     #tropcyc_plot_CI_bars:           plot model confidence intervals on plot (YES) or not (NO)
     export tropcyc_model_atcf_name_list="AVNO"
     export tropcyc_model_plot_name_list="ops_gfs"
-    export tropcyc_storm_list="AL_2020_ALLNAMED EP_2020_ALLNAMED WP_2020_ALLNAMED"
+    export tropcyc_storm_list="AL_2021_ALLNAMED EP_2021_ALLNAMED WP_2021_ALLNAMED"
     export tropcyc_fcyc_list="00"
     export tropcyc_vhr_list="00 06 12 18"
     export tropcyc_fhr_min="00"
@@ -508,8 +508,8 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_ens_hour_list="00"
     export mapsda_ens_regrid_to_grid="G002"
     export mapsda_ens_guess_hour="06"
-    export mapsda_ens_model_dir_list="/gpfs/dell1/nco/ops/com"
-    export mapsda_ens_model_file_format_list="prod/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/atmos/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
+    export mapsda_ens_model_dir_list="/lfs/h1/ops/prod/com"
+    export mapsda_ens_model_file_format_list="v16.2/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/atmos/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
     export mapsda_ens_model_data_run_hpss="YES"
 fi
 

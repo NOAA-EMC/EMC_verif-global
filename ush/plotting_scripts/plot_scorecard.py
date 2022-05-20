@@ -532,24 +532,14 @@ if SEND2WEB == 'YES':
     web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
     print("Submitting "+web_job_filename+" to "+QUEUESERV)
     print("Output sent to "+web_job_output)
-    if machine == 'WCOSS_C':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+web_job_output+' -e '
-                  +web_job_output+' '
-                  +'-J '+web_job_name+' -R rusage[mem=2048] '+web_job_filename)
-    elif machine == 'WCOSS_DELL_P3':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+web_job_output+' -e '+web_job_output+' '
-                  +'-J '+web_job_name+' -M 2048 -R "affinity[core(1)]" '
-                  +web_job_filename)
+    if machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
+                  +'-e '+web_job_output+' -N '+web_job_name+' '
+                  +'-l select=1:ncpus=1 '+web_job_filename)
     elif machine in ['HERA', 'ORION', 'S4']:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
-    elif machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
-                  +'-e '+web_job_output+' -N '+web_job_name+' '
-                  +'-l select=1:ncpus=1 '+web_job_filename)
 

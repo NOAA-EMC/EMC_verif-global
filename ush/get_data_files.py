@@ -258,7 +258,24 @@ def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
     if 'NCEPPROD' in hpss_dir:
         # Operational GFS HPSS archive set up
         if dt_init_time \
-                >= datetime.datetime.strptime('20210321', '%Y%m%d'):
+                >= datetime.datetime.strptime('20210628', '%Y%m%d'):
+            if hpss_file_suffix == 'prepbufr':
+                hpss_tar_filename_prefix = ('com_obsproc_v1.0_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.obsproc_'
+                                            +model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+            else:
+                hpss_tar_filename_prefix = ('com_gfs_v16.2_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.'+model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+        elif dt_init_time \
+                >= datetime.datetime.strptime('20210321', '%Y%m%d') \
+            and dt_init_time \
+                    < datetime.datetime.strptime('20210628', '%Y%m%d'):
             hpss_tar_filename_prefix = ('com_gfs_prod_'+model_dump+'.'
                                         +YYYYmmdd+'_'+HH+'.'+model_dump)
             hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
@@ -1566,11 +1583,14 @@ elif RUN == 'grid2obs_step1':
                         )
                         if offset_time \
                                 >= datetime.datetime.strptime('20200227',
+                                                              '%Y%m%d'):
+                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.0_nam.'
+                        elif offset_time \
+                                >= datetime.datetime.strptime('20200227',
                                                               '%Y%m%d') \
-                                or offset_time \
-                                == datetime.datetime.strptime('20170320'
-                                                              +offset_HH,
-                                                              '%Y%m%d%H'):
+                                and offset_time \
+                                < datetime.datetime.strptime('20200628',
+                                                             '%Y%m%d'):
                             prepbufr_hpss_tar_prefix = 'com_nam_prod_nam.'
                         elif offset_time \
                                 >= datetime.datetime.strptime('20190821',
@@ -1909,10 +1929,18 @@ elif RUN == 'precip_step1':
                         ccpa_accum24hr_arch_dir, 'ccpa.'+YYYYmmdd+'12.24h'
                     )
                     if valid_time \
+                            >= datetime.datetime.strptime('20220628',
+                                                          '%Y%m%d'):
+                         RUN_type_hpss_tar_prefix = ('com_verf_precip_v4.5_'
+                                                     +'precip.')
+                    elif valid_time \
                             >= datetime.datetime.strptime('20200226',
+                                                          '%Y%m%d') \
+                            and valid_time \
+                            < datetime.datetime.strptime('20220628',
                                                           '%Y%m%d'):
                         RUN_type_hpss_tar_prefix = 'com_verf_prod_precip.'
-                    if valid_time \
+                    elif valid_time \
                             >= datetime.datetime.strptime('20200126',
                                                           '%Y%m%d') \
                             and valid_time \

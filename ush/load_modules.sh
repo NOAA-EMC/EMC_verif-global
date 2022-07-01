@@ -127,6 +127,7 @@ elif [ $machine = ORION ]; then
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
+    module load python/3.7.5
 elif [ $machine = S4 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge

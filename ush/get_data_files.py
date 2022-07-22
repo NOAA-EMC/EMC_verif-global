@@ -2361,6 +2361,9 @@ elif RUN == 'tropcyc':
     RUN_abbrev_model_file_format_list = (
         os.environ[RUN_abbrev+'_model_file_format_list'].split(' ')
     )
+    RUN_abbrev_tropcyc_use_adeck_for_missing_data = (
+        os.environ[RUN_abbrev+'_use_adeck_for_missing_data']
+    )
     RUN_abbrev_config_storm_list = (
         os.environ[RUN_abbrev+'_storm_list'].split(' ')
     )
@@ -2601,7 +2604,9 @@ elif RUN == 'tropcyc':
                                                   +link_init_track_file)
                                             pass
                             if not os.path.exists(link_tc_init_track_file) \
-                                    and os.path.exists(link_adeck_file):
+                                    and os.path.exists(link_adeck_file) \
+                                    and RUN_abbrev_tropcyc_use_adeck_for_missing_data \
+                                    == 'YES':
                                 print("Going to try to make "
                                       +link_tc_init_track_file+" from "
                                       +"adeck file "+link_adeck_file+" for "

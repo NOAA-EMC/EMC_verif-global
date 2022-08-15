@@ -159,6 +159,7 @@ RUN_type_env_vars_dict = {
                     'tropcyc_storm_list', 'tropcyc_fcyc_list',
                     'tropcyc_vhr_list', 'tropcyc_fhr_min',
                     'tropcyc_model_file_format_list',
+                    'tropcyc_use_adeck_for_missing_data',
                     'tropcyc_stat_list', 'tropcyc_init_storm_level_list',
                     'tropcyc_valid_storm_level_list', 'tropcyc_plot_CI_bars'],
     'RUN_MAPS2D': ['maps2d_model_plot_name_list', 'maps2d_latlon_area',
@@ -617,6 +618,9 @@ elif RUN == 'tropcyc':
                 print("ERROR: name value of "+name+" in "+basin_year_name+" "
                       +"in "+basin_year_name+" not supported")
                 sys.exit(1)
+    valid_config_var_values_dict['tropcyc_use_adeck_for_missing_data'] = [
+        'YES', 'NO'
+    ]
     for time_type in ['init', 'valid']:
         valid_config_var_values_dict[RUN+'_'+time_type+'_storm_level_list'] = [
             'DB', 'TD', 'TS', 'TY', 'ST', 'TC','HU', 'SD', 'SS',

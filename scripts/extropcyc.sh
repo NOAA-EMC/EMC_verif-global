@@ -88,15 +88,11 @@ if [ $MPMD = YES ]; then
         chmod 775 $poe_script
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
-        if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
-        elif [ $machine = WCOSS_DELL_P3 ]; then
-            launcher="mpirun -n ${nproc} cfp"
-        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
-            launcher="srun --export=ALL --multi-prog"
-        elif [ $machine = WCOSS2 ]; then
+        if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
+        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
+            launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
     done
@@ -132,14 +128,11 @@ if [ $MPMD = YES ]; then
         chmod 775 $poe_script
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
-        if [ $machine = WCOSS_C ]; then
-            launcher="aprun -j 1 -n 1 -N 1 -d 1 cfp"
-        elif [ $machine = WCOSS_DELL_P3 ]; then
-            launcher="mpirun -n ${nproc} cfp"
+        if [ $machine = WCOSS2 ]; then
+            export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET ]; then
             launcher="srun --export=ALL --multi-prog"
-	elif [ $machine = WCOSS2 ]; then
-            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         fi
         $launcher $MP_CMDFILE
     done

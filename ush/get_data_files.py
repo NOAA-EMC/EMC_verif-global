@@ -171,24 +171,13 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     os.chmod(wget_job_filename, 0o755)
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
-    if machine == 'WCOSS_C':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
-                  +wget_job_output+' '
-                  +'-J '+wget_job_name+' -R rusage[mem=2048] '
-                  +wget_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+wget_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'WCOSS_DELL_P3':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
-                  +wget_job_output+' '
-                  +'-J '+wget_job_name+' -M 2048 -R "affinity[core(1)]" '
-                  +wget_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+wget_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
+    if machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
+                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
+                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+wget_job_name+' | wc -l')
     elif machine in ['HERA', 'ORION', 'S4', 'JET']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
@@ -196,13 +185,6 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'--job-name='+wget_job_name+' '+wget_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
-    elif machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
-                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
-                  +'-l select=1:ncpus=1 '+wget_job_filename)
-        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
-                         +'-N '+wget_job_name+' | wc -l')
     sleep_counter, sleep_checker = 1, 10
     while (sleep_counter*sleep_checker) <= walltime_seconds:
         sleep(sleep_checker)
@@ -465,24 +447,13 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     hpss_job_name = hpss_job_filename.rpartition('/')[2].replace('.sh', '')
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
-    if machine == 'WCOSS_C':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+hpss_job_output+' -e '
-                  +hpss_job_output+' '
-                  +'-J '+hpss_job_name+' -R rusage[mem=2048] '
-                  +hpss_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+hpss_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'WCOSS_DELL_P3':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+hpss_job_output+' -e '
-                  +hpss_job_output+' '
-                  +'-J '+hpss_job_name+' -M 2048 -R "affinity[core(1)]" '
-                  +hpss_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+hpss_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
+    if machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
+                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
+                  +'-l select=1:ncpus=1 '+hpss_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+hpss_job_name+' | wc -l')
     elif machine in ['HERA', 'JET']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
@@ -492,13 +463,6 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'S4']:
         print("ERROR: No HPSS access from "+machine)
-    elif machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
-                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
-                  +'-l select=1:ncpus=1 '+hpss_job_filename)
-        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
-                         +'-N '+hpss_job_name+' | wc -l')
     if machine not in ['ORION', 'S4']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:

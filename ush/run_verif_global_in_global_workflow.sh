@@ -201,7 +201,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET|WCOSS2)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -241,7 +241,11 @@ export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
-if [ $machine = "HERA" ]; then
+if [ $machine = "WCOSS2" ]; then
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
+elif [ $machine = "HERA" ]; then
     export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
@@ -249,14 +253,6 @@ elif [ $machine = "ORION" ]; then
     export global_archive="/work/noaa/ovp/mrow/archive"
     export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
-elif [ $machine = "WCOSS_C" ]; then
-    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
-    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
-elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
-    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
 elif [ $machine = "S4" ]; then
     export global_archive="/data/prod/glopara/MET_data/archive"
     export prepbufr_arch_dir="/data/prod/glopara/MET_data/prepbufr"
@@ -265,22 +261,13 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
-elif [ $machine = "WCOSS2" ]; then
-    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
-    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
-    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
 fi
 
 ## Set operational directories
-export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
-export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
-export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
-if [ $machine = "WCOSS2" ]; then
-    source ${HOMEverif_global}/versions/run.ver
-    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
-fi
+source ${HOMEverif_global}/versions/run.ver
+export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 

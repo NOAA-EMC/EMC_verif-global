@@ -69,7 +69,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|WCOSS_C|WCOSS_DELL_P3|S4|JET|WCOSS2)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -97,24 +97,28 @@ export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine specific fix directory
-if [ $machine = "HERA" ]; then
+if [ $machine = "WCOSS2" ]; then
+    export FIXverif_global="/lfs/h2/emc/global/save/emc.global/FIX/fix_NEW/fix_verif"
+elif [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
 elif [ $machine = "ORION" ]; then
     export FIXverif_global="/work/noaa/global/glopara/fix/fix_verif"
-elif [ $machine = "WCOSS_C" ] ; then
-    export FIXverif_global="/gpfs/hps3/emc/global/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
-elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export FIXverif_global="/gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_verif"
 elif [ $machine = "S4" ]; then
     export FIXverif_global="/data/prod/glopara/fix/fix_verif"
 elif [ $machine = "JET" ]; then
     export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_verif"
-elif [ $machine = "WCOSS2" ]; then
-    export FIXverif_global="/lfs/h2/emc/global/save/emc.global/FIX/fix_NEW/fix_verif"
 fi
 
 ## Set machine specific account, queues, and run settings
-if [ $machine = "HERA" ]; then
+if [ $machine = "WCOSS2" ]; then
+    export ACCOUNT="GFS-DEV"
+    export QUEUE="dev"
+    export QUEUESHARED="dev_shared"
+    export QUEUESERV="dev_transfer"
+    export PARTITION_BATCH=""
+    export nproc="128"
+    export MPMD="YES"
+elif [ $machine = "HERA" ]; then
     export ACCOUNT="fv3-cpu"
     export QUEUE="batch"
     export QUEUESHARED="batch"
@@ -129,18 +133,6 @@ elif [ $machine = "ORION" ]; then
     export QUEUESERV="service"
     export PARTITION_BATCH="orion"
     export nproc="40"
-    export MPMD="YES"
-elif [ $machine = "WCOSS_C" -o $machine = "WCOSS_DELL_P3" ]; then
-    export ACCOUNT="GFS-DEV"
-    export QUEUE="dev"
-    export QUEUESHARED="dev_shared"
-    export QUEUESERV="dev_transfer"
-    export PARTITION_BATCH=""
-    if [ $machine = "WCOSS_C" ]; then
-        export nproc="24"
-    elif [ $machine = "WCOSS_DELL_P3" ]; then
-        export nproc="28"
-    fi
     export MPMD="YES"
 elif [ $machine = "S4" ]; then
     export ACCOUNT="star"
@@ -158,18 +150,21 @@ elif [ $machine = "JET" ]; then
     export PARTITION_BATCH="xjet"
     export nproc="10"
     export MPMD="YES"
-elif [ $machine = "WCOSS2" ]; then
-    export ACCOUNT="GFS-DEV"
-    export QUEUE="dev"
-    export QUEUESHARED="dev_shared"
-    export QUEUESERV="dev_transfer"
-    export PARTITION_BATCH=""
-    export nproc="128"
-    export MPMD="YES"
 fi
 
 ## Set machine and user specific directories
-if [ $machine = "HERA" ]; then
+if [ $machine = "WCOSS2" ]; then
+    export NWROOT=${NWROOT:-"/lfs/h1/ops/prod"}
+    export HOMEDIR="/lfs/h2/emc/global/noscrub/$USER"
+    export STMP="/lfs/h2/emc/stmp/$USER"
+    export PTMP="/lfs/h2/emc/ptmp/$USER"
+    export NOSCRUB="$HOMEDIR"
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
+    export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
+elif [ $machine = "HERA" ]; then
     export NWROOT="/scratch1/NCEPDEV/global/glopara/nwpara"
     export HOMEDIR="/scratch1/NCEPDEV/global/$USER"
     export STMP="/scratch1/NCEPDEV/stmp2/$USER"
@@ -191,28 +186,6 @@ elif [ $machine = "ORION" ]; then
     export obdata_dir="/work/noaa/ovp/mrow/obdata"
     export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/work/noaa/ovp/mrow/VRFY/METviewer_AWS"
-elif [ $machine = "WCOSS_C" ]; then
-    export NWROOT=${NWROOT:-"/gpfs/hps/nco/ops/nwprod"}
-    export HOMEDIR="/gpfs/hps3/emc/global/noscrub/$USER"
-    export STMP="/gpfs/hps2/stmp/$USER"
-    export PTMP="/gpfs/hps2/ptmp/$USER"
-    export NOSCRUB="/gpfs/hps3/emc/global/noscrub/$USER"
-    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
-    export obdata_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
-elif [ $machine = "WCOSS_DELL_P3" ]; then
-    export NWROOT=${NWROOT:-"/gpfs/dell1/nco/ops/nwprod"}
-    export HOMEDIR="/gpfs/dell2/emc/modeling/noscrub/$USER"
-    export STMP="/gpfs/dell3/stmp/$USER"
-    export PTMP="/gpfs/dell3/ptmp/$USER"
-    export NOSCRUB="/gpfs/dell2/emc/modeling/noscrub/$USER"
-    export global_archive="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export prepbufr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/prepbufr"
-    export obdata_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive"
-    export ccpa_24hr_arch_dir="/gpfs/dell2/emc/verification/noscrub/emc.verif/global/archive/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/gpfs/dell2/emc/verification/noscrub/emc.metplus/METviewer_AWS"
 elif [ $machine = "S4" ]; then
     export NWROOT=${NWROOT:-"/data/prod/glopara/nwpara"}
     export HOMEDIR="/data/users/$USER"
@@ -235,17 +208,6 @@ elif [ $machine = "JET" ]; then
     export obdata_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/VRFY/METviewer_AWS"
-elif [ $machine = "WCOSS2" ]; then
-    export NWROOT=${NWROOT:-"/lfs/h1/ops/prod"}
-    export HOMEDIR="/lfs/h2/emc/global/noscrub/$USER"
-    export STMP="/lfs/h2/emc/stmp/$USER"
-    export PTMP="/lfs/h2/emc/ptmp/$USER"
-    export NOSCRUB="$HOMEDIR"
-    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
-    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
-    export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
-    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
 fi
 
 ## Set operational directories

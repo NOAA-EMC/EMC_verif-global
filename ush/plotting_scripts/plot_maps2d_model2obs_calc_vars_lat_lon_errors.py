@@ -278,18 +278,14 @@ elif img_quality == 'medium':
     plt.rcParams['savefig.dpi'] = 75
 
 # Set up location of Natural Earth files
-if machine == 'HERA':
+if machine == 'WCOSS2':
+    config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
+elif machine == 'HERA':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
-elif machine == 'WCOSS_C':
-    config['data_dir']='/u/emc.verif/.local/share/cartopy'
-elif machine == 'WCOSS_DELL_P3':
-    config['data_dir']='/u/emc.verif/.local/share/cartopy'
 elif machine == 'S4':
     config['data_dir']='/home/dhuber/.local/share/cartopy'
 elif machine == 'JET':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
-elif machine == 'WCOSS2':
-    config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
 
 # Set up information
 RUN_type = 'model2obs'

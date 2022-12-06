@@ -25,72 +25,26 @@ else
 fi
 
 ## Load
-if [ $machine = WCOSS_C ]; then
-    source /opt/modules/default/init/sh
-    module purge
-    module load craype-haswell
+if [ $machine = WCOSS2 ]; then
+    source /usr/share/lmod/lmod/init/sh
+    module reset
+    source ${HOMEverif_global}/versions/run.ver
+    export HPC_OPT=/apps/ops/para/libs
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_wcoss2
     if [ $MET_version = 9.1 ]; then
-        module use /gpfs/hps/nco/ops/nwprod/modulefiles
-        module load met/9.1.3
-        export HOMEMET="/gpfs/hps/nco/ops/nwprod/met.v${MET_version}.3"
-        export HOMEMET_bin_exec="exec"
+        export HOMEMET="$MET_ROOT"
+        export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /gpfs/hps/nco/ops/nwprod/modulefiles
-        module load metplus/3.1.1
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load alps
-    module load xt-lsfhpc/9.1.3
-    module load cfp-intel-sandybridge/1.1.0
-    module load hpss/4.1.0.3
-    module load prod_util/1.1.2
-    module load grib_util/1.1.1
-    module load nco-gnu-sandybridge/4.4.4
-    module unload python/3.6.3
-    module unuse /usrx/local/prod/modulefiles
-    module use /usrx/local/dev/modulefiles
-    module load NetCDF-intel-sandybridge/4.5.0
-    module load python/3.6.3
-    module load GrADS/2.0.2
-elif [ $machine = WCOSS_DELL_P3 ]; then
-    source /usrx/local/prod/lmod/lmod/init/sh
-    module purge
-    if [ $MET_version = 9.1 ]; then
-        module use /gpfs/dell1/nco/ops/nwprod/modulefiles/compiler_prod/ips/18.0.1
-        module load met/9.1.3
-        export HOMEMET="/gpfs/dell1/nco/ops/nwprod/met.v${MET_version}.3"
-        export HOMEMET_bin_exec="exec"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [ $METplus_version = 3.1 ]; then
-        module use /gpfs/dell1/nco/ops/nwprod/modulefiles/compiler_prod/ips/18.0.1
-        module load metplus/3.1.1
-        export HOMEMETplus="${METPLUS_PATH}"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
-    module load EnvVars/1.0.3
-    module load lsf/10.1
-    module load ips/18.0.1.163
-    module load impi/18.0.1
-    module load CFP/2.0.1
-    module load HPSS/5.0.2.5
-    module load prod_util/1.1.5
-    module load grib_util/1.1.1
-    module load NetCDF/4.5.0
-    module load GrADS/2.2.0
-    module use /usrx/local/dev/modulefiles
-    module load compiler_third/ips/18.0.1/NCO/4.7.0
 elif [ $machine = HERA ]; then
     source /apps/lmod/lmod/init/sh
     module purge
@@ -200,26 +154,6 @@ elif [ $machine = JET ]; then
         module use /contrib/met/METplus/modulefiles
         module load R/4.0.2        
         module load metplus/3.1.1
-        export HOMEMETplus="${METPLUS_PATH}"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
-elif [ $machine = WCOSS2 ]; then
-    source /usr/share/lmod/lmod/init/sh
-    module reset
-    source ${HOMEverif_global}/versions/run.ver
-    export HPC_OPT=/apps/ops/para/libs
-    module use ${HOMEverif_global}/modulefiles
-    module load emc_verif_global_wcoss2
-    if [ $MET_version = 9.1 ]; then
-        export HOMEMET="$MET_ROOT"
-        export HOMEMET_bin_exec="bin"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [ $METplus_version = 3.1 ]; then
         export HOMEMETplus="${METPLUS_PATH}"
     else
         "ERROR: $METplus_version is not supported on $machine"

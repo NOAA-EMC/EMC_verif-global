@@ -25,5 +25,6 @@ export udunits_ver=2.2.28
 export wgrib2_ver=2.0.7
 export zlib_ver=1.2.11
 
-export obsproc_ver=v1.0
+export gfs_ver=v16.3
+export obsproc_ver=v1.1
 export verf_precip_ver=v4.5

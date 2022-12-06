@@ -511,7 +511,7 @@ if [ $RUN_MAPSDA = YES ]; then
     export mapsda_ens_regrid_to_grid="G002"
     export mapsda_ens_guess_hour="06"
     export mapsda_ens_model_dir_list="/lfs/h1/ops/prod/com"
-    export mapsda_ens_model_file_format_list="v16.2/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/atmos/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
+    export mapsda_ens_model_file_format_list="v16.3/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/atmos/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
     export mapsda_ens_model_data_run_hpss="YES"
 fi
 

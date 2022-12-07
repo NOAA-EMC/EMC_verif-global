@@ -56,7 +56,7 @@ if 'machine' not in vars():
     jet_match = re.match(re.compile(r"^fe[0-9]{1}"), hostname)
     if cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
         machine = 'WCOSS2'
-    if hera_match:
+    elif hera_match:
         machine = 'HERA'
     elif orion_match:
         machine = 'ORION'

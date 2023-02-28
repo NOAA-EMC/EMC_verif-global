@@ -229,7 +229,7 @@ export nproc=${npe_node_metp_gfs:-1}
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
-export FIXverif_global=$FIXgfs/fix_verif
+export FIXverif_global=$FIXgfs/verif
 export USHverif_global=$HOMEverif_global/ush
 export UTILverif_global=$HOMEverif_global/util
 export EXECverif_global=$HOMEverif_global/exec

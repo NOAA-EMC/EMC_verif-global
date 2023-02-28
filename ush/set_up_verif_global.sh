@@ -98,15 +98,15 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine specific fix directory
 if [ $machine = "WCOSS2" ]; then
-    export FIXverif_global="/lfs/h2/emc/global/save/emc.global/FIX/fix_NEW/fix_verif"
+    export FIXverif_global="/lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805"
 elif [ $machine = "HERA" ]; then
-    export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/fix_verif"
+    export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/verif/20220805"
 elif [ $machine = "ORION" ]; then
-    export FIXverif_global="/work/noaa/global/glopara/fix/fix_verif"
+    export FIXverif_global="/work/noaa/global/glopara/fix/verif/20220805"
 elif [ $machine = "S4" ]; then
-    export FIXverif_global="/data/prod/glopara/fix/fix_verif"
+    export FIXverif_global="/data/prod/glopara/fix/verif/20220805"
 elif [ $machine = "JET" ]; then
-    export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/fix_verif"
+    export FIXverif_global="/lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805"
 fi
 
 ## Set machine specific account, queues, and run settings

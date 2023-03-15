@@ -138,8 +138,8 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
-export SDATE_GFS=${SDATE_GFS:-SDATE}
-SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
+SDATE_GFS=${SDATE_GFS:-SDATE}
+SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | sed "s/-\|\:\| //g" | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
 if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then

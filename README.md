@@ -25,13 +25,11 @@ EMC_verif-global depends on the following prerequisities to be available on the 
 * NetCDF Operators (NCO)
 
 EMC_verif-global is supported on the following machines:
-* WCOSS-Dell (Mars and Venus)
-* WCOSS-Cray (Luna and Surge)
+* WCOSS2 (Cactus and Dogwood)
 * Hera
 * Orion
 * S4
 * Jet
-* WCOSS2 (Cactus and Dogwood)
 
 For questions or issues, please e-mail Mallory Row at mallory.row@noaa.gov.
 

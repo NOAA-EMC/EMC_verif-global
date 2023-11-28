@@ -171,24 +171,13 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     os.chmod(wget_job_filename, 0o755)
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
-    if machine == 'WCOSS_C':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
-                  +wget_job_output+' '
-                  +'-J '+wget_job_name+' -R rusage[mem=2048] '
-                  +wget_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+wget_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'WCOSS_DELL_P3':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+wget_job_output+' -e '
-                  +wget_job_output+' '
-                  +'-J '+wget_job_name+' -M 2048 -R "affinity[core(1)]" '
-                  +wget_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+wget_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
+    if machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
+                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
+                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+wget_job_name+' | wc -l')
     elif machine in ['HERA', 'ORION', 'S4', 'JET']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
@@ -196,13 +185,6 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'--job-name='+wget_job_name+' '+wget_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
-    elif machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
-                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
-                  +'-l select=1:ncpus=1 '+wget_job_filename)
-        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
-                         +'-N '+wget_job_name+' | wc -l')
     sleep_counter, sleep_checker = 1, 10
     while (sleep_counter*sleep_checker) <= walltime_seconds:
         sleep(sleep_checker)
@@ -258,7 +240,41 @@ def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
     if 'NCEPPROD' in hpss_dir:
         # Operational GFS HPSS archive set up
         if dt_init_time \
-                >= datetime.datetime.strptime('20210321', '%Y%m%d'):
+                >= datetime.datetime.strptime('20221129', '%Y%m%d'):
+            if hpss_file_suffix == 'prepbufr':
+                hpss_tar_filename_prefix = ('com_obsproc_v1.1_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.obsproc_'
+                                            +model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+            else:
+                hpss_tar_filename_prefix = ('com_gfs_v16.3_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.'+model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+        elif dt_init_time \
+                >= datetime.datetime.strptime('20220628', '%Y%m%d') \
+            and dt_init_time \
+                    < datetime.datetime.strptime('20221129', '%Y%m%d'):
+            if hpss_file_suffix == 'prepbufr':
+                hpss_tar_filename_prefix = ('com_obsproc_v1.0_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.obsproc_'
+                                            +model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+            else:
+                hpss_tar_filename_prefix = ('com_gfs_v16.2_'+model_dump+'.'
+                                            +YYYYmmdd+'_'+HH+'.'+model_dump)
+                hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
+                                                'atmos', model_dump+'.t'
+                                                +HH+'z.')
+        elif dt_init_time \
+                >= datetime.datetime.strptime('20210321', '%Y%m%d') \
+            and dt_init_time \
+                    < datetime.datetime.strptime('20220628', '%Y%m%d'):
             hpss_tar_filename_prefix = ('com_gfs_prod_'+model_dump+'.'
                                         +YYYYmmdd+'_'+HH+'.'+model_dump)
             hpss_file_prefix = os.path.join(model_dump+'.'+YYYYmmdd, HH,
@@ -431,24 +447,13 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     hpss_job_name = hpss_job_filename.rpartition('/')[2].replace('.sh', '')
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
-    if machine == 'WCOSS_C':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+hpss_job_output+' -e '
-                  +hpss_job_output+' '
-                  +'-J '+hpss_job_name+' -R rusage[mem=2048] '
-                  +hpss_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+hpss_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
-    elif machine == 'WCOSS_DELL_P3':
-        os.system('bsub -W '+walltime.strftime('%H:%M')+' -q '+QUEUESERV+' '
-                  +'-P '+ACCOUNT+' -o '+hpss_job_output+' -e '
-                  +hpss_job_output+' '
-                  +'-J '+hpss_job_name+' -M 2048 -R "affinity[core(1)]" '
-                  +hpss_job_filename)
-        job_check_cmd = ('bjobs -a -u '+os.environ['USER']+' '
-                         +'-noheader -J '+hpss_job_name
-                         +'| grep "RUN\|PEND" | wc -l')
+    if machine == 'WCOSS2':
+        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
+                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
+                  +'-l select=1:ncpus=1 '+hpss_job_filename)
+        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
+                         +'-N '+hpss_job_name+' | wc -l')
     elif machine in ['HERA', 'JET']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
@@ -458,13 +463,6 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'S4']:
         print("ERROR: No HPSS access from "+machine)
-    elif machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
-                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
-                  +'-l select=1:ncpus=1 '+hpss_job_filename)
-        job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
-                         +'-N '+hpss_job_name+' | wc -l')
     if machine not in ['ORION', 'S4']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
@@ -1565,12 +1563,22 @@ elif RUN == 'grid2obs_step1':
                             +offset_YYYYmmdd, offset_filename
                         )
                         if offset_time \
+                                >= datetime.datetime.strptime('20221129',
+                                                              '%Y%m%d'):
+                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.1_nam.'
+                        elif offset_time \
+                                >= datetime.datetime.strptime('20220628',
+                                                              '%Y%m%d') \
+                                and offset_time \
+                                < datetime.datetime.strptime('20221129',
+                                                             '%Y%m%d'):
+                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.0_nam.'
+                        elif offset_time \
                                 >= datetime.datetime.strptime('20200227',
                                                               '%Y%m%d') \
-                                or offset_time \
-                                == datetime.datetime.strptime('20170320'
-                                                              +offset_HH,
-                                                              '%Y%m%d%H'):
+                                and offset_time \
+                                < datetime.datetime.strptime('20220628',
+                                                             '%Y%m%d'):
                             prepbufr_hpss_tar_prefix = 'com_nam_prod_nam.'
                         elif offset_time \
                                 >= datetime.datetime.strptime('20190821',
@@ -1909,10 +1917,18 @@ elif RUN == 'precip_step1':
                         ccpa_accum24hr_arch_dir, 'ccpa.'+YYYYmmdd+'12.24h'
                     )
                     if valid_time \
+                            >= datetime.datetime.strptime('20220628',
+                                                          '%Y%m%d'):
+                         RUN_type_hpss_tar_prefix = ('com_verf_precip_v4.5_'
+                                                     +'precip.')
+                    elif valid_time \
                             >= datetime.datetime.strptime('20200226',
+                                                          '%Y%m%d') \
+                            and valid_time \
+                            < datetime.datetime.strptime('20220628',
                                                           '%Y%m%d'):
                         RUN_type_hpss_tar_prefix = 'com_verf_prod_precip.'
-                    if valid_time \
+                    elif valid_time \
                             >= datetime.datetime.strptime('20200126',
                                                           '%Y%m%d') \
                             and valid_time \
@@ -2333,6 +2349,9 @@ elif RUN == 'tropcyc':
     RUN_abbrev_model_file_format_list = (
         os.environ[RUN_abbrev+'_model_file_format_list'].split(' ')
     )
+    RUN_abbrev_tropcyc_use_adeck_for_missing_data = (
+        os.environ[RUN_abbrev+'_use_adeck_for_missing_data']
+    )
     RUN_abbrev_config_storm_list = (
         os.environ[RUN_abbrev+'_storm_list'].split(' ')
     )
@@ -2573,7 +2592,9 @@ elif RUN == 'tropcyc':
                                                   +link_init_track_file)
                                             pass
                             if not os.path.exists(link_tc_init_track_file) \
-                                    and os.path.exists(link_adeck_file):
+                                    and os.path.exists(link_adeck_file) \
+                                    and RUN_abbrev_tropcyc_use_adeck_for_missing_data \
+                                    == 'YES':
                                 print("Going to try to make "
                                       +link_tc_init_track_file+" from "
                                       +"adeck file "+link_adeck_file+" for "

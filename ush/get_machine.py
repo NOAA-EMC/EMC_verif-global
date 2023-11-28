@@ -16,8 +16,7 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 EMC_verif_global_machine_list = [
-    'HERA', 'ORION', 'WCOSS_C', 'WCOSS_DELL_P3', 'S4', 'JET',
-    'WCOSS2'
+    'HERA', 'ORION', 'S4', 'JET', 'WCOSS2'
 ]
 
 # Read in environment variables
@@ -41,18 +40,6 @@ if 'machine' not in vars():
     orion_match = re.match(
         re.compile(r"^Orion-login-[0-9]{1}.HPC.MsState.Edu$"), hostname
     )
-    surge_match = re.match(re.compile(r"^slogin[0-9]{1}$"), hostname)
-    luna_match = re.match(re.compile(r"^llogin[0-9]{1}$"), hostname)
-    mars_match = re.match(re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
-                          hostname)
-    mars_match2 = re.match(
-        re.compile(r"^m[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
-    )
-    venus_match = re.match(re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1}$"),
-                           hostname)
-    venus_match2 = re.match(
-        re.compile(r"^v[0-9]{2,3}[a-z]{1}[0-9]{1,3}[a-z]{1}$"), hostname
-    )
     cactus_match = re.match(
         re.compile(r"^clogin[0-9]{2}$"), hostname
     )
@@ -67,20 +54,16 @@ if 'machine' not in vars():
     )
     s4_match = re.match(re.compile(r"s4-submit.ssec.wisc.edu"), hostname)
     jet_match = re.match(re.compile(r"^fe[0-9]{1}"), hostname)
-    if hera_match:
+    if cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
+        machine = 'WCOSS2'
+    elif hera_match:
         machine = 'HERA'
     elif orion_match:
         machine = 'ORION'
-    elif surge_match or luna_match:
-        machine = 'WCOSS_C'
-    elif mars_match or venus_match or mars_match2 or venus_match2:
-        machine = 'WCOSS_DELL_P3'
     elif s4_match:
         machine = 'S4'
     elif jet_match:
         machine = 'JET'
-    elif cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
-        machine = 'WCOSS2'
     else:
         print("Cannot find match for "+hostname)
         sys.exit(1)

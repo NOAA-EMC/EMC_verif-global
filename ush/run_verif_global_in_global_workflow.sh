@@ -41,8 +41,9 @@ export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
-export start_date="$VDATE"
-export end_date="$VDATE"
+export VDATE_YYYYmmdd=$(echo $VDATE | cut -c1-8)
+export start_date="$VDATE_YYYYmmdd"
+export end_date="$VDATE_YYYYmmdd"
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
 ## WEB SETTINGS
@@ -140,41 +141,40 @@ echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
 SDATE_GFS=${SDATE_GFS:-SDATE}
-SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | sed "s/-\|\:\| //g" | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
-g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
-if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_anom_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE_YYYYmmdd}${g2g1_anom_check_vhour})"
+if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2g1_anom_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2g1_anom_check_vhour} $SDATE_GFS))"
 fi
 g2g1_pres_check_vhour="${g2g1_pres_vhr_list: -2}"
-g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${VDATE}${g2g1_pres_check_vhour})"
-if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_pres_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${VDATE_YYYYmmdd}${g2g1_pres_check_vhour})"
+if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2g1_pres_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2g1_pres_check_vhour} $SDATE_GFS))"
 fi
 g2g1_sfc_check_vhour="${g2g1_sfc_vhr_list: -2}"
-g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${VDATE}${g2g1_sfc_check_vhour})"
-if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${VDATE_YYYYmmdd}${g2g1_sfc_check_vhour})"
+if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2g1_sfc_check_vhour} $SDATE_GFS))"
 fi
 g2o1_upper_air_check_vhour="${g2o1_upper_air_vhr_list: -2}"
-g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${VDATE}${g2o1_upper_air_check_vhour})"
-if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${VDATE_YYYYmmdd}${g2o1_upper_air_check_vhour})"
+if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2o1_upper_air_check_vhour} $SDATE_GFS))"
 fi
 g2o1_conus_sfc_check_vhour="${g2o1_conus_sfc_vhr_list: -2}"
-g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${VDATE}${g2o1_conus_sfc_check_vhour})"
-if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${VDATE_YYYYmmdd}${g2o1_conus_sfc_check_vhour})"
+if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2o1_conus_sfc_check_vhour} $SDATE_GFS))"
 fi
 g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
-g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${VDATE}${g2o1_polar_sfc_check_vhour})"
-if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${VDATE_YYYYmmdd}${g2o1_polar_sfc_check_vhour})"
+if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS ] ; then
+    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${g2o1_polar_sfc_check_vhour} $SDATE_GFS))"
 fi
 precip1_ccpa_accum24hr_check_vhour="12"
-precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${VDATE}${precip1_ccpa_accum24hr_check_vhour})"
-if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${VDATE}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${VDATE_YYYYmmdd}${precip1_ccpa_accum24hr_check_vhour})"
+if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS ] ; then
+    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${VDATE_YYYYmmdd}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS))"
 fi
 
 echo
@@ -343,13 +343,13 @@ if [ $METPCASE = pcp1 ]; then
     emc_verif_switch_name="RUN_PRECIP_STEP1"
     export emc_verif_name="precip1"
 fi
-if [ ${start_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+if [ ${start_date}${cyc2run} -lt $SDATE_GFS ]; then
     RUN_GRID2GRID_STEP1=NO
     RUN_GRID2OBS_STEP1=NO
     RUN_PRECIP_STEP1=NO
 fi
 for fcyc in $fcyc_list; do
-    if [ ${start_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+    if [ ${start_date}${fcyc} -lt $SDATE_GFS ]; then
          RUN_GRID2GRID_STEP1=NO
          RUN_GRID2OBS_STEP1=NO
          RUN_PRECIP_STEP1=NO
@@ -359,11 +359,11 @@ for precip1_type in $precip1_type_list; do
     precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
     precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
     precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
-    if [ ${precip_check_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+    if [ ${precip_check_date}${cyc2run} -lt $SDATE_GFS ]; then
         RUN_PRECIP_STEP1=NO
     fi
     for fcyc in $fcyc_list; do
-        if [ ${precip_check_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+        if [ ${precip_check_date}${fcyc} -lt $SDATE_GFS ]; then
             RUN_PRECIP_STEP1=NO
         fi
     done

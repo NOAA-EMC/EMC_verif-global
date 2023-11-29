@@ -238,12 +238,9 @@ if [ $machine = "ORION" ]; then
     export NCEA=$(which ncea | sed 's/ncea is //g')
     export HTAR="/null/htar"
 fi
-if [ $machine = WCOSS_C ]; then
-    export HOMEMET="/gpfs/hps/nco/ops/nwprod/met.v${MET_version}.3"
-    export HOMEMET_bin_exec="exec"
-elif [ $machine = WCOSS_DELL_P3 ]; then
-    export HOMEMET="/gpfs/dell1/nco/ops/nwprod/met.v${MET_version}.3"
-    export HOMEMET_bin_exec="exec"
+if [ $machine = WCOSS2 ]; then
+    export HOMEMET="$MET_ROOT"
+    export HOMEMET_bin_exec="bin"
 elif [ $machine = HERA ]; then
     export HOMEMET="/contrib/met/9.1"
     export HOMEMET_bin_exec="bin"
@@ -255,9 +252,6 @@ elif [ $machine = S4 ]; then
     export HOMEMET_bin_exec="bin"
 elif [ $machine = JET ]; then
     export HOMEMET="/contrib/met/9.1"
-    export HOMEMET_bin_exec="bin"
-elif [ $machine = WCOSS2 ]; then
-    export HOMEMET="$MET_ROOT"
     export HOMEMET_bin_exec="bin"
 fi
 if [ $machine = S4 ]; then

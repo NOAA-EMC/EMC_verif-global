@@ -181,10 +181,8 @@ echo
 
 ## Output set up
 export pid=${pid:-$$}
-export jobid=${job}.${pid}
-export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/metp.${jobid}"}
-export OUTPUTROOT=${DATAROOT}
-export DATA=$OUTPUTROOT
+export jobid=${jobid:-${job}.${pid}}
+export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 

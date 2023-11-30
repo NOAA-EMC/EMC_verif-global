@@ -237,8 +237,10 @@ if [ $machine = "ORION" ]; then
     export HTAR="/null/htar"
 fi
 if [ $machine = WCOSS2 ]; then
-    export HOMEMET="$MET_ROOT"
+    export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
+    export MET_BASE="$HOMEMET/share/met"
     export HOMEMET_bin_exec="bin"
+    export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
 elif [ $machine = HERA ]; then
     export HOMEMET="/contrib/met/9.1"
     export HOMEMET_bin_exec="bin"
@@ -254,6 +256,8 @@ elif [ $machine = JET ]; then
 fi
 if [ $machine = S4 ]; then
     export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
+elif [ $machine = WCOSS2 ]; then
+    export HOMEMETplus="/apps/ops/para/libs/intel/19.1.3.304/metplus/3.1.1"
 else
     export HOMEMETplus=${METPLUS_PATH}
 fi

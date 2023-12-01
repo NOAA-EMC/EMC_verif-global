@@ -251,7 +251,7 @@ elif [ $machine = S4 ]; then
     export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
     export HOMEMET_bin_exec="bin"
 elif [ $machine = JET ]; then
-    export HOMEMET="/contrib/met/9.1"
+    export HOMEMET="/lfs4/HFIP/hfv3gfs/role.epic/hpc-stack/libs/intel-18.0.5.274/intel-18.0.5.274/met/9.1.3"
     export HOMEMET_bin_exec="bin"
 fi
 if [ $machine = S4 ]; then

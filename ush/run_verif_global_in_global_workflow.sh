@@ -33,6 +33,7 @@ export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
 export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 ## INPUT DATA SETTINGS
 export model_list=${model:-$PSLOT}
+export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
 export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
@@ -138,8 +139,8 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
-SDATE_GFS=${SDATE_GFS:-SDATE}
-SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | sed "s/-\|\:\| //g" | cut -c1-10)
+export SDATE_GFS=${SDATE_GFS:-SDATE}
+SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
 if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
@@ -208,12 +209,58 @@ else
     exit 1
 fi
 
-## Load modules and set machine specific paths
-. $HOMEverif_global/ush/load_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
-echo
+## Environment variables
+if [ $machine != "ORION" ]; then
+    export RM=$(which rm)
+    export CUT=$(which cut)
+    export TR=$(which tr)
+    export CONVERT=$(which convert)
+    export NCDUMP=$(which ncdump)
+    export NCEA=$(which ncea)
+    if [ $machine == "S4" ]; then
+        export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
+    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+        export HTAR=$(which htar)
+        export NCAP2="/null/ncap2"
+    else
+        export HTAR=$(which htar)
+        export NCAP2=$(which ncap2)
+    fi
+fi
+if [ $machine = "ORION" ]; then
+    export RM=$(which rm | sed 's/rm is //g')
+    export CUT=$(which cut | sed 's/cut is //g')
+    export TR=$(which tr | sed 's/tr is //g')
+    export NCAP2=$(which ncap2 | sed 's/ncap2 is //g')
+    export CONVERT=$(which convert | sed 's/convert is //g')
+    export NCDUMP=$(which ncdump | sed 's/ncdump is //g')
+    export NCEA=$(which ncea | sed 's/ncea is //g')
+    export HTAR="/null/htar"
+fi
+if [ $machine = HERA ]; then
+    export HOMEMET="/contrib/met/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = ORION ]; then
+    export HOMEMET="/apps/contrib/MET/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = S4 ]; then
+    export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = JET ]; then
+    export HOMEMET="/contrib/met/9.1"
+    export HOMEMET_bin_exec="bin"
+elif [ $machine = WCOSS2 ]; then
+    export HOMEMET="$MET_ROOT"
+    export HOMEMET_bin_exec="bin"
+fi
+if [ $machine = S4 ]; then
+    export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
+else
+    export HOMEMETplus=${METPLUS_PATH}
+fi
+echo "Using HOMEMET=${HOMEMET}"
+echo "Using HOMEMETplus=${HOMEMETplus}"
 
 ## Account and queues for machines
 export ACCOUNT=${ACCOUNT:-"GFS-DEV"}
@@ -241,11 +288,7 @@ export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
-if [ $machine = "WCOSS2" ]; then
-    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
-    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
-    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-elif [ $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
@@ -261,13 +304,22 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+elif [ $machine = "WCOSS2" ]; then
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
 fi
 
 ## Set operational directories
-source ${HOMEverif_global}/versions/run.ver
-export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
+export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
+export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
+export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
+if [ $machine = "WCOSS2" ]; then
+    source ${HOMEverif_global}/versions/run.ver
+    export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+    export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+    export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/${verf_ver}"
+fi
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 

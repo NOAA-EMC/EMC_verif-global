@@ -186,19 +186,8 @@ mkdir -p $DATA
 cd $DATA
 
 ## Get machine
-python $HOMEverif_global/ush/get_machine.py
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
-echo
-
-if [ -s config.machine ]; then
-    . $DATA/config.machine
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
-fi
-
+#### Need upper case machine name defined
+machine=$(echo $machine | tr '[a-z]' '[A-Z]')
 if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2)$ ]]; then
    echo
 else

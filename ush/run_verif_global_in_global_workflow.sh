@@ -224,26 +224,15 @@ if [ $machine = "ORION" ]; then
     export NCEA=$(which ncea | sed 's/ncea is //g')
     export HTAR="/null/htar"
 fi
-if [ $machine = HERA ]; then
-    export HOMEMET="/contrib/met/9.1"
+export HOMEMET_bin_exec="bin"
+if [ $machine = WCOSS2 ]; then
+    export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
+    export MET_BASE="$HOMEMET/share/met"
     export HOMEMET_bin_exec="bin"
-elif [ $machine = ORION ]; then
-    export HOMEMET="/apps/contrib/MET/9.1"
-    export HOMEMET_bin_exec="bin"
-elif [ $machine = S4 ]; then
-    export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
-    export HOMEMET_bin_exec="bin"
-elif [ $machine = JET ]; then
-    export HOMEMET="/contrib/met/9.1"
-    export HOMEMET_bin_exec="bin"
-elif [ $machine = WCOSS2 ]; then
-    export HOMEMET="$MET_ROOT"
-    export HOMEMET_bin_exec="bin"
-fi
-if [ $machine = S4 ]; then
-    export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
+    export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
 else
-    export HOMEMETplus=${METPLUS_PATH}
+    export HOMEMET=$met_ROOT
+    export HOMEMETplus=$metplus_ROOT
 fi
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"

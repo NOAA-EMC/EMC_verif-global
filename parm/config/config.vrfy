@@ -64,12 +64,16 @@ export hpss_walltime="10"
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="/lfs/h2/emc/stmp/$USER/verif_global_standalone"
 ## DATE SETTINGS
-#start_date:       verification start date, format YYYYMMDD
-#end_date:         verification end date, format YYYYMMDD
-#make_met_data_by: how to treat dates, "VALID" or "INIT"
-#plot_by:          how to plot data, "VALID" or "INIT"
+#start_date:          verification start date, format YYYYMMDD
+#end_date:            verification end date, format YYYYMMDD
+#spinup_period_start: spinup period start, format YYYYMMDDHH, if none use "NA"
+#spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
+#make_met_data_by:    how to treat dates, "VALID" or "INIT"
+#plot_by:             how to plot data, "VALID" or "INIT"
 export start_date=$(date -d "24 hours ago" '+%Y%m%d')
 export end_date=$(date -d "24 hours ago" '+%Y%m%d')
+export spinup_period_start="NA"
+export spinup_period_end="NA"
 export make_met_data_by="VALID"
 export plot_by="VALID"
 ## WEB SETTINGS

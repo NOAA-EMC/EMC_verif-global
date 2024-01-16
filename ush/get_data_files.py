@@ -988,7 +988,7 @@ if RUN == 'grid2grid_step1':
     global_archive = os.environ['global_archive']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
-        print("Gathering model files for "+RUN_type)
+        print("Gathering files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
@@ -1024,7 +1024,6 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast files for each model
         for model in model_list:
-            print("- Gathering model forecast files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1037,6 +1036,10 @@ if RUN == 'grid2grid_step1':
                 valid_time = time['valid_time']
                 init_time = time['init_time']
                 lead = time['lead']
+                print("- Gathering model forecast file for "+model+" for "
+                      +"init: "+init_time.strftime('%Y%m%d%H')+", "
+                      +"lead: "+lead+", "
+                      +"valid: "+valid_time.strftime('%Y%m%d%H'))
                 get_file = True
                 if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
                     print("WARNING: init. hour "+init_time.strftime('%H')+" "
@@ -1074,7 +1077,6 @@ if RUN == 'grid2grid_step1':
         if RUN_abbrev_type_truth_name_lead == 'f00':
             RUN_abbrev_type_truth_name_lead = '00'
         for model in model_list:
-            print("- Gathering model truth files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1083,6 +1085,8 @@ if RUN == 'grid2grid_step1':
                 os.makedirs(link_model_dir)
                 os.makedirs(os.path.join(link_model_dir, 'HPSS_jobs'))
             for valid_time in RUN_abbrev_type_valid_time_list:
+                print("- Gathering model truth file for "+model+" for "
+                      +"valid: "+valid_time.strftime('%Y%m%d%H'))
                 get_file = True
                 if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
                     print("WARNING: valid hour "+valid_time.strftime('%H')+" "
@@ -1285,7 +1289,7 @@ elif RUN == 'grid2obs_step1':
         prepbufr_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
-        print("Gathering model files for "+RUN_type)
+        print("Gathering files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
@@ -1315,7 +1319,6 @@ elif RUN == 'grid2obs_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
-            print("- Gathering model forecast files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1328,6 +1331,10 @@ elif RUN == 'grid2obs_step1':
                 valid_time = time['valid_time']
                 init_time = time['init_time']
                 lead = time['lead']
+                print("- Gathering model forecast file for "+model+" for "
+                      +"init: "+init_time.strftime('%Y%m%d%H')+", "
+                      +"lead: "+lead+", "
+                      +"valid: "+valid_time.strftime('%Y%m%d%H'))
                 get_file = True
                 if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
                     print("WARNING: init. hour "+init_time.strftime('%H')+" "
@@ -1357,6 +1364,8 @@ elif RUN == 'grid2obs_step1':
                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
+            print("- Gathering truth file for "
+                  +"valid: "+valid_time.strftime('%Y%m%d%H'))
             YYYYmmddHH = valid_time.strftime('%Y%m%d%H')
             YYYYmmdd = valid_time.strftime('%Y%m%d')
             YYYYmm = valid_time.strftime('%Y%m')
@@ -1704,9 +1713,13 @@ elif RUN == 'grid2obs_step1':
                                 arch_file = arch_file+'.nr'
                                 hpss_file = hpss_file+'.nr'
                             if os.path.exists(prod_file):
+                                print("Linking "+prod_file+" to "
+                                      +link_prepbufr_file)
                                 os.system('ln -sf '+prod_file+' '
                                           +link_prepbufr_file)
                             elif os.path.exists(arch_file):
+                                print("Linking "+arch_file+" to "
+                                      +link_prepbufr_file)
                                 os.system('ln -sf '+arch_file+' '
                                           +link_prepbufr_file)
                             else:
@@ -1733,6 +1746,8 @@ elif RUN == 'grid2obs_step1':
                                 if prepbufr_dict != prepbufr_dict_list[-1]:
                                     print("Checking next prepbufr file valid "
                                           +"at "+YYYYmmddHH)
+                    else:
+                        print("Already got "+link_prepbufr_file)
 elif RUN == 'grid2obs_step2':
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list

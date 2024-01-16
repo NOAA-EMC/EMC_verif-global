@@ -1285,6 +1285,7 @@ elif RUN == 'grid2obs_step1':
         prepbufr_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
+        print("Gathering model files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
@@ -1314,6 +1315,7 @@ elif RUN == 'grid2obs_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
+            print("- Gathering model forecast files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1326,11 +1328,26 @@ elif RUN == 'grid2obs_step1':
                 valid_time = time['valid_time']
                 init_time = time['init_time']
                 lead = time['lead']
+                get_file = True
                 if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
+                    print("WARNING: init. hour "+init_time.strftime('%H')+" "
+                          +"not in list of requested init. hours "
+                          +','.join(RUN_abbrev_type_fcyc_list))
+                    get_file = False
+                if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
+                    print("WARNING: valid hour "+valid_time.strftime('%H')+" "
+                          +"not in list of requested valid hours "
+                          +','.join(RUN_abbrev_type_vhr_list))
+                    get_file = False
+                if check_spinup_period:
+                    if init_time >= spinup_period_start_dt \
+                            and init_time <= spinup_period_end_dt:
+                        print("WARNING: lead "+lead+" with init time "
+                              +init_time.strftime('%Y%m%d%H')+" "
+                              +"in spinup period "+spinup_period_start
+                              +"-"+spinup_period_end)
+                        get_file = False
+                if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
                     get_model_file(valid_time, init_time, lead,
@@ -1348,9 +1365,13 @@ elif RUN == 'grid2obs_step1':
             dd = valid_time.strftime('%d')
             HH = valid_time.strftime('%H')
             DOY = valid_time.strftime('%j')
+            get_file = True
             if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                continue
-            else:
+                print("WARNING: valid hour "+valid_time.strftime('%H')+" "
+                      +"not in list of requested hours "
+                      +','.join(RUN_abbrev_type_vhr_list))
+                get_file = False
+            if get_file:
                 if RUN_type == 'polar_sfc':
                     iabp_dir = os.path.join(cwd, 'data', 'iabp')
                     if not os.path.exists(iabp_dir):

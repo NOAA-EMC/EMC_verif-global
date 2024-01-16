@@ -602,6 +602,8 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
                     )
                 get_hpss_data(model_hpss_job_filename, link_data_dir,
                               link_model_file, model_hpss_tar, model_hpss_file)
+    else:
+        print("Already got "+link_model_file)
     if not os.path.exists(link_model_file):
         if run_hpss == 'YES':
             print("WARNING: "+model_file+" does not exist and did not find "
@@ -951,12 +953,25 @@ model_data_run_hpss = os.environ['model_data_run_hpss']
 model_hpss_dir_list = os.environ['model_hpss_dir_list'].split(' ')
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
+spinup_period_start = os.environ['spinup_period_start']
+spinup_period_end = os.environ['spinup_period_end']
 make_met_data_by = os.environ['make_met_data_by']
 plot_by = os.environ['plot_by']
 machine = os.environ['machine']
 RUN_abbrev = os.environ['RUN_abbrev']
 if RUN != 'tropcyc':
     RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+
+# Set up spin up period
+check_spinup_period = False
+if spinup_period_start != 'NA' and spinup_period_end != 'NA':
+    check_spinup_period = True
+    spinup_period_start_dt = datetime.datetime.strptime(
+        spinup_period_start, '%Y%m%d%H'
+    )
+    spinup_period_end_dt = datetime.datetime.strptime(
+        spinup_period_end, '%Y%m%d%H'
+    )
 
 # Set some common varaibles
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
@@ -973,6 +988,7 @@ if RUN == 'grid2grid_step1':
     global_archive = os.environ['global_archive']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
+        print("Gathering model files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
@@ -1008,6 +1024,7 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast files for each model
         for model in model_list:
+            print("- Gathering model forecast files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1020,11 +1037,26 @@ if RUN == 'grid2grid_step1':
                 valid_time = time['valid_time']
                 init_time = time['init_time']
                 lead = time['lead']
+                get_file = True
                 if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
+                    print("WARNING: init. hour "+init_time.strftime('%H')+" "
+                          +"not in list of requested init. hours "
+                          +','.join(RUN_abbrev_type_fcyc_list))
+                    get_file = False
+                if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
+                    print("WARNING: valid hour "+valid_time.strftime('%H')+" "
+                          +"not in list of requested valid hours "
+                          +','.join(RUN_abbrev_type_vhr_list))
+                    get_file = False
+                if check_spinup_period:
+                    if init_time >= spinup_period_start_dt \
+                            and init_time <= spinup_period_end_dt:
+                        print("WARNING: lead "+lead+" with init. time "
+                              +init_time.strftime('%Y%m%d%H')+" "
+                              +"in spinup period "+spinup_period_start
+                              +"-"+spinup_period_end)
+                        get_file = False
+                if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
                     get_model_file(valid_time, init_time, lead,
@@ -1042,6 +1074,7 @@ if RUN == 'grid2grid_step1':
         if RUN_abbrev_type_truth_name_lead == 'f00':
             RUN_abbrev_type_truth_name_lead = '00'
         for model in model_list:
+            print("- Gathering model truth files for "+model)
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1050,9 +1083,21 @@ if RUN == 'grid2grid_step1':
                 os.makedirs(link_model_dir)
                 os.makedirs(os.path.join(link_model_dir, 'HPSS_jobs'))
             for valid_time in RUN_abbrev_type_valid_time_list:
+                get_file = True
                 if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
+                    print("WARNING: valid hour "+valid_time.strftime('%H')+" "
+                          +"not in list of requested valid hours "
+                          +','.join(RUN_abbrev_type_vhr_list))
+                    get_file = False
+                if check_spinup_period:
+                    if valid_time >= spinup_period_start_dt \
+                            and valid_time <= spinup_period_end_dt:
+                        print("WARNING: Valid time "
+                              +valid_time.strftime('%Y%m%d%H')+" "
+                              +"in spinup period "+spinup_period_start
+                              +"-"+spinup_period_end)
+                        get_file = False
+                if get_file:
                     link_truth_file = os.path.join(
                         link_model_dir,
                         format_filler(RUN_type+'.truth.{valid?fmt=%Y%m%d%H}',

@@ -1818,6 +1818,7 @@ elif RUN == 'precip_step1':
         obs_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
+        print("Gathering files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         # Read in RUN_type environment variables
         RUN_abbrev_type_fcyc_list = os.environ[
@@ -1875,11 +1876,30 @@ elif RUN == 'precip_step1':
                 valid_time = time['valid_time']
                 init_time = time['init_time']
                 lead_end = time['lead']
+                print("- Gathering model forecat file for "+model+" for "
+                      +"init: "+init_time.strftime('%Y%m%d%H')+", "
+                      +"end accumulation lead: "+lead_end+", "
+                      +"valid: "+valid_time.strftime('%Y%m%d%H'))
+                get_file = True
                 if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
+                    print("WARNING: init. hour "+init_time.strftime('%H')+" "
+                          +"not in list of requested init. hours "
+                          +','.join(RUN_abbrev_type_fcyc_list))
+                    get_file = False
+                if valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
+                    print("WARNING: valid hour "+valid_time.strftime('%H')+" "
+                          +"not in list of requested valid hours "
+                          +','.join(RUN_abbrev_type_vhr_list))
+                    get_file = False
+                if check_spinup_period:
+                    if init_time >= spinup_period_start_dt \
+                            and init_time <= spinup_period_end_dt:
+                        print("WARNING: lead "+lead_end+" with init time "
+                              +init_time.strftime('%Y%m%d%H')+" "
+                              +"in spinup period "+spinup_period_start
+                              +"-"+spinup_period_end)
+                        get_file = False
+                if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
                     lead_in_accum_list = []
@@ -1972,6 +1992,8 @@ elif RUN == 'precip_step1':
                                 )
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
+            print("- Gathering truth file for "
+                  +"valid: "+valid_time.strftime('%Y%m%d%H'))
             YYYYmmddHH = valid_time.strftime('%Y%m%d%H')
             YYYYmmdd = valid_time.strftime('%Y%m%d')
             YYYYmm = valid_time.strftime('%Y%m')
@@ -2027,9 +2049,13 @@ elif RUN == 'precip_step1':
                     RUN_type_hpss_file = 'ccpa.'+YYYYmmdd+'12.24h'
                 if not os.path.exists(link_RUN_type_file):
                     if os.path.exists(RUN_type_prod_file):
+                        print("Linking "+RUN_type_prod_file+" to "
+                              +link_RUN_type_file)
                         os.system('ln -sf '+RUN_type_prod_file+' '
                                  +link_RUN_type_file)
                     elif os.path.exists(RUN_type_arch_file):
+                        print("Linking "+RUN_type_arch_file+" to "
+                              +link_RUN_type_file)
                         os.system('ln -sf '+RUN_type_arch_file+' '
                                   +link_RUN_type_file)
                     else:
@@ -2047,6 +2073,8 @@ elif RUN == 'precip_step1':
                                           link_RUN_type_file,
                                           RUN_type_hpss_tar,
                                           RUN_type_hpss_file)
+                else:
+                    print("Already got "+link_RUN_type_file)
                 if not os.path.exists(link_RUN_type_file):
                     if obs_run_hpss == 'YES':
                         print("WARNING: "+RUN_type_prod_file+" and "

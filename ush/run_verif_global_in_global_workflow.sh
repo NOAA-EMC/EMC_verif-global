@@ -42,6 +42,8 @@ export hpss_walltime=${hpss_walltime:-10}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export start_date="$VDATE"
 export end_date="$VDATE"
+export spinup_period_start=${spinup_period_start:-"NA"}
+export spinup_period_end=${spinup_period_end:-"NA"}
 export make_met_data_by=${make_met_data_by:-VALID}
 export plot_by="VALID"
 ## WEB SETTINGS

@@ -22,7 +22,8 @@ RUN_type_env_vars_dict = {
     'shared': ['model_list', 'model_dir_list', 'model_stat_dir_list',
                'model_file_format_list', 'model_data_run_hpss',
                'model_hpss_dir_list', 'hpss_walltime', 'OUTPUTROOT',
-               'start_date', 'end_date', 'make_met_data_by', 'plot_by',
+               'start_date', 'end_date', 'spinup_period_start',
+               'spinup_period_end', 'make_met_data_by', 'plot_by',
                'SEND2WEB', 'webhost', 'webhostid', 'webdir', 'img_quality',
                'MET_version', 'METplus_version', 'METplus_verbosity',
                'MET_verbosity', 'log_MET_output_to_METplus', 'SENDARCH',
@@ -208,12 +209,12 @@ if RUN not in ['tropcyc', 'fit2obs_plots']:
 date_check_name_list = ['start', 'end']
 for date_check_name in date_check_name_list:
     date_check = os.environ[date_check_name+'_date']
-    date_check_year = int(date_check[0:4])
-    date_check_month = int(date_check[4:6])
-    date_check_day = int(date_check[6:])
     if len(date_check) != 8:
         print("ERROR: "+date_check_name+"_date not in YYYYMMDD format")
         sys.exit(1)
+    date_check_year = int(date_check[0:4])
+    date_check_month = int(date_check[4:6])
+    date_check_day = int(date_check[6:])
     if date_check_month > 12 or int(date_check_month) == 0:
         print("ERROR: month "+str(date_check_month)+" in value "
               +date_check+" for "+date_check_name+"_date is not a valid month")
@@ -229,6 +230,50 @@ if datetime.datetime.strptime(os.environ['end_date'], '%Y%m%d') \
     print("ERROR: end_date ("+os.environ['end_date']+") cannot be less than "
           +"start_date ("+os.environ['start_date']+")")
     sys.exit(1)
+
+# Do spinup period check
+if os.environ['spinup_period_start'] == 'NA' \
+        and os.environ['spinup_period_end'] != 'NA':
+    print("ERROR: spinup_period_start is NA, but spinup_period_end is "
+          +os.environ['spinup_period_end']+", set spinup_period_end to NA")
+    sys.exit(1)
+if os.environ['spinup_period_end'] == 'NA' \
+        and os.environ['spinup_period_start'] != 'NA':
+    print("ERROR: spinup_period_end is NA, but spinup_period_start is "
+          +os.environ['spinup_period_start']+", set spinup_period_start to NA")
+    sys.exit(1)
+if os.environ['spinup_period_start'] != 'NA' \
+        and os.environ['spinup_period_end'] != 'NA':
+    date_check_name_list = ['start', 'end']
+    for date_check_name in date_check_name_list:
+        date_check = os.environ['spinup_period_'+date_check_name]
+        if len(date_check) != 10:
+            print("ERROR: spinup_period_"+date_check_name+" not in "
+                  +"YYYYMMDDHH format")
+            sys.exit(1)
+        date_check_year = int(date_check[0:4])
+        date_check_month = int(date_check[4:6])
+        date_check_day = int(date_check[6:8])
+        date_check_hour = int(date_check[8:])
+        if date_check_month > 12 or int(date_check_month) == 0:
+            print("ERROR: month "+str(date_check_month)+" in value "
+                  +date_check+" for "+date_check_name+"_date is not a "
+                  +"valid month")
+            sys.exit(1)
+        if date_check_day \
+                > calendar.monthrange(date_check_year, date_check_month)[1]:
+            print("ERROR: day "+str(date_check_day)+" in value "
+                  +date_check+" for "+date_check_name+"_date is not a "
+                  +"valid day for month")
+            sys.exit(1)
+    if datetime.datetime.strptime(os.environ['spinup_period_end'],
+                                  '%Y%m%d%H') \
+            < datetime.datetime.strptime(os.environ['spinup_period_start'],
+                                         '%Y%m%d%H'):
+        print("ERROR: spinup_period_end ("+os.environ['spinup_period_end']
+              +") cannot be less than spinup_period_start ("
+              +os.environ['spinup_period_start']+")")
+        sys.exit(1)
 
 # Do check for valid RUN_type options
 valid_RUN_type_opts_dict = {

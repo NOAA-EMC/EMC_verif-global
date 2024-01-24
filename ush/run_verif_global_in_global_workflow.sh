@@ -33,6 +33,7 @@ export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
 export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 ## INPUT DATA SETTINGS
 export model_list=${model:-$PSLOT}
+export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
 export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
@@ -140,8 +141,8 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
-SDATE_GFS=${SDATE_GFS:-SDATE}
-SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | sed "s/-\|\:\| //g" | cut -c1-10)
+export SDATE_GFS=${SDATE_GFS:-$SDATE}
+SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
 if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
@@ -181,28 +182,14 @@ fi
 echo
 
 ## Output set up
-export pid=${pid:-$$}
-export jobid=${job}.${pid}
-export DATAROOT=${DATAROOT:-"$RUNDIR/$CDATE/$CDUMP/metp.${jobid}"}
-export OUTPUTROOT=${DATAROOT}
-export DATA=$OUTPUTROOT
+export jobid=${jobid:-${job}.${pid}}
+export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 
 ## Get machine
-python $HOMEverif_global/ush/get_machine.py
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
-echo
-
-if [ -s config.machine ]; then
-    . $DATA/config.machine
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
-fi
-
+#### Need upper case machine name defined
+machine=$(echo $machine | tr '[a-z]' '[A-Z]')
 if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2)$ ]]; then
    echo
 else
@@ -210,12 +197,47 @@ else
     exit 1
 fi
 
-## Load modules and set machine specific paths
-. $HOMEverif_global/ush/load_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
-echo
+## Environment variables
+if [ $machine != "ORION" ]; then
+    export RM=$(which rm)
+    export CUT=$(which cut)
+    export TR=$(which tr)
+    export CONVERT=$(which convert)
+    export NCDUMP=$(which ncdump)
+    export NCEA=$(which ncea)
+    if [ $machine == "S4" ]; then
+        export HTAR="/null/htar"
+        export NCAP2="/null/ncap2"
+    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+        export HTAR=$(which htar)
+        export NCAP2="/null/ncap2"
+    else
+        export HTAR=$(which htar)
+        export NCAP2=$(which ncap2)
+    fi
+fi
+if [ $machine = "ORION" ]; then
+    export RM=$(which rm | sed 's/rm is //g')
+    export CUT=$(which cut | sed 's/cut is //g')
+    export TR=$(which tr | sed 's/tr is //g')
+    export NCAP2=$(which ncap2 | sed 's/ncap2 is //g')
+    export CONVERT=$(which convert | sed 's/convert is //g')
+    export NCDUMP=$(which ncdump | sed 's/ncdump is //g')
+    export NCEA=$(which ncea | sed 's/ncea is //g')
+    export HTAR="/null/htar"
+fi
+export HOMEMET_bin_exec="bin"
+if [ $machine = WCOSS2 ]; then
+    export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
+    export MET_BASE="$HOMEMET/share/met"
+    export HOMEMET_bin_exec="bin"
+    export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
+else
+    export HOMEMET=$met_ROOT
+    export HOMEMETplus=$metplus_ROOT
+fi
+echo "Using HOMEMET=${HOMEMET}"
+echo "Using HOMEMETplus=${HOMEMETplus}"
 
 ## Account and queues for machines
 export ACCOUNT=${ACCOUNT:-"GFS-DEV"}
@@ -243,11 +265,7 @@ export PATH="${USHMETplus}:${PATH}"
 export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
-if [ $machine = "WCOSS2" ]; then
-    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
-    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
-    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-elif [ $machine = "HERA" ]; then
+if [ $machine = "HERA" ]; then
     export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
     export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
@@ -263,13 +281,17 @@ elif [ $machine = "JET" ]; then
     export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
     export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
     export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+elif [ $machine = "WCOSS2" ]; then
+    export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+    export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
 fi
 
 ## Set operational directories
-source ${HOMEverif_global}/versions/run.ver
-export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
+export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
+export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
+export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/v4.5"
+
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 
@@ -319,162 +341,6 @@ for precip1_type in $precip1_type_list; do
 done
 RUN_METPCASE=${!emc_verif_switch_name}
 export METPCASE_type_list=$(eval echo \${${emc_verif_name}_type_list})
-
-## Get data for temporary archive directory for model_stat_dir_list
-export DATAROOT=$OUTPUTROOT
-export tmp_archive_dir=$OUTPUTROOT/tmp_archive
-mkdir -p $tmp_archive_dir/$PSLOT
-export model_dir_list=$tmp_archive_dir
-cat >tmp_archive_dir_get_data.py <<END
-import os
-import datetime
-def format_filler(unfilled_file_format, dt_valid_time, dt_init_time, str_lead):
-    filled_file_format = ''
-    format_opt_list = ['lead', 'valid', 'init', 'cycle']
-    for filled_file_format_chunk in unfilled_file_format.split('/'):
-        for format_opt in format_opt_list:
-            nformat_opt = (
-                filled_file_format_chunk.count('{'+format_opt+'?fmt=')
-            )
-            if nformat_opt > 0:
-               format_opt_count = 1
-               while format_opt_count <= nformat_opt:
-                   format_opt_count_fmt = (
-                       filled_file_format_chunk \
-                       .partition('{'+format_opt+'?fmt=')[2] \
-                       .partition('}')[0]
-                   )
-                   if format_opt == 'valid':
-                       replace_format_opt_count = dt_valid_time.strftime(
-                           format_opt_count_fmt
-                       )
-                   elif format_opt == 'lead':
-                       if format_opt_count_fmt == '%1H':
-                           if int(str_lead) < 10:
-                               replace_format_opt_count = str_lead[1]
-                           else:
-                               replace_format_opt_count = str_lead
-                       elif format_opt_count_fmt == '%2H':
-                           replace_format_opt_count = str_lead.zfill(2)
-                       elif format_opt_count_fmt == '%3H':
-                           replace_format_opt_count = str_lead.zfill(3)
-                       else:
-                           replace_format_opt_count = str_lead
-                   elif format_opt in ['init', 'cycle']:
-                       replace_format_opt_count = dt_init_time.strftime(
-                           format_opt_count_fmt
-                       )
-                   filled_file_format_chunk = (
-                       filled_file_format_chunk.replace(
-                           '{'+format_opt+'?fmt='
-                           +format_opt_count_fmt+'}',
-                           replace_format_opt_count
-                       )
-                   )
-                   format_opt_count+=1
-        filled_file_format = os.path.join(filled_file_format,
-                                          filled_file_format_chunk)
-    return filled_file_format
-def link_files(tmp_file, ARCDIR_file, ROTDIR_file):
-    if not os.path.exists(tmp_file):
-        if os.path.exists(ARCDIR_file):
-            os.system(os.environ['NLN']+' '+ARCDIR_file+' '+tmp_file)
-        else:
-            if os.path.exists(ROTDIR_file):
-                os.system(os.environ['NLN']+' '+ROTDIR_file+' '+tmp_file)
-PSLOT = os.environ['PSLOT']
-tmp_archive_dir = os.environ['tmp_archive_dir']
-VDATE = os.environ['VDATE']
-METPCASE = os.environ['METPCASE']
-emc_verif_name = os.environ['emc_verif_name']
-METPCASE_type_list = os.environ['METPCASE_type_list'].split(' ')
-for METPCASE_type in METPCASE_type_list:
-    if METPCASE == 'pcp1':
-        if METPCASE_type == 'ccpa_accum24hr':
-            METPCASE_type_vhr_list = ['12']
-        METPCASE_model_file_format = os.environ[emc_verif_name+'_'+METPCASE_type+'_model_file_format']
-    else:
-        METPCASE_type_vhr_list = os.environ[emc_verif_name+'_'+METPCASE_type+'_vhr_list'].split(' ')
-        METPCASE_model_file_format = os.environ['model_file_format']
-    if 'pgbq' in METPCASE_model_file_format:
-        ROTDIR_fhr_file_format = os.path.join(os.environ['CDUMP']+'.{init?fmt=%Y%m%d}', '{init?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{init?fmt=%H}z.sfluxgrbf{lead?fmt=%3H}.grib2')
-        ARCDIR_fhr_file_format = 'pgbq{lead?fmt=%2H}.'+os.environ['CDUMP']+'.{init?fmt=%Y%m%d%H}.grib2'
-    elif 'pgbf' in METPCASE_model_file_format:
-        ROTDIR_fhr_file_format = os.path.join(os.environ['CDUMP']+'.{init?fmt=%Y%m%d}', '{init?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{init?fmt=%H}z.pgrb2.1p00.f{lead?fmt=%3H}')
-        ARCDIR_fhr_file_format = 'pgbf{lead?fmt=%2H}.'+os.environ['CDUMP']+'.{init?fmt=%Y%m%d%H}.grib2'
-    METPCASE_type_fcyc_list = os.environ[emc_verif_name+'_'+METPCASE_type+'_fcyc_list'].split(' ')
-    METPCASE_type_fhr_min = os.environ[emc_verif_name+'_'+METPCASE_type+'_fhr_min']
-    METPCASE_type_fhr_max = os.environ[emc_verif_name+'_'+METPCASE_type+'_fhr_max']
-    FHOUT_GFS = os.environ['FHOUT_GFS']
-    for vhr in METPCASE_type_vhr_list:
-        valid_time_dt = datetime.datetime.strptime(VDATE+vhr, '%Y%m%d%H')
-        if METPCASE == 'g2g1':
-            METPCASE_type_truth_name = os.environ[emc_verif_name+'_'+METPCASE_type+'_truth_name']
-            if METPCASE_type_truth_name in ['self_anl', 'self_f00']:
-                if METPCASE_type_truth_name == 'self_anl':
-                    tmp_archive_anl_file = os.path.join(tmp_archive_dir, PSLOT, format_filler(os.environ[emc_verif_name+'_'+METPCASE_type+'_truth_file_format'], valid_time_dt, valid_time_dt, 'anl'))
-                    tmp_archive_fhr00_file = os.path.join(tmp_archive_dir, PSLOT, format_filler(METPCASE_model_file_format, valid_time_dt, valid_time_dt, '00'))
-                    ROTDIR_anl_file_format = os.path.join(os.environ['CDUMP']+'.{valid?fmt=%Y%m%d}', '{valid?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{valid?fmt=%H}z.pgrb2.1p00.anl')
-                    ARCDIR_anl_file_format = 'pgbanl.'+os.environ['CDUMP']+'.{valid?fmt=%Y%m%d%H}.grib2'
-                    if 'pgbq' in METPCASE_model_file_format:
-                        ROTDIR_fhr00_file_format = os.path.join(os.environ['CDUMP']+'.{valid?fmt=%Y%m%d}', '{valid?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{valid?fmt=%H}z.sfluxgrbf000.grib2')
-                        ARCDIR_fhr00_file_format = 'pgbq00.'+os.environ['CDUMP']+'.{valid?fmt=%Y%m%d%H}.grib2'
-                    elif 'pgbf' in METPCASE_model_file_format:
-                        ROTDIR_fhr00_file_format = os.path.join(os.environ['CDUMP']+'.{valid?fmt=%Y%m%d}', '{valid?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{valid?fmt=%H}z.pgrb2.1p00.f000')
-                        ARCDIR_fhr00_file_format = 'pgbf00.'+os.environ['CDUMP']+'.{valid?fmt=%Y%m%d%H}.grib2'
-                    ROTDIR_anl_file = os.path.join(os.environ['ROTDIR'], format_filler(ROTDIR_anl_file_format, valid_time_dt, valid_time_dt, 'anl'))
-                    ROTDIR_fhr00_file = os.path.join(os.environ['ROTDIR'], format_filler(ROTDIR_fhr00_file_format, valid_time_dt, valid_time_dt, '00'))
-                    ARCDIR_anl_file = os.path.join(os.environ['ARCDIR'], format_filler(ARCDIR_anl_file_format, valid_time_dt, valid_time_dt, 'anl'))
-                    ARCDIR_fhr00_file = os.path.join(os.environ['ARCDIR'], format_filler(ARCDIR_fhr00_file_format, valid_time_dt, valid_time_dt, '00'))
-                    link_files(tmp_archive_anl_file, ARCDIR_anl_file, ROTDIR_anl_file)
-                    if not os.path.exists(tmp_archive_anl_file):
-                        link_files(tmp_archive_fhr00_file, ARCDIR_fhr00_file, ROTDIR_fhr00_file)
-                elif METPCASE_type_truth_name == 'self_f00':
-                    tmp_archive_fhr00_file = os.path.join(tmp_archive_dir, PSLOT, format_filler(os.environ[emc_verif_name+'_'+METPCASE_type+'_truth_file_format'], valid_time_dt, valid_time_dt, '00'))
-                    if 'pgbq' in os.environ[emc_verif_name+'_'+METPCASE_type+'_truth_file_format']:
-                        ROTDIR_fhr00_file_format = os.path.join(os.environ['CDUMP']+'.{valid?fmt=%Y%m%d}', '{valid?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{valid?fmt=%H}z.sfluxgrbf000.grib2')
-                        ARCDIR_fhr00_file_format = 'pgbq00.'+os.environ['CDUMP']+'.{valid?fmt=%Y%m%d%H}.grib2'
-                    elif 'pgbf' in os.environ[emc_verif_name+'_'+METPCASE_type+'_truth_file_format']:
-                        ROTDIR_fhr00_file_format = os.path.join(os.environ['CDUMP']+'.{valid?fmt=%Y%m%d}', '{valid?fmt=%H}', 'atmos', os.environ['CDUMP']+'.t{valid?fmt=%H}z.pgrb2.1p00.f000')
-                        ARCDIR_fhr00_file_format = 'pgbf00.'+os.environ['CDUMP']+'.{valid?fmt=%Y%m%d%H}.grib2'
-                    ROTDIR_fhr00_file = os.path.join(os.environ['ROTDIR'], format_filler(ROTDIR_fhr00_file_format, valid_time_dt, valid_time_dt, '00'))
-                    ARCDIR_fhr00_file = os.path.join(os.environ['ARCDIR'], format_filler(ARCDIR_fhr00_file_format, valid_time_dt, valid_time_dt, '00'))
-                    link_files(tmp_archive_fhr00_file, ARCDIR_fhr00_file, ROTDIR_fhr00_file)
-        fhr = int(METPCASE_type_fhr_min)
-        while fhr <= int(METPCASE_type_fhr_max):
-            init_time_dt = valid_time_dt - datetime.timedelta(hours=int(fhr))
-            if init_time_dt.strftime('%H').zfill(2) in METPCASE_type_fcyc_list:
-                tmp_archive_fhr_file = os.path.join(tmp_archive_dir, PSLOT, format_filler(METPCASE_model_file_format, valid_time_dt, init_time_dt, str(fhr)))
-                ROTDIR_fhr_file = os.path.join(os.environ['ROTDIR'], format_filler(ROTDIR_fhr_file_format, valid_time_dt, init_time_dt, str(fhr)))
-                ARCDIR_fhr_file = os.path.join(os.environ['ARCDIR'], format_filler(ARCDIR_fhr_file_format, valid_time_dt, init_time_dt, str(fhr)))
-                link_files(tmp_archive_fhr_file, ARCDIR_fhr_file, ROTDIR_fhr_file)
-                if METPCASE == 'pcp1':
-                    METPCASE_type_accum_length = METPCASE_type.split('accum')[1].replace('hr','')
-                    METPCASE_type_model_bucket = os.environ[emc_verif_name+'_'+METPCASE_type+'_model_bucket']
-                    fhr_in_accum_list = []
-                    fhr_end = fhr
-                    if METPCASE_type_model_bucket == 'continuous':
-                        nfiles_in_accum = 2
-                        fhr_in_accum_list.append(str(fhr_end))
-                        fhr_start = fhr_end-int(METPCASE_type_accum_length)
-                        if fhr_start > 0:
-                            fhr_in_accum_list.append(str(fhr_start))
-                    else:
-                        nfiles_in_accum = int(METPCASE_type_accum_length)/int(METPCASE_type_model_bucket)
-                        nf = 1
-                        while nf <= nfiles_in_accum:
-                            fhr_now = int(fhr_end)-((nf-1)*int(METPCASE_type_model_bucket))
-                            if fhr_now >= 0:
-                                fhr_in_accum_list.append(str(fhr_now))
-                            nf+=1
-                    for accum_fhr in fhr_in_accum_list:
-                        tmp_archive_accum_fhr_file = os.path.join(tmp_archive_dir, PSLOT, format_filler(METPCASE_model_file_format, valid_time_dt, init_time_dt, accum_fhr))
-                        ROTDIR_accum_fhr_file = os.path.join(os.environ['ROTDIR'], format_filler(ROTDIR_fhr_file_format, valid_time_dt, init_time_dt, accum_fhr))
-                        ARCDIR_accum_fhr_file = os.path.join(os.environ['ARCDIR'], format_filler(ARCDIR_fhr_file_format, valid_time_dt, init_time_dt, accum_fhr))
-                        link_files(tmp_archive_accum_fhr_file, ARCDIR_accum_fhr_file, ROTDIR_accum_fhr_file)
-            fhr+=int(FHOUT_GFS)
-END
-python tmp_archive_dir_get_data.py
 
 ## Run METplus
 echo "=============== RUNNING METPLUS ==============="

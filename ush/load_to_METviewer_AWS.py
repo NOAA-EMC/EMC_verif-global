@@ -177,7 +177,7 @@ if machine == 'WCOSS2':
               +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+AWS_job_output+' '
               +'-e '+AWS_job_output+' -N '+AWS_job_name+' '
               +'-l select=1:ncpus=1 '+AWS_job_filename)
-elif machine in ['HERA', 'ORION', 'S4', 'JET']:
+elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES']:
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
               +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
               +'--output='+AWS_job_output+' '

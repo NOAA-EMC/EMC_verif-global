@@ -953,17 +953,9 @@ elif machine == 'JET':
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
-elif machine == 'ORION':
+elif machine in ["ORION", "HERCULES", "S4"]:
     if webhost == 'emcrzdm.ncep.noaa.gov':
-        print("ERROR: Currently Orion cannot connect to "+webhost)
-    else:
-        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
-elif machine == 'S4':
-    if webhost == 'emcrzdm.ncep.noaa.gov':
-        print("ERROR: Currently S4 cannot connect to "+webhost)
+        print("ERROR: Currently " + machine + " cannot connect to "+webhost)
     else:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '

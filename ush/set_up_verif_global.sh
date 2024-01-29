@@ -69,7 +69,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2)$ ]]; then
+if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2|HERCULES)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -101,7 +101,7 @@ if [ $machine = "WCOSS2" ]; then
     export FIXverif_global="/lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805"
 elif [ $machine = "HERA" ]; then
     export FIXverif_global="/scratch1/NCEPDEV/global/glopara/fix/verif/20220805"
-elif [ $machine = "ORION" ]; then
+elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
     export FIXverif_global="/work/noaa/global/glopara/fix/verif/20220805"
 elif [ $machine = "S4" ]; then
     export FIXverif_global="/data/prod/glopara/fix/verif/20220805"
@@ -133,6 +133,14 @@ elif [ $machine = "ORION" ]; then
     export QUEUESERV="service"
     export PARTITION_BATCH="orion"
     export nproc="40"
+    export MPMD="YES"
+elif [ $machine = "HERCULES" ]; then
+    export ACCOUNT="fv3-cpu"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="service"
+    export PARTITION_BATCH="hercules"
+    export nproc="80"
     export MPMD="YES"
 elif [ $machine = "S4" ]; then
     export ACCOUNT="star"
@@ -175,7 +183,7 @@ elif [ $machine = "HERA" ]; then
     export obdata_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/scratch1/NCEPDEV/global/Mallory.Row/VRFY/METviewer_AWS"
-elif [ $machine = "ORION" ]; then
+elif [ $machine = "ORION" | $machine = "HERCULES" ]; then
     export NWROOT=${NWROOT:-"/work/noaa/global/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
     export STMP="/work/noaa/stmp/$USER"

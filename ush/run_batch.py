@@ -60,7 +60,7 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
         job_card.write('#SBATCH --time=6:00:00\n')
-    elif machine in ['ORION', 'S4', 'JET']:
+    elif machine in ['ORION', 'S4', 'JET', 'HERCULES']:
         job_card.write('#!/bin/sh\n')
         job_card.write('#SBATCH --partition='+PARTITION_BATCH+'\n')
         job_card.write('#SBATCH --qos='+QUEUE+'\n')
@@ -78,7 +78,7 @@ print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
 if machine == 'WCOSS2':
     os.system('qsub '+job_card_filename)
-elif machine in ['HERA', 'ORION', 'S4', 'JET']:
+elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES']:
     os.system('sbatch '+job_card_filename)
 
 print("END: "+os.path.basename(__file__))

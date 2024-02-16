@@ -229,6 +229,7 @@ fi
 export HOMEMET_bin_exec="bin"
 if [ $machine = WCOSS2 ]; then
     export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
+    export HOMEMETplus="/apps/ops/para/libs/intel/19.1.3.304/metplus/3.1.1"
     export MET_BASE="$HOMEMET/share/met"
     export HOMEMET_bin_exec="bin"
     export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
@@ -290,7 +291,7 @@ fi
 ## Set operational directories
 export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
 export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
-export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf/v4.5"
+export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/v4.5"
 
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"

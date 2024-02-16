@@ -16,7 +16,7 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 EMC_verif_global_machine_list = [
-    'HERA', 'ORION', 'S4', 'JET', 'WCOSS2'
+    'HERA', 'ORION', 'S4', 'JET', 'WCOSS2', 'HERCULES'
 ]
 
 # Read in environment variables
@@ -40,6 +40,9 @@ if 'machine' not in vars():
     orion_match = re.match(
         re.compile(r"^Orion-login-[0-9]{1}.HPC.MsState.Edu$"), hostname
     )
+    hercules_match = re.match(
+        re.compile(r"^hercules-login-[0-9]{1}.hpc.msstate.edu$"), hostname
+    )
     cactus_match = re.match(
         re.compile(r"^clogin[0-9]{2}$"), hostname
     )
@@ -60,6 +63,8 @@ if 'machine' not in vars():
         machine = 'HERA'
     elif orion_match:
         machine = 'ORION'
+    elif hercules_match:
+        machine = 'HERCULES'
     elif s4_match:
         machine = 'S4'
     elif jet_match:

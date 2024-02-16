@@ -338,6 +338,10 @@ elif machine == 'S4':
     config['data_dir']='/home/dhuber/.local/share/cartopy'
 elif machine == 'JET':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
+elif machine == 'HERCULES':
+    config['data_dir']='/home/dhuber/.local/share/cartopy'
+elif machine == 'ORION':
+    config['data_dir']='/home/mrow/.local/share/cartopy'
 
 # Set up information
 env_var_model_list = []

@@ -82,7 +82,7 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully loaded modules"
 echo
-
+exit
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
@@ -183,7 +183,7 @@ elif [ $machine = "HERA" ]; then
     export obdata_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata"
     export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/scratch1/NCEPDEV/global/Mallory.Row/VRFY/METviewer_AWS"
-elif [ $machine = "ORION" | $machine = "HERCULES" ]; then
+elif [ $machine = "ORION" ] || [ $machine = "HERCULES" ]; then
     export NWROOT=${NWROOT:-"/work/noaa/global/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
     export STMP="/work/noaa/stmp/$USER"

@@ -155,7 +155,7 @@ if [ $machine != "ORION" ]; then
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
         export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+    elif [ $machine == "JET" -o $machine == "WCOSS2" -o $machine == "HERA" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
     else

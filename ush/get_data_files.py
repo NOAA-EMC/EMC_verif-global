@@ -13,7 +13,6 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
-import netCDF4 as nc
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -2144,6 +2143,7 @@ elif RUN == 'precip_step2':
                                         'precip', RUN_type,
                                         link_model_RUN_type_dir)
 elif RUN == 'satellite_step1':
+    import netCDF4 as nc
     # Read in RUN related environment variables
     ghrsst_ncei_avhrr_anl_ftp = os.environ['ghrsst_ncei_avhrr_anl_ftp']
     ghrsst_ospo_geopolar_anl_ftp = os.environ['ghrsst_ospo_geopolar_anl_ftp']

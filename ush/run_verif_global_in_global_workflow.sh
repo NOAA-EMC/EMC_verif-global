@@ -249,7 +249,7 @@ export PARTITION_BATCH=${PARTITION_BATCH:-""}
 
 ## Run settings for machines
 export MPMD="YES"
-export nproc=${npe_node_metp_gfs:-1}
+export nproc=${npe_metp:-1}
 
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global

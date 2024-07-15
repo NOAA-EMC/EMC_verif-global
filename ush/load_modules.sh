@@ -88,24 +88,6 @@ elif [ $machine = HERCULES ]; then
 elif [ $machine = S4 ]; then
     source /usr/share/lmod/lmod/init/sh
     module purge
-    module load license_intel/S4
-    module use /data/prod/hpc-stack/modulefiles/stack
-    module load hpc/1.1.0
-    module load hpc-intel/18.0.4
-    module load hpc-impi/18.0.4
-    module load netcdf/4.7.4
-    module load hdf5/1.10.6
-    module load zlib/1.2.11
-    module load png/1.6.35
-    module load jasper/2.0.25
-    module load wgrib2/2.0.8
-    module load bufr/11.4.0
-    module load gsl/2.6
-    module load hdf/4.2.14
-    module load hdfeos2/2.20
-    module load g2c/1.6.2
-    module load miniconda/3.8-s4
-    module load grads/2.2.1
     if [ $MET_version = 9.1 ]; then
         export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
         export HOMEMET_bin_exec="bin"
@@ -114,16 +96,13 @@ elif [ $machine = S4 ]; then
         exit 1
     fi
     if [ $METplus_version = 3.1 ]; then
-        module use /data/prod/glopara/contrib/METplus/modulefiles
-        module load metplus/3.1
         export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
     else
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load grib_util/1.2.2
-    module load prod_util/1.2.1
-    module load nco/4.9.3
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_s4
 elif [ $machine = JET ]; then
     source /apps/lmod/lmod/init/sh
     module use ${HOMEverif_global}/modulefiles

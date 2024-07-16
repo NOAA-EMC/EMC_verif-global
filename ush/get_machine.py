@@ -38,7 +38,7 @@ for env_var in ['machine', 'MACHINE']:
 if 'machine' not in vars():
     hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
     orion_match = re.match(
-        re.compile(r"^Orion-login-[0-9]{1}.HPC.MsState.Edu$"), hostname
+        re.compile(r"^orion-login-[0-9]{1}.hpc.msstate.edu$"), hostname
     )
     hercules_match = re.match(
         re.compile(r"^hercules-login-[0-9]{1}.hpc.msstate.edu$"), hostname

@@ -64,12 +64,12 @@ elif [ $machine = HERA ]; then
         exit 1
     fi
 elif [ $machine = ORION ]; then
-    source /apps/lmod/lmod/init/sh
+    source /apps/other/lmod/lmod/init/sh
     module purge
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_orion
     if [ $MET_version = 9.1 ]; then
-        export HOMEMET="/apps/contrib/MET/9.1"
+        export HOMEMET="$MET_ROOT"
         export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
@@ -81,7 +81,7 @@ elif [ $machine = ORION ]; then
         "ERROR: $METplus_version is not supported on $machine"
         exit 1
     fi
-    module load python/3.7.5
+    export PYTHONPATH=/work/noaa/ovp/miniconda/miniconda3/envs/metplus_v5.0_py3.8/lib/python3.8/site-packages
 elif [ $machine = HERCULES ]; then
     "ERROR: EMC_Verif-Global standalone not supported on $machine"
     exit 1

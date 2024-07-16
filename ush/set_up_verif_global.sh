@@ -56,10 +56,17 @@ cd $DATA
 echo
 
 ## Get machine, set environment variable 'machine', and check that it is a supported machine
-python $HOMEverif_global/ush/get_machine.py
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
+if [[ $HOSTNAME == orion* ]]; then
+    python3 $HOMEverif_global/ush/get_machine.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
+else
+    python $HOMEverif_global/ush/get_machine.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
+fi
 echo
 
 if [ -s config.machine ]; then

@@ -361,10 +361,24 @@ if os.path.exists(summary_tcst_filename):
                                    loc=legend_loc, ncol=legend_ncol,
                                    fontsize=legend_fontsize)
                 plt.draw()
-                legend_box = legend.get_window_extent() \
-                    .inverse_transformed(ax.transData)
-                if stat_max > legend_box.y1:
-                    while stat_max > legend_box.y1:
+                matplotlib_ver = matplotlib.__version__
+                matplotlib_ver_maj = matplotlib_ver.split('.')[0]
+                matplotlib_ver_min = matplotlib_ver.split('.')[1]
+                if float(matplotlib_ver_maj+'.'+matplotlib_ver_min) \
+                        < 3.3:
+                    legend_box = legend.get_window_extent() \
+                        .inverse_transformed(ax.transData)
+                    legend_box_y1 = legend_box.y1
+                else:
+                    inv = ax.transData.inverted()
+                    legend_box = legend.get_window_extent()
+                    legend_box_inv = inv.transform(
+                        [(legend_box.x0,legend_box.y0),
+                         (legend_box.x1,legend_box.y1)]
+                    )
+                    legend_box_y1 = legend_box_inv[1][1]
+                if stat_max > legend_box_y1:
+                    while stat_max > legend_box_y1:
                         y_axis_max = y_axis_max + y_axis_tick_inc
                         ax.set_yticks(
                         np.arange(y_axis_min,
@@ -378,10 +392,19 @@ if os.path.exists(summary_tcst_filename):
                             fontsize=legend_fontsize
                         )
                         plt.draw()
-                        legend_box = (
-                            legend.get_window_extent() \
-                            .inverse_transformed(ax.transData)
-                        )
+                        if float(matplotlib_ver_maj+'.'+matplotlib_ver_min) \
+                                < 3.3:
+                            legend_box = legend.get_window_extent() \
+                                .inverse_transformed(ax.transData)
+                            legend_box_y1 = legend_box.y1
+                        else:
+                            inv = ax.transData.inverted()
+                            legend_box = legend.get_window_extent()
+                            legend_box_inv = inv.transform(
+                                [(legend_box.x0,legend_box.y0),
+                                 (legend_box.x1,legend_box.y1)]
+                            )
+                            legend_box_y1 = legend_box_inv[1][1]
             # Add number of cases
             x_axis_ticks_fraction = np.linspace(0, 1,len(fhrs), endpoint=True)
             ax.annotate('# of\nCases',

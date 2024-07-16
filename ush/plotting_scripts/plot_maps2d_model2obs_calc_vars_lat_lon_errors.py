@@ -283,7 +283,7 @@ if machine == 'WCOSS2':
 elif machine == 'HERA':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
 elif machine == 'S4':
-    config['data_dir']='/home/dhuber/.local/share/cartopy'
+    config['data_dir']='/data/prod/glopara/contrib/share/cartopy'
 elif machine == 'JET':
     config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
 elif machine == 'ORION':

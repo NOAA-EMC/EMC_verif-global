@@ -16,14 +16,54 @@ if [ $gfs_cyc = 1 ]; then
 elif [ $gfs_cyc = 2 ]; then
     export fcyc_list="00 12"
     export vhr_list="00 12"
-    export cyc2run=00
+    export cyc2run=12
 elif [ $gfs_cyc = 4 ]; then
     export fcyc_list="00 06 12 18"
     export vhr_list="00 06 12 18"
-    export cyc2run=00
+    export cyc2run=18
 else
     echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
     exit 1
+fi
+
+export SDATE_GFS=${SDATE_GFS:-$SDATE}
+export EDATE_GFS=${EDATE_GFS:-$EDATE}
+export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+
+# Handle cases where SDATE_GFS is not on 00Z and gfs_cyc=2 or 4
+if [[ ${SDATE_GFS} == "${CDATE}" && "${cyc}" != "00" ]]; then
+    if [[ ${gfs_cyc} == 2 ]]; then
+        export fcyc_list="${cyc}"
+        export vhr_list="${cyc}"
+    elif [[ ${gfs_cyc} == 4 ]]; then
+        # e.g. cyc=6, fcyc_list="6 12 18"
+        export fcyc_list="$(seq -f '%02g' ${cyc} 6 18)"
+        export vhr_list="$(seq -f '%02g' ${cyc} 6 18)"
+    fi
+fi
+
+# Check if EDATE_GFS is before 18Z
+if [[ ${EDATE_GFS: -2} != "18" && ${VDATE} == ${EDATE_GFS:0:8} && ${gfs_cyc} != 1 && ${SDATE_GFS} != ${EDATE_GFS} ]]; then
+    last_cycle=${EDATE_GFS: -2}
+    export cyc2run=${last_cycle}
+    if [[ ${SDATE_GFS: -2} != ${CDATE} ]]; then
+        start_cycle=0
+    else
+        start_cycle=${SDATE_GFS: -2}
+    fi
+
+    if [[ ${gfs_cyc} == 2 ]]; then
+        export fcyc_list="$(seq -f '%02g' ${start_cycle} 12 ${last_cycle} )"
+        export vhr_list="$(seq -f '%02g' ${start_cycle} 12 ${last_cycle} )"
+    elif [[ ${gfs_cyc} == 4 ]]; then
+        export fcyc_list="$(seq -f '%02g' ${start_cycle}  6 ${last_cycle} )"
+        export vhr_list="$(seq -f '%02g' ${start_cycle}  6 ${last_cycle} )"
+    fi
+fi
+
+if [[ ${cyc2run} != ${cyc} ]]; then
+    echo "Skipping ${METPCASE} for ${cyc}"
+    exit 0
 fi
 
 # Map the global workflow environment variables to EMC_verif-global variables
@@ -40,7 +80,6 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
-export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export start_date="$VDATE"
 export end_date="$VDATE"
 export spinup_period_start=${spinup_period_start:-"NA"}
@@ -141,7 +180,6 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
-export SDATE_GFS=${SDATE_GFS:-$SDATE}
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"

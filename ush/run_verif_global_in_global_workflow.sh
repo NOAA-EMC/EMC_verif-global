@@ -37,8 +37,8 @@ if [[ ${SDATE_GFS} == "${CDATE}" && "${cyc}" != "00" ]]; then
         export vhr_list="${cyc}"
     elif [[ ${gfs_cyc} == 4 ]]; then
         # e.g. cyc=6, fcyc_list="6 12 18"
-        export fcyc_list="$(seq -f '%02g' ${cyc} 6 18)"
-        export vhr_list="$(seq -f '%02g' ${cyc} 6 18)"
+        export fcyc_list="$(seq -s ' ' -f '%02g' ${cyc} 6 18)"
+        export vhr_list="$(seq -s ' ' -f '%02g' ${cyc} 6 18)"
     fi
 fi
 
@@ -53,16 +53,16 @@ if [[ ${EDATE_GFS: -2} != "18" && ${VDATE} == ${EDATE_GFS:0:8} && ${gfs_cyc} != 
     fi
 
     if [[ ${gfs_cyc} == 2 ]]; then
-        export fcyc_list="$(seq -f '%02g' ${start_cycle} 12 ${last_cycle} )"
-        export vhr_list="$(seq -f '%02g' ${start_cycle} 12 ${last_cycle} )"
+        export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cycle} 12 ${last_cycle} )"
+        export vhr_list="$(seq -s ' ' -f '%02g' ${start_cycle} 12 ${last_cycle} )"
     elif [[ ${gfs_cyc} == 4 ]]; then
-        export fcyc_list="$(seq -f '%02g' ${start_cycle}  6 ${last_cycle} )"
-        export vhr_list="$(seq -f '%02g' ${start_cycle}  6 ${last_cycle} )"
+        export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cycle}  6 ${last_cycle} )"
+        export vhr_list="$(seq -s ' ' -f '%02g' ${start_cycle}  6 ${last_cycle} )"
     fi
 fi
 
 if [[ ${cyc2run} != ${cyc} ]]; then
-    echo "Skipping ${METPCASE} for ${cyc}"
+    echo "Skipping ${METPCASE} for cycle ${cyc}, will be run on cycle ${cyc2run}"
     exit 0
 fi
 

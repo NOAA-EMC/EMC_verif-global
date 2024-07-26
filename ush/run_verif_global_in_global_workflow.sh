@@ -8,18 +8,12 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-# Set information based on gfs_cyc
+# Set default run cycle based on gfs_cyc
 if [ $gfs_cyc = 1 ]; then
-    export fcyc_list="$cyc"
-    export vhr_list="$cyc"
     export cyc2run="$cyc"
 elif [ $gfs_cyc = 2 ]; then
-    export fcyc_list="00 12"
-    export vhr_list="00 12"
     export cyc2run=12
 elif [ $gfs_cyc = 4 ]; then
-    export fcyc_list="00 06 12 18"
-    export vhr_list="00 06 12 18"
     export cyc2run=18
 else
     echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
@@ -30,40 +24,35 @@ export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 
-# Handle cases where SDATE_GFS is not on 00Z and gfs_cyc=2 or 4
-if [[ ${SDATE_GFS} == "${CDATE}" && "${cyc}" != "00" ]]; then
-    if [[ ${gfs_cyc} == 2 ]]; then
-        export fcyc_list="${cyc}"
-        export vhr_list="${cyc}"
-    elif [[ ${gfs_cyc} == 4 ]]; then
-        # e.g. cyc=6, fcyc_list="6 12 18"
-        export fcyc_list="$(seq -s ' ' -f '%02g' ${cyc} 6 18)"
-        export vhr_list="$(seq -s ' ' -f '%02g' ${cyc} 6 18)"
-    fi
+start_ymd=${SDATE_GFS:0:8}
+# Check if we are on the first YMD
+if [[ ${start_ymd} == ${VDATE} ]]; then
+    start_cyc=${SDATE_GFS: -2}
+else
+    start_cyc=0
 fi
 
-# Check if EDATE_GFS is before 18Z
-if [[ ${EDATE_GFS: -2} != "18" && ${VDATE} == ${EDATE_GFS:0:8} && ${gfs_cyc} != 1 && ${SDATE_GFS} != ${EDATE_GFS} ]]; then
-    last_cycle=${EDATE_GFS: -2}
-    export cyc2run=${last_cycle}
-    if [[ ${SDATE_GFS: -2} != ${CDATE} ]]; then
-        start_cycle=0
-    else
-        start_cycle=${SDATE_GFS: -2}
-    fi
-
-    if [[ ${gfs_cyc} == 2 ]]; then
-        export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cycle} 12 ${last_cycle} )"
-        export vhr_list="$(seq -s ' ' -f '%02g' ${start_cycle} 12 ${last_cycle} )"
-    elif [[ ${gfs_cyc} == 4 ]]; then
-        export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cycle}  6 ${last_cycle} )"
-        export vhr_list="$(seq -s ' ' -f '%02g' ${start_cycle}  6 ${last_cycle} )"
-    fi
+end_ymd=${EDATE_GFS:0:8}
+# Check if we are on the last YMD
+if [[ ${end_ymd} == ${VDATE} ]]; then
+    cyc2run=${EDATE_GFS: -2}
 fi
 
 if [[ ${cyc2run} != ${cyc} ]]; then
     echo "Skipping ${METPCASE} for cycle ${cyc}, will be run on cycle ${cyc2run}"
     exit 0
+fi
+
+end_cyc=${cyc2run}
+verf_step=${STEP_GFS:-24}
+
+#Determine which cycles to run
+if [[ ${gfs_cyc} == 1 ]]; then
+    export fcyc_list="$cyc"
+    export vhr_list="$cyc"
+else
+    export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
+    export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
 fi
 
 # Map the global workflow environment variables to EMC_verif-global variables

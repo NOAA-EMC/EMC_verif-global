@@ -29,10 +29,10 @@ def get_hr_list_info(hr_list):
     """
     hr_beg = (hr_list[0]).zfill(2)
     hr_end = (hr_list[-1]).zfill(2)
-    if len(hr_list) == 1:
+    if len(hr_list) <= 1:
         hr_inc = "86400"
     else:
-        hr_inc = str(3600 * int((int(hr_end) - int(hr_beg)) / len(hr_list)))
+        hr_inc = str(3600 * int((int(hr_end) - int(hr_beg)) / (len(hr_list)-1)))
 
     return hr_beg, hr_end, hr_inc
 

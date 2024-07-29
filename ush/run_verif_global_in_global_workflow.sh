@@ -8,22 +8,51 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-# Set information based on gfs_cyc
+# Set default run cycle based on gfs_cyc
 if [ $gfs_cyc = 1 ]; then
-    export fcyc_list="$cyc"
-    export vhr_list="$cyc"
     export cyc2run="$cyc"
 elif [ $gfs_cyc = 2 ]; then
-    export fcyc_list="00 12"
-    export vhr_list="00 12"
-    export cyc2run=00
+    export cyc2run=12
 elif [ $gfs_cyc = 4 ]; then
-    export fcyc_list="00 06 12 18"
-    export vhr_list="00 06 12 18"
-    export cyc2run=00
+    export cyc2run=18
 else
     echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
     exit 1
+fi
+
+export SDATE_GFS=${SDATE_GFS:-$SDATE}
+export EDATE_GFS=${EDATE_GFS:-$EDATE}
+export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+
+start_ymd=${SDATE_GFS:0:8}
+# Check if we are on the first YMD
+if [[ ${start_ymd} == ${VDATE} ]]; then
+    start_cyc=${SDATE_GFS: -2}
+else
+    start_cyc=0
+fi
+
+end_ymd=${EDATE_GFS:0:8}
+# Check if we are on the last YMD
+if [[ ${end_ymd} == ${VDATE} ]]; then
+    cyc2run=${EDATE_GFS: -2}
+fi
+
+if [[ ${cyc2run} != ${cyc} ]]; then
+    echo "Skipping ${METPCASE} for cycle ${cyc}, will be run on cycle ${cyc2run}"
+    exit 0
+fi
+
+end_cyc=${cyc2run}
+verf_step=${STEP_GFS:-24}
+
+#Determine which cycles to run
+if [[ ${gfs_cyc} == 1 ]]; then
+    export fcyc_list="$cyc"
+    export vhr_list="$cyc"
+else
+    export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
+    export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
 fi
 
 # Map the global workflow environment variables to EMC_verif-global variables
@@ -40,7 +69,6 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
-export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 export start_date="$VDATE"
 export end_date="$VDATE"
 export spinup_period_start=${spinup_period_start:-"NA"}
@@ -141,7 +169,6 @@ export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data
 echo
 
 # Check forecast max hours, adjust if before experiment SDATE_GFS
-export SDATE_GFS=${SDATE_GFS:-$SDATE}
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
 g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"

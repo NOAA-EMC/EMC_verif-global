@@ -52,12 +52,22 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     """
     fhr_min = float(fhr_min_str)
     fhr_max = float(fhr_max_str)
+    fcyc_list = [int(fcyc) for fcyc in fcyc_list]
+    vhr_list = [int(vhr) for vhr in vhr_list]
     nfcyc = len(fcyc_list)
     nvhr = len(vhr_list)
+    # Calculate the interval based on the forecast cycle or verification hour
+    # Assumes that the hours are evenly spaced (6,12,18 or 0, 12 or 6,9,12,15, but not 0,6,9)
     if nfcyc > nvhr:
-        fhr_intvl = int(24/nfcyc)
+        if nfcyc <= 1:
+            fhr_intvl = 24
+        else:
+            fhr_intvl = (max(fcyc_list) - min(fcyc_list)) / (len(fcyc_list) - 1)
     else:
-        fhr_intvl = int(24/nvhr)
+        if nvhr <= 1:
+            fhr_intvl = 24
+        else:
+            fhr_intvl = (max(vhr_list) - min(vhr_list)) / (len(vhr_list) - 1)
     nfhr = fhr_max/fhr_intvl
     fhr_max = int(nfhr*fhr_intvl)
     fhr_list = []

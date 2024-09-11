@@ -8,18 +8,6 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-# Set default run cycle based on gfs_cyc
-if [ $gfs_cyc = 1 ]; then
-    export cyc2run="$cyc"
-elif [ $gfs_cyc = 2 ]; then
-    export cyc2run=12
-elif [ $gfs_cyc = 4 ]; then
-    export cyc2run=18
-else
-    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
-    exit 1
-fi
-
 export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"

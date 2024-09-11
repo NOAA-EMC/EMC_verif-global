@@ -174,7 +174,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
                 job_file.write('set -x\n')
-                job_file.write('\n')
+                job_file.write('\nsleep {:d}\n\n'.format(njob))
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')

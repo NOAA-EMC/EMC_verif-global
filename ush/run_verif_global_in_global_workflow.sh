@@ -29,16 +29,11 @@ if [[ ${end_ymd} == ${VDATE} ]]; then
 fi
 
 end_cyc=${cyc2run}
-verf_step=${STEP_GFS:-24}
+verf_step=${INTERVAL_GFS:-24}
 
 #Determine which cycles to run
-if [[ ${gfs_cyc} == 1 ]]; then
-    export fcyc_list="$cyc"
-    export vhr_list="$cyc"
-else
-    export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
-    export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
-fi
+export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
+export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
 
 # Map the global workflow environment variables to EMC_verif-global variables
 export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}

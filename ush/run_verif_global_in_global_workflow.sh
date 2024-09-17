@@ -12,6 +12,8 @@ export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 
+cyc2run="${cyc}"
+
 start_ymd=${SDATE_GFS:0:8}
 # Check if we are on the first YMD
 if [[ ${start_ymd} == ${VDATE} ]]; then
@@ -24,11 +26,6 @@ end_ymd=${EDATE_GFS:0:8}
 # Check if we are on the last YMD
 if [[ ${end_ymd} == ${VDATE} ]]; then
     cyc2run=${EDATE_GFS: -2}
-fi
-
-if [[ ${cyc2run} != ${cyc} ]]; then
-    echo "Skipping ${METPCASE} for cycle ${cyc}, will be run on cycle ${cyc2run}"
-    exit 0
 fi
 
 end_cyc=${cyc2run}

@@ -52,7 +52,7 @@ export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
-export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
@@ -86,7 +86,7 @@ export SENDDBN_NTC=${SENDDBN_NTC:-"NO"}
 # GRID2GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
 export g2g1_anom_truth_name=${g2g1_anom_truth_name:-"self_anl"}
-export g2g1_anom_truth_file_format_list=${g2g1_anom_truth_file_format:-"pgbanl.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_anom_truth_file_format_list=${g2g1_anom_truth_file_format:-"pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_anom_fcyc_list=${fcyc_list}
 export g2g1_anom_vhr_list=${vhr_list}
 export g2g1_anom_fhr_min=${g2g1_anom_fhr_min:-$FHMIN_GFS}
@@ -94,7 +94,7 @@ export g2g1_anom_fhr_max=${g2g1_anom_fhr_max:-$FHMAX_GFS}
 export g2g1_anom_grid=${g2g1_anom_grid:-"G002"}
 export g2g1_anom_gather_by=${g2g1_anom_gather_by:-"VSDB"}
 export g2g1_pres_truth_name=${g2g1_pres_truth_name:-"self_anl"}
-export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file_format:-"pgbanl.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file_format:-"pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_pres_fcyc_list=${fcyc_list}
 export g2g1_pres_vhr_list=${vhr_list}
 export g2g1_pres_fhr_min=${g2g1_pres_fhr_min:-$FHMIN_GFS}
@@ -102,7 +102,7 @@ export g2g1_pres_fhr_max=${g2g1_pres_fhr_max:-$FHMAX_GFS}
 export g2g1_pres_grid=${g2g1_pres_grid:-"G002"}
 export g2g1_pres_gather_by=${g2g1_pres_gather_by:-"VSDB"}
 export g2g1_sfc_truth_name=${g2g1_sfc_truth_name:-"self_f00"}
-export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_sfc_fcyc_list=${fcyc_list}
 export g2g1_sfc_vhr_list=${vhr_list}
 export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
@@ -143,7 +143,7 @@ export g2o1_mv_database_desc=${g2o1_mv_database_desc:-"Grid-to-obs METplus data 
 export precip1_type_list=${precip1_type_list:-"ccpa_accum24hr"}
 export precip1_ccpa_accum24hr_model_bucket_list=${precip1_ccpa_accum24hr_model_bucket:-"06"}
 export precip1_ccpa_accum24hr_model_var_list=${precip1_ccpa_accum24hr_model_var:-"APCP"}
-export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
 export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
 export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
 export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHMAX_GFS}

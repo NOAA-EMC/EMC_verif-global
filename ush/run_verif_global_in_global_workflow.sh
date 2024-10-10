@@ -8,21 +8,11 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
-# Set default run cycle based on gfs_cyc
-if [ $gfs_cyc = 1 ]; then
-    export cyc2run="$cyc"
-elif [ $gfs_cyc = 2 ]; then
-    export cyc2run=12
-elif [ $gfs_cyc = 4 ]; then
-    export cyc2run=18
-else
-    echo "EXIT ERROR: gfs_cyc must be 1, 2 or 4." 
-    exit 1
-fi
-
 export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
+
+cyc2run="${cyc}"
 
 start_ymd=${SDATE_GFS:0:8}
 # Check if we are on the first YMD
@@ -38,22 +28,12 @@ if [[ ${end_ymd} == ${VDATE} ]]; then
     cyc2run=${EDATE_GFS: -2}
 fi
 
-if [[ ${cyc2run} != ${cyc} ]]; then
-    echo "Skipping ${METPCASE} for cycle ${cyc}, will be run on cycle ${cyc2run}"
-    exit 0
-fi
-
 end_cyc=${cyc2run}
-verf_step=${STEP_GFS:-24}
+verf_step=${INTERVAL_GFS:-24}
 
 #Determine which cycles to run
-if [[ ${gfs_cyc} == 1 ]]; then
-    export fcyc_list="$cyc"
-    export vhr_list="$cyc"
-else
-    export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
-    export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
-fi
+export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
+export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
 
 # Map the global workflow environment variables to EMC_verif-global variables
 export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
@@ -64,7 +44,7 @@ export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
-export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
@@ -98,7 +78,7 @@ export SENDDBN_NTC=${SENDDBN_NTC:-"NO"}
 # GRID2GRID STEP 1
 export g2g1_type_list=${g2g1_type_list:-"anom pres sfc"}
 export g2g1_anom_truth_name=${g2g1_anom_truth_name:-"self_anl"}
-export g2g1_anom_truth_file_format_list=${g2g1_anom_truth_file_format:-"pgbanl.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_anom_truth_file_format_list=${g2g1_anom_truth_file_format:-"pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_anom_fcyc_list=${fcyc_list}
 export g2g1_anom_vhr_list=${vhr_list}
 export g2g1_anom_fhr_min=${g2g1_anom_fhr_min:-$FHMIN_GFS}
@@ -106,7 +86,7 @@ export g2g1_anom_fhr_max=${g2g1_anom_fhr_max:-$FHMAX_GFS}
 export g2g1_anom_grid=${g2g1_anom_grid:-"G002"}
 export g2g1_anom_gather_by=${g2g1_anom_gather_by:-"VSDB"}
 export g2g1_pres_truth_name=${g2g1_pres_truth_name:-"self_anl"}
-export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file_format:-"pgbanl.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file_format:-"pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_pres_fcyc_list=${fcyc_list}
 export g2g1_pres_vhr_list=${vhr_list}
 export g2g1_pres_fhr_min=${g2g1_pres_fhr_min:-$FHMIN_GFS}
@@ -114,7 +94,7 @@ export g2g1_pres_fhr_max=${g2g1_pres_fhr_max:-$FHMAX_GFS}
 export g2g1_pres_grid=${g2g1_pres_grid:-"G002"}
 export g2g1_pres_gather_by=${g2g1_pres_gather_by:-"VSDB"}
 export g2g1_sfc_truth_name=${g2g1_sfc_truth_name:-"self_f00"}
-export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.${CDUMP}.{valid?fmt=%Y%m%d%H}.grib2"}
+export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_sfc_fcyc_list=${fcyc_list}
 export g2g1_sfc_vhr_list=${vhr_list}
 export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
@@ -155,7 +135,7 @@ export g2o1_mv_database_desc=${g2o1_mv_database_desc:-"Grid-to-obs METplus data 
 export precip1_type_list=${precip1_type_list:-"ccpa_accum24hr"}
 export precip1_ccpa_accum24hr_model_bucket_list=${precip1_ccpa_accum24hr_model_bucket:-"06"}
 export precip1_ccpa_accum24hr_model_var_list=${precip1_ccpa_accum24hr_model_var:-"APCP"}
-export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.${CDUMP}.{init?fmt=%Y%m%d%H}.grib2"}
+export precip1_ccpa_accum24hr_model_file_format_list=${precip1_ccpa_accum24hr_model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
 export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
 export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
 export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHMAX_GFS}

@@ -51,7 +51,7 @@ with open(job_card_filename, 'a') as job_card:
                        +':ompthreads=1\n')
         job_card.write('\n')
         job_card.write('cd $PBS_O_WORKDIR\n')
-    elif machinein ['HERA', 'URSA']::
+    elif machine in ['HERA', 'URSA']::
         job_card.write('#!/bin/sh\n')
         job_card.write('#SBATCH --qos='+QUEUE+'\n')
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')

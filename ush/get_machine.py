@@ -16,7 +16,7 @@ import subprocess
 print("BEGIN: "+os.path.basename(__file__))
 
 EMC_verif_global_machine_list = [
-    'HERA', 'ORION', 'S4', 'JET', 'WCOSS2', 'HERCULES', 'GAEAC5', 'GAEAC6'
+    'HERA', 'URSA', 'ORION', 'WCOSS2', 'HERCULES', 'GAEAC6'
 ]
 
 # Read in environment variables
@@ -37,6 +37,7 @@ for env_var in ['machine', 'MACHINE']:
             break
 if 'machine' not in vars():
     hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
+    ursa_match = re.match(re.compile(r"^ufe0[1-4]{2}$"), hostname)
     orion_match = re.match(
         re.compile(r"^orion-login-[0-9]{1}.hpc.msstate.edu$"), hostname
     )
@@ -55,24 +56,17 @@ if 'machine' not in vars():
     dogwood_match2 = re.match(
         re.compile(r"^ddecflow[0-9]{2}$"), hostname
     )
-    s4_match = re.match(re.compile(r"s4-submit.ssec.wisc.edu"), hostname)
-    jet_match = re.match(re.compile(r"^fe[0-9]{1}"), hostname)
-    gaeac5_match = re.match(re.compile(r"^gaea5[1-8]{1}"), hostname)
     gaeac6_match = re.match(re.compile(r"^gaea6[1-8]{1}"), hostname)
     if cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
         machine = 'WCOSS2'
     elif hera_match:
         machine = 'HERA'
+    elif ursa_match:
+        machine = 'URSA'
     elif orion_match:
         machine = 'ORION'
     elif hercules_match:
         machine = 'HERCULES'
-    elif s4_match:
-        machine = 'S4'
-    elif jet_match:
-        machine = 'JET'
-    elif gaeac5_match:
-        machine = 'GAEAC5'
     elif gaeac6_match:
         machine = 'GAEAC6'
     else:

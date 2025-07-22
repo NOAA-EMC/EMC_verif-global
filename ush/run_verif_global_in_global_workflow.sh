@@ -10,30 +10,25 @@
 
 export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
-export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
-
+export VDATE=${VDATE:-$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} - ${VRFYBACK_HRS} hours")}
+export vPDY=${VDATE:0:8}
 cyc2run="${cyc}"
 
-start_ymd=${SDATE_GFS:0:8}
 # Check if we are on the first YMD
-if [[ ${start_ymd} == ${VDATE} ]]; then
-    start_cyc=${SDATE_GFS: -2}
+if [[ ${SDATE_GFS} == ${VDATE} ]]; then
+    start_cyc=${SDATE_GFS:8:2}
 else
     start_cyc=0
 fi
 
-end_ymd=${EDATE_GFS:0:8}
 # Check if we are on the last YMD
-if [[ ${end_ymd} == ${VDATE} ]]; then
-    cyc2run=${EDATE_GFS: -2}
+if [[ ${EDATE_GFS} == ${VDATE} ]]; then
+    cyc2run=${EDATE_GFS:8:2}
 fi
 
-end_cyc=${cyc2run}
-verf_step=${INTERVAL_GFS:-24}
-
 #Determine which cycles to run
-export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
-export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${verf_step} ${end_cyc} )"
+export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${cyc2run} )"
+export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${cyc2run} )"
 
 # Map the global workflow environment variables to EMC_verif-global variables
 export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
@@ -49,8 +44,8 @@ export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
 ## DATE SETTINGS
-export start_date="$VDATE"
-export end_date="$VDATE"
+export start_date="${vPDY}"
+export end_date="${vPDY}"
 export spinup_period_start=${spinup_period_start:-"NA"}
 export spinup_period_end=${spinup_period_end:-"NA"}
 export make_met_data_by=${make_met_data_by:-VALID}
@@ -151,39 +146,39 @@ echo
 # Check forecast max hours, adjust if before experiment SDATE_GFS
 SDATE_GFS_YYYYMMDDHH=$(echo $SDATE_GFS | cut -c1-10)
 g2g1_anom_check_vhour="${g2g1_anom_vhr_list: -2}"
-g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${VDATE}${g2g1_anom_check_vhour})"
+g2g1_anom_fhr_max_idate="$($NDATE -${g2g1_anom_fhr_max} ${vPDY}${g2g1_anom_check_vhour})"
 if [ $g2g1_anom_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_anom_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_anom_fhr_max="$(echo $($NHOUR ${vPDY}${g2g1_anom_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2g1_pres_check_vhour="${g2g1_pres_vhr_list: -2}"
-g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${VDATE}${g2g1_pres_check_vhour})"
+g2g1_pres_fhr_max_idate="$($NDATE -${g2g1_pres_fhr_max} ${vPDY}${g2g1_pres_check_vhour})"
 if [ $g2g1_pres_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_pres_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_pres_fhr_max="$(echo $($NHOUR ${vPDY}${g2g1_pres_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2g1_sfc_check_vhour="${g2g1_sfc_vhr_list: -2}"
-g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${VDATE}${g2g1_sfc_check_vhour})"
+g2g1_sfc_fhr_max_idate="$($NDATE -${g2g1_sfc_fhr_max} ${vPDY}${g2g1_sfc_check_vhour})"
 if [ $g2g1_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2g1_sfc_fhr_max="$(echo $($NHOUR ${vPDY}${g2g1_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2o1_upper_air_check_vhour="${g2o1_upper_air_vhr_list: -2}"
-g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${VDATE}${g2o1_upper_air_check_vhour})"
+g2o1_upper_air_fhr_max_idate="$($NDATE -${g2o1_upper_air_fhr_max} ${vPDY}${g2o1_upper_air_check_vhour})"
 if [ $g2o1_upper_air_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_upper_air_fhr_max="$(echo $($NHOUR ${vPDY}${g2o1_upper_air_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2o1_conus_sfc_check_vhour="${g2o1_conus_sfc_vhr_list: -2}"
-g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${VDATE}${g2o1_conus_sfc_check_vhour})"
+g2o1_conus_sfc_fhr_max_idate="$($NDATE -${g2o1_conus_sfc_fhr_max} ${vPDY}${g2o1_conus_sfc_check_vhour})"
 if [ $g2o1_conus_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_conus_sfc_fhr_max="$(echo $($NHOUR ${vPDY}${g2o1_conus_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 g2o1_polar_sfc_check_vhour="${g2o1_polar_sfc_vhr_list: -2}"
-g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${VDATE}${g2o1_polar_sfc_check_vhour})"
+g2o1_polar_sfc_fhr_max_idate="$($NDATE -${g2o1_polar_sfc_fhr_max} ${vPDY}${g2o1_polar_sfc_check_vhour})"
 if [ $g2o1_polar_sfc_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${VDATE}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export g2o1_polar_sfc_fhr_max="$(echo $($NHOUR ${vPDY}${g2o1_polar_sfc_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 precip1_ccpa_accum24hr_check_vhour="12"
-precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${VDATE}${precip1_ccpa_accum24hr_check_vhour})"
+precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${vPDY}${precip1_ccpa_accum24hr_check_vhour})"
 if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${VDATE}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
+    export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${vPDY}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 
 echo
@@ -274,29 +269,21 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
 if [ $machine = "HERA" ]; then
-    export global_archive="/scratch1/NCEPDEV/global/Mallory.Row/archive"
-    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/prepbufr"
-    export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/Mallory.Row/obdata/ccpa_accum24hr"
+    export global_archive="/scratch1/NCEPDEV/global/glopara/data/metplus.data/archive"
+    export prepbufr_arch_dir="/scratch1/NCEPDEV/global/glopara/data/metplus.data/prepbufr"
+    export ccpa_24hr_arch_dir="/scratch1/NCEPDEV/global/glopara/data/metplus.data/obdata/ccpa_accum24hr"
+elif [ $machine = "URSA" ]; then
+    export global_archive="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/archive"
+    export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/prepbufr"
+    export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
 elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
-    export global_archive="/work/noaa/ovp/mrow/archive"
-    export prepbufr_arch_dir="/work/noaa/ovp/mrow/prepbufr"
-    export ccpa_24hr_arch_dir="/work/noaa/ovp/mrow/obdata/ccpa_accum24hr"
-elif [ $machine = "S4" ]; then
-    export global_archive="/data/prod/glopara/MET_data/archive"
-    export prepbufr_arch_dir="/data/prod/glopara/MET_data/prepbufr"
-    export ccpa_24hr_arch_dir="/data/prod/glopara/MET_data/obdata/ccpa_accum24hr"
-elif [ $machine = "JET" ]; then
-    export global_archive="/lfs4/HFIP/hfv3gfs/Mallory.Row/archive"
-    export prepbufr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/prepbufr"
-    export ccpa_24hr_arch_dir="/lfs4/HFIP/hfv3gfs/Mallory.Row/obdata/ccpa_accum24hr"
+    export global_archive="/work2/noaa/global/role-global/data/metplus.data/archive"
+    export prepbufr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/prepbufr"
+    export ccpa_24hr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/obdata/ccpa_accum24hr"
 elif [ $machine = "WCOSS2" ]; then
     export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
     export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
     export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-elif [ $machine = "GAEAC5" ]; then
-    export global_archive="/gpfs/f5/nggps_emc/world-shared/role.glopara/DATA/metplus.data/archive"
-    export prepbufr_arch_dir="/gpfs/f5/nggps_emc/world-shared/role.glopara/DATA/metplus.data/prepbufr"
-    export ccpa_24hr_arch_dir="/gpfs/f5/nggps_emc/world-shared/role.glopara/DATA/metplus.data/obdata/ccpa_accum24hr"
 elif [ $machine = "GAEAC6" ]; then
     export global_archive="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/archive"
     export prepbufr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/prepbufr"
@@ -304,9 +291,9 @@ elif [ $machine = "GAEAC6" ]; then
 fi
 
 ## Set operational directories
-export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
-export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/v1.1"
-export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/v4.5"
+export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
+export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
 
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
@@ -345,12 +332,12 @@ done
 for precip1_type in $precip1_type_list; do
     precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
     precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))
-    precip_check_date="$(echo $($NDATE -${precip_back_hours} $CDATE) | cut -c1-8)"
-    if [ ${precip_check_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+    precip_check_date="$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} - ${precip_back_hours} hours")"
+    if [ ${precip_check_date:0:8}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
         RUN_PRECIP_STEP1=NO
     fi
     for fcyc in $fcyc_list; do
-        if [ ${precip_check_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
+        if [ ${precip_check_date:0:8}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
             RUN_PRECIP_STEP1=NO
         fi
     done

@@ -19,7 +19,6 @@ set -eux
 
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
-export USER=Shannon.Shields
 # Set a base working directory.  Subdirectories for each job will be created under this.
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Set the root path to the verif-global package

@@ -19,12 +19,13 @@ set -eux
 
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
+export USER=Shannon.Shields
 # Set a base working directory.  Subdirectories for each job will be created under this.
-export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/Shannon.Shields/tmp_metp
+export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Set the root path to the verif-global package
-export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/Shannon.Shields/EMC_verif-global/EMC_verif-global
+export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global
 # Change COMROOT to the appropriate location
-export COMROOT=/gpfs/f6/drsa-precip3/world-shared/Shannon.Shields/para_KEEP/COMROOT
+export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
 # Change PSLOT to the name of your experiment
 export PSLOT=gfs_dev
 # Set the start and end date of the experiment's GFS cycles
@@ -46,7 +47,7 @@ export FHMAX_GFS=120
 # Set the machine name
 export machine=gaeac6
 # Set the location of your online archive
-export ARCDIR=/gpfs/f6/ira-sti/world-shared/Shannon.Shields/KEEP_archive/${PSLOT}
+export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
 # NOTE: the location of the statistic files will be one directory up from ARCDIR
 #       then appended by /metplus_data/by_VSDB/
 #       followed by the validation type (e.g. grid2grid, grid2obs, precip)

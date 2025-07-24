@@ -546,8 +546,10 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
     if not os.path.exists(link_model_file):
         model_filename = format_filler(file_format, valid_time_dt,
                                        init_time_dt, lead_str)
-        #Needs to be fixed if not using default global archive
+        #Uncomment the model_file line below if using default global archive
         #model_file = os.path.join(data_dir, name, model_filename)
+        #Uncomment the model_file line below if ARCDIR contains
+        #the model experiment name
         model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
             if any(g in model_file for g in grib2_file_names):

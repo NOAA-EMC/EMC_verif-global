@@ -37,9 +37,9 @@ export PDY=20241121
 # cyc will need to be changed for RUN_PRECIP_STEP1
 export cyc=18
 # Set just one of these at a time to "YES":
-export RUN_GRID2GRID_STEP1=YES
+export RUN_GRID2GRID_STEP1=NO
 export RUN_GRID2OBS_STEP1=NO
-export RUN_PRECIP_STEP1=NO  # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_PRECIP_STEP1=YES  # Note that you need 30 hours of PGB data to run precip step 1
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
@@ -125,11 +125,6 @@ export memory="80G"
 
 export nproc=${tasks_per_node:-1}
 
-export RUN_GRID2GRID_STEP1="YES" # Run grid-to-grid verification using METplus
-export RUN_GRID2OBS_STEP1="NO"  # Run grid-to-obs verification using METplus
-export RUN_PRECIP_STEP1="NO"    # Run precip verification using METplus
-
-
 #----------------------------------------------------------
 # METplus: Verify grid-to-grid, grid-to-obs, precipitation options
 #----------------------------------------------------------
@@ -205,8 +200,8 @@ export precip1_type_list="ccpa_accum24hr"
 export precip1_ccpa_accum24hr_model_bucket="06"
 export precip1_ccpa_accum24hr_model_var="APCP"
 export precip1_ccpa_accum24hr_model_file_format="pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"
-export precip1_ccpa_accum24hr_fhr_min=${FHMIN_GFS}
-export precip1_ccpa_accum24hr_fhr_max="180"
+export precip1_ccpa_accum24hr_fhr_min="48"
+export precip1_ccpa_accum24hr_fhr_max="132"
 export precip1_ccpa_accum24hr_grid="G211"
 export precip1_ccpa_accum24hr_gather_by="VSDB"
 export precip1_obs_data_run_hpss="NO"
@@ -286,4 +281,3 @@ if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "
 fi
 
 if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATAROOT}" ; fi  # TODO: This should be $DATA
-

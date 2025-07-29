@@ -34,6 +34,8 @@ export EDATE_GFS=2024112118
 export INTERVAL_GFS=6
 # Set the verification date and cycle of interest
 export PDY=20241121
+# cyc specifies that last forecast init time to use. 
+# If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
 # Set just one of these at a time to "YES":
 export RUN_GRID2GRID_STEP1=NO

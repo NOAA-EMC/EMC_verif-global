@@ -201,10 +201,9 @@ export precip1_type_list="ccpa_accum24hr"
 export precip1_ccpa_accum24hr_model_bucket="06"
 export precip1_ccpa_accum24hr_model_var="APCP"
 export precip1_ccpa_accum24hr_model_file_format="pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"
-# If no forecast files are missing, precip1_ccpa_accum24hr_fhr_min="24" and
-# precip1_ccpa_accum24hr_fhr_max="240" (where 240 is the longest forecast)
+# If no forecast files are missing, precip1_ccpa_accum24hr_fhr_min="24" 
 export precip1_ccpa_accum24hr_fhr_min="48"
-export precip1_ccpa_accum24hr_fhr_max="240"
+export precip1_ccpa_accum24hr_fhr_max="384"
 export precip1_ccpa_accum24hr_grid="G211"
 export precip1_ccpa_accum24hr_gather_by="VSDB"
 export precip1_obs_data_run_hpss="NO"

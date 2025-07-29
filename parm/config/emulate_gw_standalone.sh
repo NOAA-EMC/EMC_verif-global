@@ -34,7 +34,6 @@ export EDATE_GFS=2024112118
 export INTERVAL_GFS=6
 # Set the verification date and cycle of interest
 export PDY=20241121
-# cyc will need to be changed for RUN_PRECIP_STEP1
 export cyc=18
 # Set just one of these at a time to "YES":
 export RUN_GRID2GRID_STEP1=NO

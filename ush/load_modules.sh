@@ -11,13 +11,13 @@
 echo "BEGIN: load_modules.sh"
 
 ## Check versions are supported in verif_global
-if [[ "$MET_version" =~ ^(9.1)$ ]]; then
+if [[ "$MET_version" =~ ^(12.0.1)$ ]]; then
     echo "Requested MET version: $MET_version"
 else
     echo "ERROR: $MET_version is not supported in verif_global"
     exit 1
 fi
-if [[ "$METplus_version" =~ ^(3.1)$ ]]; then
+if [[ "$METplus_version" =~ ^(6.0.0)$ ]]; then
     echo "Requested METplus version: $METplus_version"
 else
     echo "ERROR: $METplus_version is not supported in verif_global"
@@ -142,15 +142,15 @@ elif [ $machine = GAEAC6 ]; then
     module reset
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_gaeac6
-    module swap python/3.11.6 python/3.11
-    if [ $MET_version = 9.1 ]; then
+    module swap python/3.11.7 python/3.11
+    if [ $MET_version = 12.0.1 ]; then
         export HOMEMET="${met_ROOT}"
         export HOMEMET_bin_exec="bin"
     else
         "ERROR: $MET_version is not supported on $machine"
         exit 1
     fi
-    if [ $METplus_version = 3.1 ]; then
+    if [ $METplus_version = 6.0.0 ]; then
         export HOMEMETplus="${metplus_ROOT}"
     else
         "ERROR: $METplus_version is not supported on $machine"

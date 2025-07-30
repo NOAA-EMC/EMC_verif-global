@@ -57,8 +57,8 @@ export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/METplus_${PSLOT}"
 export img_quality="low"
 ## METPLUS SETTINGS
-export MET_version="9.1"
-export METplus_version="3.1"
+export MET_version="12.0.1"
+export METplus_version="6.0.0"
 export METplus_verbosity=${METplus_verbosity:-INFO}
 export MET_verbosity=${MET_verbosity:-2}
 export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}

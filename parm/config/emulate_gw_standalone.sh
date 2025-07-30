@@ -59,11 +59,12 @@ export KEEPDATA=YES
 ##################DO NOT EDIT BELOW THIS LINE######################
 
 # Load the needed modules for METplus
-module use /autofs/ncrc-svm1_proj/epic/spack-stack/c6/spack-stack-1.6.0/envs/gsi-addon-dev-fms-2024.01/install/modulefiles/Core
+module use /autofs/ncrc-svm1_proj/epic/c6/spack-stack/spack-stack-1.9.1/envs/emc-gv-intel-2023.2.0/install/modulefiles/Core
 module load stack-intel
 module load stack-cray-mpich
 module load stack-python
-module load metplus/3.1.1
+module load metplus/6.0.0
+module load met/12.0.1
 module load prod_util/2.1.1
 module load wgrib2
 module load grib-util

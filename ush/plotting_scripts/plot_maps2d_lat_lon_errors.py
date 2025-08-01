@@ -286,9 +286,7 @@ elif img_quality == 'medium':
 # Set up location of Natural Earth files
 if machine == 'WCOSS2':
     config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
-elif machine == 'HERA':
-    config['data_dir']='/scratch1/NCEPDEV/global/glopara/data/metplus.data/cartopy'
-elif machine == 'URSA':
+elif machine == 'URSA' or machine == 'HERA':
     config['data_dir']='/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/cartopy'
 elif machine == 'S4':
     config['data_dir']='/data/prod/glopara/contrib/share/cartopy'

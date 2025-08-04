@@ -157,19 +157,19 @@ export g2g1_anom_truth_file_format="pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_anom_fhr_min=${FHMIN_GFS}
 export g2g1_anom_fhr_max=${FHMAX_GFS}
 export g2g1_anom_grid="G002"
-export g2g1_anom_gather_by="VSDB"
+export g2g1_anom_gather_by="VALID"
 export g2g1_pres_truth_name="self_anl"
 export g2g1_pres_truth_file_format="pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_pres_fhr_min=${FHMIN_GFS}
 export g2g1_pres_fhr_max=${FHMAX_GFS}
 export g2g1_pres_grid="G002"
-export g2g1_pres_gather_by="VSDB"
+export g2g1_pres_gather_by="VALID"
 export g2g1_sfc_truth_name="self_f00"
 export g2g1_sfc_truth_file_format="pgbf00.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_sfc_fhr_min=${FHMIN_GFS}
 export g2g1_sfc_fhr_max=${FHMAX_GFS}
 export g2g1_sfc_grid="G002"
-export g2g1_sfc_gather_by="VSDB"
+export g2g1_sfc_gather_by="VALID"
 export g2g1_mv_database_name="mv_${PSLOT}_grid2grid_metplus"
 export g2g1_mv_database_group="NOAA NCEP"
 export g2g1_mv_database_desc="Grid-to-grid METplus data for global workflow experiment ${PSLOT}"

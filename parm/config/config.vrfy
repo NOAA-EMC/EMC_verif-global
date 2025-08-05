@@ -96,8 +96,8 @@ export img_quality="low"
 #MET_verbosity:             MET verbosity for logging, 1-5 (most verbose is 5)
 #METplus_verbosity:         DEBUG, INFO, WARN, ERROR (most verbose is DEBUG)
 #log_MET_output_to_METplus: log MET output to METplus log, yes or no
-export MET_version="9.1"
-export METplus_version="3.1"
+export MET_version="12.0.1"
+export METplus_version="6.0.0"
 export METplus_verbosity="INFO"
 export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"

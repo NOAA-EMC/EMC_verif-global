@@ -142,7 +142,6 @@ elif [ $machine = GAEAC6 ]; then
     module reset
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_gaeac6
-    module swap python/3.11.7 python/3.11
     if [ $MET_version = 12.0.1 ]; then
         export HOMEMET="${met_ROOT}"
         export HOMEMET_bin_exec="bin"

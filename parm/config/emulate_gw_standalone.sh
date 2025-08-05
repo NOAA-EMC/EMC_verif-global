@@ -38,9 +38,9 @@ export PDY=20241121
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
 # Set just one of these at a time to "YES":
-export RUN_GRID2GRID_STEP1=NO
+export RUN_GRID2GRID_STEP1=YES
 export RUN_GRID2OBS_STEP1=NO
-export RUN_PRECIP_STEP1=YES  # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_PRECIP_STEP1=NO  # Note that you need 30 hours of PGB data to run precip step 1
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
@@ -59,11 +59,12 @@ export KEEPDATA=YES
 ##################DO NOT EDIT BELOW THIS LINE######################
 
 # Load the needed modules for METplus
-module use /autofs/ncrc-svm1_proj/epic/spack-stack/c6/spack-stack-1.6.0/envs/gsi-addon-dev-fms-2024.01/install/modulefiles/Core
+module use /autofs/ncrc-svm1_proj/epic/c6/spack-stack/spack-stack-1.9.1/envs/emc-gv-intel-2023.2.0/install/modulefiles/Core
 module load stack-intel
 module load stack-cray-mpich
 module load stack-python
-module load metplus/3.1.1
+module load metplus/6.0.0
+module load met/12.0.1
 module load prod_util/2.1.1
 module load wgrib2
 module load grib-util
@@ -156,19 +157,19 @@ export g2g1_anom_truth_file_format="pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_anom_fhr_min=${FHMIN_GFS}
 export g2g1_anom_fhr_max=${FHMAX_GFS}
 export g2g1_anom_grid="G002"
-export g2g1_anom_gather_by="VSDB"
+export g2g1_anom_gather_by="VALID"
 export g2g1_pres_truth_name="self_anl"
 export g2g1_pres_truth_file_format="pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_pres_fhr_min=${FHMIN_GFS}
 export g2g1_pres_fhr_max=${FHMAX_GFS}
 export g2g1_pres_grid="G002"
-export g2g1_pres_gather_by="VSDB"
+export g2g1_pres_gather_by="VALID"
 export g2g1_sfc_truth_name="self_f00"
 export g2g1_sfc_truth_file_format="pgbf00.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"
 export g2g1_sfc_fhr_min=${FHMIN_GFS}
 export g2g1_sfc_fhr_max=${FHMAX_GFS}
 export g2g1_sfc_grid="G002"
-export g2g1_sfc_gather_by="VSDB"
+export g2g1_sfc_gather_by="VALID"
 export g2g1_mv_database_name="mv_${PSLOT}_grid2grid_metplus"
 export g2g1_mv_database_group="NOAA NCEP"
 export g2g1_mv_database_desc="Grid-to-grid METplus data for global workflow experiment ${PSLOT}"

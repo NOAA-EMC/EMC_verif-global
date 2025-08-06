@@ -38,9 +38,9 @@ export PDY=20241121
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
 # Set just one of these at a time to "YES":
-export RUN_GRID2GRID_STEP1=YES
+export RUN_GRID2GRID_STEP1=NO
 export RUN_GRID2OBS_STEP1=NO
-export RUN_PRECIP_STEP1=NO  # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_PRECIP_STEP1=YES  # Note that you need 30 hours of PGB data to run precip step 1
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
@@ -207,7 +207,7 @@ export precip1_ccpa_accum24hr_model_file_format="pgbf{lead?fmt=%2H}.${RUN}.{init
 export precip1_ccpa_accum24hr_fhr_min="24"
 export precip1_ccpa_accum24hr_fhr_max="384"
 export precip1_ccpa_accum24hr_grid="G211"
-export precip1_ccpa_accum24hr_gather_by="VSDB"
+export precip1_ccpa_accum24hr_gather_by="VALID"
 export precip1_obs_data_run_hpss="NO"
 export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
 export precip1_mv_database_group="NOAA NCEP"

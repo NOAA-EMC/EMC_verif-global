@@ -23,7 +23,6 @@ set -eux
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Set the root path to the verif-global package
 export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global
-export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/Sat1_PR
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
 # Change PSLOT to the name of your experiment
@@ -76,12 +75,6 @@ module load met/12.0.1
 module load prod_util/2.1.1
 module load wgrib2
 module load grib-util
-if [[ 1 == 2 && "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
-    module load Core/24.11
-    module load imagemagick/7.1.1-29
-    module load nco/5.2.4
-    module swap python/3.11.7 python/3.11
-fi
 
 # Set some workflow environment variables
 export jobid=$$

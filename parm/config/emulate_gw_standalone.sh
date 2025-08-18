@@ -2,7 +2,7 @@
 
 # LOOK HERE!!
 ###################SET YOUR ACCOUNT########################
-#SBATCH --account=ira-sti
+#SBATCH --account=gfs-cpu
 ##########################################################
 
 #SBATCH --job-name=metp

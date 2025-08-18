@@ -180,6 +180,7 @@ elif [ $machine = "GAEAC5" ]; then
     export MPMD="YES"
 elif [ $machine = "GAEAC6" ]; then
     export ACCOUNT="bil-fire8"
+    export ACCOUNT="gfs-cpu"
     export QUEUE="normal"
     export QUEUESHARED="normal"
     export QUEUESERV="service"

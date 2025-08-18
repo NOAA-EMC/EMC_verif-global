@@ -179,7 +179,6 @@ elif [ $machine = "GAEAC5" ]; then
     export nproc="128"
     export MPMD="YES"
 elif [ $machine = "GAEAC6" ]; then
-    export ACCOUNT="bil-fire8"
     export ACCOUNT="gfs-cpu"
     export QUEUE="normal"
     export QUEUESHARED="normal"

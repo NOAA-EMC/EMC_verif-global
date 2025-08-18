@@ -145,9 +145,6 @@ elif [[ "${RUN_GRID2OBS_STEP1}" == "YES" ]]; then
 elif [[ "${RUN_PRECIP_STEP1}" == "YES" ]]; then
 	export METPCASE=pcp1
 elif [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
-        # reset cyc for SATELLITE where cyc=00 is the default
-        # export cyc=00      
-        # export PDY=20241123
 	export METPCASE=sat1
 fi
 

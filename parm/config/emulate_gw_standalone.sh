@@ -23,6 +23,7 @@ set -eux
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Set the root path to the verif-global package
 export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global
+export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/Sat1_PR
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
 # Change PSLOT to the name of your experiment
@@ -39,12 +40,19 @@ export PDY=20241121
 export cyc=18
 # Set just one of these at a time to "YES":
 export RUN_GRID2GRID_STEP1=NO
-export RUN_GRID2OBS_STEP1=YES
-export RUN_PRECIP_STEP1=NO  # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_GRID2OBS_STEP1=NO
+export RUN_PRECIP_STEP1=NO   # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_SATELLITE_STEP1=YES
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
 # Set the machine name
+# NOTE for future update - should call "~/ush/get_machine.py" to get
+#                        - the definition of $machine for different
+#                        - platforms.  Note the output $machine 
+#                        - are in capital case, this may have a conflict
+#                        - in "export model_hpss_dir_list" which are
+#                        - supposed to be the small case
 export machine=gaeac6
 # Set the location of your online archive
 export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
@@ -68,6 +76,12 @@ module load met/12.0.1
 module load prod_util/2.1.1
 module load wgrib2
 module load grib-util
+if [[ 1 == 2 && "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
+    module load Core/24.11
+    module load imagemagick/7.1.1-29
+    module load nco/5.2.4
+    module swap python/3.11.7 python/3.11
+fi
 
 # Set some workflow environment variables
 export jobid=$$
@@ -90,7 +104,26 @@ cd "${DATA}" || exit 1
 
 # Link in fix files
 export FIXgfs=${DATA}
-ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+# Ho-Chun - Add support for multiple platforms originated from ~/ush/set_up_verif_global.sh
+#         - can not set machine in captial case now because of "export model_hpss_dir_list="
+#         - use small case machine in ~/ush/run_verif_global_in_global_workflow.sh
+host_machine=$(echo $machine | tr '[a-z]' '[A-Z]')
+## Set machine specific fix directory
+if [ $host_machine = "WCOSS2" ]; then
+    ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "HERA" ]; then
+    ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "ORION" -o $host_machine = "HERCULES" ]; then
+    ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "S4" ]; then
+    ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "JET" ]; then
+    ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "GAEAC5" ]; then
+    ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $host_machine = "GAEAC6" ]; then
+    ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+fi
 
 # Check if more than one verification type is set to YES and exit if so
 count=0
@@ -103,8 +136,11 @@ fi
 if [[ "${RUN_PRECIP_STEP1}" == "YES" ]]; then
 	count=$((count + 1))
 fi
+if [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
+	count=$((count + 1))
+fi
 if [[ ${count} -ne 1 ]]; then
-	echo "Error: Exactly one verification type must be selected. Set only one of RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1, or RUN_PRECIP_STEP1 to YES."
+	echo "Error: Exactly one verification type must be selected. Set only one of RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1, RUN_PRECIP_STEP1, or RUN_SATELLITE_STEP1 to YES."
 	exit 1
 fi
 
@@ -115,6 +151,11 @@ elif [[ "${RUN_GRID2OBS_STEP1}" == "YES" ]]; then
 	export METPCASE=g2o1
 elif [[ "${RUN_PRECIP_STEP1}" == "YES" ]]; then
 	export METPCASE=pcp1
+elif [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
+        # reset cyc for SATELLITE where cyc=00 is the default
+        # export cyc=00      
+        # export PDY=20241123
+	export METPCASE=sat1
 fi
 
 ################################################
@@ -212,6 +253,30 @@ export precip1_obs_data_run_hpss="NO"
 export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
 export precip1_mv_database_group="NOAA NCEP"
 export precip1_mv_database_desc="Precip METplus data for global workflow experiment ${PSLOT}"
+# SATELLITE STEP 1: gfsmetpsat1
+# First check available observation file in $sat1_obs_dir defined below
+#    or ghrsst_ospo_geopolar_anl in https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended/YYYY/JDAY
+#       ghrsst_ncei_avhrr_anl    in https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI/YYYY/JDAY
+# export sat1_type_list="ghrsst_ncei_avhrr_anl ghrsst_ospo_geopolar_anl"
+export sat1_type_list="ghrsst_ospo_geopolar_anl"
+# Overwrite fcyc_list in VERIF_GLOBALSH and use only nit = 00 and fhr_list='24, 48, 72, 96, 120, 144, 168'
+export sat1_ghrsst_ncei_avhrr_anl_fcyc_list="00"
+export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${FHMIN_GFS}
+export sat1_ghrsst_ncei_avhrr_anl_fhr_max="168"
+export sat1_ghrsst_ncei_avhrr_anl_grid="G219"
+export sat1_ghrsst_ncei_avhrr_anl_gather_by="VALID"
+export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
+# Overwrite fcyc_list in VERIF_GLOBALSH and use only nit = 00 and fhr_list='24, 48, 72, 96, 120, 144, 168'
+export sat1_ghrsst_ospo_geopolar_anl_fcyc_list="00"
+export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${FHMIN_GFS}
+export sat1_ghrsst_ospo_geopolar_anl_fhr_max="168"
+export sat1_ghrsst_ospo_geopolar_anl_grid="G219"
+export sat1_ghrsst_ospo_geopolar_anl_gather_by="VALID"
+export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
+export sat1_mv_database_name="mv_${PSLOT}_satellite_metplus_TEST"
+export sat1_mv_database_group="NOAA NCEP"
+export sat1_mv_database_desc="Satellite METplus data for global workflow experiment ${PSLOT}"
+export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive/"
 
 echo "END: config.metp"
 #######################################################
@@ -276,7 +341,7 @@ for grid in '1p00'; do
 done
 
 # TODO: If none of these are on, why are we running this job?
-if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" ]]; then
+if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" || "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
     bash -x "${VERIF_GLOBALSH}"
     err=$?
     if [[ ${err} -ne 0 ]]; 

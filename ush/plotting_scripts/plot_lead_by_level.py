@@ -463,7 +463,7 @@ for plot_info in plot_info_list:
                 ax.set_xticklabels(fcst_lead_timedeltas_str)
             ax.set_xlim([fcst_lead_timedeltas[0],
                          fcst_lead_timedeltas[-1]])
-            if ax.is_last_row() \
+            if ax.get_subplotspec().is_last_row() \
                     or (nsubplots % 2 != 0 and subplot_num == nsubplots -1):
                 ax.set_xlabel('Forecast Hour')
             else:
@@ -474,7 +474,7 @@ for plot_info in plot_info_list:
             ax.set_yticks(fcst_var_levels_int)
             ax.set_yticklabels(fcst_var_levels_int)
             ax.set_ylim([fcst_var_levels_int[0],fcst_var_levels_int[-1]])
-            if ax.is_first_col() \
+            if ax.get_subplotspec().is_first_col() \
                     or (nsubplots % 2 != 0 and subplot_num == nsubplots -1):
                 ax.set_ylabel('Pressure Level (hPa)')
             else:

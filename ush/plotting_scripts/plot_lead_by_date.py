@@ -593,7 +593,8 @@ for plot_info in plot_info_list:
                 ax.set_xticklabels(fcst_lead_timedeltas_str)
             ax.set_xlim([fcst_lead_timedeltas[0],
                          fcst_lead_timedeltas[-1]])
-            if ax.is_last_row() \
+            # if ax.is_last_row() \
+            if ax.get_subplotspec().is_last_row() \
                     or (nsubplots % 2 != 0 and subplot_num == nsubplots -1):
                 ax.set_xlabel('Forecast Hour')
             else:
@@ -605,7 +606,7 @@ for plot_info in plot_info_list:
                 ax.yaxis.set_minor_locator(md.MonthLocator())
             else:
                 ax.yaxis.set_minor_locator(md.DayLocator())
-            if ax.is_first_col():
+            if ax.get_subplotspec().is_first_col():  #ax.is_first_col():
                 ax.set_ylabel(date_type.title()+" Date")
             else:
                 plt.setp(ax.get_yticklabels(), visible=False)

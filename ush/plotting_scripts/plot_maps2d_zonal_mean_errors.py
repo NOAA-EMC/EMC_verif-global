@@ -127,12 +127,12 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots, latlon_area,
     ax_tmp.minorticks_off()
     ax_tmp.set_yticks(np.asarray(var_levels, dtype=float))
     ax_tmp.set_yticklabels(var_levels)
-    if ax_tmp.is_last_row() or \
+    if ax_tmp.get_subplotspec().is_last_row() or \
             (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
        ax_tmp.set_xlabel('Latitude')
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
-    if ax_tmp.is_first_col():
+    if ax_tmp.get_subplotspec().is_first_col():
         ax_tmp.set_ylabel('Pressure Level (hPa)', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
@@ -197,7 +197,7 @@ def plot_subplot_data(ax_tmp, plot_data, plot_data_lat, plot_data_levels,
             x, y, plot_data,
             levels=plot_levels, cmap=plot_cmap, extend='both'
         )
-        if ax_tmp.rowNum == 0 and ax_tmp.colNum == 0:
+        if ax_tmp.get_subplotspec().rowspan.start == 0 and ax_tmp.get_subplotspec().colspan.start == 0:
             C_tmp = ax_tmp.contour(
                 x, y, plot_data,
                 levels=plot_levels, colors='k', linewidths=1.0, extend='both'
@@ -491,7 +491,7 @@ for var_levels_type in list(var_levels_type_dict.keys()):
                 var_level_type_num_list
             )
             print("Plotting "+model_obtype+" observations")
-            ax_obs_subplot_loc = str(ax_obs.rowNum)+','+str(ax_obs.colNum)
+            ax_obs_subplot_loc = str(ax_obs.get_subplotspec().rowspan.start)+','+str(ax_obs.get_subplotspec().colspan.start)
             ax_obs_plot_data = model_var_levels_zonalmean_OBAR[
                 model_num-1,var_levels_idx_list,:
             ]
@@ -521,7 +521,7 @@ for var_levels_type in list(var_levels_type_dict.keys()):
                 var_level_type_num_list
             )
             print("Plotting "+model+" - "+model_obtype)
-            ax_anl_subplot_loc = str(ax_anl.rowNum)+','+str(ax_anl.colNum)
+            ax_anl_subplot_loc = str(ax_anl.get_subplotspec().rowspan.start)+','+str(ax_anl.get_subplotspec().colspan.start)
             ax_anl_plot_data = (
                 model_var_levels_zonalmean_FBAR[
                     model_num-1,var_levels_idx_list,:
@@ -611,7 +611,7 @@ for var_levels_type in list(var_levels_type_dict.keys()):
             subplot_num, subplot_title, nsubplots, latlon_area,
             var_level_type_num_list
         )
-        ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+        ax_subplot_loc = str(ax.get_subplotspec().rowspan.start)+','+str(ax.get_subplotspec().colspan.start)
         ax_plot_data_lat = model_data_lat
         ax_plot_data_levels = var_levels_type_num
         CF_ax = plot_subplot_data(

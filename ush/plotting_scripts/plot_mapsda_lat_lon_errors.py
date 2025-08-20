@@ -202,12 +202,12 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     lat_formatter = LatitudeFormatter()
     ax_tmp.xaxis.set_major_formatter(lon_formatter)
     ax_tmp.yaxis.set_major_formatter(lat_formatter)
-    if ax_tmp.is_last_row() or \
+    if ax_tmp.get_subplotspec().is_last_row() or \
             (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
        ax_tmp.set_xlabel('Longitude')
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
-    if ax_tmp.is_first_col():
+    if ax_tmp.get_subplotspec().is_first_col():
         ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
@@ -723,8 +723,8 @@ for stat in plot_stats_list:
                 if RUN_type == 'gdas':
                     if model_num == 1:
                         print("Plotting "+model+" analysis")
-                        ax_cntrl_subplot_loc = (str(ax_cntrl.rowNum)
-                                                +','+str(ax_cntrl.colNum))
+                        ax_cntrl_subplot_loc = (str(ax_cntrl.get_subplotspec().rowspan.start)  
+                                                +','+str(ax_cntrl.get_subplotspec().colspan.start))
                         ax_cntrl_plot_data = model_data_series_cnt_OBAR
                         ax_cntrl_plot_data_lat = model_data_lat
                         ax_cntrl_plot_data_lon = model_data_lon
@@ -801,7 +801,7 @@ for stat in plot_stats_list:
                                                                 1.25)
                             cmap_plot = cmap_diff
                             get_diff_levels = False
-                ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+                ax_subplot_loc = str(ax.get_subplotspec().rowspan.start)+','+str(ax.get_subplotspec().colspan.start)
                 ax_plot_data = stat_data
                 if RUN_type == 'ens':
                     ax_plot_data_lat = regrid_lat

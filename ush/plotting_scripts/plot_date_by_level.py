@@ -604,7 +604,7 @@ for plot_info in plot_info_list:
                 ax.xaxis.set_minor_locator(md.MonthLocator())
             else:
                 ax.xaxis.set_minor_locator(md.DayLocator())
-            if ax.is_last_row() \
+            if ax.get_subplotspec().is_last_row() \
                     or (nmodels % 2 != 0 and model_num == nmodels -1):
                 ax.set_xlabel(date_type.title()+" Date")
             else:
@@ -615,7 +615,7 @@ for plot_info in plot_info_list:
             ax.set_yticks(fcst_var_levels_int)
             ax.set_yticklabels(fcst_var_levels_int)
             ax.set_ylim([fcst_var_levels_int[0],fcst_var_levels_int[-1]])
-            if ax.is_first_col() \
+            if ax.get_subplotspec().is_first_col() \
                     or (nsubplots % 2 != 0 and subplot_num == nsubplots -1):
                 ax.set_ylabel('Pressure Level (hPa)')
             else:

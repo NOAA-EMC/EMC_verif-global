@@ -154,12 +154,12 @@ def draw_subplot_map(subplot_num, subplot_title, nsubplots,
     lat_formatter = LatitudeFormatter()
     ax_tmp.xaxis.set_major_formatter(lon_formatter)
     ax_tmp.yaxis.set_major_formatter(lat_formatter)
-    if ax_tmp.is_last_row() or \
+    if ax_tmp.get_subplotspec().is_last_row() or \
             (nsubplots % 2 != 0 and subplot_num == nsubplots - 2):
        ax_tmp.set_xlabel('Longitude')
     else:
         plt.setp(ax_tmp.get_xticklabels(), visible=False)
-    if ax_tmp.is_first_col():
+    if ax_tmp.get_subplotspec().is_first_col():
         ax_tmp.set_ylabel('Latitude', labelpad=2)
     else:
         plt.setp(ax_tmp.get_yticklabels(), visible=False)
@@ -540,7 +540,7 @@ for var_level in var_levels:
             if RUN_type == 'model2obs':
                 if not obs_plotted:
                     print("Plotting "+model_obtype+" observations from "+model)
-                    ax_obs_subplot_loc = str(ax_obs.rowNum)+','+str(ax_obs.colNum)
+                    ax_obs_subplot_loc = str(ax_obs.get_subplotspec().rowspan.start)+','+str(ax_obs.get_subplotspec().colspan.start)
                     ax_obs_plot_data = model_data_series_cnt_OBAR
                     ax_obs_plot_data_lat = model_data_lat
                     ax_obs_plot_data_lon = model_data_lon
@@ -563,7 +563,7 @@ for var_level in var_levels:
                     subplot_CF_dict[ax_obs_subplot_loc] = CF_ax_obs
                     obs_plotted = True
                 print("Plotting "+model+" - "+model_obtype)
-                ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+                ax_subplot_loc = str(ax.get_subplotspec().rowspan.start)+','+str(ax.get_subplotspec().colspan.start)
                 ax_plot_data = (
                     model_data_series_cnt_FBAR - model_data_series_cnt_OBAR
                  )
@@ -614,7 +614,7 @@ for var_level in var_levels:
                         get_diff_levels = False
                     ax_plot_levels = levels_diff
                     ax_plot_cmap = cmap_diff
-                ax_subplot_loc = str(ax.rowNum)+','+str(ax.colNum)
+                ax_subplot_loc = str(ax.get_subplotspec().rowspan.start)+','+str(ax.get_subplotspec().colspan.start)
                 ax_plot_data_lat = model_data_lat
                 ax_plot_data_lon = model_data_lon
                 CF_ax = plot_subplot_data(
@@ -626,8 +626,8 @@ for var_level in var_levels:
                 subplot_CF_dict[ax_subplot_loc] = CF_ax
                 if forecast_anl_diff == 'YES':
                     print("Plotting "+model+" - "+model_obtype)
-                    ax_anl_subplot_loc = (str(ax_anl.rowNum)+','
-                                          +str(ax_anl.colNum))
+                    ax_anl_subplot_loc = (str(ax_anl.get_subplotspec().rowspan.start)+','
+                                          +str(ax_anl.get_subplotspec().colspan.start))
                     ax_anl_plot_data = (
                         model_data_series_cnt_FBAR
                         - model_data_series_cnt_OBAR

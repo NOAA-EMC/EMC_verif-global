@@ -160,6 +160,8 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     machine = os.environ['machine']
     QUEUESERV = os.environ['QUEUESERV']
     ACCOUNT = os.environ['ACCOUNT']
+    CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
+    PARTITION_DTN = os.environ['PARTITION_DTN']
     # Set up job wall time information
     walltime_seconds = (
         datetime.timedelta(minutes=int(wget_walltime)).total_seconds()
@@ -179,7 +181,8 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                          +'-N '+wget_job_name+' | wc -l')
     elif machine in ['GAEAC5', 'GAEAC6']:
         os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --cluster=es --partition=dtn_f5_f6 '
+                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
+                  +'--partition='+PARTITION_DTN+' '
                   +'--account='+ACCOUNT+' --output='+wget_job_output+' '
                   +'--job-name='+wget_job_name+' '+wget_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '

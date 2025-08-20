@@ -41,6 +41,7 @@ export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
 export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
+machine=$(echo $machine | tr '[A-Z]' '[a-z]')    # Need lower case machine name defined
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
@@ -277,6 +278,8 @@ export QUEUE=${QUEUE:-"dev"}
 export QUEUESHARED=${QUEUE_SHARED:-"dev_shared"}
 export QUEUESERV=${QUEUE_SERVICE:-"dev_transfer"}
 export PARTITION_BATCH=${PARTITION_BATCH:-""}
+export CLUSTERS_DTN=${CLUSTERS_DTN:-""}
+export PARTITION_DTN=${PARTITION_DTN:-""}
 
 ## Run settings for machines
 export MPMD="YES"

@@ -46,13 +46,11 @@ export RUN_SATELLITE_STEP1=YES
 export FHMIN_GFS=0
 export FHMAX_GFS=120
 # Set the machine name
-# NOTE for future update - should call "~/ush/get_machine.py" to get
+# NOTE for future update - can call "~/ush/get_machine.py" to get
 #                        - the definition of $machine for different
-#                        - platforms.  Note the output $machine 
-#                        - are in capital case, this may have a conflict
-#                        - in "export model_hpss_dir_list" which are
-#                        - supposed to be the small case
+#                        - platforms.
 export machine=gaeac6
+
 # Set the location of your online archive
 export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
 # NOTE: the location of the statistic files will be one directory up from ARCDIR
@@ -97,25 +95,32 @@ cd "${DATA}" || exit 1
 
 # Link in fix files
 export FIXgfs=${DATA}
-# Ho-Chun - Add support for multiple platforms originated from ~/ush/set_up_verif_global.sh
-#         - can not set machine in captial case now because of "export model_hpss_dir_list="
-#         - use small case machine in ~/ush/run_verif_global_in_global_workflow.sh
-host_machine=$(echo $machine | tr '[a-z]' '[A-Z]')
 ## Set machine specific fix directory
-if [ $host_machine = "WCOSS2" ]; then
+machine=$(echo $machine | tr '[a-z]' '[A-Z]') # Need upper case machine name defined
+if [ $machine = "WCOSS2" ]; then
     ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "HERA" ]; then
+elif [ $machine = "HERA" ]; then
     ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "ORION" -o $host_machine = "HERCULES" ]; then
+elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "S4" ]; then
+elif [ $machine = "S4" ]; then
     ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "JET" ]; then
+elif [ $machine = "JET" ]; then
     ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "GAEAC5" ]; then
+elif [ $machine = "GAEAC5" ]; then
     ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $host_machine = "GAEAC6" ]; then
+elif [ $machine = "GAEAC6" ]; then
     ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+fi
+
+## Set machine specific account, queues, and run settings
+if [[ "${machine}" ==  "GAEAC6" || "${machine}" ==  "GAEAC5" ]]; then
+    export ACCOUNT=gfs-cpu  
+    export QUEUE="normal"
+    export QUEUESHARED="normal"
+    export QUEUESERV="service"
+    export PARTITION_DTN=dtn_f5_f6
+    export CLUSTERS_DTN="es"
 fi
 
 # Check if more than one verification type is set to YES and exit if so
@@ -244,19 +249,18 @@ export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
 export precip1_mv_database_group="NOAA NCEP"
 export precip1_mv_database_desc="Precip METplus data for global workflow experiment ${PSLOT}"
 # SATELLITE STEP 1: gfsmetpsat1
-# First check available observation file in $sat1_obs_dir defined below
-#    or ghrsst_ospo_geopolar_anl in https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended/YYYY/JDAY
-#       ghrsst_ncei_avhrr_anl    in https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI/YYYY/JDAY
-# export sat1_type_list="ghrsst_ncei_avhrr_anl ghrsst_ospo_geopolar_anl"
+# The option for the sat1_type_lists are "ghrsst_ncei_avhrr_anl" or "ghrsst_ospo_geopolar_anl" or both
+# To avoid a runtime error, please ensure that the observation file exists in
+#    the `$sat1_obs_dir` as defined or in one of the following locations:
+#    ghrsst_ospo_geopolar_anl in [https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended/YYYY/JDAY]
+#    ghrsst_ncei_avhrr_anl    in [https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI/YYYY/JDAY]
 export sat1_type_list="ghrsst_ospo_geopolar_anl"
-# Overwrite fcyc_list in VERIF_GLOBALSH and use only nit = 00 and fhr_list='24, 48, 72, 96, 120, 144, 168'
 export sat1_ghrsst_ncei_avhrr_anl_fcyc_list="00"
 export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${FHMIN_GFS}
 export sat1_ghrsst_ncei_avhrr_anl_fhr_max="168"
 export sat1_ghrsst_ncei_avhrr_anl_grid="G219"
 export sat1_ghrsst_ncei_avhrr_anl_gather_by="VALID"
 export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
-# Overwrite fcyc_list in VERIF_GLOBALSH and use only nit = 00 and fhr_list='24, 48, 72, 96, 120, 144, 168'
 export sat1_ghrsst_ospo_geopolar_anl_fcyc_list="00"
 export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${FHMIN_GFS}
 export sat1_ghrsst_ospo_geopolar_anl_fhr_max="168"

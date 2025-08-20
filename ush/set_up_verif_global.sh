@@ -176,6 +176,8 @@ elif [ $machine = "GAEAC5" ]; then
     export QUEUESERV="service"
     export CLUSTERS="c5"
     export PARTITION_BATCH="batch"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
     export nproc="128"
     export MPMD="YES"
 elif [ $machine = "GAEAC6" ]; then
@@ -185,6 +187,8 @@ elif [ $machine = "GAEAC6" ]; then
     export QUEUESERV="service"
     export CLUSTERS="c6"
     export PARTITION_BATCH="batch"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
     export nproc="192"
     export MPMD="YES"
 fi

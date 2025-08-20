@@ -46,9 +46,7 @@ export RUN_SATELLITE_STEP1=YES
 export FHMIN_GFS=0
 export FHMAX_GFS=120
 # Set the machine name
-# NOTE for future update - can call "~/ush/get_machine.py" to get
-#                        - the definition of $machine for different
-#                        - platforms.
+#### Need lower case machine name defined
 export machine=gaeac6
 
 # Set the location of your online archive
@@ -96,29 +94,27 @@ cd "${DATA}" || exit 1
 # Link in fix files
 export FIXgfs=${DATA}
 ## Set machine specific fix directory
-machine=$(echo $machine | tr '[a-z]' '[A-Z]') # Need upper case machine name defined
-if [ $machine = "WCOSS2" ]; then
+on_machine=$(echo $machine | tr '[a-z]' '[A-Z]')  ## in uppercase
+if [ $on_machine = "WCOSS2" ]; then
     ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "HERA" ]; then
+elif [ $on_machine = "HERA" ]; then
     ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
+elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "S4" ]; then
+elif [ $on_machine = "S4" ]; then
     ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "JET" ]; then
+elif [ $on_machine = "JET" ]; then
     ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "GAEAC5" ]; then
+elif [ $on_machine = "GAEAC5" ]; then
     ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $machine = "GAEAC6" ]; then
+elif [ $on_machine = "GAEAC6" ]; then
     ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
 fi
 
 ## Set machine specific account, queues, and run settings
-if [[ "${machine}" ==  "GAEAC6" || "${machine}" ==  "GAEAC5" ]]; then
+if [[ "${on_machine}" ==  "GAEAC6" || "${on_machine}" ==  "GAEAC5" ]]; then
     export ACCOUNT=gfs-cpu  
-    export QUEUE="normal"
-    export QUEUESHARED="normal"
-    export QUEUESERV="service"
+    export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6
     export CLUSTERS_DTN="es"
 fi

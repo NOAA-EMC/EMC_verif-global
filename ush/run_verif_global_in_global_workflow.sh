@@ -41,7 +41,9 @@ export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
 export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
-machine=$(echo $machine | tr '[A-Z]' '[a-z]')    # Need lower case machine name defined
+## Get machine
+#### Need upper case machine name defined
+machine=$(echo $machine | tr '[a-z]' '[A-Z]')
 export model_hpss_dir_list=${model_hpss_dir:-/NCEPDEV/$HPSS_PROJECT/1year/$USER/$machine/scratch}
 export model_data_run_hpss=${get_data_from_hpss:-"NO"}
 export hpss_walltime=${hpss_walltime:-10}
@@ -219,9 +221,6 @@ export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 
-## Get machine
-#### Need upper case machine name defined
-machine=$(echo $machine | tr '[a-z]' '[A-Z]')
 if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
    echo
 else

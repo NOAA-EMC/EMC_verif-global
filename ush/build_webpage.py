@@ -29,6 +29,8 @@ RUN_type = RUN.split('_')[0]
 QUEUESERV = os.environ['QUEUESERV']
 ACCOUNT = os.environ['ACCOUNT']
 PARTITION_BATCH = os.environ['PARTITION_BATCH']
+CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
+PARTITION_DTN = os.environ['PARTITION_DTN']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
@@ -946,12 +948,14 @@ elif machine == 'HERA':
                   +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'GAEAC5':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
+                  +' --account='+ACCOUNT+' '
+                  +' --clusters='+CLUSTERS_DTN+' --partition='+PARTITION_DTN+' ' 
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'GAEAC6':
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
+                  +' --account='+ACCOUNT+' '
+                  +' --clusters='+CLUSTERS_DTN+' --partition='+PARTITION_DTN+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'JET':

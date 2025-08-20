@@ -178,15 +178,21 @@ elif [ $machine = "GAEAC5" ]; then
     export PARTITION_BATCH="batch"
     export nproc="128"
     export MPMD="YES"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
+    export HTAR="htar"
 elif [ $machine = "GAEAC6" ]; then
-    export ACCOUNT="bil-fire8"
+    export ACCOUNT="gfs-cpu"
     export QUEUE="normal"
     export QUEUESHARED="normal"
     export QUEUESERV="service"
-    export CLUSTERS="c6"
+    export CLUSTERS="c6" 
     export PARTITION_BATCH="batch"
     export nproc="192"
     export MPMD="YES"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
+    export HTAR="htar"
 fi
 
 ## Set machine and user specific directories

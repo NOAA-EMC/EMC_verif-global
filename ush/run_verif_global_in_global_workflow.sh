@@ -213,6 +213,9 @@ if [ $machine != "ORION" ]; then
     elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
+    elif [ $machine == "GAEAC6" ]; then
+        export HTAR="htar"
+        export NCAP2=$(which ncap2)
     else
         export HTAR=$(which htar)
         export NCAP2=$(which ncap2)

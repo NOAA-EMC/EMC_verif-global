@@ -394,6 +394,8 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     machine = os.environ['machine']
     QUEUESERV = os.environ['QUEUESERV']
     ACCOUNT = os.environ['ACCOUNT']
+    CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
+    PARTITION_DTN = os.environ['PARTITION_DTN']
     # Set up job wall time information
     walltime_seconds = (
         datetime.timedelta(minutes=int(hpss_walltime)).total_seconds()
@@ -405,7 +407,13 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     # Create job card
     with open(hpss_job_filename, 'a') as hpss_job_file:
         hpss_job_file.write('#!/bin/sh'+'\n')
+        if machine in ['GAEAC6']:
+            hpss_job_file.write('module use /usw/hpss/modulefiles'+'\n')
+            hpss_job_file.write('module load hsi'+'\n')
+            hpss_job_file.write('module list'+'\n')
+
         hpss_job_file.write('cd '+save_data_dir+'\n')
+        #hpss_job_file.write('htar -xf '+hpss_tar+' ./'+hpss_file+'\n')
         hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'+hpss_file+'\n')
         if '/NCEPPROD' not in hpss_tar:
             hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'
@@ -460,9 +468,17 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['GAEAC6']:
+        os.system('sbatch --ntasks=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --clusters='+CLUSTERS_DTN+' '  #ES
+                  +' --partition='+PARTITION_DTN+' '                              #dtn_f5_f6 '
+                  +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
+                  +'--job-name='+hpss_job_name+' '+hpss_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +hpss_job_name+' -t R,PD -h | wc -l')
+    elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5']:    #, 'GAEAC6']:
         print("ERROR: No HPSS access from "+machine)
-    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5']:  #, 'GAEAC6']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)

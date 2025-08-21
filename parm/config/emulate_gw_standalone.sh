@@ -2,7 +2,7 @@
 
 # LOOK HERE!!
 ###################SET YOUR ACCOUNT########################
-#SBATCH --account=ira-sti
+#SBATCH --account=gfs-cpu
 ##########################################################
 
 #SBATCH --job-name=metp
@@ -39,13 +39,16 @@ export PDY=20241121
 export cyc=18
 # Set just one of these at a time to "YES":
 export RUN_GRID2GRID_STEP1=NO
-export RUN_GRID2OBS_STEP1=YES
-export RUN_PRECIP_STEP1=NO  # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_GRID2OBS_STEP1=NO
+export RUN_PRECIP_STEP1=NO   # Note that you need 30 hours of PGB data to run precip step 1
+export RUN_SATELLITE_STEP1=YES
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
 # Set the machine name
+#### Need lower case machine name defined
 export machine=gaeac6
+
 # Set the location of your online archive
 export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
 # NOTE: the location of the statistic files will be one directory up from ARCDIR
@@ -90,7 +93,31 @@ cd "${DATA}" || exit 1
 
 # Link in fix files
 export FIXgfs=${DATA}
-ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+## Set machine specific fix directory
+on_machine=$(echo $machine | tr '[a-z]' '[A-Z]')  ## in uppercase
+if [ $on_machine = "WCOSS2" ]; then
+    ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "HERA" ]; then
+    ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
+    ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "S4" ]; then
+    ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "JET" ]; then
+    ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "GAEAC5" ]; then
+    ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "GAEAC6" ]; then
+    ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+fi
+
+## Set machine specific account, queues, and run settings
+if [[ "${on_machine}" ==  "GAEAC6" || "${on_machine}" ==  "GAEAC5" ]]; then
+    export ACCOUNT=gfs-cpu  
+    export QUEUE_SERVICE="service"
+    export PARTITION_DTN=dtn_f5_f6
+    export CLUSTERS_DTN="es"
+fi
 
 # Check if more than one verification type is set to YES and exit if so
 count=0
@@ -103,8 +130,11 @@ fi
 if [[ "${RUN_PRECIP_STEP1}" == "YES" ]]; then
 	count=$((count + 1))
 fi
+if [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
+	count=$((count + 1))
+fi
 if [[ ${count} -ne 1 ]]; then
-	echo "Error: Exactly one verification type must be selected. Set only one of RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1, or RUN_PRECIP_STEP1 to YES."
+	echo "Error: Exactly one verification type must be selected. Set only one of RUN_GRID2GRID_STEP1, RUN_GRID2OBS_STEP1, RUN_PRECIP_STEP1, or RUN_SATELLITE_STEP1 to YES."
 	exit 1
 fi
 
@@ -115,6 +145,8 @@ elif [[ "${RUN_GRID2OBS_STEP1}" == "YES" ]]; then
 	export METPCASE=g2o1
 elif [[ "${RUN_PRECIP_STEP1}" == "YES" ]]; then
 	export METPCASE=pcp1
+elif [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
+	export METPCASE=sat1
 fi
 
 ################################################
@@ -212,6 +244,29 @@ export precip1_obs_data_run_hpss="NO"
 export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
 export precip1_mv_database_group="NOAA NCEP"
 export precip1_mv_database_desc="Precip METplus data for global workflow experiment ${PSLOT}"
+# SATELLITE STEP 1: gfsmetpsat1
+# The option for the sat1_type_lists are "ghrsst_ncei_avhrr_anl" or "ghrsst_ospo_geopolar_anl" or both
+# To avoid a runtime error, please ensure that the observation file exists in
+#    the `$sat1_obs_dir` as defined or in one of the following locations:
+#    ghrsst_ospo_geopolar_anl in [https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended/YYYY/JDAY]
+#    ghrsst_ncei_avhrr_anl    in [https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI/YYYY/JDAY]
+export sat1_type_list="ghrsst_ospo_geopolar_anl"
+export sat1_ghrsst_ncei_avhrr_anl_fcyc_list="00"
+export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${FHMIN_GFS}
+export sat1_ghrsst_ncei_avhrr_anl_fhr_max="168"
+export sat1_ghrsst_ncei_avhrr_anl_grid="G219"
+export sat1_ghrsst_ncei_avhrr_anl_gather_by="VALID"
+export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
+export sat1_ghrsst_ospo_geopolar_anl_fcyc_list="00"
+export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${FHMIN_GFS}
+export sat1_ghrsst_ospo_geopolar_anl_fhr_max="168"
+export sat1_ghrsst_ospo_geopolar_anl_grid="G219"
+export sat1_ghrsst_ospo_geopolar_anl_gather_by="VALID"
+export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
+export sat1_mv_database_name="mv_${PSLOT}_satellite_metplus_TEST"
+export sat1_mv_database_group="NOAA NCEP"
+export sat1_mv_database_desc="Satellite METplus data for global workflow experiment ${PSLOT}"
+export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive/"
 
 echo "END: config.metp"
 #######################################################
@@ -276,7 +331,7 @@ for grid in '1p00'; do
 done
 
 # TODO: If none of these are on, why are we running this job?
-if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" ]]; then
+if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" || "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
     bash -x "${VERIF_GLOBALSH}"
     err=$?
     if [[ ${err} -ne 0 ]]; 

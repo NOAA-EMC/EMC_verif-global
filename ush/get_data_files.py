@@ -160,6 +160,8 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     machine = os.environ['machine']
     QUEUESERV = os.environ['QUEUESERV']
     ACCOUNT = os.environ['ACCOUNT']
+    CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
+    PARTITION_DTN = os.environ['PARTITION_DTN']
     # Set up job wall time information
     walltime_seconds = (
         datetime.timedelta(minutes=int(wget_walltime)).total_seconds()
@@ -177,7 +179,23 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'-l select=1:ncpus=1 '+wget_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
-    elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine == 'GAEAC5':
+        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
+                  +'--partition='+PARTITION_DTN+' --constraint=f5 --qos=dtn '
+                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
+                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +wget_job_name+' -t R,PD -h | wc -l')
+    elif machine == 'GAEAC6':
+        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
+                  +'--partition='+PARTITION_DTN+' --constraint=f6 --qos=dtn '
+                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
+                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +wget_job_name+' -t R,PD -h | wc -l')
+    elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+wget_job_output+' '
@@ -2279,11 +2297,19 @@ elif RUN == 'satellite_step1':
                                                   RUN_type+'.'+YYYYmmddHH)
                 if RUN_type in ['ghrsst_ncei_avhrr_anl',
                                 'ghrsst_ospo_geopolar_anl']:
+                    sat1_obs_input_dir=os.environ[f"{RUN_abbrev}_obs_dir"]
                     # ghrsst_ncei_avhrr_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
                     if RUN_type == 'ghrsst_ncei_avhrr_anl':
                         RUN_type_ftp_file = os.path.join(
                             ghrsst_ncei_avhrr_anl_ftp,
                             YYYYM1, DOYM1,
+                            YYYYmmddM1
+                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
+                            +'v02.0-fv02.1.nc'
+                        )
+                        archive_obs_input_file= os.path.join(
+                            sat1_obs_input_dir, RUN_type,
+                            YYYYM1, YYYYmmM1,
                             YYYYmmddM1
                             +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
                             +'v02.0-fv02.1.nc'
@@ -2298,25 +2324,43 @@ elif RUN == 'satellite_step1':
                             +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
                             +'-GLOB-v02.0-fv01.0.nc'
                         )
+                        archive_obs_input_file= os.path.join(
+                            sat1_obs_input_dir, RUN_type,
+                            YYYYM1, YYYYmmM1,
+                            YYYYmmddM1
+                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
+                            +'-GLOB-v02.0-fv01.0.nc'
+                        )
                         adjust_time = 43200
-                    RUN_type_wget_job_filename = os.path.join(
-                        link_RUN_type_dir, 'wget_jobs',
-                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
-                    )
-                    RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
-                    RUN_type_wget_job_output = os.path.join(
-                        link_RUN_type_dir, 'wget_jobs',
-                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
-                    )
-                    with open(RUN_type_wget_job_filename, 'w') \
-                            as RUN_type_wget_job_file:
-                        RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
-                        RUN_type_wget_job_file.write('wget '+RUN_type_ftp_file
-                                                     +' -O '
-                                                     +link_RUN_type_file)
-                    wget_data(RUN_type_wget_job_filename,
-                              RUN_type_wget_job_name,
-                              RUN_type_wget_job_output)
+                    if os.path.exists(archive_obs_input_file):
+                        print(f"=======================================")
+                        print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
+                        print(f"=======================================")
+                        os.system(f"cp {archive_obs_input_file} {link_RUN_type_file}")
+                    else:
+                        print(f"==============================")
+                        print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
+                        print(f"==============================")
+                        RUN_type_wget_job_filename = os.path.join(
+                            link_RUN_type_dir, 'wget_jobs',
+                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
+                        )
+                        RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
+                        RUN_type_wget_job_output = os.path.join(
+                            link_RUN_type_dir, 'wget_jobs',
+                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
+                        )
+                        ftp_user="--user=ho-chun.huang@noaa.gov"
+                        ftp_password="--password=anonymous"
+                        with open(RUN_type_wget_job_filename, 'w') \
+                                as RUN_type_wget_job_file:
+                            RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
+                            RUN_type_wget_job_file.write('wget '+ftp_user+' '+ftp_password+' '+RUN_type_ftp_file
+                                                         +' -O '
+                                                         +link_RUN_type_file)
+                        wget_data(RUN_type_wget_job_filename,
+                                  RUN_type_wget_job_name,
+                                  RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
                         link_RUN_type_file_data = nc.Dataset(

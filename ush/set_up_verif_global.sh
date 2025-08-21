@@ -56,7 +56,7 @@ cd $DATA
 echo
 
 ## Get machine, set environment variable 'machine', and check that it is a supported machine
-if [[ $HOSTNAME == orion* ]]; then
+if [[ $HOSTNAME == orion* ]] || [[ $HOSTNAME == gaea* ]]; then
     python3 $HOMEverif_global/ush/get_machine.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
@@ -176,15 +176,19 @@ elif [ $machine = "GAEAC5" ]; then
     export QUEUESERV="service"
     export CLUSTERS="c5"
     export PARTITION_BATCH="batch"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
     export nproc="128"
     export MPMD="YES"
 elif [ $machine = "GAEAC6" ]; then
-    export ACCOUNT="bil-fire8"
+    export ACCOUNT="gfs-cpu"
     export QUEUE="normal"
     export QUEUESHARED="normal"
     export QUEUESERV="service"
     export CLUSTERS="c6"
     export PARTITION_BATCH="batch"
+    export CLUSTERS_DTN="es"
+    export PARTITION_DTN="dtn_f5_f6"
     export nproc="192"
     export MPMD="YES"
 fi
@@ -295,7 +299,6 @@ export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
 export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
 export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
-export ghrsst_ncei_avhrr_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/NCEI/AVHRR_OI/v2.1"
-export ghrsst_ospo_geopolar_anl_ftp="https://podaac-opendap.jpl.nasa.gov/opendap/hyrax/allData/ghrsst/data/GDS2/L4/GLOB/OSPO/Geo_Polar_Blended/v1"
-
+export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"
+export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"
 echo "END: set_up_verif_global.sh"

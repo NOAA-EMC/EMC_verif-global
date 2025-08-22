@@ -394,8 +394,8 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     machine = os.environ['machine']
     QUEUESERV = os.environ['QUEUESERV']
     ACCOUNT = os.environ['ACCOUNT']
-    CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
-    PARTITION_DTN = os.environ['PARTITION_DTN']
+    CLUSTERS_DTN = os.environ.get('CLUSTERS_DTN', None)
+    PARTITION_DTN = os.environ.get('PARTITION_DTN', None)
     # Set up job wall time information
     walltime_seconds = (
         datetime.timedelta(minutes=int(hpss_walltime)).total_seconds()

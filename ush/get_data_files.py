@@ -478,7 +478,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5']:    #, 'GAEAC6']:
         print("ERROR: No HPSS access from "+machine)
-    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5']:  #, 'GAEAC6']:
+    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)

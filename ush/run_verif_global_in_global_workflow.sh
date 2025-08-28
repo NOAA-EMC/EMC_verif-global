@@ -16,7 +16,7 @@ cyc2run="${cyc}"
 
 # Check if we are on the first YMD
 if [[ ${SDATE_GFS:0:8} == ${VDATE} ]]; then
-    start_cyc=${SDATE_GFS:-2}
+    start_cyc=${SDATE_GFS:8:2}
 else
     #start_cyc=0  # Sequential run
     start_cyc=${cyc2run}
@@ -24,7 +24,7 @@ fi
 
 # Check if we are on the last YMD
 if [[ ${EDATE_GFS:0:8} == ${VDATE} ]]; then
-    cyc2run=${EDATE_GFS:-2}
+    cyc2run=${EDATE_GFS:8:2}
 fi
 
 end_cyc=${cyc2run}

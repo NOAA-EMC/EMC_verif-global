@@ -12,8 +12,7 @@ export SDATE_GFS=${SDATE_GFS:-$SDATE}
 export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 
-#cyc2run="${cyc}"  # This was always run in the 18z cycle
-cyc2run="${cyc2run:-${cyc}}"
+cyc2run="${cyc}"
 
 # Check if we are on the first YMD
 if [[ ${SDATE_GFS:0:8} == ${VDATE} ]]; then

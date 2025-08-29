@@ -13,20 +13,7 @@ export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE="${VDATE:-$(echo $($NDATE -${VRFYBACK_HRS} $CDATE) | cut -c1-8)}"
 
 cyc2run="${cyc}"
-
-# Check if we are on the first YMD
-if [[ ${SDATE_GFS:0:8} == ${VDATE} ]]; then
-    start_cyc=${SDATE_GFS:8:2}
-else
-    #start_cyc=0  # Sequential run
-    start_cyc=${cyc2run}
-fi
-
-# Check if we are on the last YMD
-if [[ ${EDATE_GFS:0:8} == ${VDATE} ]]; then
-    cyc2run=${EDATE_GFS:8:2}
-fi
-
+start_cyc=${cyc2run}
 end_cyc=${cyc2run}
 verf_step=${INTERVAL_GFS:-24}
 

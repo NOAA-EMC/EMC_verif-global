@@ -13,29 +13,20 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 ####################################################
 # WHAT METPLUS USE CASES TO RUN
 ####################################################
-## STEP 1 PRODUCES .STAT FILES FOR PARTIAL SUMS OR CONTINGENCY TABLE COUNTS
 ## STEP 2 PRODUCES PLOTS FOR STATISTICS FROM .STAT FILES FROM STEP 1
 ## SET TO "YES" or "NO"
 ## EDIT SECTIONS BELOW FOR VERIFICATION TYPES REQUESTED
-#RUN_GRID2GRID_STEP1: runs METplus grid_stat, stat_analysis
 #RUN_GRID2GRID_STEP2: runs METplus stat_analysis, make_plots
-#RUN_GRID2OBS_STEP1:  runs METplus pb2nc, point_stat, stat_analysis
 #RUN_GRID2OBS_STEP2:  runs METplus stat_analysis, make_plots
-#RUN_PRECIP_STEP1:    runs METplus pcp_combine, grid_stat, stat_analysis
 #RUN_PRECIP_STEP2:    runs METplus stat_analysis, make_plots
-#RUN_SATELLITE_STEP1: runs METplus grid_stat, stat_analysis
 #RUN_SATELLITE_STEP2: runs METplus stat_analysis, make_plots
 #RUN_FIT2OBS_PLOTS:   runs fit2obs code to make plots
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
-export RUN_GRID2GRID_STEP1="YES"
-export RUN_GRID2GRID_STEP2="NO"
-export RUN_GRID2OBS_STEP1="YES"
+export RUN_GRID2GRID_STEP2="YES"
 export RUN_GRID2OBS_STEP2="NO"
-export RUN_PRECIP_STEP1="YES"
 export RUN_PRECIP_STEP2="NO"
-export RUN_SATELLITE_STEP1="NO"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -49,20 +40,12 @@ export RUN_MAPSDA="NO"
 #model_list:             model names
 #model_dir_list:         directory path to model forecast and analysis files
 #model_stat_dir_list:    directory path to model .stat files
-#model_file_format_list: file format of model files
-#model_hpss_dir_list:    HPSS directory of data
-#model_data_run_hpss:    get files from HPSS ("YES") if not online
-#hpss_walltime:          how long to run HPSS job to get data in minutes
-export model_list="gfs"
-export model_dir_list="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
-export model_stat_dir_list="/lfs/h2/emc/vpppg/noscrub/$USER/archive"
-export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}"
-export model_data_run_hpss="NO"
-export model_hpss_dir_list="/NCEPPROD/hpssprod/runhistory"
-export hpss_walltime="10"
+export model_list="gfs gfs_test"
+export model_dir_list="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data /lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
+export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive /gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/lfs/h2/emc/stmp/$USER/verif_global_standalone"
+export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone"
 ## DATE SETTINGS
 #start_date:          verification start date, format YYYYMMDD
 #end_date:            verification end date, format YYYYMMDD
@@ -70,8 +53,8 @@ export OUTPUTROOT="/lfs/h2/emc/stmp/$USER/verif_global_standalone"
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=$(date -d "24 hours ago" '+%Y%m%d')
-export end_date=$(date -d "24 hours ago" '+%Y%m%d')
+export start_date=20241119
+export end_date=20241121
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"
@@ -91,8 +74,8 @@ export webhostid="$USER"
 export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/TEST"
 export img_quality="low"
 ## METPLUS SETTINGS
-#MET_version:               MET version to use: 9.1
-#METplus_version:           METplus version to use: 3.1
+#MET_version:               MET version to use: 12.0.1
+#METplus_version:           METplus version to use: 6.0.0
 #MET_verbosity:             MET verbosity for logging, 1-5 (most verbose is 5)
 #METplus_verbosity:         DEBUG, INFO, WARN, ERROR (most verbose is DEBUG)
 #log_MET_output_to_METplus: log MET output to METplus log, yes or no
@@ -112,53 +95,6 @@ export SENDDBN_NTC="NO"
 ####################################################
 # SETTINGS FOR SPECIFIC USE CASES
 ####################################################
-if [ $RUN_GRID2GRID_STEP1 = YES ]; then
-    #g2g1_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc
-    #### For each type the followings can be set, where [type] is anom, pres, or sfc
-    #####    g2g1_[type]_truth_name:             analysis type to compare models to: self_anl, self_f00, gfs_anl, gfs_f00
-    #####                                                                            gdas_anl, gdas_f00, ecm_f00, common_anl,
-    #####                                                                            common_f00, model_mean
-    #####                                        see GitHub Wiki for more details
-    #####    g2g1_[type]_truth_file_format_list: list of analysis file format(s), more than 1 if g2g1_anl_name is self
-    #####    g2g1_[type]_fyc_list:                all forecst cycles to be included in verification: HH
-    #####    g2g1_[type]_vhr_list:               all valid hours to be included in verification: HH
-    #####    g2g1_[type]_fhr_min:                forecast hour to start verification HH[H]
-    #####    g2g1_[type]_fhr_max:                forecast hour to end verification HH[H]
-    #####    g2g1_[type]_grid:                   NCEP grid to do verification on
-    #####    g2g1_[type]_gather_by:              how to group the verification data, VSDB, VALID, INIT
-    #g2g1_mv_database_name: name of the METviewer database to send data to, MUST START WITH "mv"
-    #g2g1_mv_database_group: name of the group the METviewer database belongs to
-    #g2g1_mv_database_desc: description of database, can be blank
-    export g2g1_type_list="anom pres sfc"
-    export g2g1_anom_truth_name="self_anl"
-    export g2g1_anom_truth_file_format_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
-    export g2g1_anom_fcyc_list="00"
-    export g2g1_anom_vhr_list="00"
-    export g2g1_anom_fhr_min="00"
-    export g2g1_anom_fhr_max="384"
-    export g2g1_anom_grid="G002"
-    export g2g1_anom_gather_by="VSDB"
-    export g2g1_pres_truth_name="self_anl"
-    export g2g1_pres_truth_file_format_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}"
-    export g2g1_pres_fcyc_list="00"
-    export g2g1_pres_vhr_list="00"
-    export g2g1_pres_fhr_min="00"
-    export g2g1_pres_fhr_max="384"
-    export g2g1_pres_grid="G002"
-    export g2g1_pres_gather_by="VSDB"
-    export g2g1_sfc_truth_name="self_f00"
-    export g2g1_sfc_truth_file_format_list="pgbf00.gfs.{valid?fmt=%Y%m%d%H}"
-    export g2g1_sfc_fcyc_list="00"
-    export g2g1_sfc_vhr_list="00"
-    export g2g1_sfc_fhr_min="00"
-    export g2g1_sfc_fhr_max="384"
-    export g2g1_sfc_grid="G002"
-    export g2g1_sfc_gather_by="VSDB"
-    export g2g1_mv_database_name="mv_gfs_grid2grid_metplus_TEST"
-    export g2g1_mv_database_group="NOAA NCEP"
-    export g2g1_mv_database_desc="Grid-to-grid METplus data for ops. GFS"
-fi
-
 if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #g2g2_model_plot_name_list: list of models reference name on plots
     #g2g2_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc

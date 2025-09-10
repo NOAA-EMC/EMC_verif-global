@@ -51,7 +51,7 @@ with open(job_card_filename, 'a') as job_card:
                        +':ompthreads=1\n')
         job_card.write('\n')
         job_card.write('cd $PBS_O_WORKDIR\n')
-    elif machine == 'HERA':
+    elif machine in ['HERA', 'URSA']:
         job_card.write('#!/bin/sh\n')
         job_card.write('#SBATCH --qos='+QUEUE+'\n')
         job_card.write('#SBATCH --account='+ACCOUNT+'\n')
@@ -60,7 +60,7 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
         job_card.write('#SBATCH --time=6:00:00\n')
-    elif machine in ['ORION', 'S4', 'JET', 'HERCULES']:
+    elif machine in ['ORION', 'HERCULES']:
         job_card.write('#!/bin/sh\n')
         job_card.write('#SBATCH --partition='+PARTITION_BATCH+'\n')
         job_card.write('#SBATCH --qos='+QUEUE+'\n')
@@ -68,16 +68,6 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --job-name='+job_name+'\n')
         job_card.write('#SBATCH --output='+job_output_filename+'\n')
         job_card.write('#SBATCH --nodes=1\n')
-        job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
-        job_card.write('#SBATCH --time=6:00:00\n')
-    elif machine == 'GAEAC5':
-        job_card.write('#!/bin/sh\n')
-        job_card.write('#SBATCH --partition='+PARTITION_BATCH+'\n')
-        job_card.write('#SBATCH --account='+ACCOUNT+'\n')
-        job_card.write('#SBATCH --job-name='+job_name+'\n')
-        job_card.write('#SBATCH --output='+job_output_filename+'\n')
-        job_card.write('#SBATCH --nodes=1\n')
-        job_card.write('#SBATCH --clusters=c5\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
         job_card.write('#SBATCH --time=6:00:00\n')
     elif machine == 'GAEAC6':
@@ -98,7 +88,7 @@ print("Submitting "+job_card_filename+" to "+QUEUE)
 print("Output sent to "+job_output_filename)
 if machine == 'WCOSS2':
     os.system('qsub '+job_card_filename)
-elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+elif machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
     os.system('sbatch '+job_card_filename)
 
 print("END: "+os.path.basename(__file__))

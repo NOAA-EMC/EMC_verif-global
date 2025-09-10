@@ -1637,8 +1637,15 @@ elif RUN == 'grid2obs_step1':
                             +offset_YYYYmmdd, offset_filename
                         )
                         if offset_time \
-                                >= datetime.datetime.strptime('20221129',
+                                >= datetime.datetime.strptime('20240522',
                                                               '%Y%m%d'):
+                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.2_nam.'
+                        elif offset_time \
+                                >= datetime.datetime.strptime('20221129',
+                                                              '%Y%m%d') \
+                                and offset_time \
+                                < datetime.datetime.strptime('20240522',
+                                                             '%Y%m%d'):
                             prepbufr_hpss_tar_prefix = 'com_obsproc_v1.1_nam.'
                         elif offset_time \
                                 >= datetime.datetime.strptime('20220628',

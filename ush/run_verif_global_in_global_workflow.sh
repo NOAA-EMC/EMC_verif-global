@@ -9,12 +9,11 @@
 ##---------------------------------------------------------------------------
 
 export SDATE_GFS=${SDATE_GFS:-$SDATE}
-export EDATE_GFS=${EDATE_GFS:-$EDATE}
 export VDATE=${VDATE:-$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} - ${VRFYBACK_HRS} hours")}
 export vPDY=${VDATE:0:8}
-cyc2run="${cyc}"
-start_cyc=${cyc2run}
-end_cyc=${cyc2run}
+cyc2run="${cyc2run:-${cyc}}"
+start_cyc=${start_cyc:-${cyc2run}}
+end_cyc=${end_cyc:-${cyc2run}}
 
 #Determine which cycles to run
 export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${end_cyc} )"

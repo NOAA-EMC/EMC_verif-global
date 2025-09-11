@@ -105,7 +105,8 @@ fi
 # Copy stat files to desired location
 python $USHverif_global/copy_stat_files.py
 status=$?
-[[ $status -ne 0 ]] && exit $status
+[[ $status -ne 0 ]] && (echo "WARNING: copy_stat_files.py returned with a non-zero error, IGNORING")  # Suggested by Binbin to Dave H.
+#[[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
 echo
 

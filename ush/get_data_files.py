@@ -13,6 +13,7 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
+import threading
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -512,6 +513,35 @@ def convert_grib1_grib2(grib1_file, grib2_file):
     os.system(cnvgrib+' -g12 '+grib1_file+' '
               +grib2_file+' > /dev/null 2>&1')
 
+def run_threads(thread_list):
+    # Define max threads for copying/converting files
+    max_threads=4
+
+    # Check that the thread list isn't empty
+    if len(thread_list) == 0:
+        print("WARNING run_threads was passed an empty list!")
+        return
+
+    print(f"INFO: Running {len(thread_list)} tasks {max_threads} at a time")
+
+    thread_count = 0
+    for thd_idx in range(len(thread_list)):
+        if thread_count == max_threads:
+            # Wait for the current batch to finish
+            for thd_join in range(thd_idx-4, thd_idx):
+                thread_list[thd_join].join()
+
+            # Reset the thread_count
+            thread_count=0
+        
+        # Start the next thread
+        thread_list[thd_idx].start()
+        thread_count += 1
+
+    # Now run through all threads again to ensure they finished
+    for thd in get_model_file_threads:
+        thd.join()
+
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
                    hpss_data_dir, link_data_dir, link_file_format):
@@ -676,6 +706,8 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
     copygb = os.environ['COPYGB']
     ncea = os.environ['NCEA']
     ncdump = os.environ['NCDUMP']
+    get_model_file_threads = []
+    mean_model_files = []
     # Get model files
     for mean_model in mean_model_list:
         mean_model_dir = os.path.join(output_dir, mean_model)
@@ -689,17 +721,32 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         output_mean_model_dir = os.path.join(output_dir, mean_model)
         if not os.path.exists(output_mean_model_dir):
             os.makedirs(output_mean_model_dir)
-        get_model_file(valid_time_dt, valid_time_dt, '00',
-                       mean_model, mean_model_dir, mean_model_file_format,
-                       'NO', '/null', output_mean_model_dir,
-                       save_mean_model_file_format)
-        mean_model_file = os.path.join(output_mean_model_dir,
+        # Collect the list of model files to get as threads
+        thread = (threading.Thread
+        (
+            target=get_model_file,
+            args=
+            (
+                valid_time_dt, valid_time_dt, '00',
+                mean_model, mean_model_dir, mean_model_file_format,
+                'NO', '/null', output_mean_model_dir,
+                save_mean_model_file_format
+            )
+        ))
+        get_model_file_threads.append(thread)
+        mean_model_files.append(os.path.join(output_mean_model_dir,
                                        format_filler(
                                            save_mean_model_file_format,
                                            valid_time_dt, valid_time_dt, '00'
-                                       ))
+                                       )))
+
+    # Now run the threads in parallel, max_threads at a time
+    run_threads(get_model_file_threads)
+
+    for mean_model_file in mean_model_files:
         if os.path.exists(mean_model_file):
             mean_model_file_list.append(mean_model_file)
+
     # Regrid files indivdually for variables for each model, and
     # take mean if available for all models
     # Create invdivdual grib2 template file for variable
@@ -986,6 +1033,9 @@ if RUN == 'grid2grid_step1':
     # Read in RUN related environment variables
     global_archive = os.environ['global_archive']
     # Get model forecast and truth files for each option in RUN_type_list
+    # The model forecast files will be gathered in parallel to run cnvgrb in parallel
+    print("Setting 0")
+    get_model_file_threads = []
     for RUN_type in RUN_type_list:
         print("Gathering files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -1061,11 +1111,21 @@ if RUN == 'grid2grid_step1':
                 if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
-                    get_model_file(valid_time, init_time, lead,
-                                   model, model_dir, model_file_format,
-                                   model_data_run_hpss, model_hpss_dir,
-                                   link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+
+                    thread = (threading.Thread
+                             (
+                                 target=get_model_file,
+                                 args=
+                                 (
+                                     valid_time, init_time, lead,
+                                     model, model_dir, model_file_format,
+                                     model_data_run_hpss, model_hpss_dir,
+                                     link_model_dir,
+                                     'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                             )))
+
+                    get_model_file_threads.append(thread)
+
         # Get truth files for each model
         RUN_abbrev_type_truth_name_short = (
             RUN_abbrev_type_truth_name.split('_')[0]
@@ -1075,6 +1135,7 @@ if RUN == 'grid2grid_step1':
         )
         if RUN_abbrev_type_truth_name_lead == 'f00':
             RUN_abbrev_type_truth_name_lead = '00'
+
         for model in model_list:
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
@@ -1142,17 +1203,24 @@ if RUN == 'grid2grid_step1':
                                 )
                             if RUN_abbrev_type_truth_name_short == 'gdas':
                                 RUN_abbrev_type_truth_name_short = 'gfs'
-                        get_model_file(
-                            valid_time, valid_time,
-                            RUN_abbrev_type_truth_name_lead,
-                            RUN_abbrev_type_truth_name_short,
-                            model_RUN_abbrev_type_truth_dir,
-                            model_RUN_abbrev_type_truth_file_format,
-                            model_RUN_abbrev_type_data_run_hpss,
-                            model_RUN_abbrev_type_truth_hpss_dir,
-                            link_model_dir,
-                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}'
-                        )
+                        thread = (threading.Thread
+                        (
+                            target=get_model_file,
+                            args=
+                            (
+                                valid_time, valid_time,
+                                RUN_abbrev_type_truth_name_lead,
+                                RUN_abbrev_type_truth_name_short,
+                                model_RUN_abbrev_type_truth_dir,
+                                model_RUN_abbrev_type_truth_file_format,
+                                model_RUN_abbrev_type_data_run_hpss,
+                                model_RUN_abbrev_type_truth_hpss_dir,
+                                link_model_dir,
+                                RUN_type+'.truth.{valid?fmt=%Y%m%d%H}'
+                            )
+                        ))
+                        get_model_file_threads.append(thread)
+
                         truth_file = os.path.join(
                             model_RUN_abbrev_type_truth_dir,
                             RUN_abbrev_type_truth_name_short,
@@ -1216,6 +1284,9 @@ if RUN == 'grid2grid_step1':
                         if not os.path.exists(link_truth_file):
                             print("WARNING: Unable to link model f00 file as "
                                   +"subsitute truth file "+link_truth_file)
+
+    # Now run get_model_file threads in parallel
+    run_threads(get_model_file_threads)
 elif RUN == 'grid2grid_step2':
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
@@ -1287,6 +1358,8 @@ elif RUN == 'grid2obs_step1':
               +"setting "+RUN_abbrev+"_prepbufr_data_run_hpss to NO")
         prepbufr_run_hpss = 'NO'
     # Get model forecast and observation files for each option in RUN_type_list
+    # The model forecast files will be gathered in parallel to run cnvgrb in parallel
+    get_model_file_threads = []
     for RUN_type in RUN_type_list:
         print("Gathering files for "+RUN_type)
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -1356,11 +1429,20 @@ elif RUN == 'grid2obs_step1':
                 if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
-                    get_model_file(valid_time, init_time, lead,
-                                   model, model_dir, model_file_format,
-                                   model_data_run_hpss, model_hpss_dir,
-                                   link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+
+                    thread = (threading.Thread
+                    (
+                        target=get_model_file,
+                        args=
+                        (
+                            valid_time, init_time, lead,
+                            model, model_dir, model_file_format,
+                            model_data_run_hpss, model_hpss_dir,
+                            link_model_dir,
+                            'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                        )
+                    ))
+                    get_model_file_threads.append(thread)
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -1754,6 +1836,9 @@ elif RUN == 'grid2obs_step1':
                                           +"at "+YYYYmmddHH)
                     else:
                         print("Already got "+link_prepbufr_file)
+
+    # Now run get_model_file threads in parallel
+    run_threads(get_model_file_threads)
 elif RUN == 'grid2obs_step2':
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
@@ -3204,5 +3289,3 @@ elif RUN == 'mapsda':
                     if exisiting_file_list != '':
                         os.system(ncea+' '+exisiting_file_list+' -o '
                                   +avg_file+process_vars)
-
-print("END: "+os.path.basename(__file__))

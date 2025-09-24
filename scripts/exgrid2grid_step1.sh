@@ -55,7 +55,7 @@ echo
 
 # Link needed data files and set up model information
 mkdir -p data
-python $USHverif_global/get_data_files.py
+python -u $USHverif_global/get_data_files.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"

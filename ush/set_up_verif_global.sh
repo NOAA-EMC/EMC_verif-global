@@ -76,7 +76,7 @@ if [ -s config.machine ]; then
     [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
 fi
 
-if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
+if [[ "$machine" =~ ^(HERA|URSA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -106,7 +106,7 @@ export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
 ## Set machine specific fix directory
 if [ $machine = "WCOSS2" ]; then
     export FIXverif_global="/lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805"
-elif [ $machine = "HERA" ]; then
+elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export FIXverif_global="/scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805"
 elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
     export FIXverif_global="/work/noaa/global/glopara/fix/verif/20220805"
@@ -136,6 +136,14 @@ elif [ $machine = "HERA" ]; then
     export QUEUESERV="service"
     export PARTITION_BATCH=""
     export nproc="40"
+    export MPMD="YES"
+elif [ $machine = "URSA" ]; then
+    export ACCOUNT="fv3-cpu"
+    export QUEUE="batch"
+    export QUEUESHARED="batch"
+    export QUEUESERV="u1-service"
+    export PARTITION_BATCH="u1-compute"
+    export nproc="192"
     export MPMD="YES"
 elif [ $machine = "ORION" ]; then
     export ACCOUNT="fv3-cpu"

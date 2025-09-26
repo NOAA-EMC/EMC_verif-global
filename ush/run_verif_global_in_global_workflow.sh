@@ -38,7 +38,7 @@ export RUN_SATELLITE_STEP1=${RUN_SATELLITE_STEP1:-NO}
 export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
 ## INPUT DATA SETTINGS
 export model_list=${model:-$PSLOT}
-export model_dir_list=${model_dir:-${NOSCRUB}/archive}
+export model_dir_list=${model_dir:-${NOSCRUB}/archive/${PSLOT}}
 export model_stat_dir_list=${model_stat_dir:-${NOSCRUB}/archive}
 export model_file_format_list=${model_file_format:-"pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"}
 ## Get machine
@@ -221,7 +221,7 @@ export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 
-if [[ "$machine" =~ ^(HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
+if [[ "$machine" =~ ^(URSA|HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"

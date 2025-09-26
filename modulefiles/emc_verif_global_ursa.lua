@@ -2,9 +2,6 @@ help([[
 Load environment to run EMC_verif-global on Hera using Intel
 ]])
 
-hpss_ver=os.getenv("hpss_ver") or "hpss"
-load(pathJoin("hpss", hpss_ver))
-
 grads_ver=os.getenv("grads_ver","2.2.3")
 load(pathJoin("grads",grads_ver))
 
@@ -31,7 +28,7 @@ load(pathJoin("libjpeg", libjpeg_ver))
 libpng_ver=os.getenv("libpng_ver") or "1.6.37"
 load(pathJoin("libpng", libpng_ver))
 
-zlib_ver=os.getenv("zlib_ver") or "1.2.11"
+zlib_ver=os.getenv("zlib_ver") or "1.2.13"
 load(pathJoin("zlib", zlib_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.32"
@@ -58,5 +55,5 @@ load(pathJoin("metplus", metplus_ver))
 bufr_ver=os.getenv("bufr_ver") or "12.1.0"
 load(pathJoin("bufr", bufr_ver))
 
-cdo_ver=os.getenv("cdo_ver") or "2.3.0"
+cdo_ver=os.getenv("cdo_ver") or "2.4.4"
 load(pathJoin("cdo", cdo_ver))

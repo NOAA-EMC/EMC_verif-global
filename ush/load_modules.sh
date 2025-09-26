@@ -50,19 +50,11 @@ elif [ $machine = HERA ]; then
     module purge
     module use ${HOMEverif_global}/modulefiles
     module load emc_verif_global_hera
-    if [ $MET_version = 9.1 ]; then
-        export HOMEMET="/contrib/met/9.1.3"
-        export HOMEMET_bin_exec="bin"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [ $METplus_version = 3.1 ]; then
-        export HOMEMETplus="${METPLUS_PATH}"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
+elif [ $machine = URSA ]; then
+    source /apps/lmod/lmod/init/sh
+    module purge
+    module use ${HOMEverif_global}/modulefiles
+    module load emc_verif_global_ursa
 elif [ $machine = ORION ]; then
     source /apps/other/lmod/lmod/init/sh
     module purge
@@ -169,7 +161,7 @@ if [ $machine != "ORION" ]; then
     if [ $machine == "S4" ]; then
         export HTAR="/null/htar"
         export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" -o $machine == "WCOSS2" -o $machine == "HERA" ]; then
+    elif [ $machine == "JET" -o $machine == "WCOSS2" -o $machine == "HERA" -o $machine == "URSA" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
     else

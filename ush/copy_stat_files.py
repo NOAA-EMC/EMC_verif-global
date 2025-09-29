@@ -129,10 +129,9 @@ for RUN_type in RUN_type_list:
                         )
                 else:
                     print("**************************************************")
-                    print("** ERROR: "+verif_global_file+" "
-                          +"was not generated or zero size")
+                    print("** WARNING: "+verif_global_file+" "
+                          +"was either not generated or zero size. So SKIP copying this file")
                     print("**************************************************\n")
-                    sys.exit(1)
         date = date + datetime.timedelta(days=1)
 
 print("END: "+os.path.basename(__file__))

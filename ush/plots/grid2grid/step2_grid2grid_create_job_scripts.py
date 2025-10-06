@@ -485,7 +485,7 @@ for case_type in case_type_list:
                 job_env_dict['obs_list'] = (
                     obs_list[model_list.index(loop_info[3])]
                 )
-                obs_list[model_list.index(loop_info[3])]
+                job_env_dict['line_type'] = loop_info[0]
                 job_env_dict['vx_mask'] = loop_info[2]
                 if JOB_GROUP == 'filter_stats':
                     job_env_dict['fcst_var_thresh'] = loop_info[4]
@@ -519,7 +519,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_command('grid2grid_plots.py',[])
+                    vfg_util.python_g2g_command('grid2grid_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -649,7 +649,7 @@ for case_type in case_type_list:
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_command('grid2grid_plots.py',[])
+                            vfg_util.python_g2g_command('grid2grid_plots.py',[])
                             +'\n'
                         )
                         job.close()

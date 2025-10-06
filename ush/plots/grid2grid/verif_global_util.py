@@ -75,6 +75,27 @@ def python_command(python_script_name, script_arg_list):
         python_cmd = python_cmd+' '+script_arg
     return python_cmd
 
+def python_g2g_command(python_script_name, script_arg_list):
+    """! Write out full call to python for ush/plots/grid2grid
+
+         Args:
+             python_script_name - python script name (string)
+             script_arg_list    - list of script arguments (strings)
+
+         Returns:
+             python_cmd - full call to python (string)
+    """
+    python_script = os.path.join(os.environ['USHverif_global'],
+                                 'plots', 'grid2grid',
+                                 python_script_name)
+    if not os.path.exists(python_script):
+        print("FATAL ERROR: "+python_script+" DOES NOT EXIST")
+        sys.exit(1)
+    python_cmd = 'python '+python_script
+    for script_arg in script_arg_list:
+        python_cmd = python_cmd+' '+script_arg
+    return python_cmd
+
 def check_file_exists_size(file_name):
     """! Checks to see if file exists and has size greater than 0
 

@@ -37,8 +37,9 @@ export RUN_MAPSDA="NO"
 # GENERAL SETTINGS APPLIED TO ALL USE CASES
 ####################################################
 ## INPUT DATA SETTINGS
+#prod_ver:               ops version of current model
+#dev_ver:                development version of model
 #model_list:             model names
-#model_dir_list:         directory path to model forecast and analysis files
 #model_stat_dir_list:    directory path to model .stat files
 export prod_ver=16
 export dev_ver=17
@@ -46,7 +47,7 @@ export model_list="gfsv${prod_ver} gfsv${dev_ver}"
 export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/prod /gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/dev"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone"
+export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
 ## DATE SETTINGS
 #start_date:          verification start date, format YYYYMMDD
 #end_date:            verification end date, format YYYYMMDD
@@ -114,7 +115,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
     export g2g2_type_list="anom pres sfc"
     export g2g2_anom_truth_name_list="self_anl self_anl"
-    export g2g2_anom_gather_by_list="VALID"
+    export g2g2_anom_gather_by_list="VALID VALID"
     export g2g2_anom_fcyc_list="00"
     export g2g2_anom_vhr_list="00"
     export g2g2_anom_fhr_min="00"
@@ -122,7 +123,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_anom_event_eq="False"
     export g2g2_anom_grid="G002"
     export g2g2_pres_truth_name_list="self_anl self_anl"
-    export g2g2_pres_gather_by_list="VALID"
+    export g2g2_pres_gather_by_list="VALID VALID"
     export g2g2_pres_fcyc_list="00"
     export g2g2_pres_vhr_list="00"
     export g2g2_pres_fhr_min="00"
@@ -130,7 +131,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_pres_event_eq="False"
     export g2g2_pres_grid="G002"
     export g2g2_sfc_truth_name_list="self_f00 self_f00"
-    export g2g2_sfc_gather_by_list="VALID"
+    export g2g2_sfc_gather_by_list="VALID VALID"
     export g2g2_sfc_fcyc_list="00"
     export g2g2_sfc_vhr_list="00"
     export g2g2_sfc_fhr_min="00"

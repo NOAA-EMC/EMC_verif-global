@@ -325,7 +325,7 @@ elif JOB_GROUP == 'make_plots':
                                         'plot_by_'+plot_by,
                                         'filter_stats', CASE_TYPE)
     if plot == 'time_series':
-        import plots.grid2grid.plot_time_series as p_ts
+        import plot_time_series as p_ts
         for ts_info in \
                 list(itertools.product(valid_hrs, fhrs, var_info)):
             date_info_dict['valid_hr_start'] = str(ts_info[0])
@@ -362,7 +362,7 @@ elif JOB_GROUP == 'make_plots':
                                           met_info_dict, logo_dir)
                 plot_ts.make_time_series()
     elif plot == 'lead_average':
-        import plots.grid2grid.plot_lead_average as p_la
+        import plot_lead_average as p_la
         for la_info in list(itertools.product(valid_hrs, var_info)):
             date_info_dict['valid_hr_start'] = str(la_info[0])
             date_info_dict['valid_hr_end'] = str(la_info[0])
@@ -396,7 +396,7 @@ elif JOB_GROUP == 'make_plots':
                                            met_info_dict, logo_dir)
                 plot_la.make_lead_average()
     elif plot == 'lead_by_date':
-        import plots.grid2grid.plot_lead_by_date as p_lbd
+        import plot_lead_by_date as p_lbd
         for lbd_info in list(itertools.product(valid_hrs, var_info)):
             date_info_dict['valid_hr_start'] = str(lbd_info[0])
             date_info_dict['valid_hr_end'] = str(lbd_info[0])
@@ -430,7 +430,7 @@ elif JOB_GROUP == 'make_plots':
                                             met_info_dict, logo_dir)
                 plot_lbd.make_lead_by_date()
     elif plot == 'lead_by_level':
-        import plots.grid2grid.plot_lead_by_level as p_lbl
+        import plot_lead_by_level as p_lbl
         fhrs_lbl = fhrs
         vert_profiles = [os.environ['vert_profile']]
         for lbl_info in list(itertools.product(valid_hrs, vert_profiles)):
@@ -473,7 +473,7 @@ elif JOB_GROUP == 'make_plots':
                                                  met_info_dict, logo_dir)
                     plot_lbl.make_lead_by_level()
     elif plot == 'date_by_level':
-        import plots.grid2grid.plot_date_by_level as p_dbl
+        import plot_date_by_level as p_dbl
         vert_profiles = [os.environ['vert_profile']]
         for dbl_info in list(itertools.product(valid_hrs, fhrs, vert_profiles)):
             date_info_dict['valid_hr_start'] = str(dbl_info[0])

@@ -14,21 +14,9 @@ export VDATE=${VDATE:-$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} - ${VRFYBACK_HRS}
 export vPDY=${VDATE:0:8}
 cyc2run="${cyc}"
 
-# Check if we are on the first YMD
-if [[ ${SDATE_GFS} == ${VDATE} ]]; then
-    start_cyc=${SDATE_GFS:8:2}
-else
-    start_cyc=0
-fi
-
-# Check if we are on the last YMD
-if [[ ${EDATE_GFS} == ${VDATE} ]]; then
-    cyc2run=${EDATE_GFS:8:2}
-fi
-
 #Determine which cycles to run
-export fcyc_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${cyc2run} )"
-export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${cyc2run} )"
+export fcyc_list="$(seq -s ' ' -f '%02g' ${cyc2run} ${INTERVAL_GFS:-24} ${cyc2run} )"
+export vhr_list="$(seq -s ' ' -f '%02g' ${cyc2run} ${INTERVAL_GFS:-24} ${cyc2run} )"
 
 # Map the global workflow environment variables to EMC_verif-global variables
 export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}

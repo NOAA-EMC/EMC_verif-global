@@ -22,26 +22,26 @@ set -eux
 # Set a base working directory.  Subdirectories for each job will be created under this.
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Set the root path to the verif-global package
-export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global
+export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global_step2_ss193/EMC_verif-global
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
 # Change PSLOT to the name of your experiment
-export PSLOT=gfs_dev
+export PSLOT=gfs_new
 # Set the start and end date of the experiment's GFS cycles
-export SDATE_GFS=2024111600
-export EDATE_GFS=2024112118
+export SDATE_GFS=2023070100
+export EDATE_GFS=2023073100
 # Set the frequency at which the GFS cycles were run
-export INTERVAL_GFS=6
+export INTERVAL_GFS=24
 # Set the verification date and cycle of interest
-export PDY=20241121
+export PDY=20230731
 # cyc specifies the last forecast init time to use. 
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
-export cyc=18
+export cyc=00
 # Set just one of these at a time to "YES":
-export RUN_GRID2GRID_STEP1=NO
+export RUN_GRID2GRID_STEP1=YES
 export RUN_GRID2OBS_STEP1=NO
 export RUN_PRECIP_STEP1=NO   # Note that you need 30 hours of PGB data to run precip step 1
-export RUN_SATELLITE_STEP1=YES
+export RUN_SATELLITE_STEP1=NO
 # Minimum and maximum forecast hours to verify
 export FHMIN_GFS=0
 export FHMAX_GFS=120
@@ -62,8 +62,8 @@ export KEEPDATA=YES
 ##################DO NOT EDIT BELOW THIS LINE######################
 
 # Load the needed modules for METplus
-module use /autofs/ncrc-svm1_proj/epic/c6/spack-stack/spack-stack-1.9.1/envs/emc-gv-intel-2023.2.0/install/modulefiles/Core
-module load stack-intel
+module use /ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.3/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi
 module load stack-cray-mpich
 module load stack-python
 module load metplus/6.0.0
@@ -165,7 +165,7 @@ export nproc=${tasks_per_node:-1}
 ## EMC_VERIF_GLOBAL SETTINGS
 export VERIF_GLOBALSH=${HOMEverif_global}/ush/run_verif_global_in_global_workflow.sh
 ## INPUT DATA SETTINGS
-export model=gfs
+export model=gfsv17
 export model_file_format="pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"
 ### DBH Note -- I don't think this is needed for this script
 ##export model_hpss_dir=${ATARDIR}/..

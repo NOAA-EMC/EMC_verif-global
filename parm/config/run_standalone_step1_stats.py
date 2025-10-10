@@ -31,6 +31,24 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
     logfile = f"{log_dir}/{jobname}_{date_str}.log"
     run_batch_file = f"submit_{machine_name}_{application_name}_{date_str}.sh" # The output script name
 
+    # Check for and remove existing files ---
+    if os.path.exists(run_batch_file):
+        try:
+            os.remove(run_batch_file)
+            print(f"INFO: Removed existing script file '{run_batch_file}'.")
+        except OSError as e:
+            print(f"Error: Could not remove existing script file '{run_batch_file}': {e}")
+            sys.exit(1)
+
+    # Check for the log file only for wcoss2, as it's the only one that defines a specific log file
+    if machine_name == 'wcoss2' and os.path.exists(logfile):
+        try:
+            os.remove(logfile)
+            print(f"INFO: Removed existing log file '{logfile}'.")
+        except OSError as e:
+            print(f"Error: Could not remove existing log file '{logfile}': {e}")
+            sys.exit(1)
+
     # Define static variables (can be changed as needed)
     task_cpu = "01:00:00"
     if application_name == 'g2o':
@@ -171,7 +189,7 @@ if __name__ == "__main__":
     common_script_to_append = "standalone_step1_stats.append"
 
     # --- Define allowed inputs ---
-    ALLOWED_MACHINES = ['gaea', 'wcoss2']
+    ALLOWED_MACHINES = ['gaea']
     ALLOWED_APPLICATIONS = ['g2o', 'g2g', 'precip', 'sat']
 
     # --- Check for number of USER-PROVIDED arguments ---

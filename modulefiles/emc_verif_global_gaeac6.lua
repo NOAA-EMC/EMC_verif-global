@@ -4,7 +4,7 @@ Load environment to run EMC_verif-global on Gaea-C6 using Intel
 
 prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.3/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
 
-stack_intel_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
+stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
 load(pathJoin("stack-oneapi", stack_oneapi_ver))
 
 Core_ver=os.getenv("Core_ver") or "24.11"

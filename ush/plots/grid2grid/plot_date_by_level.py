@@ -513,7 +513,8 @@ class DateByLevel:
                             ax.clabel(CN, CN.levels,
                                       fmt=CN_fmt, inline=True,
                                       fontsize=12.5)
-                        if not make_colorbar:make_colorbar = True
+                        if not make_colorbar:
+                            make_colorbar = True
                             cbar_CF = CFN
                             cbar_ticks = CFN.levels
                             if self.plot_info_dict['stat'] in ['BIAS', 'ME',

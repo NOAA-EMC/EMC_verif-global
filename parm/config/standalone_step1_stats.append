@@ -4,24 +4,11 @@
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
-# Change PSLOT to the name of your experiment
-export PSLOT=gfs_dev
 # Set the frequency at which the GFS cycles were run
 export INTERVAL_GFS=6
 # cyc specifies the last forecast init time to use. 
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
-# Minimum and maximum forecast hours to verify
-export FHMIN_GFS=0
-export FHMAX_GFS=120
-
-# Set the location of your online archive
-export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
-# NOTE: the location of the statistic files will be one directory up from ARCDIR
-#       then appended by /metplus_data/by_VSDB/
-#       followed by the validation type (e.g. grid2grid, grid2obs, precip)
-#       validation subtype (e.g. pres, sfc, upper_air, conus_sfc, ccpa_accum24hr)
-#       then /${cyc}z/${model}/${model}_${PDY}.stat
 #
 # Whether to keep the temporary working directory or not
 export KEEPDATA=YES

@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 
-def create_run_script(target_date, machine_name, application_name, number_of_model_days_for_stats, common_script_to_append):
+def create_run_script(target_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, experiment_name, user_model_output_location):
     """
     Generates a SLURM or PBS batch script for a specific date to transfer a file to stats.
 
@@ -12,19 +12,27 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
         target_date (datetime.date): The date for which to generate the script.
         machine_name (str): The name of the machine (e.g., 'gaea', 'wcoss2').
         application_name (str): The name of the application (e.g., 'g2o').
-        number_of_model_days_for_stats (int): The number of days to subtract from the target date for SDATE_GFS.
+        max_forecast_hour_for_stats (int): The maximum forecast hour to consider for stats.
         common_script_to_append (str): The name of the common script file to append.
+        experiment_name (str): The name of the experiment for the PSLOT variable.
+        user_model_output_location (str): The base path for user model output.
     """
     # --- 1. Define Variables ---
     # Format the date into 'yyyymmdd' string
     date_str = target_date.strftime('%Y%m%d')
 
+    # Calculate number of days from hours for date calculations
+    number_of_model_days = max_forecast_hour_for_stats // 24
+
     # Calculate dependent GFS dates
-    sdate_gfs = target_date - datetime.timedelta(days=number_of_model_days_for_stats)
+    sdate_gfs = target_date - datetime.timedelta(days=number_of_model_days)
     edate_gfs = target_date
     sdate_gfs_str = sdate_gfs.strftime('%Y%m%d') + '00'
     edate_gfs_str = edate_gfs.strftime('%Y%m%d') + '18'
-
+    
+    # Define model input location for step1_stats
+    step1_model_input_directory = f"{user_model_output_location}/${{PSLOT}}"
+    
     # Define date-dependent variables
     jobname = f"{machine_name}_{application_name}_stats_{date_str}"
     log_dir = "." # Set log directory to the current directory
@@ -125,6 +133,10 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
             sh.write("export INTERVAL_GFS=6\n")
             sh.write("# Set the verification date and cycle of interest\n")
             sh.write(f"export PDY={date_str}\n")
+            sh.write("# Minimum and maximum forecast hours to verify\n")
+            sh.write("export FHMIN_GFS=0\n")
+            sh.write(f"export FHMAX_GFS={max_forecast_hour_for_stats}\n")
+
 
             # --- Set Application Run Flags ---
             sh.write("\n")
@@ -138,6 +150,21 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
             sh.write("\n")
             sh.write("# Set the root path to the verif-global package\n")
             sh.write(f"export HOMEverif_global=\"{home_verif_global_path}\"\n")
+            
+            # --- Set Experiment Name ---
+            sh.write("\n")
+            sh.write("# Change PSLOT to the name of your experiment\n")
+            sh.write(f"export PSLOT={experiment_name}\n")
+
+            # --- Set Archive Directory ---
+            sh.write("\n")
+            sh.write("# Set the location of your online archive\n")
+            sh.write(f"export ARCDIR={step1_model_input_directory}\n")
+            sh.write("# NOTE: the location of the statistic files will be one directory up from ARCDIR\n")
+            sh.write("#       then appended by /metplus_data/by_${gather_by}/\n")
+            sh.write("#       followed by the validation type (e.g. grid2grid, grid2obs, precip)\n")
+            sh.write("#       validation type (e.g. pres, sfc, upper_air, conus_sfc, ccpa_accum24hr)\n")
+            sh.write("#       then /${cyc}z/${model}/${model}_${PDY}.stat\n")
 
 
         print(f"Successfully created initial script: '{run_batch_file}'")
@@ -164,14 +191,28 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
         return
 
     # --- 4. Print info and submit the job ---
-    print("Script   = "+run_batch_file)
+    print("Script    = "+run_batch_file)
+    
+    # Expand application name for the pattern
+    app_map = {
+        'g2o': 'grid2obs',
+        'g2g': 'grid2grid',
+        'precip': 'precip',
+        'sat': 'satellite'
+    }
+    expanded_app_name = app_map.get(application_name, application_name)
+    
+    # Speculate on the final stats directory based on the script's comments
+    stats_dir_pattern = f"{user_model_output_location}/metplus_data/by_${{gather_by}}/{expanded_app_name}/<validation_type>/${{cyc}}z/${{model}}/"
 
     if machine_name == 'gaea':
-        print(f"Log File Pattern = {jobname}.out.%j")
+        print(f"Log File Pattern  = {jobname}.out.%j")
+        print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"sbatch {run_batch_file}"
         ## submission_command = f"cat {run_batch_file}"
     elif machine_name == 'wcoss2':
-        print("Log File = "+logfile)
+        print("Log File          = "+logfile)
+        print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"qsub {run_batch_file}"
     else:
         submission_command = None
@@ -185,9 +226,12 @@ def create_run_script(target_date, machine_name, application_name, number_of_mod
 # --- Main execution block to demonstrate usage ---
 if __name__ == "__main__":
     # --- Define settings ---
-    number_of_model_days_for_stats = 5
-    common_script_to_append = "standalone_step1_stats.append"
-
+    max_forecast_hour_for_stats = 120 # 5 days
+    experiment_name = "gfs_dev"
+    # Define user-defined model output location
+    user_model_output_location = "/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive"
+    common_script_to_append = "standalone_step1_stats.append_p2"
+    
     # --- Define allowed inputs ---
     ALLOWED_MACHINES = ['gaea']
     ALLOWED_APPLICATIONS = ['g2o', 'g2g', 'precip', 'sat']
@@ -257,7 +301,7 @@ if __name__ == "__main__":
     current_date = start_date
     while current_date <= end_date:
         print(f"--- Generating script for {current_date.strftime('%Y-%m-%d')} ---")
-        create_run_script(current_date, machine_name, application_name, number_of_model_days_for_stats, common_script_to_append)
+        create_run_script(current_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, experiment_name, user_model_output_location)
         current_date += delta
         print("-" * 30)
 

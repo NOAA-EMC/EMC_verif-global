@@ -1737,7 +1737,7 @@ def calculate_stat(logger, data_df, line_type, stat):
            mse = UVFFBAR + UVOOBAR - 2*UVFOBAR
            var_o = UVOOBAR - UOBAR*UOBAR - VOBAR*VOBAR
            stat_df = 1 - mse/var_o
-   elif stat == 'rsd': # Ratio of Standard Deviation
+   elif stat == 'RSD': # Ratio of Standard Deviation
        if line_type == 'SL1L2':
            var_f = FFBAR - FBAR*FBAR
            var_o = OOBAR - OBAR*OBAR
@@ -1748,12 +1748,12 @@ def calculate_stat(logger, data_df, line_type, stat):
            stat_df = np.sqrt(var_f)/np.sqrt(var_o)
        elif line_type == 'VCNT':
            stat_df = FSTDEV/OSTDEV
-   elif stat == 'rmse_md': # Root Mean Square Error from Mean Error
+   elif stat == 'RMSE_MD': # Root Mean Square Error from Mean Error
        if line_type == 'SL1L2':
            stat_df = np.sqrt((FBAR-OBAR)**2)
        elif line_type == 'VL1L2':
            stat_df = np.sqrt((UFBAR - UOBAR)**2 + (VFBAR - VOBAR)**2)
-   elif stat == 'rmse_pv': # Root Mean Square Error from Pattern Variation
+   elif stat == 'RMSE_PV': # Root Mean Square Error from Pattern Variation
        if line_type == 'SL1L2':
            var_f = FFBAR - FBAR**2
            var_o = OOBAR - OBAR**2

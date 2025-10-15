@@ -226,9 +226,9 @@ class PlotSpecs:
             'SRATIO': 'Success Ratio (1-FAR)',
             'STDEV_ERR': 'Standard Deviation of Error',
             'MSESS': "Murphy's Mean Square Error Skill Score",
-            'rsd': 'Ratio of Standard Deviation',
-            'rmse_md': 'Root Mean Square Error from Mean Error',
-            'rmse_pv': 'Root Mean Square Error from Pattern Variation'
+            'RSD': 'Ratio of Standard Deviation',
+            'RMSE_MD': 'Root Mean Square Error from Mean Error',
+            'RMSE_PV': 'Root Mean Square Error from Pattern Variation'
         }
         if stat in list(stat_plot_name_dict.keys()):
             stat_plot_name = stat_plot_name_dict[stat]
@@ -518,7 +518,9 @@ class PlotSpecs:
             'ghrsst_ospo': 'GHRSST-OSPO',
             'ADPSFC': 'METARS',
             'gfsv16': "Model's Own Anl.",
-            'gfsv16_anl': "Model's Own Anl."
+            'gfsv16_anl': "Model's Own Anl.",
+            'gfsv17': "Model's Own Anl.",
+            'gfsv17_anl': "Model's Own Anl."
         }
         if ob_name in list(obs_plot_name_dict.keys()):
             obs_plot_name = obs_plot_name_dict[ob_name]

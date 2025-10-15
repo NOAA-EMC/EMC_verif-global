@@ -72,18 +72,18 @@ class DateByLevel:
             self.logger.error("Cannot make date_by_level for stat "
                               +f"{self.plot_info_dict['stat']}")
             sys.exit(1)
-        plot_specs_lbl = PlotSpecs(self.logger, 'date_by_level')
+        plot_specs_dbl = PlotSpecs(self.logger, 'date_by_level')
         self.logger.info(f"Building data for {self.plot_info_dict['stat']} "
                          +"- vertical profile "
                          +f"{self.plot_info_dict['vert_profile']}")
-        vert_profile_levels = plot_specs_lbl.get_vert_profile_levels(
+        vert_profile_levels = plot_specs_dbl.get_vert_profile_levels(
             self.plot_info_dict['vert_profile']
         )
         if self.plot_info_dict['fcst_var_name'] == 'O3MR' and \
-                self.plot_info_dict['vert_profile'] in ['all', 'strat']:
-            if self.plot_info_dict['vert_profile'] == 'all':
-                for lvl in ['P1000', 'P850', 'P700', 'P500', 'P200']:
-                    vert_profile_levels.remove(lvl)
+                self.plot_info_dict['vert_profile'] == 'all':
+            vert_profile_levels = ['P100', 'P70', 'P50', 'P30', 'P20', 'P10', 'P5', 'P1']
+            #for lvl in ['P1000', 'P850', 'P700', 'P500', 'P200']:
+                #vert_profile_levels.remove(lvl)
         vert_profile_levels_int = np.empty(len(vert_profile_levels),
                                            dtype=int)
         self.plot_info_dict['fcst_var_level'] = (
@@ -141,18 +141,17 @@ class DateByLevel:
                                   +', '.join(format_valid_dates))
                 plot_dates = init_dates
             # Read in data
-            level_input_dir = os.path.join(
-                self.input_dir, '..', '..',
-                self.input_dir, '..', '..',
-                f"{self.plot_info_dict['fcst_var_name'].lower()}_"
-                +f"{level.lower()}",
-                (self.plot_info_dict['vx_mask'].lower()\
-                 .replace('global', 'glb'))
-            )
-            self.logger.info("Reading in model stat files from "
-                             +f"{level_input_dir}")
+            #level_input_dir = os.path.join(
+                #self.input_dir, '..', '..',
+                #f"{self.plot_info_dict['fcst_var_name'].lower()}_"
+                #+f"{level.lower()}",
+                #(self.plot_info_dict['vx_mask'].lower()\
+                 #.replace('global', 'glb'))
+            #)
+            #self.logger.info("Reading in model stat files from "
+                             #+f"{level_input_dir}")
             all_model_df = vfg_util.build_df(
-                'make_plots', self.logger, level_input_dir, self.output_dir,
+                'make_plots', self.logger, self.input_dir, self.output_dir,
                 self.model_info_dict, self.met_info_dict,
                 self.plot_info_dict['fcst_var_name'],
                 level,
@@ -409,6 +408,7 @@ class DateByLevel:
                     or (nsubplots % 2 != 0 \
                         and model_idx_list.index(model_idx) \
                         == nsubplots-1):
+                ax.xaxis.set_major_formatter(md.DateFormatter('%HZ %d%b%Y'))
                 ax.set_xlabel(self.date_info_dict['plot_by'].title()+' Date')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)

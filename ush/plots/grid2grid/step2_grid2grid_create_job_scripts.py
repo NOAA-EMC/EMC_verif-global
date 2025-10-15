@@ -555,7 +555,7 @@ for case_type in case_type_list:
                                             'date_by_level']:
                     if case_type_plot_jobs_dict[case_type_job]\
                             ['fcst_var_dict']['name'] == 'O3MR':
-                        plot_fcst_levels_loop = ['all', 'strat']
+                        plot_fcst_levels_loop = 'all'
                     else:
                         plot_fcst_levels_loop = ['all', 'trop', 'strat',
                                                  'ltrop', 'utrop']

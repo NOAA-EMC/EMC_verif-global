@@ -10,8 +10,8 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
 
     Args:
         target_date (datetime.date): The date for which to generate the script.
-        machine_name (str): The name of the machine (e.g., 'gaea', 'wcoss2').
-        application_name (str): The name of the application (e.g., 'g2o').
+        machine_name (str): The name of the machine (e.g., 'gaeac6', 'wcoss2').
+        application_name (str): The name of the application (e.g., 'grid2obs').
         max_forecast_hour_for_stats (int): The maximum forecast hour to consider for stats.
         common_script_to_append (str): The name of the common script file to append.
         experiment_name (str): The name of the experiment for the PSLOT variable.
@@ -59,7 +59,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
 
     # Define static variables (can be changed as needed)
     task_cpu = "01:00:00"
-    if application_name == 'g2o':
+    if application_name == 'grid2obs':
         # Convert HH:MM:SS string to timedelta, add 30 minutes, and convert back
         h, m, s = map(int, task_cpu.split(':'))
         new_time = datetime.timedelta(hours=h, minutes=m, seconds=s) + datetime.timedelta(minutes=30)
@@ -85,7 +85,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             sh.write("#!/usr/bin/env bash\n")
 
             # --- GAEA (SLURM) Job Card ---
-            if machine_name == 'gaea':
+            if machine_name == 'gaeac6':
                 account = "gfs-cpu"
                 partition = "batch"
                 clusters = "c6"
@@ -118,7 +118,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             # --- Set Machine Name ---
             sh.write("\n")
             sh.write("# Set the machine name\n")
-            if machine_name == 'gaea':
+            if machine_name == 'gaeac6':
                 sh.write("export machine=gaeac6\n")
             elif machine_name == 'wcoss2':
                 sh.write("export machine=wcoss2\n")
@@ -141,10 +141,10 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             # --- Set Application Run Flags ---
             sh.write("\n")
             sh.write("# Set just one of these at a time to \"YES\":\n")
-            sh.write(f"export RUN_GRID2GRID_STEP1={'YES' if application_name == 'g2g' else 'NO'}\n")
-            sh.write(f"export RUN_GRID2OBS_STEP1={'YES' if application_name == 'g2o' else 'NO'}\n")
+            sh.write(f"export RUN_GRID2GRID_STEP1={'YES' if application_name == 'grid2grid' else 'NO'}\n")
+            sh.write(f"export RUN_GRID2OBS_STEP1={'YES' if application_name == 'grid2obs' else 'NO'}\n")
             sh.write(f"export RUN_PRECIP_STEP1={'YES' if application_name == 'precip' else 'NO'}\n")
-            sh.write(f"export RUN_SATELLITE_STEP1={'YES' if application_name == 'sat' else 'NO'}\n")
+            sh.write(f"export RUN_SATELLITE_STEP1={'YES' if application_name == 'satellite' else 'NO'}\n")
             
             # --- Set verif-global Path ---
             sh.write("\n")
@@ -193,23 +193,13 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
     # --- 4. Print info and submit the job ---
     print("Script    = "+run_batch_file)
     
-    # Expand application name for the pattern
-    app_map = {
-        'g2o': 'grid2obs',
-        'g2g': 'grid2grid',
-        'precip': 'precip',
-        'sat': 'satellite'
-    }
-    expanded_app_name = app_map.get(application_name, application_name)
-    
     # Speculate on the final stats directory based on the script's comments
-    stats_dir_pattern = f"{user_model_output_location}/metplus_data/by_${{gather_by}}/{expanded_app_name}/<validation_type>/${{cyc}}z/${{model}}/"
+    stats_dir_pattern = f"{user_model_output_location}/metplus_data/by_${{gather_by}}/{application_name}/<validation_type>/${{cyc}}z/${{model}}/"
 
-    if machine_name == 'gaea':
+    if machine_name == 'gaeac6':
         print(f"Log File Pattern  = {jobname}.out.%j")
         print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"sbatch {run_batch_file}"
-        ## submission_command = f"cat {run_batch_file}"
     elif machine_name == 'wcoss2':
         print("Log File          = "+logfile)
         print(f"Stats Dir Pattern = {stats_dir_pattern}")
@@ -230,11 +220,11 @@ if __name__ == "__main__":
     experiment_name = "gfs_dev"
     # Define user-defined model output location
     user_model_output_location = "/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive"
-    common_script_to_append = "standalone_step1_stats.append_p2"
+    common_script_to_append = "standalone_step1_stats.append"
     
     # --- Define allowed inputs ---
-    ALLOWED_MACHINES = ['gaea']
-    ALLOWED_APPLICATIONS = ['g2o', 'g2g', 'precip', 'sat']
+    ALLOWED_MACHINES = ['gaeac6']
+    ALLOWED_APPLICATIONS = ['grid2obs', 'grid2grid', 'precip', 'satellite']
 
     # --- Check for number of USER-PROVIDED arguments ---
     num_args = len(sys.argv) - 1

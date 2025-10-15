@@ -4,8 +4,6 @@
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
-# Set the frequency at which the GFS cycles were run
-export INTERVAL_GFS=6
 # cyc specifies the last forecast init time to use. 
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18

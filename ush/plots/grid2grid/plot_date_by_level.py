@@ -18,6 +18,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.dates as md
 import verif_global_util as vfg_util
 from grid2grid_plots_specs import PlotSpecs
 

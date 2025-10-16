@@ -83,8 +83,6 @@ class LeadByLevel:
         if self.plot_info_dict['fcst_var_name'] == 'O3MR' and \
                 self.plot_info_dict['vert_profile'] == 'all':
             vert_profile_levels = ['P100', 'P70', 'P50', 'P30', 'P20', 'P10', 'P5', 'P1']
-            #for lvl in ['P1000', 'P850', 'P700', 'P500', 'P200']:
-                #vert_profile_levels.remove(lvl)
         vert_profile_levels_int = np.empty(len(vert_profile_levels),
                                            dtype=int)
         self.plot_info_dict['fcst_var_level'] = (
@@ -144,15 +142,6 @@ class LeadByLevel:
                                       +', '.join(format_valid_dates))
                     plot_dates = init_dates
                 # Read in data
-                #level_input_dir = os.path.join(
-                    #self.input_dir, '..', '..',
-                    #f"{self.plot_info_dict['fcst_var_name'].lower()}_"
-                    #+f"{level.lower()}",
-                    #(self.plot_info_dict['vx_mask'].lower()\
-                     #.replace('global', 'glb'))
-                #)
-                #self.logger.info("Reading in model stat files from "
-                                 #+f"{level_input_dir}")
                 all_model_df = vfg_util.build_df(
                     'make_plots', self.logger, self.input_dir, self.output_dir,
                     self.model_info_dict, self.met_info_dict,
@@ -305,18 +294,6 @@ class LeadByLevel:
                 xtick_intvl = int(len(xticks)/n_xticks)
                 xticks = xticks[::xtick_intvl]
         vert_profile_levels_int_ticks = vert_profile_levels_int
-        if self.plot_info_dict['vert_profile'] == 'all' \
-                and self.plot_info_dict['fcst_var_name'] != 'O3MR':
-            for del_lev in [925, 700, 500, 250, 100]:
-                vert_profile_levels_int_ticks = np.delete(
-                    vert_profile_levels_int_ticks,
-                    np.where(vert_profile_levels_int_ticks == del_lev)
-                )
-        elif self.plot_info_dict['vert_profile'] == 'trop':
-            vert_profile_levels_int_ticks = np.delete(
-                vert_profile_levels_int_ticks,
-                np.where(vert_profile_levels_int_ticks == 925)
-            )
         fcst_units = np.unique(fcst_units)
         fcst_units = np.delete(fcst_units, np.where(fcst_units == 'nan'))
         if len(fcst_units) > 1:

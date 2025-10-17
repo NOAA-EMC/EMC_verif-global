@@ -1,69 +1,20 @@
-#!/usr/bin/env bash
-
-# LOOK HERE!!
-###################SET YOUR ACCOUNT########################
-#SBATCH --account=gfs-cpu
-##########################################################
-
-#SBATCH --job-name=metp
-#SBATCH --output=metp.out.%j
-### Set time longer for G2O
-#SBATCH --time=01:00:00
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --clusters=c6
-#SBATCH --partition=batch
-#SBATCH --qos=normal
-
-set -eux
-
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
 # Set a base working directory.  Subdirectories for each job will be created under this.
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
-# Set the root path to the verif-global package
-export HOMEverif_global=/gpfs/f6/drsa-precip3/world-shared/${USER}/EMC_verif-global
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
-# Change PSLOT to the name of your experiment
-export PSLOT=gfs_dev
-# Set the start and end date of the experiment's GFS cycles
-export SDATE_GFS=2024111600
-export EDATE_GFS=2024112118
-# Set the frequency at which the GFS cycles were run
-export INTERVAL_GFS=6
-# Set the verification date and cycle of interest
-export PDY=20241121
 # cyc specifies the last forecast init time to use. 
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
-# Set just one of these at a time to "YES":
-export RUN_GRID2GRID_STEP1=NO
-export RUN_GRID2OBS_STEP1=NO
-export RUN_PRECIP_STEP1=NO   # Note that you need 30 hours of PGB data to run precip step 1
-export RUN_SATELLITE_STEP1=YES
-# Minimum and maximum forecast hours to verify
-export FHMIN_GFS=0
-export FHMAX_GFS=120
-# Set the machine name
-#### Need lower case machine name defined
-export machine=gaeac6
-
-# Set the location of your online archive
-export ARCDIR=/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive/${PSLOT}
-# NOTE: the location of the statistic files will be one directory up from ARCDIR
-#       then appended by /metplus_data/by_VSDB/
-#       followed by the validation type (e.g. grid2grid, grid2obs, precip)
-#       validation subtype (e.g. pres, sfc, upper_air, conus_sfc, ccpa_accum24hr)
-#       then /${cyc}z/${model}/${model}_${PDY}.stat
 #
 # Whether to keep the temporary working directory or not
 export KEEPDATA=YES
 ##################DO NOT EDIT BELOW THIS LINE######################
 
 # Load the needed modules for METplus
-module use /autofs/ncrc-svm1_proj/epic/c6/spack-stack/spack-stack-1.9.1/envs/emc-gv-intel-2023.2.0/install/modulefiles/Core
-module load stack-intel
+module use /ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.3/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi
 module load stack-cray-mpich
 module load stack-python
 module load metplus/6.0.0

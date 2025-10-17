@@ -97,6 +97,7 @@ class DateByLevel:
             vert_profile_levels_int[vert_profile_levels.index(level)] = (
                 level[1:]
             )
+            self.logger.info(f"Building data for level {level}")
             # Get dates to plot
             self.logger.debug("Making valid and init date arrays")
             valid_dates, init_dates = vfg_util.get_plot_dates(
@@ -226,11 +227,11 @@ class DateByLevel:
             stat_vert_prof_forecast_hour_avg_df.index\
             .get_level_values(0).unique().tolist()
         )
-        fhr_idx_list = (
+        date_idx_list = (
             stat_vert_prof_forecast_hour_avg_df.index\
             .get_level_values(1).unique().tolist()
         )
-        ymesh, xmesh = np.meshgrid(vert_profile_levels_int, plot_dates)
+        ymesh, xmesh = np.meshgrid(vert_profile_levels_int, date_idx_list)
         nsubplots = len(model_idx_list)
         if nsubplots == 1:
             gs_row, gs_col = 1, 1
@@ -398,7 +399,7 @@ class DateByLevel:
                     or (nsubplots % 2 != 0 \
                         and model_idx_list.index(model_idx) \
                         == nsubplots-1):
-                ax.xaxis.set_major_formatter(md.DateFormatter('%HZ %d%b%Y'))
+                ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
                 ax.set_xlabel(self.date_info_dict['plot_by'].title()+' Date')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)

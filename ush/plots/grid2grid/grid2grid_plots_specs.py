@@ -991,7 +991,7 @@ class PlotSpecs:
         if stat in ['BIAS', 'ME', 'FBIAS']:
             subplotsN_cmap = subplot0_cmap
         else:
-            if stat == 'RMSE':
+            if stat in ['RMSE', 'RMSE_MD', 'RMSE_PV', 'FBAR_OBAR']:
                 cmap_diff_original = plt.cm.bwr
             else:
                 cmap_diff_original = plt.cm.bwr_r
@@ -1023,20 +1023,17 @@ class PlotSpecs:
             cmax = np.nanmax(data)
             cmin = -1 * np.nanmax(data)
         if cmax > 100:
-            clevels_cmax = cmax - (cmax * 0.2)
-            clevels_cmin = cmin + (cmin * 0.2)
+            cmax = cmax - (cmax * 0.2)
+            cmin = cmin + (cmin * 0.2)
         elif cmax > 10:
-            clevels_cmax = cmax - (cmax * 0.1)
-            clevels_cmin = cmin + (cmin * 0.1)
-        else:
-            clevels_cmax = cmax
-            clevels_cmin = cmin
+            cmax = cmax - (cmax * 0.1)
+            cmin = cmin + (cmin * 0.1)
         if cmax > 1:
-            clevels_round_cmin = round(clevels_cmin-1,0)
-            clevels_round_cmax = round(clevels_cmax+1,0)
+            cmin = round(cmin-1,0)
+            cmax = round(cmax+1,0)
         else:
-            clevels_round_cmin = round(clevels_cmin-0.1,1)
-            clevels_round_cmax = round(clevels_cmax+0.1,1)
+            cmin = round(cmin-0.1,1)
+            cmax = round(cmax+0.1,1)
         steps = 6
         span = cmax
         dx = 1.0 / (steps-1)
@@ -1080,7 +1077,7 @@ class PlotSpecs:
                 spacing = 2
             else:
                 spacing = 1.75
-            if stat == 'RMSE':
+            if stat in ['RMSE', 'RMSE_MD', 'RMSE_PV']:
                 steps = 12
                 dx = 1.0 / (steps-1)
                 have_subplot0_levs = True
@@ -1109,10 +1106,8 @@ class PlotSpecs:
                     have_subplotsN_levs = have_subplot0_levs
                     subplotsN_levs = subplot0_levs
                 if not have_subplotsN_levs:
-                    #for N in range(len(subplotsN_data[:,0,0])):
                     for N in range(len(np.array(subplotsN_data)[:,0,0])):
                         if stat in ['BIAS', 'ME', 'FBIAS']:
-                            #subplotN_data = subplotsN_data[N,:,:]
                             subplotN_data = np.array(subplotsN_data)[N,:,:]
                             if np.nanmax(subplotN_data) > 100:
                                 spacing = 2.25
@@ -1125,7 +1120,6 @@ class PlotSpecs:
                             elif stat == 'FBIAS':
                                 center_value = 1
                         else:
-                            #subplotN_data = (subplotsN_data[N,:,:]
                             subplotN_data = (np.array(subplotsN_data)[N,:,:]
                                              - subplot0_data)
                             center_value = 0

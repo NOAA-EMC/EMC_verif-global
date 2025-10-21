@@ -632,7 +632,8 @@ for case_type in case_type_list:
                         njobs+=1
                         job_env_dict['job_id'] = 'job'+str(njobs)
                         job_DATA_dir = os.path.join(DATA, RUN, 'plot_output',
-                                                    'images')
+                                                    'plot_by_'+plot_by,
+                                                    JOB_GROUP, case_type)
                         job_env_dict['job_DATA_dir'] = job_DATA_dir
                         vfg_util.make_dir(job_env_dict['job_DATA_dir'])
                         # Create job file

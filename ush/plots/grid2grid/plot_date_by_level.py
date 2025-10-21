@@ -140,95 +140,99 @@ class DateByLevel:
                                   +"with valid dates "
                                   +', '.join(format_valid_dates))
                 plot_dates = init_dates
-            # Read in data
-            all_model_df = vfg_util.build_df(
-                'make_plots', self.logger, self.input_dir, self.output_dir,
-                self.model_info_dict, self.met_info_dict,
-                self.plot_info_dict['fcst_var_name'],
-                level,
-                self.plot_info_dict['fcst_var_thresh'],
-                self.plot_info_dict['obs_var_name'],
-                level,
-                self.plot_info_dict['obs_var_thresh'],
-                self.plot_info_dict['line_type'],
-                self.plot_info_dict['grid'],
-                self.plot_info_dict['vx_mask'],
-                self.plot_info_dict['interp_method'],
-                self.plot_info_dict['interp_points'],
-                self.date_info_dict['plot_by'],
-                plot_dates, format_valid_dates,
-                str(self.date_info_dict['forecast_hour'])
-            )
-            fcst_units.extend(
-                all_model_df['FCST_UNITS'].values.astype('str')\
-                .tolist()
-            )
-            # Calculate statistic mean
-            self.logger.info("Calculating statstic "
-                             +f"{self.plot_info_dict['stat']} "
-                             +"from line type "
-                             +f"{self.plot_info_dict['line_type']} "
-                             +"average")
-            stat_df, stat_array = vfg_util.calculate_stat(
-                self.logger, all_model_df,
-                self.plot_info_dict['line_type'],
-                self.plot_info_dict['stat']
-            )
-            model_idx_list = (
-                stat_df.index.get_level_values(0).unique().tolist()
-            )
-            if self.plot_info_dict['event_equalization'] == 'YES':
-                self.logger.info("Doing event equalization")
-                masked_stat_array = np.ma.masked_invalid(stat_array)
-                stat_array = np.ma.mask_cols(masked_stat_array)
-                stat_array = stat_array.filled(fill_value=np.nan)
+            # Make dataframe for all dates
+            for plot_date in plot_dates:
+                self.logger.info(f"Building data for date {plot_date}")
+                # Read in data
+                all_model_df = vfg_util.build_df(
+                    'make_plots', self.logger, self.input_dir, self.output_dir,
+                    self.model_info_dict, self.met_info_dict,
+                    self.plot_info_dict['fcst_var_name'],
+                    level,
+                    self.plot_info_dict['fcst_var_thresh'],
+                    self.plot_info_dict['obs_var_name'],
+                    level,
+                    self.plot_info_dict['obs_var_thresh'],
+                    self.plot_info_dict['line_type'],
+                    self.plot_info_dict['grid'],
+                    self.plot_info_dict['vx_mask'],
+                    self.plot_info_dict['interp_method'],
+                    self.plot_info_dict['interp_points'],
+                    self.date_info_dict['plot_by'],
+                    plot_dates, format_valid_dates,
+                    str(self.date_info_dict['forecast_hour'])
+                )
+                fcst_units.extend(
+                    all_model_df['FCST_UNITS'].values.astype('str')\
+                    .tolist()
+                )
+                # Calculate statistic mean
+                self.logger.info("Calculating statistic "
+                                 +f"{self.plot_info_dict['stat']} "
+                                 +"from line type "
+                                 +f"{self.plot_info_dict['line_type']} "
+                                 +"average")
+                stat_df, stat_array = vfg_util.calculate_stat(
+                    self.logger, all_model_df,
+                    self.plot_info_dict['line_type'],
+                    self.plot_info_dict['stat']
+                )
+                model_idx_list = (
+                    stat_df.index.get_level_values(0).unique().tolist()
+                )
+                if self.plot_info_dict['event_equalization'] == 'YES':
+                    self.logger.info("Doing event equalization")
+                    masked_stat_array = np.ma.masked_invalid(stat_array)
+                    stat_array = np.ma.mask_cols(masked_stat_array)
+                    stat_array = stat_array.filled(fill_value=np.nan)
+                    for model_idx in model_idx_list:
+                        model_idx_num = model_idx_list.index(model_idx)
+                        stat_df.loc[model_idx] = stat_array[model_idx_num,:]
+                        all_model_df.loc[model_idx] = (
+                            all_model_df.loc[model_idx].where(
+                                stat_df.loc[model_idx].notna()
+                        ).values)
+                if level == vert_profile_levels[0] \
+                        and plot_date == plot_dates[0]:
+                    stat_vert_prof_dates_avg_df = pd.DataFrame(
+                        np.nan, pd.MultiIndex.from_product(
+                            [model_idx_list,
+                             plot_dates],
+                            names=['model', 'date']
+                        ),
+                        columns=vert_profile_levels
+                    )
                 for model_idx in model_idx_list:
                     model_idx_num = model_idx_list.index(model_idx)
-                    stat_df.loc[model_idx] = stat_array[model_idx_num,:]
-                    all_model_df.loc[model_idx] = (
-                        all_model_df.loc[model_idx].where(
-                            stat_df.loc[model_idx].notna()
-                    ).values)
-            if level == vert_profile_levels[0]:
-                stat_vert_prof_forecast_hour_avg_df = pd.DataFrame(
-                    np.nan, pd.MultiIndex.from_product(
-                        [model_idx_list,
-                         plot_dates],
-                        names=['model', 'date']
-                    ),
-                    columns=vert_profile_levels
-                )
-            for model_idx in model_idx_list:
-                model_idx_num = model_idx_list.index(model_idx)
-                if self.plot_info_dict['line_type'] in ['CNT', 'GRAD',
-                                                        'CTS',
-                                                        'NBRCTS',
-                                                        'NBRCNT',
-                                                        'VCNT']:
-                    avg_method = 'mean'
-                    calc_avg_df = stat_df.loc[model_idx]
-                else:
-                    avg_method = 'aggregation'
-                    calc_avg_df = all_model_df.loc[model_idx]
-                model_idx_forecast_hour_avg = vfg_util.calculate_average(
-                   self.logger, avg_method,
-                   self.plot_info_dict['line_type'],
-                   self.plot_info_dict['stat'], calc_avg_df
-                )
-                if not np.isnan(model_idx_forecast_hour_avg):
-                    stat_vert_prof_forecast_hour_avg_df.loc[
-                        (model_idx, plot_dates), level
-                    ] = model_idx_forecast_hour_avg
+                    if self.plot_info_dict['line_type'] in ['CNT', 'GRAD',
+                                                            'CTS',
+                                                            'NBRCTS',
+                                                            'NBRCNT',
+                                                            'VCNT']:
+                        avg_method = 'mean'
+                        calc_avg_df = stat_df.loc[model_idx]
+                    else:
+                        avg_method = 'aggregation'
+                        calc_avg_df = all_model_df.loc[model_idx]
+                    model_idx_forecast_hour_avg = vfg_util.calculate_average(
+                       self.logger, avg_method,
+                       self.plot_info_dict['line_type'],
+                       self.plot_info_dict['stat'], calc_avg_df
+                    )
+                    if not np.isnan(model_idx_forecast_hour_avg):
+                        stat_vert_prof_dates_avg_df.loc[
+                            (model_idx, plot_date), level
+                        ] = model_idx_forecast_hour_avg
         # Set up plot
         self.logger.info(f"Setting up plot")
         plot_specs_dbl = PlotSpecs(self.logger, 'date_by_level')
         plot_specs_dbl.set_up_plot()
         model_idx_list = (
-            stat_vert_prof_forecast_hour_avg_df.index\
+            stat_vert_prof_dates_avg_df.index\
             .get_level_values(0).unique().tolist()
         )
         date_idx_list = (
-            stat_vert_prof_forecast_hour_avg_df.index\
+            stat_vert_prof_dates_avg_df.index\
             .get_level_values(1).unique().tolist()
         )
         ymesh, xmesh = np.meshgrid(vert_profile_levels_int, date_idx_list)
@@ -336,13 +340,13 @@ class DateByLevel:
             self.plot_info_dict['stat']
         )
         subplot0_data = (
-            stat_vert_prof_forecast_hour_avg_df.loc[
+            stat_vert_prof_dates_avg_df.loc[
                 model_idx_list[0]
             ].values
         )
         for model_idx in model_idx_list[1:]:
             subplotN_data = (
-                stat_vert_prof_forecast_hour_avg_df.loc[
+                stat_vert_prof_dates_avg_df.loc[
                     model_idx
                 ].values
             )
@@ -387,7 +391,7 @@ class DateByLevel:
             model_num_obs_name = (
                 self.model_info_dict[model_num]['obs_name']
             )
-            model_num_data = stat_vert_prof_forecast_hour_avg_df.loc[
+            model_num_data = stat_vert_prof_dates_avg_df.loc[
                 model_idx
             ].values
             masked_model_num_data = np.ma.masked_invalid(model_num_data)

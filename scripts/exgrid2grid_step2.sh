@@ -8,7 +8,7 @@
 #
 # Usage:
 #   Parameters:
-#       agrument to script
+#       argument to script
 #   Input Files:
 #       file
 #   Output Files:
@@ -38,19 +38,19 @@ fi
 python $USHverif_global/check_config_step2.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran check_config_step2.py"
+[[ $status -eq 0 ]] && echo "Successfully ran check_config_step2.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
+[[ $status -eq 0 ]] && echo "Successfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
+[[ $status -eq 0 ]] && echo "Successfully sourced python_gen_env_vars.sh"
 echo
 
 # Link needed data files and set up model information
@@ -58,14 +58,14 @@ mkdir -p data
 python $USHverif_global/get_data_files_step2.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_data_files_step2.py"
+[[ $status -eq 0 ]] && echo "Successfully ran get_data_files_step2.py"
 echo
 
 # Create output directories for plots
 python $USHverif_global/create_step2_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_step2_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Successfully ran create_step2_output_dirs.py"
 echo
 
 # Create and run job scripts for condense_stats, filter_stats, and make_plots
@@ -75,7 +75,7 @@ for group in condense_stats filter_stats make_plots; do
     python $USHverif_global/plots/grid2grid/step2_grid2grid_create_job_scripts.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran step2_grid2grid_create_job_scripts.py"
+    [[ $status -eq 0 ]] && echo "Successfully ran step2_grid2grid_create_job_scripts.py"
     chmod u+x plot_job_scripts/$group/*
     group_ncount_poe=$(ls -l  plot_job_scripts/$group/poe* |wc -l)
     group_ncount_job=$(ls -l  plot_job_scripts/$group/job* |wc -l)
@@ -109,21 +109,21 @@ if [ $g2g2_make_scorecard = YES ]; then
     python $USHverif_global/plotting_scripts/plot_scorecard.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran plot_scorecard.py"
+    [[ $status -eq 0 ]] && echo "Successfully ran plot_scorecard.py"
 fi
 
 # Tar up plots
 python $USHverif_global/plots/grid2grid/step2_grid2grid_tar_images.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran step2_grid2grid_tar_images.py"
+[[ $status -eq 0 ]] && echo "Successfully ran step2_grid2grid_tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
+    [[ $status -eq 0 ]] && echo "Successfully ran build_webpage.py"
     echo
 else
     if [ $KEEPDATA = NO ]; then

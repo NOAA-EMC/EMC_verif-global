@@ -112,6 +112,12 @@ if [ $g2g2_make_scorecard = YES ]; then
     [[ $status -eq 0 ]] && echo "Succesfully ran plot_scorecard.py"
 fi
 
+# Tar up plots
+python $USHverif_global/plots/grid2grid/step2_grid2grid_tar_images.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran step2_grid2grid_tar_images.py"
+
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py

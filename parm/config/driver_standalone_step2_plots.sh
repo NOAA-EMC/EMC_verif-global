@@ -48,6 +48,8 @@ export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/pro
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
+#Archive directory for tar files
+export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/tar_plot_files"
 ## DATE SETTINGS
 #start_date:          verification start date, format YYYYMMDD
 #end_date:            verification end date, format YYYYMMDD
@@ -55,8 +57,8 @@ export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standal
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=20241119
-export end_date=20241121
+export start_date=20230706
+export end_date=20230731
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"
@@ -100,10 +102,8 @@ export SENDDBN_NTC="NO"
 if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #g2g2_model_plot_name_list: list of models reference name on plots
     #g2g2_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc
-    #### For each type the followings can be set, where [type] is anom, pres, or sfc
-    #####    g2g2_[type]_truth_name_list: list of analysis type used for model in step 1: self_anl, self_f00, gfs_anl, gfs_f00
-    #####                                                                                 gdas_anl, gdas_f00, ecm_f00, common_anl,
-    #####                                                                                 common_f00, model_mean
+    #### For each type the following can be set, where [type] is anom, pres, or sfc
+    #####    g2g2_[type]_truth_name_list: list of analysis type used for model in step 1
     #####    g2g2_[type]_gather_by_list:  list of how model data was gathered in step 1
     #####    g2g2_[type]_fyc_list:        all forecst cycles to be included in verification: HH
     #####    g2g2_[type]_vhr_list:        all valid hours to be included in verification: HH

@@ -2,34 +2,28 @@ help([[
 Load environment to run EMC_verif-global on Gaea-C6 using Intel
 ]])
 
-prepend_path("MODULEPATH", "/autofs/ncrc-svm1_proj/epic/c6/spack-stack/spack-stack-1.9.1/envs/emc-gv-intel-2023.2.0/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.3/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
 
-stack_intel_ver=os.getenv("stack_intel_ver") or "2023.2.0.lua"
-load(pathJoin("stack-intel", stack_intel_ver))
-
-intel_oneapi_ver=os.getenv("stack_cray_mpich_ver") or "8.1.30"
-load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
+stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
+load(pathJoin("stack-oneapi", stack_oneapi_ver))
 
 Core_ver=os.getenv("Core_ver") or "24.11"
 load(pathJoin("Core", Core_ver))
 
-gsl_ver=os.getenv("gsl_ver") or "2.8"
-load(pathJoin("gsl", gsl_ver))
+prod_util_ver=os.getenv("prod_util_ver") or "2.1.1"
+load(pathJoin("prod_util", prod_util_ver))
+
+stack_cray_mpich_ver=os.getenv("stack_cray_mpich_ver") or "8.1.32"
+load(pathJoin("stack-cray-mpich", stack_cray_mpich_ver))
 
 netcdf_c_ver=os.getenv("netcdf_c_ver") or "4.9.2"
 load(pathJoin("netcdf-c", netcdf_c_ver))
 
-prod_util_ver=os.getenv("prod_util_ver") or "2.1.1"
-load(pathJoin("prod_util", prod_util_ver))
+grads_ver=os.getenv("grads_ver") or "2.2.3"
+load(pathJoin("grads", grads_ver))
 
-libjpeg_ver=os.getenv("libjpeg_ver") or "2.1.0"
-load(pathJoin("libjpeg", libjpeg_ver))
-
-libpng_ver=os.getenv("libpng_ver") or "1.6.37"
-load(pathJoin("libpng", libpng_ver))
-
-zlib_ver=os.getenv("zlib_ver") or "1.2.13"
-load(pathJoin("zlib", zlib_ver))
+imagemagick_ver=os.getenv("imagemagick_ver") or "7.1.1-29"
+load(pathJoin("imagemagick", imagemagick_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.32"
 load(pathJoin("jasper", jasper_ver))
@@ -52,14 +46,11 @@ load(pathJoin("met", met_ver))
 metplus_ver=os.getenv("metplus_ver") or "6.0.0"
 load(pathJoin("metplus", metplus_ver))
 
-grads_ver=os.getenv("grads_ver") or "2.2.3"
-load(pathJoin("grads", grads_ver))
-
-imagemagick_ver=os.getenv("imagemagick_ver") or "7.1.1-29"
-load(pathJoin("imagemagick", imagemagick_ver))
-
 bufr_ver=os.getenv("bufr_ver") or "12.1.0"
 load(pathJoin("bufr", bufr_ver))
 
-cdo_ver=os.getenv("cdo_ver") or "2.3.0"
+cdo_ver=os.getenv("cdo_ver") or "2.4.4"
 load(pathJoin("cdo", cdo_ver))
+
+matplotlib_ver=os.getenv("matplotlib_ver") or "3.7.4"
+load(pathJoin("py-matplotlib", matplotlib_ver))

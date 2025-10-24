@@ -44,6 +44,21 @@ if RUN == 'fit2obs_plots':
         nimages = nimages + len(glob.glob(os.path.join(root, '*.png')))
     print("Webhost location: "+webdir)
     print("\nTotal images within "+web_fits_dir+": "+str(nimages))
+elif RUN == 'grid2grid_step2':
+    plot_by = os.environ['plot_by']
+    RUN_abbrev = os.environ['RUN_abbrev']
+    case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+    for case_type in case_type_list:
+        image_list = os.listdir(
+            os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
+                         'make_plots', case_type)
+        )
+        nimages = len(image_list)
+        print("Webhost location: "+webdir)
+        print("\nTotal images in "
+              +os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
+                            'make_plots', case_type)+": "
+              +str(nimages))
 else:
     image_list = os.listdir(
         os.path.join(DATA, RUN, 'metplus_output', 'images')
@@ -900,6 +915,14 @@ with open(web_job_filename, 'a') as web_job_file:
             web_job_file.write('scp -r '+ os.path.join(DATA, RUN, 'images')
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
+        elif RUN == 'grid2grid_step2':
+            for case_type in case_type_list:
+                web_job_file.write('scp -r '+os.path.join(DATA, RUN,
+                                                          'plot_output',
+                                                          'plot_by_'+plot_by,
+                                                          'make_plots', case_type)
+                                   +' '+webhostid+'@'+webhost+':'
+                                   +os.path.join(webdir, RUN_type, '.')+'\n')
         else:
             web_job_file.write('scp -r '+os.path.join(DATA, RUN,
                                                       'metplus_output',
@@ -945,11 +968,13 @@ elif machine == 'HERA':
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'GAEAC5':
+    CLUSTERS = os.environ['CLUSTERS']
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'GAEAC6':
+    CLUSTERS = os.environ['CLUSTERS']
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '

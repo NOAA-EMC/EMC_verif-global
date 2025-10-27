@@ -44,7 +44,7 @@ if RUN == 'fit2obs_plots':
         nimages = nimages + len(glob.glob(os.path.join(root, '*.png')))
     print("Webhost location: "+webdir)
     print("\nTotal images within "+web_fits_dir+": "+str(nimages))
-elif RUN == 'grid2grid_step2':
+elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
     plot_by = os.environ['plot_by']
     RUN_abbrev = os.environ['RUN_abbrev']
     case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
@@ -915,7 +915,7 @@ with open(web_job_filename, 'a') as web_job_file:
             web_job_file.write('scp -r '+ os.path.join(DATA, RUN, 'images')
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
-        elif RUN == 'grid2grid_step2':
+        elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
             for case_type in case_type_list:
                 web_job_file.write('scp -r '+os.path.join(DATA, RUN,
                                                           'plot_output',

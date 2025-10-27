@@ -24,9 +24,9 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
-export RUN_GRID2GRID_STEP2="YES"
+export RUN_GRID2GRID_STEP2="NO"
 export RUN_GRID2OBS_STEP2="NO"
-export RUN_PRECIP_STEP2="NO"
+export RUN_PRECIP_STEP2="YES"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -193,13 +193,14 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     #####    precip2_[type]_fhr_max:        forecast hour to end verification HH[H]
     #####    precip2_[type]_event_eq:       do event equalization (True) or not (False)
     #####    precip2_[type]_grid:           NCEP grid verification was done on
-    export precip2_model_plot_name_list="ops_gfs"
+    export precip2_model_plot_name_list="gfsv${prod_ver} gfsv${dev_ver}"
     export precip2_type_list="ccpa_accum24hr"
-    export precip2_ccpa_accum24hr_gather_by_list="VSDB"
-    export precip2_ccpa_accum24hr_fcyc_list="00"
-    export precip2_ccpa_accum24hr_fhr_min="00"
-    export precip2_ccpa_accum24hr_fhr_max="180"
-    export precip2_ccpa_accum24hr_event_eq="True"
+    export precip2_ccpa_accum24hr_truth_name_list="ccpa_accum24hr ccpa_accum24hr"
+    export precip2_ccpa_accum24hr_gather_by_list="VALID VALID"
+    export precip2_ccpa_accum24hr_fcyc_list="12"
+    export precip2_ccpa_accum24hr_fhr_min="24"
+    export precip2_ccpa_accum24hr_fhr_max="240"
+    export precip2_ccpa_accum24hr_event_eq="False"
     export precip2_ccpa_accum24hr_grid="G211"
 fi
 

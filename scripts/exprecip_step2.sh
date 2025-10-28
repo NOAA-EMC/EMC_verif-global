@@ -71,11 +71,11 @@ echo
 # Create and run job scripts for condense_stats, filter_stats, and make_plots
 for group in condense_stats filter_stats make_plots; do
     export JOB_GROUP=$group
-    echo "Creating and running jobs for grid-to-grid plots: ${JOB_GROUP}"
+    echo "Creating and running jobs for precip plots: ${JOB_GROUP}"
     python $USHverif_global/plots/precip/step2_precip_create_job_scripts.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran step2_grid2grid_create_job_scripts.py"
+    [[ $status -eq 0 ]] && echo "Succesfully ran step2_precip_create_job_scripts.py"
     chmod u+x plot_job_scripts/$group/*
     group_ncount_poe=$(ls -l  plot_job_scripts/$group/poe* |wc -l)
     group_ncount_job=$(ls -l  plot_job_scripts/$group/job* |wc -l)

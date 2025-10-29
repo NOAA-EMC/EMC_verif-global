@@ -257,6 +257,9 @@ else:
             )
         elif RUN == 'precip_step2':
             check_config_var_len_list.append(
+                RUN_abbrev_type+'_truth_name_list'
+            )
+            check_config_var_len_list.append(
                 RUN_abbrev_type+'_gather_by_list'
             )
         elif RUN == 'satellite_step2':
@@ -349,6 +352,8 @@ elif RUN == 'grid2obs_step2':
 elif RUN == 'precip_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_truth_name_list'] = ['ccpa_accum24hr']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']

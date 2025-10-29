@@ -779,7 +779,7 @@ class PlotSpecs:
                  image_path - full path of the name the plot will
                               be saved as (string)
         """
-        component_savefig_name = 'grid2grid'
+        component_savefig_name = 'precip'
         if plot_info_dict['stat'] == 'PERFDIAG':
             metric_savefig_name = 'ctc'
         else:

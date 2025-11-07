@@ -630,6 +630,8 @@ class PlotSpecs:
                         title_other_hr_list.append(str(other_hr).zfill(2)+'Z')
             title_other_hr_list.sort()
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list))
+                              #+', init. hours: '
+                              #+', '.join(title_other_hr_list))
         elif plot_by == 'INIT':
             for plot_by_hr in plot_by_hr_list:
                 for forecast_hour in forecast_hour_list:
@@ -751,6 +753,7 @@ class PlotSpecs:
                 thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
                 thresh_in = round(thresh_value*0.0393701, 3)
                 plot_title = plot_title+' ('+str(thresh_in)+' in)'
+            thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
         if plot_info_dict['interp_method'] == 'NBRHD_SQUARE':
             plot_title = (plot_title+' '
                           +'Neighborhood Pts: '
@@ -762,7 +765,7 @@ class PlotSpecs:
                       +self.get_dates_plot_name(date_info_dict['plot_by'],
                                                 date_info_dict['start_date'],
                                                 date_info_dict['end_date'],
-                                                plot_by_hr_list, other_hr_list,
+                                                plot_by_hr_list, other_hr_list, 
                                                 fhr_for_title, self.plot_type))
         return plot_title
 

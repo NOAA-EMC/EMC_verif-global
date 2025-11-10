@@ -630,8 +630,6 @@ class PlotSpecs:
                         title_other_hr_list.append(str(other_hr).zfill(2)+'Z')
             title_other_hr_list.sort()
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list))
-                              #+', init. hours: '
-                              #+', '.join(title_other_hr_list))
         elif plot_by == 'INIT':
             for plot_by_hr in plot_by_hr_list:
                 for forecast_hour in forecast_hour_list:
@@ -758,9 +756,6 @@ class PlotSpecs:
             plot_title = (plot_title+' '
                           +'Neighborhood Pts: '
                           +plot_info_dict['interp_points'])
-        #plot_title = (plot_title+' - '
-                      #+'Validation: '
-                      #+self.get_obs_plot_name(plot_info_dict['ob_name']))
         plot_title = (plot_title+'\n'
                       +self.get_dates_plot_name(date_info_dict['plot_by'],
                                                 date_info_dict['start_date'],

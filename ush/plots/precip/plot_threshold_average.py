@@ -4,7 +4,7 @@ Name: plot_threshold_average.py
 Contact(s): Mallory Row (mallory.row@noaa.gov)
 Abstract: This script generates a threshold average plot.
           (x-axis: threshold value; y-axis: statistics value)
-          (EVS Graphics Naming Convention: threshmean)
+          (Graphics Naming Convention: threshmean)
 '''
 
 import sys
@@ -31,7 +31,7 @@ class ThresholdAverage:
 
     def __init__(self, logger, input_dir, output_dir, model_info_dict,
                  date_info_dict, plot_info_dict, met_info_dict, logo_dir):
-        """! Initalize ThresholdAverage class
+        """! Initialize ThresholdAverage class
 
              Args:
                  logger          - logger object
@@ -146,7 +146,7 @@ class ThresholdAverage:
                 all_model_df['FCST_UNITS'].values.astype('str').tolist()
             )
             # Calculate statistic mean and 95% confidence intervals
-            self.logger.info(f"Calculating statstic {self.plot_info_dict['stat']} "
+            self.logger.info(f"Calculating statistic {self.plot_info_dict['stat']} "
                              +f"from line type {self.plot_info_dict['line_type']} "
                              +"average and 95% confidence intervals")
             stat_df, stat_array = vfg_util.calculate_stat(

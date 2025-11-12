@@ -395,6 +395,50 @@ elif JOB_GROUP == 'make_plots':
                                            date_info_dict, plot_info_dict,
                                            met_info_dict, logo_dir)
                 plot_la.make_lead_average()
+    elif plot == 'threshold_average':
+        import plot_threshold_average as p_ta
+        for ta_info in list(itertools.product(valid_hrs, fhrs)):
+            date_info_dict['valid_hr_start'] = str(ta_info[0])
+            date_info_dict['valid_hr_end'] = str(ta_info[0])
+            date_info_dict['valid_hr_inc'] = '24'
+            date_info_dict['forecast_hour'] = str(ta_info[1])
+            plot_info_dict['fcst_var_name'] = fcst_var_name
+            plot_info_dict['obs_var_name'] = obs_var_name
+            plot_info_dict['fcst_var_threshs'] = fcst_var_thresh_list
+            plot_info_dict['obs_var_name'] = obs_var_name
+            plot_info_dict['obs_var_threshs'] = obs_var_thresh_list
+            #init_hr = vfg_util.get_init_hour(
+            #    int(date_info_dict['valid_hr_start']),
+            #    int(date_info_dict['forecast_hour'])
+            #)
+            for l in range(len(fcst_var_level_list)):
+                plot_info_dict['fcst_var_level'] = fcst_var_level_list[l]
+                plot_info_dict['obs_var_level'] = obs_var_level_list[l]
+                job_DATA_image_name = plot_specs.get_savefig_name(
+                    job_DATA_dir, plot_info_dict, date_info_dict
+                )
+                job_input_dir = make_plots_input_dir
+                if not os.path.exists(job_DATA_image_name) \
+                    and plot_info_dict['stat'] != 'FBAR_OBAR':
+                    if len(plot_info_dict['fcst_var_threshs']) <= 1:
+                        logger.warning("No span of thresholds to plot, "
+                                       +"given 1 threshold, skipping "
+                                       +"threshold_average plots")
+                        make_ta = False
+                    else:
+                        make_ta = True
+                else:
+                     make_ta = False
+                if make_ta:
+                    plot_ta = p_ta.ThresholdAverage(logger,
+                                                       job_input_dir,
+                                                       job_DATA_dir,
+                                                       model_info_dict,
+                                                       date_info_dict,
+                                                       plot_info_dict,
+                                                       met_info_dict,
+                                                       logo_dir)
+                    plot_ta.make_threshold_average()
     elif plot == 'lead_by_date':
         import plot_lead_by_date as p_lbd
         for lbd_info in list(itertools.product(valid_hrs, var_info)):

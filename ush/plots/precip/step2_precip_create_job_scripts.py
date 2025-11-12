@@ -386,7 +386,7 @@ for ccpa_accum24hr_job in list(make_plots_jobs_dict['ccpa_accum24hr'].keys()):
         'CTC/ETS', 'CTC/FBIAS'
     ]
     make_plots_jobs_dict['ccpa_accum24hr']['24hrCCPA']['plots'] = [
-        'time_series', 'lead_average'
+        'time_series', 'lead_average', 'threshold_average'
     ] 
 
 if JOB_GROUP == 'make_plots':

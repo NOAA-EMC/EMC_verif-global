@@ -751,18 +751,16 @@ class PlotSpecs:
                 thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
                 thresh_in = round(thresh_value*0.0393701, 3)
                 plot_title = plot_title+' ('+str(thresh_in)+' in)'
+            thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
         if plot_info_dict['interp_method'] == 'NBRHD_SQUARE':
             plot_title = (plot_title+' '
                           +'Neighborhood Pts: '
                           +plot_info_dict['interp_points'])
-        #plot_title = (plot_title+' - '
-                      #+'Validation: '
-                      #+self.get_obs_plot_name(plot_info_dict['ob_name']))
         plot_title = (plot_title+'\n'
                       +self.get_dates_plot_name(date_info_dict['plot_by'],
                                                 date_info_dict['start_date'],
                                                 date_info_dict['end_date'],
-                                                plot_by_hr_list, other_hr_list,
+                                                plot_by_hr_list, other_hr_list, 
                                                 fhr_for_title, self.plot_type))
         return plot_title
 

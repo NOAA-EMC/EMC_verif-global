@@ -17,7 +17,7 @@ This package can be run standalone. It has also been incorporated to run the fir
 EMC_verif-global depends on the following prerequisities to be available on the system:
 * workload management platform / scheduler - LSF or SLURM
 * python version 3.11.7 or 3.12.2 or newer
-* MET version 12.0.1 (maybe 12.0.0) (https://github.com/dtcenter/MET)
+* MET version 12.0.1 (https://github.com/dtcenter/MET)
 * METplus version 6.0.0 (https://github.com/dtcenter/METplus)
 * NCEPLIBS-grib_util
 * NCEPLIBS-prod_util
@@ -42,4 +42,4 @@ To run from the top directory users will move to the /ush directory. Here is the
 $ ./run_verif_global.sh ../parm/config/config.vrfy.example
 ```
 # Known issues
-Pandas library versions 2.1.0 and greater will return warnings when running the METplus plotting scripts about incompatible dtypes. These warnings can be ignored, but note that future versions of Pandas (v3.0.0) will turn these warnings into errors. Avoid using Pandas v3.0.0 until METplus has been updated to be compatible.
+Pandas library versions 2.1.0 and greater will return warnings when running Python plotting scripts about incompatible dtypes. These warnings can be ignored, but note that future versions of Pandas (v3.0.0) will turn these warnings into errors. Avoid using Pandas v3.0.0 until EMC_verif-global has been updated to be compatible.

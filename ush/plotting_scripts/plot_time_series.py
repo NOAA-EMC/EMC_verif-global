@@ -629,6 +629,18 @@ for plot_info in plot_info_list:
                 obs_plot_settings_dict = (
                     model_obs_plot_settings_dict['obs']
                 )
+
+                expected_interval = plot_util.infer_expected_interval(
+                    plot_time_dates,
+                    model_stat_values_array[0,:]
+                )
+
+                plot_time_dates_mc, model_stat_values_mc = plot_util.make_discontinuous(
+                    plot_time_dates,
+                    model_stat_values_array[0,:],
+                    expected_interval
+                )
+
                 #### EMC-verif_global plot observations
                 if not obs_plotted:
                     if obs_count != 0:

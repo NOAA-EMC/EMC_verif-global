@@ -1080,7 +1080,7 @@ def make_discontinuous(time_array, data_array, expected_interval):
     """
     Insert NaNs only where actual valid data points are missing at the expected time interval.
     """
-    # Handle empty or single-element arrays
+    # return time_array and data_array as is if time_array is empty or only contains one element
     if len(time_array) <= 1:
         return np.asarray(time_array), np.asarray(data_array)
 
@@ -1132,7 +1132,7 @@ def infer_expected_interval(time_array, data_array):
         expected_interval = interval_counts.most_common(1)[0][0]
         return expected_interval
 
-    # Step 3: Fallback – calculate smallest interval in the raw time array
+    # Step 3: Fallback: calculate smallest interval in the raw time array
     time_diffs = np.diff(time_array)
 
     if len(time_diffs) == 0:

@@ -629,7 +629,6 @@ for plot_info in plot_info_list:
                 obs_plot_settings_dict = (
                     model_obs_plot_settings_dict['obs']
                 )
-
                 #### EMC-verif_global plot observations
                 if not obs_plotted:
                     if obs_count != 0:

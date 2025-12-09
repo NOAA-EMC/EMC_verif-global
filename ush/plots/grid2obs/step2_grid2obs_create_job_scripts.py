@@ -267,8 +267,12 @@ for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
 for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['grid'] = 'G104'
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['interps'] = ['BILIN/4']
-    sfc_job_fcst_threshs = ['NA']
-    sfc_job_obs_threshs = ['NA']
+    if 'CAPEsfc' in sfc_job:
+        sfc_job_fcst_threshs = ['gt0||']
+        sfc_job_obs_threshs = ['gt0']
+    else:
+        sfc_job_fcst_threshs = ['NA']
+        sfc_job_obs_threshs = ['NA']
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['fcst_var_dict']['threshs'] = (
         sfc_job_fcst_threshs
         )
@@ -394,9 +398,11 @@ for case_type in case_type_list:
                 job_env_dict['model_plot_name_list'] = (
                     model_plot_name_list[model_list.index(loop_info[3])]
                 )
-                print("model_list",model_list)
-                print("obs_list",obs_list)
-                job_env_dict['obs_list'] = obs_list[0]
+                if case_type_plot_jobs_dict[case_type_job]\
+                        ['fcst_var_dict']['name'] in ("HPBL", "CAPE"):
+                    job_env_dict['obs_list'] = obs_list[1]
+                else:
+                    job_env_dict['obs_list'] = obs_list[0]
                 job_env_dict['line_type'] = loop_info[0]
                 job_env_dict['vx_mask'] = loop_info[2]
                 if JOB_GROUP == 'filter_stats':
@@ -441,7 +447,11 @@ for case_type in case_type_list:
                 job_env_dict['model_plot_name_list'] = (
                     ', '.join(model_plot_name_list)
                 )
-                job_env_dict['obs_list'] = ', '.join(obs_list)
+                if case_type_plot_jobs_dict[case_type_job]\
+                        ['fcst_var_dict']['name'] in ("HPBL", "CAPE"):
+                    job_env_dict['obs_list'] = obs_list[1]
+                else:
+                    job_env_dict['obs_list'] = obs_list[0]
                 job_env_dict['line_type'] = loop_info[0].split('/')[0]
                 job_env_dict['stat'] = loop_info[0].split('/')[1]
                 job_env_dict['plot'] = loop_info[1]

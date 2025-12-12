@@ -25,8 +25,8 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
 export RUN_GRID2GRID_STEP2="NO"
-export RUN_GRID2OBS_STEP2="NO"
-export RUN_PRECIP_STEP2="YES"
+export RUN_GRID2OBS_STEP2="YES"
+export RUN_PRECIP_STEP2="NO"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -57,8 +57,8 @@ export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/tar_plo
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=20230706
-export end_date=20230731
+export start_date=20241106
+export end_date=20241121
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"
@@ -155,10 +155,10 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     #####    g2o2_[type]_fhr_max:          forecast hour to end verification HH[H]
     #####    g2o2_[type]_event_eq:         do event equalization (True) or not (False)
     #####    g2o2_[type]_grid:             NCEP grid verification was done on
-    export g2o2_model_plot_name_list="ops_gfs"
+    export g2o2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
     export g2o2_type_list="upper_air conus_sfc"
     export g2o2_upper_air_msg_type_list="ADPUPA"
-    export g2o2_upper_air_gather_by_list="VSDB"
+    export g2o2_upper_air_gather_by_list="VALID VALID"
     export g2o2_upper_air_fcyc_list="00"
     export g2o2_upper_air_vhr_list="00 06 12 18"
     export g2o2_upper_air_fhr_min="00"
@@ -166,7 +166,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     export g2o2_upper_air_event_eq="True"
     export g2o2_upper_air_grid="G003"
     export g2o2_conus_sfc_msg_type_list="ONLYSF ADPUPA"
-    export g2o2_conus_sfc_gather_by_list="VSDB"
+    export g2o2_conus_sfc_gather_by_list="VALID VALID"
     export g2o2_conus_sfc_fcyc_list="00"
     export g2o2_conus_sfc_vhr_list="00 06 12 18"
     export g2o2_conus_sfc_fhr_min="00"

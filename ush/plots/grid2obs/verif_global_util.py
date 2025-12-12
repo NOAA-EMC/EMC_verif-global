@@ -664,7 +664,6 @@ def initialize_job_env_dict(case_type, group,
                 case_type_valid_hr_list[-1].zfill(2)
             )
             if len(case_type_valid_hr_list) > 1:
-                print('case_type_valid_hr_list',case_type_valid_hr_list)
                 #case_type_valid_hr_list_clean = [
                 #                 x.strip() for x in case_type_valid_hr_list.split(',') if x.strip() != '']
                 case_type_valid_hr_list = [x.replace(',', '').strip() for x in case_type_valid_hr_list]
@@ -672,6 +671,7 @@ def initialize_job_env_dict(case_type, group,
                 case_type_valid_hr_inc = np.min(
                     np.diff(np.array(case_type_valid_hr_list, dtype=int))
                 )
+                print('case_type_valid_hr_inc',case_type_valid_hr_inc)
             else:
                 case_type_valid_hr_inc = 24
             job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)

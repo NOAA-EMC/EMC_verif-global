@@ -79,7 +79,7 @@ with open(job_card_filename, 'a') as job_card:
         job_card.write('#SBATCH --nodes=1\n')
         job_card.write('#SBATCH --clusters=c6\n')
         job_card.write('#SBATCH --ntasks-per-node='+nproc+'\n')
-        job_card.write('#SBATCH --time=6:00:00\n')
+        job_card.write('#SBATCH --time=1:00:00\n')
     job_card.write('\n')
     job_card.write('/bin/sh '+script)
 

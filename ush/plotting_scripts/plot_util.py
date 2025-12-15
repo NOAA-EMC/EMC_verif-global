@@ -1079,6 +1079,19 @@ def get_ci_file(stat, input_filename, fcst_lead, output_base_dir, ci_method):
 def make_discontinuous(time_array, data_array, expected_interval):
     """
     Insert NaNs only where actual valid data points are missing at the expected time interval.
+
+    Args:
+        time_array : array-like
+            Original time coordinates.
+        data_array : array-like
+            Original data values aligned with time_array.
+        expected_interval : float
+            Expected spacing between valid data points.
+
+    Returns:
+        time_out, data_out : np.ndarray
+            Arrays containing the original data and time points plus NaNs that represent
+            gaps due to undefined data.
     """
     # return time_array and data_array as is if time_array is empty or only contains one element
     if len(time_array) <= 1:
@@ -1106,6 +1119,16 @@ def infer_expected_interval(time_array, data_array):
     Infer expected interval between meaningful data points even when
     much of the data is undefined. Falls back to the minimum
     time spacing in time_array if too few valid data points exist.
+
+    Args:
+        time_array : array-like
+            Original time coordinates.
+        data_array : array-like
+            Original data values aligned with time_array.
+
+    Returns:
+        expected_interval : float
+            The inferred expected spacing between valid data points.
     """
 
     # convert time_array to a numpy array

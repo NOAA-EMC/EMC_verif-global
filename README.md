@@ -16,9 +16,9 @@ This package can be run standalone. It has also been incorporated to run the fir
 
 EMC_verif-global depends on the following prerequisities to be available on the system:
 * workload management platform / scheduler - LSF or SLURM
-* python version 3.6.3 or greater
-* MET version 9.1 (https://github.com/dtcenter/MET)
-* METplus version 3.1.1 (https://github.com/dtcenter/METplus)
+* python version 3.11.7 or 3.12.2 or newer
+* MET version 12.0.1 (https://github.com/dtcenter/MET)
+* METplus version 6.0.0 (https://github.com/dtcenter/METplus)
 * NCEPLIBS-grib_util
 * NCEPLIBS-prod_util
 * NetCDF (Network Common Data Form)
@@ -28,12 +28,10 @@ EMC_verif-global is supported on the following machines:
 * WCOSS2 (Cactus and Dogwood)
 * Hera
 * Orion
-* S4
 * Jet
-* Gaea-C5
 * Gaea-C6
 
-For questions or issues, please e-mail Mallory Row at mallory.row@noaa.gov.
+For questions or issues, please e-mail Alicia Bentley (alicia.bentley@noaa.gov).
 
 # Running EMC-verif-global
 ## 1. Set up configuration file
@@ -43,3 +41,5 @@ To run from the top directory users will move to the /ush directory. Here is the
 ```
 $ ./run_verif_global.sh ../parm/config/config.vrfy.example
 ```
+# Known issues
+Pandas library versions 2.1.0 and greater will return warnings when running Python plotting scripts about incompatible dtypes. These warnings can be ignored, but note that future versions of Pandas (v3.0.0) will turn these warnings into errors. Avoid using Pandas v3.0.0 until EMC_verif-global has been updated to be compatible.

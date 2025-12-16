@@ -82,7 +82,7 @@ class PlotSpecs:
             self.xtick_label_size = 15
             self.ytick_label_size = 15
         elif self.plot_type in ['lead_average', 'valid_hour_average',
-                                'threshold_average',
+                                'threshold_average', 'lead_by_threshold',
                                 'long_term_time_series_diff']:
             self.fig_size = (16., 16.)
             self.fig_subplot_top = 0.9
@@ -630,6 +630,8 @@ class PlotSpecs:
                         title_other_hr_list.append(str(other_hr).zfill(2)+'Z')
             title_other_hr_list.sort()
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list))
+                              #+', init. hours: '
+                              #+', '.join(title_other_hr_list))
         elif plot_by == 'INIT':
             for plot_by_hr in plot_by_hr_list:
                 for forecast_hour in forecast_hour_list:
@@ -645,7 +647,7 @@ class PlotSpecs:
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list)
                               +', valid: '+', '.join(title_other_hr_list))
         if plot_type not in ['lead_average', 'valid_hour_average',
-                             'lead_by_date', 'lead_by_level']:
+                             'lead_by_date', 'lead_by_level', 'lead_by_threshold']:
             forecast_day_list = []
             for forecast_hour in forecast_hour_list:
                 forecast_day = int(forecast_hour)/24.
@@ -712,9 +714,8 @@ class PlotSpecs:
                                 +int(date_info_dict['valid_hr_inc']),
                                 int(date_info_dict['valid_hr_inc']))
             ]
-        if self.plot_type in ['time_series', 'stat_by_level',
-                              'date_by_level',
-                              'performance_diagram', 'threshold_average']:
+        if self.plot_type in ['time_series','lead_by_level', 
+                              'threshold_average']:
             fhr_for_title = [date_info_dict['forecast_hour']]
         else:
             fhr_for_title = date_info_dict['forecast_hours']
@@ -729,7 +730,7 @@ class PlotSpecs:
             var_level_for_title = plot_info_dict['vert_profile']
         else:
             var_level_for_title = plot_info_dict['fcst_var_level']
-        if self.plot_type in ['performance_diagram', 'threshold_average']:
+        if self.plot_type in ['lead_by_threshold', 'threshold_average']:
             var_thresh_for_title = 'NA'
         else:
             var_thresh_for_title = plot_info_dict['fcst_var_thresh']
@@ -756,6 +757,9 @@ class PlotSpecs:
             plot_title = (plot_title+' '
                           +'Neighborhood Pts: '
                           +plot_info_dict['interp_points'])
+        #plot_title = (plot_title+' - '
+                      #+'Validation: '
+                      #+self.get_obs_plot_name(plot_info_dict['ob_name']))
         plot_title = (plot_title+'\n'
                       +self.get_dates_plot_name(date_info_dict['plot_by'],
                                                 date_info_dict['start_date'],
@@ -830,11 +834,13 @@ class PlotSpecs:
             plot_type_savefig_name = 'threshmean'
         elif self.plot_type == 'valid_hour_average':
             plot_type_savefig_name = 'vhrmean'
+        elif self.plot_type == 'lead_by_threshold':
+            plot_type_savefig_name = 'lead_by_threshold'
         else:
             plot_type_savefig_name = self.plot_type.replace('_', '')
         if self.plot_type in ['time_series', 'time_series_multifhr',
                               'lead_average', 'stat_by_level', 'lead_by_level',
-                              'lead_by_date', 'date_by_level',
+                              'lead_by_date', 'date_by_level', 'lead_by_threshold',
                               'performance_diagram', 'threshold_average']:
             plot_type_savefig_name = plot_type_savefig_name+'_valid'
             valid_hr = int(date_info_dict['valid_hr_start'])
@@ -843,8 +849,7 @@ class PlotSpecs:
                                           +str(valid_hr).zfill(2))
                 valid_hr+=int(date_info_dict['valid_hr_inc'])
             plot_type_savefig_name = plot_type_savefig_name+'Z'
-        if self.plot_type in ['time_series', 'date_by_level',
-                              'stat_by_level', 'performance_diagram',
+        if self.plot_type in ['time_series', 
                               'threshold_average']:
             plot_type_savefig_name = (
                  plot_type_savefig_name+'_'
@@ -857,7 +862,7 @@ class PlotSpecs:
                             f in date_info_dict['forecast_hours']])
             )
         elif self.plot_type in ['lead_average', 'lead_by_level',
-                                'lead_by_date']:
+                                'lead_by_date', 'lead_by_threshold']:
             plot_type_savefig_name = (
                  plot_type_savefig_name+'_'
                  +'f'+str(date_info_dict['forecast_hours'][-1]).zfill(3)
@@ -972,7 +977,7 @@ class PlotSpecs:
                  subplot0_cmap  - colormap for subplot 0
                  subplotsN_cmap - colormap for other subplots
         """
-        if stat in ['BIAS', 'ME', 'FBIAS']:
+        if stat in ['BIAS', 'ME', 'FBIAS', 'ETS']:
             cmap_bias_original = plt.cm.PiYG_r
             colors_bias = cmap_bias_original(
                 np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
@@ -982,7 +987,7 @@ class PlotSpecs:
             )
         else:
             subplot0_cmap = plt.cm.BuPu_r
-        if stat in ['BIAS', 'ME', 'FBIAS']:
+        if stat in ['BIAS', 'ME', 'FBIAS', 'ETS']:
             subplotsN_cmap = subplot0_cmap
         else:
             if stat == 'RMSE':
@@ -1062,74 +1067,20 @@ class PlotSpecs:
         """
         have_subplot0_levs = False
         subplot0_levs = np.array([np.nan])
-        if stat == 'ACC':
+        if stat == 'ETS':
             have_subplot0_levs = True
-            subplot0_levs = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8,
-                                      0.9, 0.95, 0.99, 1])
-        elif not np.ma.masked_invalid(subplot0_data).mask.all():
-            cmax = np.nanmax(subplot0_data)
-            if cmax > 100:
-                spacing = 2.25
-            elif cmax > 10:
-                spacing = 2
-            else:
-                spacing = 1.75
-            if stat == 'RMSE':
-                steps = 12
-                dx = 1.0 / (steps-1)
-                have_subplot0_levs = True
-                subplot0_levs = np.array(
-                    [0+(i*dx)**spacing*cmax for i in range(steps)],
-                    dtype=float
-                )
-            elif stat in ['BIAS', 'ME', 'FBIAS']:
-                if stat in ['BIAS', 'ME']:
-                    center_value = 0
-                elif stat == 'FBIAS':
-                    center_value = 1
-                have_subplot0_levs = True
-                subplot0_levs = self.get_centered_contour_levels(
-                    subplot0_data, center_value, spacing
-                )
-        have_subplotsN_levs = False
-        subplotsN_levs = np.array([np.nan])
-        if stat == 'ACC':
             have_subplotsN_levs = True
-            subplotsN_levs = np.array([-0.5, -0.4, -0.3, -0.2, -0.1, -0.05,
-                                       0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
-        else:
-            if np.shape(subplotsN_data) != np.shape([np.nan]):
-                if stat in ['BIAS', 'ME', 'FBIAS']:
-                    have_subplotsN_levs = have_subplot0_levs
-                    subplotsN_levs = subplot0_levs
-                if not have_subplotsN_levs:
-                    #for N in range(len(subplotsN_data[:,0,0])):
-                    for N in range(len(np.array(subplotsN_data)[:,0,0])):
-                        if stat in ['BIAS', 'ME', 'FBIAS']:
-                            #subplotN_data = subplotsN_data[N,:,:]
-                            subplotN_data = np.array(subplotsN_data)[N,:,:]
-                            if np.nanmax(subplotN_data) > 100:
-                                spacing = 2.25
-                            elif np.nanmax(subplotN_data) > 100:
-                                spacing = 2
-                            else:
-                                spacing = 1.75
-                            if stat in ['BIAS', 'ME']:
-                                center_value = 0
-                            elif stat == 'FBIAS':
-                                center_value = 1
-                        else:
-                            #subplotN_data = (subplotsN_data[N,:,:]
-                            subplotN_data = (np.array(subplotsN_data)[N,:,:]
-                                             - subplot0_data)
-                            center_value = 0
-                            spacing = 1.25
-                        if not np.ma.masked_invalid(subplotN_data).mask.all():
-                            have_subplotsN_levs = True
-                            subplotsN_levs = self.get_centered_contour_levels(
-                                subplotN_data, center_value, spacing
-                            )
-                            break
+            subplot0_levs = np.array([0.06, 0.12, 0.18, 0.24, 0.3, 0.36,
+                                       0.42, 0.48, 0.54, 0.6, 0.66, 0.72])
+            subplotsN_levs = np.array([0.06, 0.12, 0.18, 0.24, 0.3, 0.36,
+                                       0.42, 0.48, 0.54, 0.6, 0.66, 0.72])
+        elif stat == 'FBIAS':
+            have_subplot0_levs = True
+            have_subplotsN_levs = True
+            subplot0_levs = np.array([0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2,
+                                       1.4, 1.6, 2.0, 2.4, 2.8])
+            subplotsN_levs = np.array([0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2,
+                                       1.4, 1.6, 2.0, 2.4, 2.8])
         return have_subplot0_levs, subplot0_levs, have_subplotsN_levs, subplotsN_levs
 
     def get_vert_profile_levels(self, vert_profile):

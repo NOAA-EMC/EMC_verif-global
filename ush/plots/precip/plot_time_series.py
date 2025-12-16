@@ -390,8 +390,10 @@ class TimeSeries:
                             round(obar_model_num_avg, 3), '.3f'
                         )
                 ax.plot_date(
-                    np.ma.compressed(masked_plot_dates),
-                    np.ma.compressed(masked_model_num_data),
+                    #np.ma.compressed(masked_plot_dates),
+                    masked_plot_dates,
+                    #np.ma.compressed(masked_model_num_data),
+                    masked_model_num_data,
                     fmt=model_num_plot_settings_dict['marker'],
                     color = model_num_plot_settings_dict['color'],
                     linestyle = model_num_plot_settings_dict['linestyle'],
@@ -417,8 +419,8 @@ class TimeSeries:
                             model_plot_settings_dict['obs']
                         )
                         ax.plot_date(
-                            np.ma.compressed(obar_masked_plot_dates),
-                            np.ma.compressed(obar_masked_model_num_data),
+                            obar_masked_plot_dates,
+                            obar_masked_model_num_data,
                             fmt = obs_plot_settings_dict['marker'],
                             color = obs_plot_settings_dict['color'],
                             linestyle = obs_plot_settings_dict['linestyle'],

@@ -390,9 +390,7 @@ class TimeSeries:
                             round(obar_model_num_avg, 3), '.3f'
                         )
                 ax.plot_date(
-                    #np.ma.compressed(masked_plot_dates),
                     masked_plot_dates,
-                    #np.ma.compressed(masked_model_num_data),
                     masked_model_num_data,
                     fmt=model_num_plot_settings_dict['marker'],
                     color = model_num_plot_settings_dict['color'],

@@ -439,7 +439,6 @@ elif JOB_GROUP == 'make_plots':
                                                        met_info_dict,
                                                        logo_dir)
                     plot_ta.make_threshold_average()
-    #Binbin: This part needs to work
     elif plot == 'lead_by_threshold':
         import plot_lead_by_threshold as p_lbt
         for lbt_info in list(itertools.product(valid_hrs, var_info)):

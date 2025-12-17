@@ -4,6 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 import warnings
+from collections import Counter
 warnings.filterwarnings('ignore')
 
 """!@namespace plot_util
@@ -1074,3 +1075,92 @@ def get_ci_file(stat, input_filename, fcst_lead, output_base_dir, ci_method):
     CI_file = os.path.join(output_base_dir, 'data',
                            CI_filename)
     return CI_file
+
+def make_discontinuous(time_array, data_array, expected_interval):
+    """
+    Insert NaNs only where actual valid data points are missing at the expected time interval.
+
+    Args:
+        time_array : array-like
+            Original time coordinates.
+        data_array : array-like
+            Original data values aligned with time_array.
+        expected_interval : float
+            Expected spacing between valid data points.
+
+    Returns:
+        time_out, data_out : np.ndarray
+            Arrays containing the original data and time points plus NaNs that represent
+            gaps due to undefined data.
+    """
+    # return time_array and data_array as is if time_array is empty or only contains one element
+    if len(time_array) <= 1:
+        return np.asarray(time_array), np.asarray(data_array)
+
+    data_masked = np.ma.masked_invalid(data_array)
+    time_out = [time_array[0]]
+    data_out = [data_array[0]]
+
+    prev_idx = 0
+    for i in range(1, len(time_array)):
+        if not data_masked.mask[i]:
+            # check interval from previous valid point
+            if (time_array[i] - time_array[prev_idx]) != expected_interval:
+                time_out.append(np.nan)
+                data_out.append(np.nan)
+            time_out.append(time_array[i])
+            data_out.append(data_array[i])
+            prev_idx = i
+
+    return np.array(time_out), np.array(data_out)
+
+def infer_expected_interval(time_array, data_array):
+    """
+    Infer expected interval between meaningful data points even when
+    much of the data is undefined. Falls back to the minimum
+    time spacing in time_array if too few valid data points exist.
+
+    Args:
+        time_array : array-like
+            Original time coordinates.
+        data_array : array-like
+            Original data values aligned with time_array.
+
+    Returns:
+        expected_interval : float
+            The inferred expected spacing between valid data points.
+    """
+
+    # convert time_array to a numpy array
+    time_array = np.asarray(time_array)
+
+    # Step 1: valid data_array indices (non-NaN points)
+    valid_idxs = np.where(~np.isnan(data_array))[0]
+
+    # Criteria for using valid data directly
+    # (1) need at least two points in data_array to form an interval
+    # (2) need at least 10% of data_array to be valid points
+    enough_valid = len(valid_idxs) >= 2
+    min_fraction_valid = 0.1
+    meets_fraction = (len(valid_idxs) / len(time_array)) >= min_fraction_valid if len(time_array) > 0 else False
+ 
+    # Step 2: compute intervals using valid points only
+    if enough_valid and meets_fraction:
+        # Calculate the intervals between consecutive valid data points
+        valid_intervals = np.diff(time_array[valid_idxs])
+
+        # Count how many times each interval occurs
+        interval_counts = Counter(valid_intervals)
+        # Select the most frequent interval
+        expected_interval = interval_counts.most_common(1)[0][0]
+        return expected_interval
+
+    # Step 3: Fallback: calculate smallest interval in the raw time array
+    time_diffs = np.diff(time_array)
+
+    if len(time_diffs) == 0:
+        # Time_array has 0 or 1 points, therefore no interval can be inferred
+        return 0
+
+    base_interval = np.min(time_diffs)
+    return base_interval

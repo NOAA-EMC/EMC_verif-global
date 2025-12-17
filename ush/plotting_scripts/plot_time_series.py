@@ -673,13 +673,19 @@ for plot_info in plot_info_list:
                 len(model_stat_values_array[0,:])
                 - np.ma.count_masked(model_stat_values_array[0,:])
             )
-            plot_time_dates_m = np.ma.masked_where(
-                np.ma.getmask(model_stat_values_array[0,:]), plot_time_dates
-            )
-            plot_time_dates_mc = np.ma.compressed(plot_time_dates_m)
-            model_stat_values_mc = np.ma.compressed(
+
+            expected_interval = plot_util.infer_expected_interval(
+                plot_time_dates,
                 model_stat_values_array[0,:]
             )
+
+            plot_time_dates_mc, model_stat_values_mc = plot_util.make_discontinuous(
+                plot_time_dates,
+                model_stat_values_array[0,:],
+                expected_interval
+            )
+
+
             #### EMC-verif_global plot model
             if count != 0:
                 logger.debug("Plotting model "+str(model_num)+" "

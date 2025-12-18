@@ -980,7 +980,7 @@ def get_daily_stat_file(model_name, source_stats_base_dir,
                                          source directory (string)
              dest_model_name_stats_dir - full path to model
                                          destintion directory (string)
-             verif_case                - grid2grid or grid2obs (string)
+             verif_case                - grid2grid or grid2obs or precip (string)
              start_date_dt             - month start date (datetime obj)
              end_date_dt               - month end date (datetime obj)
          Returns:

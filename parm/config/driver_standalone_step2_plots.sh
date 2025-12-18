@@ -25,8 +25,8 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
 export RUN_GRID2GRID_STEP2="NO"
-export RUN_GRID2OBS_STEP2="YES"
-export RUN_PRECIP_STEP2="NO"
+export RUN_GRID2OBS_STEP2="NO"
+export RUN_PRECIP_STEP2="YES"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -57,8 +57,8 @@ export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/tar_plo
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=20241106
-export end_date=20241121
+export start_date=20241117
+export end_date=20241130
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"

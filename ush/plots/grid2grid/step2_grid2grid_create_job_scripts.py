@@ -578,7 +578,6 @@ for case_type in case_type_list:
                 job_env_dict['init_hr_list'] = "00"
                 job_env_dict['model_list'] = ', '.join(model_list)
                 job_env_dict['obs_list'] = ', '.join(obs_list)
-                ## job_env_dict['fhr_list'] = "24, 48, 72, 96, 120"
                 job_env_dict['fhr_list'] = "24, 48, 72, 96, 120, 144, 168, 192, 216, 240"
                 job_env_dict['CI_METHOD'] = CI_METHOD
                 job_env_dict['AVERAGE_METHOD'] = AVERAGE_METHOD

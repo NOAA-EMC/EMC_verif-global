@@ -1811,7 +1811,7 @@ def calculate_average(logger, average_method, line_type, stat, df):
             )
             avg_df, avg_array = calculate_stat(
                 logger, df.loc[:,'TOTAL':].agg(['sum'])/ndays,
-                line_type, stat.upper()
+                line_type, stat
             )
             average_value = avg_array[0]
     else:

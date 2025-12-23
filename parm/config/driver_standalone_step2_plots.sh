@@ -24,9 +24,9 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
-export RUN_GRID2GRID_STEP2="NO"
+export RUN_GRID2GRID_STEP2="YES"
 export RUN_GRID2OBS_STEP2="NO"
-export RUN_PRECIP_STEP2="YES"
+export RUN_PRECIP_STEP2="NO"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -43,8 +43,8 @@ export RUN_MAPSDA="NO"
 #model_stat_dir_list:    directory path to model .stat files
 export prod_ver=16
 export dev_ver=17
-export model_list="gfsv${prod_ver} gfsv${dev_ver}"
-export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/prod /gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/dev"
+export model_list="gfsv${prod_ver} retrov17_01_stream4"
+export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Ho-Chun.Huang/stats /gpfs/f6/ira-sti/world-shared/Ho-Chun.Huang/stats"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
@@ -57,8 +57,8 @@ export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/tar_plo
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=20241117
-export end_date=20241130
+export start_date=20250611
+export end_date=20250615
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"
@@ -112,33 +112,35 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #####    g2g2_[type]_event_eq:        do event equalization (True) or not (False)
     #####    g2g2_[type]_grid:            NCEP grid verification was done on
     #g2g2_make_scorecard: create scorecard (YES) or not (NO)
-    export g2g2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
+    export g2g2_model_plot_name_list="GFSv${prod_ver} RETROv17_01_stream4"
     export g2g2_type_list="anom pres sfc"
-    export g2g2_anom_truth_name_list="gfsv${prod_ver}_anl gfsv${dev_ver}_anl"
+    export g2g2_anom_truth_name_list="gfsv${prod_ver}_anl retrov17_01_stream4_anl"
     export g2g2_anom_gather_by_list="VALID VALID"
     export g2g2_anom_fcyc_list="00"
     export g2g2_anom_vhr_list="00"
     export g2g2_anom_fhr_min="00"
-    export g2g2_anom_fhr_max="120"
+    export g2g2_anom_fhr_max="240"
     export g2g2_anom_event_eq="False"
     export g2g2_anom_grid="G002"
-    export g2g2_pres_truth_name_list="gfsv${prod_ver}_anl gfsv${dev_ver}_anl"
+    export g2g2_pres_truth_name_list="gfsv${prod_ver}_anl retrov17_01_stream4_anl"
     export g2g2_pres_gather_by_list="VALID VALID"
     export g2g2_pres_fcyc_list="00"
     export g2g2_pres_vhr_list="00"
     export g2g2_pres_fhr_min="00"
-    export g2g2_pres_fhr_max="120"
+    export g2g2_pres_fhr_max="240"
     export g2g2_pres_event_eq="False"
     export g2g2_pres_grid="G002"
-    export g2g2_sfc_truth_name_list="gfsv${prod_ver}_f00 gfsv${dev_ver}_f00"
+    export g2g2_sfc_truth_name_list="gfsv${prod_ver}_f00 retrov17_01_stream4_f00"
     export g2g2_sfc_gather_by_list="VALID VALID"
     export g2g2_sfc_fcyc_list="00"
     export g2g2_sfc_vhr_list="00"
     export g2g2_sfc_fhr_min="00"
-    export g2g2_sfc_fhr_max="120"
+    export g2g2_sfc_fhr_max="240"
     export g2g2_sfc_event_eq="False"
     export g2g2_sfc_grid="G002"
-    export g2g2_make_scorecard="NO"
+    export g2g2_make_scorecard="YES"
+    export CI_METHOD="EMC"
+    export AVERAGE_METHOD="MEAN"
 fi
 
 if [ $RUN_GRID2OBS_STEP2 = YES ]; then

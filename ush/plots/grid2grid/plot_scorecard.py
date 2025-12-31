@@ -72,7 +72,7 @@ def get_day_value(filename, filename_cols, day):
         day_value = np.nan
     return day_value
 
-# Scorecard informatdddion
+# Scorecard information
 model1 = model_list[0].replace("-","_")
 model2 = model_list[1].replace("-","_")
 col_region_list = ['PNA', 'NHX', 'SHX', 'TRO']

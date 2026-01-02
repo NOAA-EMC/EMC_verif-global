@@ -68,8 +68,28 @@ status=$?
 [[ $status -eq 0 ]] && echo "Successfully ran create_step2_output_dirs.py"
 echo
 
+if [[ "$g2g2_make_scorecard" == "YES" ]]; then
+    IFS=' ' read -ra mdl_list <<< "${model_list}"
+    let num_mdl=${#mdl_list[@]}
+    if [[ $num_mdl -lt 2 ]]; then
+        echo "DEBUG :: The number of models defined in model_list is less than two."
+        echo "DEBUG :: Switch g2g2_make_scorecard from YES to NO"
+        export g2g2_make_scorecard="NO"
+        exec_procs="condense_stats filter_stats make_plots"
+    else
+        if [[ $num_mdl -gt 2 ]]; then
+            echo "DEBUG :: The number of models defined in model_list is more than two."
+            echo "DEBUG :: Will use the first two model for scorecard generation"
+        fi
+        exec_procs="condense_stats filter_stats scorecard_avg_ci make_plots"
+    fi
+else
+    exec_procs="condense_stats filter_stats make_plots"
+fi
+
+
 # Create and run job scripts for condense_stats, filter_stats, and make_plots
-for group in condense_stats filter_stats make_plots; do
+for group in ${exec_procs}; do
     export JOB_GROUP=$group
     echo "Creating and running jobs for grid-to-grid plots: ${JOB_GROUP}"
     python $USHverif_global/plots/grid2grid/step2_grid2grid_create_job_scripts.py
@@ -105,8 +125,8 @@ for group in condense_stats filter_stats make_plots; do
 done
 
 # Create scorecard, if needed
-if [ $g2g2_make_scorecard = YES ]; then
-    python $USHverif_global/plotting_scripts/plot_scorecard.py
+if [[ "$g2g2_make_scorecard" == "YES" ]]; then
+    python $USHverif_global/plots/grid2grid/plot_scorecard.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Successfully ran plot_scorecard.py"

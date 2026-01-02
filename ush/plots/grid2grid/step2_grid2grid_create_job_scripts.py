@@ -36,6 +36,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
+CI_METHOD = os.environ["CI_METHOD"]
+AVERAGE_METHOD = os.environ["AVERAGE_METHOD"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,
@@ -354,6 +356,25 @@ for sfc_job in list(filter_stats_jobs_dict['sfc'].keys()):
 if JOB_GROUP == 'filter_stats':
     JOB_GROUP_dict = filter_stats_jobs_dict
 
+# scorecard_avg_ci jobs
+scorecard_avg_ci_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
+
+# anom
+for anom_job in list(scorecard_avg_ci_jobs_dict['anom'].keys()):
+    scorecard_avg_ci_jobs_dict['anom'][anom_job]['metric'] = ['acc']
+# pres
+for pres_job in list(scorecard_avg_ci_jobs_dict['pres'].keys()):
+    scorecard_avg_ci_jobs_dict['pres'][pres_job]['metric'] = [
+        'bias', 'rmse', 'msess', 'rsd', 'rmse_md', 'rmse_pv'
+    ]
+# sfc
+for sfc_job in list(scorecard_avg_ci_jobs_dict['sfc'].keys()):
+    scorecard_avg_ci_jobs_dict['sfc'][sfc_job]['metric'] = ['fbar']
+
+# Assign the final dictionary to JOB_GROUP_dict for return
+if JOB_GROUP == 'scorecard_avg_ci':
+    JOB_GROUP_dict = scorecard_avg_ci_jobs_dict
+
 # make_plots jobs
 make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 # anom
@@ -428,7 +449,7 @@ for case_type in case_type_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
-        if JOB_GROUP in ['filter_stats', 'make_plots']:
+        if JOB_GROUP in ['filter_stats', 'scorecard_avg_ci', 'make_plots']:
             valid_hr_start = int(job_env_dict['valid_hr_beg'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
@@ -460,6 +481,15 @@ for case_type in case_type_list:
                 case_type_plot_jobs_dict[case_type_job]['fcst_var_dict']['threshs'],
                 case_type_plot_jobs_dict[case_type_job]['interps'],
                 valid_hrs
+            ))
+        elif JOB_GROUP == 'scorecard_avg_ci':
+            JOB_GROUP_case_type_job_product_loops = list(itertools.product(
+                case_type_plot_jobs_dict[case_type_job]['line_types'],
+                case_type_plot_jobs_dict[case_type_job]['fcst_var_dict']['levels'],
+                case_type_plot_jobs_dict[case_type_job]['vx_masks'],
+                case_type_plot_jobs_dict[case_type_job]['fcst_var_dict']['threshs'],
+                case_type_plot_jobs_dict[case_type_job]['interps'],
+                case_type_plot_jobs_dict[case_type_job]['metric']
             ))
         elif JOB_GROUP == 'make_plots':
             JOB_GROUP_case_type_job_product_loops = list(itertools.product(
@@ -507,6 +537,59 @@ for case_type in case_type_list:
                 job_env_dict['job_DATA_dir'] = job_DATA_dir
                 vfg_util.make_dir(job_env_dict['job_DATA_dir'])
                 # Create job file
+                job_file = os.path.join(JOB_GROUP_jobs_dir, 'job'+str(njobs))
+                print("Creating job script: "+job_file)
+                job = open(job_file, 'w')
+                job.write('#!/bin/bash\n')
+                job.write('set -x\n')
+                job.write('\n')
+                # Write environment variables
+                for name, value in job_env_dict.items():
+                    job.write('export '+name+'="'+value+'"\n')
+                job.write('\n')
+                job.write(
+                    vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                    +'\n'
+                )
+                job.close()
+            elif JOB_GROUP == 'scorecard_avg_ci':
+                job_env_dict['line_type'] = loop_info[0]
+                job_env_dict['fcst_var_level'] = loop_info[1]
+                job_env_dict['obs_var_level'] = (
+                    case_type_plot_jobs_dict[case_type_job]\
+                    ['obs_var_dict']['levels'][
+                        case_type_plot_jobs_dict[case_type_job]\
+                        ['fcst_var_dict']['levels'].index(loop_info[1])
+                    ]
+                )
+                job_env_dict['vx_mask'] = loop_info[2]
+                job_env_dict['fcst_var_thresh'] = loop_info[3]
+                job_env_dict['obs_var_thresh'] = (
+                    case_type_plot_jobs_dict[case_type_job]\
+                    ['obs_var_dict']['threshs'][
+                        case_type_plot_jobs_dict[case_type_job]\
+                        ['fcst_var_dict']['threshs'].index(loop_info[3])
+                    ]
+                )
+                job_env_dict['interp_method'] = loop_info[4].split('/')[0]
+                job_env_dict['interp_points'] = loop_info[4].split('/')[1]
+                job_env_dict['metric'] = loop_info[5]
+                job_env_dict['valid_hr_list'] = "00"
+                job_env_dict['init_hr_list'] = "00"
+                job_env_dict['model_list'] = ', '.join(model_list)
+                job_env_dict['obs_list'] = ', '.join(obs_list)
+                job_env_dict['fhr_list'] = "24, 48, 72, 96, 120, 144, 168, 192, 216, 240"
+                job_env_dict['CI_METHOD'] = CI_METHOD
+                job_env_dict['AVERAGE_METHOD'] = AVERAGE_METHOD
+                # Set up output directories
+                njobs+=1
+                job_env_dict['job_id'] = 'job'+str(njobs)
+                job_DATA_dir = os.path.join(DATA, RUN, 'plot_output',
+                                            'plot_by_'+plot_by,
+                                            JOB_GROUP)
+                job_env_dict['job_DATA_dir'] = job_DATA_dir
+                vfg_util.make_dir(job_env_dict['job_DATA_dir'])
+                # Create job file
                 job_file = os.path.join(JOB_GROUP_jobs_dir,
                                         'job'+str(njobs))
                 print("Creating job script: "+job_file)
@@ -519,7 +602,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                    vfg_util.python_g2g_command('scorecard_avg_ci.py',[])
                     +'\n'
                 )
                 job.close()

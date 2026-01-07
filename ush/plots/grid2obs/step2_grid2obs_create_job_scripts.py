@@ -290,17 +290,6 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
     del make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_types']
     if pres_levs_job == 'UGRD_VGRD':
         pres_levs_job_line_type_stats = ['VL1L2/ME', 'VL1L2/RMSE']
-         #add mean plots
-        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR'] = copy.deepcopy(
-            make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]
-        )
-        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR']['line_type_stats']=[
-            'VL1L2/FBAR_OBAR'
-        ]
-        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR']['plots'] = [
-            'time_series'
-        ]
-        #finish adding mean plots
     else:
         pres_levs_job_line_type_stats = ['SL1L2/ME', 'SL1L2/RMSE']
         #add mean plots
@@ -325,19 +314,9 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
     del make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_types']
     if sfc_job == 'UGRD_VGRD10m':
         sfc_job_line_type_stats = ['VL1L2/RMSE', 'VL1L2/ME']
-        #add mean plot
-        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR'] = copy.deepcopy(
-            make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]
-        )
-        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['line_type_stats']=[
-            'VL1L2/FBAR_OBAR'
-        ]
-        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['plots'] = [
-            'time_series'
-        ]
     else:
         sfc_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
-        #add mean plot
+        #add mean plots
         make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR'] = copy.deepcopy(
             make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]
         )
@@ -347,7 +326,7 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
         make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['plots'] = [
             'time_series'
         ]
-
+        #finish adding meam plots
     sfc_job_plots = ['time_series','lead_average']
     make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = (
         sfc_job_line_type_stats

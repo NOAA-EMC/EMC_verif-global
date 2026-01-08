@@ -49,7 +49,7 @@ export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/pr
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
 #Archive directory for tar files
-export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/KEEP_archive/tar_plot_files"
+export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files"
 ## DATE SETTINGS
 #start_date:          verification start date, format YYYYMMDD
 #end_date:            verification end date, format YYYYMMDD
@@ -217,22 +217,24 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     #####    sat2_[type]_sea_ice_thresh:       threshold for sea ice, anything >= considered ice, anything below no ice
     #####    sat2_[type]_event_eq:             do event equalization (True) or not (False)
     #####    sat2_[type]_grid:                 NCEP grid verification was done on
-    export sat2_model_plot_name_list="ops_gfs"
-    export sat2_type_list="ghrsst_ncei_avhrr_anl"
-    export sat2_ghrsst_ncei_avhrr_anl_gather_by_list="VSDB"
+    export sat2_model_plot_name_list="gfsv${prod_ver} RETROv17_01_stream4"
+    export sat2_type_list="ghrsst_ospo_geopolar_anl"
+    export sat2_ghrsst_ncei_avhrr_anl_gather_by_list="VALID VALID"
+    export sat2_ghrsst_ncei_avhrr_anl_truth_name_list="ghrsst_ncei_avhrr_anl ghrsst_ncei_avhrr_anl"
     export sat2_ghrsst_ncei_avhrr_anl_fcyc_list="00"
     export sat2_ghrsst_ncei_avhrr_anl_fhr_min="00"
-    export sat2_ghrsst_ncei_avhrr_anl_fhr_max="168"
+    export sat2_ghrsst_ncei_avhrr_anl_fhr_max="240"
     export sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
     export sat2_ghrsst_ncei_avhrr_anl_event_eq="True"
-    export sat2_ghrsst_ncei_avhrr_anl_grid="G003"
-    export sat2_ghrsst_ospo_geopolar_anl_gather_by_list="VSDB"
+    export sat2_ghrsst_ncei_avhrr_anl_grid="G219"
+    export sat2_ghrsst_ospo_geopolar_anl_gather_by_list="VALID VALID"
+    export sat2_ghrsst_ospo_geopolar_anl_truth_name_list="ghrsst_ospo_geopolar_anl ghrsst_ospo_geopolar_anl"
     export sat2_ghrsst_ospo_geopolar_anl_fcyc_list="00"
     export sat2_ghrsst_ospo_geopolar_anl_fhr_min="00"
-    export sat2_ghrsst_ospo_geopolar_anl_fhr_max="168"
+    export sat2_ghrsst_ospo_geopolar_anl_fhr_max="240"
     export sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
-    export sat2_ghrsst_ospo_geopolar_anl_event_eq="True"
-    export sat2_ghrsst_ospo_geopolar_anl_grid="G003"
+    export sat2_ghrsst_ospo_geopolar_anl_event_eq="False"
+    export sat2_ghrsst_ospo_geopolar_anl_grid="G219"
 fi
 
 if [ $RUN_FIT2OBS_PLOTS = YES ]; then

@@ -292,11 +292,22 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
         pres_levs_job_line_type_stats = ['VL1L2/ME', 'VL1L2/RMSE']
     else:
         pres_levs_job_line_type_stats = ['SL1L2/ME', 'SL1L2/RMSE']
+        #add mean plots
+        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR'] = copy.deepcopy(
+            make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]
+        )
+        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR']['line_type_stats']=[
+            'SL1L2/FBAR_OBAR'
+        ]
+        make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR']['plots'] = [
+            'time_series'
+        ]
+        #finish adding mean plots
     make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_type_stats'] = (
         pres_levs_job_line_type_stats
     )
     make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
-        'time_series', 'lead_average'
+        'time_series', 'lead_average','stat_by_level'
     ]
 # sfc
 for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
@@ -305,7 +316,17 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
         sfc_job_line_type_stats = ['VL1L2/RMSE', 'VL1L2/ME']
     else:
         sfc_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
-
+        #add mean plots
+        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR'] = copy.deepcopy(
+            make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]
+        )
+        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['line_type_stats']=[
+            'SL1L2/FBAR_OBAR'
+        ]
+        make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['plots'] = [
+            'time_series'
+        ]
+        #finish adding meam plots
     sfc_job_plots = ['time_series','lead_average']
     make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = (
         sfc_job_line_type_stats

@@ -25,9 +25,9 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
 export RUN_GRID2GRID_STEP2="NO"
-export RUN_GRID2OBS_STEP2="NO"
+export RUN_GRID2OBS_STEP2="YES"
 export RUN_PRECIP_STEP2="NO"
-export RUN_SATELLITE_STEP2="YES"
+export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
 export RUN_MAPS2D="NO"
@@ -43,8 +43,8 @@ export RUN_MAPSDA="NO"
 #model_stat_dir_list:    directory path to model .stat files
 export prod_ver=16
 export dev_ver=17
-export model_list="gfsv${prod_ver} retrov17_01_stream4"
-export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Ho-Chun.Huang/stats /gpfs/f6/ira-sti/world-shared/Ho-Chun.Huang/stats"
+export model_list="gfsv${prod_ver} gfsv${dev_ver}"
+export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/prod /gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/dev"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
@@ -57,8 +57,8 @@ export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files
 #spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
 #make_met_data_by:    how to treat dates, "VALID" or "INIT"
 #plot_by:             how to plot data, "VALID" or "INIT"
-export start_date=20250605
-export end_date=20250620
+export start_date=20241116
+export end_date=20241121
 export spinup_period_start="NA"
 export spinup_period_end="NA"
 export make_met_data_by="VALID"

@@ -1,5 +1,5 @@
 help([[
-Load environment to run EMC_verif-global on Hera using Intel
+Load environment to run EMC_verif-global on Ursa using Intel
 ]])
 
 grads_ver=os.getenv("grads_ver","2.2.3")

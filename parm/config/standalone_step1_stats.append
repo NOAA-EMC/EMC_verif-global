@@ -52,18 +52,12 @@ elif [ $on_machine = "HERA" ]; then
     ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "S4" ]; then
-    ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "JET" ]; then
-    ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "GAEAC5" ]; then
-    ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "GAEAC6" ]; then
     ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
 fi
 
 ## Set machine specific account, queues, and run settings
-if [[ "${on_machine}" ==  "GAEAC6" || "${on_machine}" ==  "GAEAC5" ]]; then
+if [[ "${on_machine}" ==  "GAEAC6" ]]; then
     export ACCOUNT=gfs-cpu  
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6

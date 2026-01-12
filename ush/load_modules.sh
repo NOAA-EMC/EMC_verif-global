@@ -77,59 +77,6 @@ elif [ $machine = ORION ]; then
 elif [ $machine = HERCULES ]; then
     "ERROR: EMC_Verif-Global standalone not supported on $machine"
     exit 1
-elif [ $machine = S4 ]; then
-    source /usr/share/lmod/lmod/init/sh
-    module purge
-    if [ $MET_version = 9.1 ]; then
-        export HOMEMET="/data/prod/glopara/contrib/MET/met-9.1.3"
-        export HOMEMET_bin_exec="bin"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [ $METplus_version = 3.1 ]; then
-        export HOMEMETplus="/data/prod/glopara/contrib/METplus/METplus-3.1.1"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
-    module use ${HOMEverif_global}/modulefiles
-    module load emc_verif_global_s4
-elif [ $machine = JET ]; then
-    source /apps/lmod/lmod/init/sh
-    module use ${HOMEverif_global}/modulefiles
-    module load emc_verif_global_jet
-    if [ $MET_version = 9.1 ]; then
-        export HOMEMET="/contrib/met/9.1"
-        export HOMEMET_bin_exec="bin"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [ $METplus_version = 3.1 ]; then
-        export HOMEMETplus="${METPLUS_PATH}"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
-elif [ $machine = GAEAC5 ]; then
-    module reset
-    module use ${HOMEverif_global}/modulefiles
-    module load emc_verif_global_gaeac5
-    module swap python/3.11.6 python/3.9
-    if [[ "${MET_version}" =~ ^(9.1) ]]; then
-        export HOMEMET="${met_ROOT}"
-        export HOMEMET_bin_exec="bin"
-    else
-        "ERROR: $MET_version is not supported on $machine"
-        exit 1
-    fi
-    if [[ "${METplus_version}" =~ ^(3.1) ]]; then
-        export HOMEMETplus="${metplus_ROOT}"
-    else
-        "ERROR: $METplus_version is not supported on $machine"
-        exit 1
-    fi
 elif [ $machine = GAEAC6 ]; then
     module reset
     module use ${HOMEverif_global}/modulefiles
@@ -158,10 +105,7 @@ if [ $machine != "ORION" ]; then
     export CONVERT=$(which convert)
     export NCDUMP=$(which ncdump)
     export NCEA=$(which ncea)
-    if [ $machine == "S4" ]; then
-        export HTAR="/null/htar"
-        export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" -o $machine == "WCOSS2" -o $machine == "HERA" -o $machine == "URSA" ]; then
+    if [ $machine == "WCOSS2" -o $machine == "HERA" -o $machine == "URSA" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
     else

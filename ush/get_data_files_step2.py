@@ -195,7 +195,7 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'--job-name='+wget_job_name+' '+wget_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES']:
+    elif machine in ['HERA', 'ORION', 'HERCULES']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+wget_job_output+' '
@@ -471,16 +471,16 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                   +'-l select=1:ncpus=1 '+hpss_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
-    elif machine in ['HERA', 'JET']:
+    elif machine in ['HERA']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['ORION', 'HERCULES', 'GAEAC6']:
         print("ERROR: No HPSS access from "+machine)
-    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    if machine not in ['ORION', 'HERCULES', 'GAEAC6']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)
@@ -994,8 +994,8 @@ if spinup_period_start != 'NA' and spinup_period_end != 'NA':
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 cwd = os.getcwd()
 
-# No HPSS access from Orion, S4, or Hercules
-if machine in ['ORION', 'S4', 'HERCULES']:
+# No HPSS access from Orion or Hercules
+if machine in ['ORION', 'HERCULES']:
     print("WARNING: "+machine+" does not currently have access to HPSS..."
           +"setting model_data_runhpss to NO")
     model_data_run_hpss = 'NO'

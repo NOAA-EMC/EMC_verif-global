@@ -179,14 +179,6 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'-l select=1:ncpus=1 '+wget_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
-    elif machine == 'GAEAC5':
-        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
-                  +'--partition='+PARTITION_DTN+' --constraint=f5 --qos=dtn '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
-        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
-                         +wget_job_name+' -t R,PD -h | wc -l')
     elif machine == 'GAEAC6':
         os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '

@@ -23,9 +23,6 @@ module reset
 module use "${HOMEverif_global}/modulefiles"
 module load "emc_verif_global_${MACHINE_ID}"
 
-echo success
-
-exit 0
 # Set some workflow environment variables
 export jobid=$$
 export pid=$$

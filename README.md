@@ -28,7 +28,6 @@ EMC_verif-global is supported on the following machines:
 * WCOSS2 (Cactus and Dogwood)
 * Hera
 * Orion
-* Jet
 * Gaea-C6
 
 For questions or issues, please e-mail Alicia Bentley (alicia.bentley@noaa.gov).

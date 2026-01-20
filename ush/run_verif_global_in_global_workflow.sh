@@ -221,7 +221,7 @@ export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 
-if [[ "$machine" =~ ^(URSA|HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
+if [[ "$machine" =~ ^(URSA|HERA|ORION|WCOSS2|HERCULES|GAEAC6)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -236,10 +236,7 @@ if [ $machine != "ORION" ]; then
     export CONVERT=$(which convert)
     export NCDUMP=$(which ncdump)
     export NCEA=$(which ncea)
-    if [ $machine == "S4" ]; then
-        export HTAR="/null/htar"
-        export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+    if [ $machine == "WCOSS2" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
     else

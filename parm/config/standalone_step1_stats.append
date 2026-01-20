@@ -1,3 +1,4 @@
+#/usr/bin/bash
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
 # Set a base working directory.  Subdirectories for each job will be created under this.
@@ -12,16 +13,16 @@ export cyc=18
 export KEEPDATA=YES
 ##################DO NOT EDIT BELOW THIS LINE######################
 
+# Find the root of this git repository
+# Start by finding the directory of this script
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+HOMEverif_global=$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)
+
 # Load the needed modules for METplus
-module use /ncrc/proj/epic/spack-stack/c6/spack-stack-2.0.0/envs/ue-oneapi-2025.2.1/modules/Core
-module load stack-intel-oneapi-compilers
-module load stack-cray-mpich
-module load python/3.11.11
-module load metplus/6.0.0
-module load met/12.0.1
-module load prod_util/2.1.2
-module load wgrib2
-module load grib-util
+source "${HOMEverif_global}/ush/detect_machine.sh"
+module reset
+module use "${HOMEverif_global}/modulefiles"
+module load "emc_verif_global_${MACHINE_ID}"
 
 # Set some workflow environment variables
 export jobid=$$
@@ -52,18 +53,12 @@ elif [ $on_machine = "HERA" ]; then
     ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "S4" ]; then
-    ln -sf /data/prod/glopara/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "JET" ]; then
-    ln -sf /lfs4/HFIP/hfv3gfs/glopara/git/fv3gfs/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "GAEAC5" ]; then
-    ln -sf /gpfs/f5/nggps_emc/world-shared/role.glopara/FIX/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "GAEAC6" ]; then
     ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
 fi
 
 ## Set machine specific account, queues, and run settings
-if [[ "${on_machine}" ==  "GAEAC6" || "${on_machine}" ==  "GAEAC5" ]]; then
+if [[ "${on_machine}" ==  "GAEAC6" ]]; then
     export ACCOUNT=gfs-cpu  
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6

@@ -589,7 +589,7 @@ def get_off_machine_data(job_file, job_name, job_output, machine, user, queue,
         job_check_cmd = (
             f"qselect -s QR -u {user} -N {job_name} | wc -l"
         )
-    elif machine in ['HERA', 'ORION', 'S4', 'JET', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['HERA', 'ORION', 'GAEAC6']:
         job_submit_cmd = (
             f"sbatch --ntasks=1 --time={walltime:%H:%M:%S} "
             +f"--partition={queue} --account={account} --output={job_output} "

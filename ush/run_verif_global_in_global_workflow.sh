@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/sh -x
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 ## NCEP EMC GLOBAL MODEL VERIFICATION
@@ -359,14 +359,22 @@ if [ ${start_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
     RUN_PRECIP_STEP1=NO
     RUN_SATELLITE_STEP1=NO
 fi
+# Cycle through forecast cycles. If any are valid, exit loop and do not change steps to run.
+change_steps="NO"
 for fcyc in $fcyc_list; do
     if [ ${start_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
-         RUN_GRID2GRID_STEP1=NO
-         RUN_GRID2OBS_STEP1=NO
-         RUN_PRECIP_STEP1=NO
-         RUN_SATELLITE_STEP1=NO
+        change_steps="YES"
+    else
+        change_steps="NO"
+        break
     fi
 done
+if [ $change_steps = "YES" ] ; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
+    RUN_PRECIP_STEP1=NO
+    RUN_SATELLITE_STEP1=NO
+fi
 for precip1_type in $precip1_type_list; do
     precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
     precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))

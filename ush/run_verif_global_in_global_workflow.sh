@@ -255,16 +255,8 @@ if [ $machine = "ORION" ]; then
     export HTAR="/null/htar"
 fi
 export HOMEMET_bin_exec="bin"
-if [ $machine = WCOSS2 ]; then
-    export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
-    export HOMEMETplus="/apps/ops/para/libs/intel/19.1.3.304/metplus/3.1.1"
-    export MET_BASE="$HOMEMET/share/met"
-    export HOMEMET_bin_exec="bin"
-    export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
-else
-    export HOMEMET=$met_ROOT
-    export HOMEMETplus=$metplus_ROOT
-fi
+export HOMEMET=${met_ROOT:-${MET_ROOT:?met_ROOT is undefined!}}
+export HOMEMETplus=${metplus_ROOT:-${METPLUS_ROOT:?metplus_ROOT is undefined!}}
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 

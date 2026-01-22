@@ -500,8 +500,7 @@ def convert_grib2_grib1(grib2_file, grib1_file):
     print("Converting GRIB2 file "+grib2_file+" "
           +"to GRIB1 file "+grib1_file)
     cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g21 '+grib2_file+' '
-              +grib1_file+' > /dev/null 2>&1')
+    os.system(cnvgrib+' -g21 '+grib2_file+' '+grib1_file)
 
 def convert_grib1_grib2(grib1_file, grib2_file):
     """! This converts GRIB2 data to GRIB1

@@ -657,7 +657,7 @@ if MPMD == 'YES':
     iproc+=1
     if machine == 'WCOSS2':
         nselect = subprocess.run(
-            f"cat {PBS_NODEFILE} | wc -l",
+            f"cat {poe_filename} | wc -l",
             shell=True, capture_output=True, encoding="utf8"
         ).stdout.replace('\n', '')
         nnp = int(nselect) * int(nproc)

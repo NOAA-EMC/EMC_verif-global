@@ -14,8 +14,8 @@ echo "=============== SOURCING CONFIGS ==============="
 passed_config=$1
 passed_config_strlength=$(echo -n $passed_config | wc -m)
 if [ $passed_config_strlength = 0 ]; then
-    echo "No config passed, using default: $HOMEverif_global/parm/config/driver_standalone_step2_plots.sh"
-    config=$HOMEverif_global/parm/config/driver_standalone_step2_plots.sh
+    echo "No config passed, using default: $HOMEverif_global/parm/config/config.step2"
+    config="${HOMEverif_global}/parm/config/config.step2"
 else
     config=$(readlink -f $passed_config)
     if [ ! -e $config ]; then

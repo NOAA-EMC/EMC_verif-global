@@ -91,7 +91,7 @@ for group in condense_stats filter_stats make_plots; do
             if [ $machine = WCOSS2 ]; then
                 export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
                 launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-            elif [ $machine = HERA -o $machine = ORION $machine = HERCULES -o $machine = GAEAC6 ]; then
+            elif [ $machine = HERA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
                 launcher="srun --export=ALL --multi-prog"
             fi
             $launcher $MP_CMDFILE

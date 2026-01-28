@@ -14,7 +14,7 @@ stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2025.2.1"
 load(pathJoin("stack-intel-oneapi-compilers", stack_oneapi_ver))
 
 stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
-load(pathJoin("stack-intel-oneapi-mpi", stack_mpi_ver))
+load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
 netcdf_c_ver=os.getenv("netcdf_c_ver") or "4.9.2"
 load(pathJoin("netcdf-c", netcdf_c_ver))

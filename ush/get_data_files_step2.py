@@ -786,7 +786,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                         elif var_level == 'L0_7':
                             var_level_grib2 = 'tropopause'
                         elif var_level == 'L0_200':
-                            var_level_grib2 = ('entire atmosphere \('
+                            var_level_grib2 = ('entire atmosphere ('
                                                +'considered as a single '
                                                +'layer)')
                         if os.path.exists(template_grib2_file):

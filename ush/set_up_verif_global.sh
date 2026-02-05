@@ -49,7 +49,7 @@ machine=${MACHINE_ID^^}
 . $HOMEverif_global/ush/load_modules.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
+[[ $status -eq 0 ]] && echo "Successfully loaded modules"
 echo
 
 export COMROOT="$OUTPUTROOT/com"
@@ -72,14 +72,14 @@ echo
 python $HOMEverif_global/ush/get_machine.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
+[[ $status -eq 0 ]] && echo "Successfully ran get_machine.py"
 echo
 
 if [ -s config.machine ]; then
     . $DATA/config.machine
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully sourced config.machine"
+    [[ $status -eq 0 ]] && echo "Successfully sourced config.machine"
 fi
 
 if [[ "$machine" =~ ^(HERA|URSA|ORION|WCOSS2|HERCULES|GAEAC6)$ ]]; then

@@ -1,4 +1,4 @@
-#/usr/bin/bash
+#!/usr/bin/bash
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
 # Set a base working directory.  Subdirectories for each job will be created under this.

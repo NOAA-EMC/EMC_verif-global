@@ -64,7 +64,7 @@ fi
 # Overwrite auto-detect with MACHINE if set
 MACHINE_ID=${MACHINE:-${MACHINE_ID}}
 
-# If MACHINE_ID is no longer UNKNNOWN, return it
+# If MACHINE_ID is no longer UNKNOWN, return it
 if [[ "${MACHINE_ID}" != "UNKNOWN" ]]; then
     # TODO: make this read-only when UPP#1308 is addressed.
     declare -x MACHINE_ID # Should be -rx, but the UPP system needs Gaea C6 to be ID'd as "gaea"

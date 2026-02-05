@@ -39,6 +39,19 @@ else
 fi
 
 echo "Output will be in: $OUTPUTROOT"
+
+## Get machine name
+. ${HOMEverif_global}/ush/detect_machine.sh
+# Set machine to capitalized MACHINE_ID
+machine=${MACHINE_ID^^}
+
+## Load modules, set paths to MET and METplus, and some executables
+. $HOMEverif_global/ush/load_modules.sh
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
+echo
+
 export COMROOT="$OUTPUTROOT/com"
 export DCOMROOT="$OUTPUTROOT/dcom"
 export DATAROOT="$OUTPUTROOT/tmp"
@@ -56,17 +69,10 @@ cd $DATA
 echo
 
 ## Get machine, set environment variable 'machine', and check that it is a supported machine
-if [[ $HOSTNAME == orion* ]] || [[ $HOSTNAME == gaea* ]]; then
-    python3 $HOMEverif_global/ush/get_machine.py
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
-else
-    python $HOMEverif_global/ush/get_machine.py
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
-fi
+python $HOMEverif_global/ush/get_machine.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Succesfully ran get_machine.py"
 echo
 
 if [ -s config.machine ]; then
@@ -82,13 +88,6 @@ else
     echo "ERROR: $machine is not a supported machine"
     exit 1
 fi
-
-## Load modules, set paths to MET and METplus, and some executables
-. $HOMEverif_global/ush/load_modules.sh
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully loaded modules"
-echo
 
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global

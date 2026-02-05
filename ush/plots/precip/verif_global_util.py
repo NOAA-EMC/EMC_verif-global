@@ -17,7 +17,10 @@ import logging
 import copy
 import itertools
 import copy
+import warnings
 from time import sleep
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def run_shell_command(command):
     """! Run shell command

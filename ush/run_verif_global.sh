@@ -8,6 +8,7 @@
 ##---------------------------------------------------------------------------
 ##---------------------------------------------------------------------------
 
+export PS4='+$(basename ${BASH_SOURCE[0]}):${LINENO}: '
 export HOMEverif_global=$(eval "cd ../;pwd")  # Home base of verif_global
 
 echo "=============== SOURCING CONFIGS ==============="

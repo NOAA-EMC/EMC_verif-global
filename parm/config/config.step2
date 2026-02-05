@@ -43,7 +43,7 @@ export RUN_MAPSDA="NO"
 #model_stat_dir_list:    directory path to model .stat files
 export prod_ver=16
 export dev_ver=17
-export model_list="C96C48_hybatmDA_metp"
+export model_list="C96_atm3DVar"
 export model_stat_dir_list="/lfs/h2/emc/global/noscrub/david.huber/archive"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory

@@ -57,3 +57,9 @@ load(pathJoin("bufr", bufr_ver))
 
 cdo_ver=os.getenv("cdo_ver") or "2.5.2"
 load(pathJoin("cdo", cdo_ver))
+
+python_ver=os.getenv("python_ver") or "3.11.11"
+load(pathJoin("python", python_ver))
+
+matplotlib_ver=os.getenv("matplotlib_ver") or "3.7.4"
+load(pathJoin("py-matplotlib", matplotlib_ver))

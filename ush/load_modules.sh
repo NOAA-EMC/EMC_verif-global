@@ -55,6 +55,10 @@ _machine=${machine,,}
 module use "${HOMEverif_global}/modulefiles"
 module load "emc_verif_global_${_machine}"
 
+# spack-stack 2.0.0 uses these env vars
+MET_ROOT=${MET_ROOT:-${met_ROOT}}
+METPLUS_PATH=${METPLUS_PATH:-${metplus_ROOT}}
+
 export HOMEMET="$MET_ROOT"
 export HOMEMET_bin_exec="bin"
 export HOMEMETplus="${METPLUS_PATH}"

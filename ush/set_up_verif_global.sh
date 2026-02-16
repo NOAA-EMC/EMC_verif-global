@@ -179,7 +179,7 @@ if [ $machine = "WCOSS2" ]; then
     export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
     export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
     export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
-elif [ $machine = "HERA" ]; then
+elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export NWROOT="/scratch3/NCEPDEV/global/role.glopara/nwpara"
     export HOMEDIR="/scratch3/NCEPDEV/global/$USER"
     export STMP="/scratch3/NCEPDEV/stmp/$USER"

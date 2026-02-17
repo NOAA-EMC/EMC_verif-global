@@ -5,7 +5,7 @@
 export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
-# cyc specifies the last forecast init time to use. 
+# cyc specifies the last forecast init time to use.
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
 #
@@ -59,7 +59,7 @@ fi
 
 ## Set machine specific account, queues, and run settings
 if [[ "${on_machine}" ==  "GAEAC6" ]]; then
-    export ACCOUNT=gfs-cpu  
+    export ACCOUNT=gfs-cpu
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6
     export CLUSTERS_DTN="es"
@@ -278,11 +278,11 @@ done
 
 # TODO: If none of these are on, why are we running this job?
 if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" || "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
-    bash -x "${VERIF_GLOBALSH}"
+    "${VERIF_GLOBALSH}"
     err=$?
-    if [[ ${err} -ne 0 ]]; 
+    if [[ ${err} -ne 0 ]];
         then exit "${err}"
     fi
 fi
 
-if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATAROOT}" ; fi  # TODO: This should be $DATA
+if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATA}" ; fi  # TODO: This should be $DATA

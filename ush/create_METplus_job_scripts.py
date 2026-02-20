@@ -174,7 +174,6 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_file = open(job_filename, 'w')
                 job_file.write('#!/bin/sh\n')
                 job_file.write('set -x\n')
-                job_file.write('\nsleep {:d}\n\n'.format(njob))
                 # Write environment variables
                 for name, value in job_env_dict.items():
                     job_file.write('export '+name+'="'+value+'"\n')
@@ -1786,7 +1785,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                                                         +'job'+str(njob)+'_'
                                                         +model+'.sh')+'\n')
                         job_file.write('\n')
-                    if os.environ['machine'] in ['ORION', 'JET', 'HERCULES']:
+                    if os.environ['machine'] in ['ORION', 'HERCULES']:
                         job_file.write('echo "WARNING: Cartopy not installed '
                                        +'on '+os.environ['machine'].title()
                                        +', cannot create plots."\n')
@@ -1920,7 +1919,7 @@ if MPMD == 'YES':
         node = 1
     while njob <= njob_files:
         job = 'job'+str(njob)
-        if machine in ['HERA', 'URSA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+        if machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
             if iproc >= nproc:
                 poe_file.close()
                 iproc = 0
@@ -1930,7 +1929,7 @@ if MPMD == 'YES':
         if iproc == 0:
             poe_file = open(poe_filename, 'w')
         iproc+=1
-        if machine in ['HERA', 'URSA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+        if machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' '
                 +os.path.join(DATA, RUN, 'metplus_job_scripts', job)+'\n'
@@ -1947,7 +1946,7 @@ if MPMD == 'YES':
     poe_file = open(poe_filename, 'a')
     iproc+=1
     while iproc <= nproc:
-        if machine in ['HERA', 'URSA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+        if machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )

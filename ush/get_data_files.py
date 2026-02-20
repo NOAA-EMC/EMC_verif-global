@@ -179,14 +179,6 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'-l select=1:ncpus=1 '+wget_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
-    elif machine == 'GAEAC5':
-        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
-                  +'--partition='+PARTITION_DTN+' --constraint=f5 --qos=dtn '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
-        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
-                         +wget_job_name+' -t R,PD -h | wc -l')
     elif machine == 'GAEAC6':
         os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
@@ -195,7 +187,7 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'--job-name='+wget_job_name+' '+wget_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['URSA', 'HERA', 'ORION', 'S4', 'JET', 'HERCULES']:
+    elif machine in ['URSA', 'HERA', 'ORION', 'HERCULES']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+wget_job_output+' '
@@ -471,16 +463,16 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                   +'-l select=1:ncpus=1 '+hpss_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
-    elif machine in ['URSA', 'HERA', 'JET']:
+    elif machine in ['URSA', 'HERA']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['ORION', 'HERCULES', 'GAEAC6']:
         print("ERROR: No HPSS access from "+machine)
-    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    if machine not in ['ORION', 'HERCULES', 'GAEAC6']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)
@@ -508,8 +500,7 @@ def convert_grib2_grib1(grib2_file, grib1_file):
     print("Converting GRIB2 file "+grib2_file+" "
           +"to GRIB1 file "+grib1_file)
     cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g21 '+grib2_file+' '
-              +grib1_file+' > /dev/null 2>&1')
+    os.system(cnvgrib+' -g21 '+grib2_file+' '+grib1_file)
 
 def convert_grib1_grib2(grib1_file, grib2_file):
     """! This converts GRIB2 data to GRIB1
@@ -794,7 +785,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                         elif var_level == 'L0_7':
                             var_level_grib2 = 'tropopause'
                         elif var_level == 'L0_200':
-                            var_level_grib2 = ('entire atmosphere \('
+                            var_level_grib2 = ('entire atmosphere ('
                                                +'considered as a single '
                                                +'layer)')
                         if os.path.exists(template_grib2_file):
@@ -998,8 +989,8 @@ if spinup_period_start != 'NA' and spinup_period_end != 'NA':
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 cwd = os.getcwd()
 
-# No HPSS access from Orion, S4, or Hercules
-if machine in ['ORION', 'S4', 'HERCULES']:
+# No HPSS access from Orion or Hercules
+if machine in ['ORION', 'HERCULES']:
     print("WARNING: "+machine+" does not currently have access to HPSS..."
           +"setting model_data_runhpss to NO")
     model_data_run_hpss = 'NO'
@@ -1304,8 +1295,8 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     iabp_ftp = os.environ['iabp_ftp']
-    # No HPSS access from Orion, S4, Hercules
-    if machine in ['ORION', 'S4', 'HERCULES']:
+    # No HPSS access from Orion or Hercules
+    if machine in ['ORION', 'HERCULES']:
         print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_prepbufr_data_run_hpss to NO")
         prepbufr_run_hpss = 'NO'
@@ -1736,11 +1727,6 @@ elif RUN == 'grid2obs_step1':
                                     prod_file = prod_file+'.nr'
                                     arch_file = arch_file+'.nr'
                                     hpss_file = hpss_file+'.nr'
-                            #Make sure using non restricted data for S4
-                            if machine == 'S4':
-                                prod_file = prod_file+'.nr'
-                                arch_file = arch_file+'.nr'
-                                hpss_file = hpss_file+'.nr'
                             if os.path.exists(prod_file):
                                 print("Linking "+prod_file+" to "
                                       +link_prepbufr_file)
@@ -1840,8 +1826,8 @@ elif RUN == 'precip_step1':
     obs_run_hpss = os.environ[RUN_abbrev+'_obs_data_run_hpss']
     ccpa_accum24hr_prod_dir = os.environ['ccpa_24hr_prod_dir']
     ccpa_accum24hr_arch_dir = os.environ['ccpa_24hr_arch_dir']
-    # No HPSS access from Orion, S4, and Hercules
-    if machine in ['ORION', 'S4', 'HERCULES']:
+    # No HPSS access from Orion and Hercules
+    if machine in ['ORION', 'HERCULES']:
         print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_obs_data_run_hpss to NO")
         obs_run_hpss = 'NO'

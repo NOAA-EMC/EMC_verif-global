@@ -288,16 +288,10 @@ if machine == 'WCOSS2':
     config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
 elif machine == 'URSA' or machine == 'HERA':
     config['data_dir']='/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/cartopy'
-elif machine == 'S4':
-    config['data_dir']='/data/prod/glopara/contrib/share/cartopy'
-elif machine == 'JET':
-    config['data_dir']='/home/Mallory.Row/.local/share/cartopy'
 elif machine == 'ORION': 
     config['data_dir']='/work2/noaa/global/role-global/data/metplus.data/cartopy' 
 elif machine == 'HERCULES': 
     config['data_dir']='/work2/noaa/global/role-global/data/metplus.data/cartopy' 
-elif machine == 'GAEAC5': 
-    config['data_dir']='/gpfs/f5/nggps_emc/world-shared/role.glopara/DATA/metplus.data/cartopy' 
 elif machine == 'GAEAC6': 
     config['data_dir']='/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/cartopy'
 

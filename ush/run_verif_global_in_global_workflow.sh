@@ -83,7 +83,7 @@ export g2g1_anom_vhr_list=${vhr_list}
 export g2g1_anom_fhr_min=${g2g1_anom_fhr_min:-$FHMIN_GFS}
 export g2g1_anom_fhr_max=${g2g1_anom_fhr_max:-$FHMAX_GFS}
 export g2g1_anom_grid=${g2g1_anom_grid:-"G002"}
-export g2g1_anom_gather_by=${g2g1_anom_gather_by:-"VSDB"}
+export g2g1_anom_gather_by=${g2g1_anom_gather_by:-"VALID"}
 export g2g1_pres_truth_name=${g2g1_pres_truth_name:-"self_anl"}
 export g2g1_pres_truth_file_format_list=${g2g1_pres_truth_file_format:-"pgbanl.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_pres_fcyc_list=${fcyc_list}
@@ -91,7 +91,7 @@ export g2g1_pres_vhr_list=${vhr_list}
 export g2g1_pres_fhr_min=${g2g1_pres_fhr_min:-$FHMIN_GFS}
 export g2g1_pres_fhr_max=${g2g1_pres_fhr_max:-$FHMAX_GFS}
 export g2g1_pres_grid=${g2g1_pres_grid:-"G002"}
-export g2g1_pres_gather_by=${g2g1_pres_gather_by:-"VSDB"}
+export g2g1_pres_gather_by=${g2g1_pres_gather_by:-"VALID"}
 export g2g1_sfc_truth_name=${g2g1_sfc_truth_name:-"self_f00"}
 export g2g1_sfc_truth_file_format_list=${g2g1_sfc_truth_file_format:-"pgbf00.${RUN}.{valid?fmt=%Y%m%d%H}.grib2"}
 export g2g1_sfc_fcyc_list=${fcyc_list}
@@ -99,7 +99,7 @@ export g2g1_sfc_vhr_list=${vhr_list}
 export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
 export g2g1_sfc_fhr_max=${g2g1_sfc_fhr_max:-$FHMAX_GFS}
 export g2g1_sfc_grid=${g2g1_sfc_grid:-"G002"}
-export g2g1_sfc_gather_by=${g2g1_sfc_gather_by:-"VSDB"}
+export g2g1_sfc_gather_by=${g2g1_sfc_gather_by:-"VALID"}
 export g2g1_mv_database_name=${g2g1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
 export g2g1_mv_database_group=${g2g1_mv_database_group:-"NOAA-NCEP"}
 export g2g1_mv_database_desc=${g2g1_mv_database_desc:-"Grid-to-grid METplus data for global workflow experiment ${PSLOT}"}
@@ -111,21 +111,21 @@ export g2o1_upper_air_vhr_list=${g2o1_upper_air_vhr_list:-"00 06 12 18"}
 export g2o1_upper_air_fhr_min=${g2o1_upper_air_fhr_min:-$FHMIN_GFS}
 export g2o1_upper_air_fhr_max=${g2o1_upper_air_fhr_max:-$FHMAX_GFS}
 export g2o1_upper_air_grid=${g2o1_upper_air_grid:-"G003"}
-export g2o1_upper_air_gather_by=${g2o1_upper_air_gather_by:-"VSDB"}
+export g2o1_upper_air_gather_by=${g2o1_upper_air_gather_by:-"VALID"}
 export g2o1_conus_sfc_msg_type_list=${g2o1_conus_sfc_msg_type_list:-"ONLYSF ADPUPA"}
 export g2o1_conus_sfc_fcyc_list=${fcyc_list}
 export g2o1_conus_sfc_vhr_list=${g2o1_conus_sfc_vhr_list:-"00 03 06 09 12 15 18 21"}
 export g2o1_conus_sfc_fhr_min=${g2o1_conus_sfc_fhr_min:-$FHMIN_GFS}
 export g2o1_conus_sfc_fhr_max=${g2o1_cnous_sfc_fhr_max:-$FHMAX_GFS}
 export g2o1_conus_sfc_grid=${g2o1_conus_sfc_grid:-"G104"}
-export g2o1_conus_sfc_gather_by=${g2o1_conus_sfc_gather_by:-"VSDB"}
+export g2o1_conus_sfc_gather_by=${g2o1_conus_sfc_gather_by:-"VALID"}
 export g2o1_polar_sfc_msg_type_list=${g2o1_polar_sfc_msg_type_list:-"IABP"}
 export g2o1_polar_sfc_fcyc_list=${fcyc_list}
 export g2o1_polar_sfc_vhr_list=${g2o1_polar_sfc_vhr_list:-"00 03 06 09 12 15 18 21"}
 export g2o1_polar_sfc_fhr_min=${g2o1_polar_sfc_fhr_min:-$FHMIN_GFS}
 export g2o1_polar_sfc_fhr_max=${g2o1_polar_sfc_fhr_max:-$FHMAX_GFS}
 export g2o1_polar_sfc_grid=${g2o1_polar_sfc_grid:-"G219"}
-export g2o1_polar_sfc_gather_by=${g2o1_polar_sfc_gather_by:-"VSDB"}
+export g2o1_polar_sfc_gather_by=${g2o1_polar_sfc_gather_by:-"VALID"}
 export g2o1_prepbufr_data_run_hpss=${g2o1_prepbufr_data_run_hpss:-"NO"}
 export g2o1_mv_database_name=${g2o1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
 export g2o1_mv_database_group=${g2o1_mv_database_group:-"NOAA-NCEP"}
@@ -139,7 +139,7 @@ export precip1_ccpa_accum24hr_fcyc_list=${fcyc_list}
 export precip1_ccpa_accum24hr_fhr_min=${precip1_ccpa_accum24hr_fhr_min:-$FHMIN_GFS}
 export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHMAX_GFS}
 export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
-export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VSDB"}
+export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VALID"}
 export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
 export precip1_mv_database_name=${precip1_mv_database_name:-"mv_${PSLOT}_precip_metplus"}
 export precip1_mv_database_group=${precip1_mv_database_group:-"NOAA-NCEP"}
@@ -150,13 +150,13 @@ export sat1_ghrsst_ncei_avhrr_anl_fcyc_list=${sat1_ghrsst_ncei_avhrr_anl_fcyc_li
 export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${sat1_ghrsst_ncei_avhrr_anl_fhr_min:-${FHMIN_GFS}}
 export sat1_ghrsst_ncei_avhrr_anl_fhr_max=${sat1_ghrsst_ncei_avhrr_anl_fhr_max:-${FHMAX_GFS}}
 export sat1_ghrsst_ncei_avhrr_anl_grid=${sat1_ghrsst_ncei_avhrr_anl_grid:-"G219"}
-export sat1_ghrsst_ncei_avhrr_anl_gather_by=${sat1_ghrsst_ncei_avhrr_anl_gather_by:-"VSDB"}
+export sat1_ghrsst_ncei_avhrr_anl_gather_by=${sat1_ghrsst_ncei_avhrr_anl_gather_by:-"VALID"}
 export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh=${sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh:-"0.15"}
 export sat1_ghrsst_ospo_geopolar_anl_fcyc_list=${sat1_ghrsst_ospo_geopolar_anl_fcyc_list:-${fcyc_list}}
 export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${sat1_ghrsst_ospo_geopolar_anl_fhr_min:-${FHMIN_GFS}}
 export sat1_ghrsst_ospo_geopolar_anl_fhr_max=${sat1_ghrsst_ospo_geopolar_anl_fhr_max:-${FHMAX_GFS}}
 export sat1_ghrsst_ospo_geopolar_anl_grid=${sat1_ghrsst_ospo_geopolar_anl_grid:-"G219"}
-export sat1_ghrsst_ospo_geopolar_anl_gather_by=${sat1_ghrsst_ospo_geopolar_anl_gather_by:-"VSDB"}
+export sat1_ghrsst_ospo_geopolar_anl_gather_by=${sat1_ghrsst_ospo_geopolar_anl_gather_by:-"VALID"}
 export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=${sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh:-"0.15"}
 export sat1_mv_database_name=${sat1_mv_database_name:-"mv_${PSLOT}_satellite_metplus_TEST"}
 export sat1_mv_database_group=${sat1_mv_database_group:-"NOAA NCEP"}
@@ -221,7 +221,7 @@ export OUTPUTROOT=${DATA}
 mkdir -p $DATA
 cd $DATA
 
-if [[ "$machine" =~ ^(URSA|HERA|ORION|S4|JET|WCOSS2|HERCULES|GAEAC5|GAEAC6)$ ]]; then
+if [[ "$machine" =~ ^(URSA|HERA|ORION|WCOSS2|HERCULES|GAEAC6)$ ]]; then
    echo
 else
     echo "ERROR: $machine is not a supported machine"
@@ -236,10 +236,7 @@ if [ $machine != "ORION" ]; then
     export CONVERT=$(which convert)
     export NCDUMP=$(which ncdump)
     export NCEA=$(which ncea)
-    if [ $machine == "S4" ]; then
-        export HTAR="/null/htar"
-        export NCAP2="/null/ncap2"
-    elif [ $machine == "JET" -o $machine == "WCOSS2" ]; then
+    if [ $machine == "WCOSS2" ]; then
         export HTAR=$(which htar)
         export NCAP2="/null/ncap2"
     else
@@ -258,16 +255,8 @@ if [ $machine = "ORION" ]; then
     export HTAR="/null/htar"
 fi
 export HOMEMET_bin_exec="bin"
-if [ $machine = WCOSS2 ]; then
-    export HOMEMET="/apps/ops/para/libs/intel/19.1.3.304/met/9.1.3"
-    export HOMEMETplus="/apps/ops/para/libs/intel/19.1.3.304/metplus/3.1.1"
-    export MET_BASE="$HOMEMET/share/met"
-    export HOMEMET_bin_exec="bin"
-    export LD_LIBRARY_PATH=/apps/prod/hpc-stack/intel-19.1.3.304/netcdf/4.7.4/lib:${LD_LIBRARY_PATH}
-else
-    export HOMEMET=$met_ROOT
-    export HOMEMETplus=$metplus_ROOT
-fi
+export HOMEMET=${met_ROOT:-${MET_ROOT:?met_ROOT is undefined!}}
+export HOMEMETplus=${metplus_ROOT:-${METPLUS_ROOT:?metplus_ROOT is undefined!}}
 echo "Using HOMEMET=${HOMEMET}"
 echo "Using HOMEMETplus=${HOMEMETplus}"
 
@@ -362,14 +351,22 @@ if [ ${start_date}${cyc2run} -lt $SDATE_GFS_YYYYMMDDHH ]; then
     RUN_PRECIP_STEP1=NO
     RUN_SATELLITE_STEP1=NO
 fi
+# Cycle through forecast cycles. If any are valid, exit loop and do not change steps to run.
+change_steps="NO"
 for fcyc in $fcyc_list; do
     if [ ${start_date}${fcyc} -lt $SDATE_GFS_YYYYMMDDHH ]; then
-         RUN_GRID2GRID_STEP1=NO
-         RUN_GRID2OBS_STEP1=NO
-         RUN_PRECIP_STEP1=NO
-         RUN_SATELLITE_STEP1=NO
+        change_steps="YES"
+    else
+        change_steps="NO"
+        break
     fi
 done
+if [ $change_steps = "YES" ] ; then
+    RUN_GRID2GRID_STEP1=NO
+    RUN_GRID2OBS_STEP1=NO
+    RUN_PRECIP_STEP1=NO
+    RUN_SATELLITE_STEP1=NO
+fi
 for precip1_type in $precip1_type_list; do
     precip1_accum_length=$(echo $precip1_type | sed 's/[^0-9]*//g')
     precip_back_hours=$((VRFYBACK_HRS + precip1_accum_length))

@@ -24,9 +24,9 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_TROPCYC:         runs METplus verification for tropical cyclone track and intensity error
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
 #RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
-export RUN_GRID2GRID_STEP2="NO"
+export RUN_GRID2GRID_STEP2="YES"
 export RUN_GRID2OBS_STEP2="YES"
-export RUN_PRECIP_STEP2="NO"
+export RUN_PRECIP_STEP2="YES"
 export RUN_SATELLITE_STEP2="NO"
 export RUN_FIT2OBS_PLOTS="NO"
 export RUN_TROPCYC="NO"
@@ -176,7 +176,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ]; then
     export g2o2_conus_sfc_event_eq="True"
     export g2o2_conus_sfc_grid="G104"
     export g2o2_polar_sfc_msg_type_list="IABP"
-    export g2o2_polar_sfc_gather_by_list="VSDB"
+    export g2o2_polar_sfc_gather_by_list="VALID"
     export g2o2_polar_sfc_fcyc_list="00"
     export g2o2_polar_sfc_vhr_list="00 06 12 18"
     export g2o2_polar_sfc_fhr_min="00"

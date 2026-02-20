@@ -967,28 +967,13 @@ elif machine == 'HERA':
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
-elif machine == 'GAEAC5':
-    CLUSTERS = os.environ['CLUSTERS']
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
 elif machine == 'GAEAC6':
     CLUSTERS = os.environ['CLUSTERS']
     os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '
                   +'--job-name='+web_job_name+' '+web_job_filename)
-elif machine == 'JET':
-    if webhost == 'emcrzdm.ncep.noaa.gov':
-        print("ERROR: Currently "+machine.title()+" cannot connect to "
-              +webhost)
-    else:
-        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
-elif machine in ["ORION", "HERCULES", "S4","GAEAC5","GAEAC6"]:
+elif machine in ["ORION", "HERCULES", "GAEAC6"]:
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently " + machine + " cannot connect to "+webhost)
     else:

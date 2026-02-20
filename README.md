@@ -34,15 +34,15 @@ For questions or issues, please e-mail Alicia Bentley (alicia.bentley@noaa.gov).
 
 # Running EMC-verif-global
 ## 1. Set up configuration file
-The default configuration file for EMC_verif-global depends on whether a user is running step1 (stats) or step2 (plots). The step1 config file is located under parm/config/run_standalone_step1_stats.py. The step2 config file is located under parm/config/driver_standalone_step2_plots.sh. Users can create a copy of these configuration files for their own verification purposes. Within these configuration files are switches to run the various types of verifications listed above. To run, set the switch to YES, if not set the switch to NO. Then, follows a section of settings that generally apply to running all the verification types. Finally, each verification type/switch has its own section of settings specifically related to it.
+The default configuration file for EMC_verif-global depends on whether a user is running step1 (stats) or step2 (plots). The step1 config file is located under parm/config/run_standalone_step1_stats.py. The step2 config file is located under parm/config/config.step2. Users can create a copy of these configuration files for their own verification purposes. Within these configuration files are switches to run the various types of verifications listed above. To run, set the switch to YES, if not set the switch to NO. Then, follows a section of settings that generally apply to running all the verification types. Finally, each verification type/switch has its own section of settings specifically related to it.
 ## 2. Run
 To run step1, users will move to the parm/config/ directory. Here, *run_standalone_step1_stats.py* and *standalone_step1_stats.append* run EMC_verif-global for step1. There are several required run time arguments which include the following: machine name, component name, start date in YYYYMMDD format, and end date in YYYYMMDD format. An example run time command may look like below
 ```
 $ python run_standalone_step1_stats.py gaeac6 grid2grid 20241121 20241122
 ```
-To run step2 from the top directory, users will move to the /ush directory. Here is the script *run_verif_global.sh* that runs EMC_verif-global for step2. It takes one run time argument which is the path to the configuration file that the user wishes to run with. If none is given it will default to using driver_standalone_step2_plots.sh. An example run time command may look like below
+To run step2 from the top directory, users will move to the /ush directory. Here is the script *run_verif_global.sh* that runs EMC_verif-global for step2. It takes one run time argument which is the path to the configuration file that the user wishes to run with. If none is given it will default to using config.step2. An example run time command may look like below
 ```
-$ ./run_verif_global.sh ../parm/config/driver_standalone_step2_plots.sh
+$ ./run_verif_global.sh ../parm/config/config.step2
 ```
 # Known issues
 Pandas library versions 2.1.0 and greater will return warnings when running Python plotting scripts about incompatible dtypes. These warnings can be ignored, but note that future versions of Pandas (v3.0.0) will turn these warnings into errors. Avoid using Pandas v3.0.0 until EMC_verif-global has been updated to be compatible.

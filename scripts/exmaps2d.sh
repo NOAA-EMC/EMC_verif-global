@@ -104,8 +104,14 @@ fi
 
 # Run special calculated variables for model2obs
 if [ $machine != "ORION" ]; then
-    python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
+    python $USHverif_global/plots/maps2d/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
+
+# Tar up plots
+python $USHverif_global/plots/maps2d/maps2d_tar_images.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Successfully ran maps2d_tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then

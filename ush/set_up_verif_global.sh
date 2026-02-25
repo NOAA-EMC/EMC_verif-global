@@ -216,29 +216,14 @@ elif [ $machine = "GAEAC6" ]; then
 fi
 
 ## Set operational directories
-export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
-export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
-export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
-export nhc_atcfnoaa_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/btk"
-export nhc_atcfnoaa_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/aid_nws"
-export nhc_atcfnavy_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/btk"
-export nhc_atcfnavy_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/aid"
 if [ $machine = "WCOSS2" ]; then
     source ${HOMEverif_global}/versions/run.ver
     export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
     export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
     export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-    export nhc_atcfnoaa_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/btk"
-    export nhc_atcfnoaa_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/aid_nws"
-    export nhc_atcfnavy_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/btk"
-    export nhc_atcfnavy_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/aid"
 fi
 
 ## Set online and FTP sites
-export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"
-export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
-export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
-export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"
 export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"

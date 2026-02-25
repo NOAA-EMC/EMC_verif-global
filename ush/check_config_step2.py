@@ -89,14 +89,6 @@ RUN_type_env_vars_dict = {
                           'fit2obs_plots_endianlist', 'fit2obs_plots_cycle',
                           'fit2obs_plots_oinc', 'fit2obs_plots_finc',
                           'fit2obs_plots_fmax', 'fit2obs_plots_scrdir'],
-    'RUN_TROPCYC': ['tropcyc_model_atcf_name_list',
-                    'tropcyc_model_plot_name_list',
-                    'tropcyc_storm_list', 'tropcyc_fcyc_list',
-                    'tropcyc_vhr_list', 'tropcyc_fhr_min',
-                    'tropcyc_model_file_format_list',
-                    'tropcyc_use_adeck_for_missing_data',
-                    'tropcyc_stat_list', 'tropcyc_init_storm_level_list',
-                    'tropcyc_valid_storm_level_list', 'tropcyc_plot_CI_bars'],
     'RUN_MAPS2D': ['maps2d_model_plot_name_list', 'maps2d_latlon_area',
                    'maps2d_plot_diff', 'maps2d_anl_file_format_list',
                    'maps2d_type_list',
@@ -136,7 +128,7 @@ for RUN_type_env_check in RUN_type_env_check_list:
                   +"under "+RUN_type_env_check+" settings")
             sys.exit(1)
 
-if RUN not in ['tropcyc', 'fit2obs_plots']:
+if RUN not in ['fit2obs_plots']:
     RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 
 # Do date check
@@ -218,7 +210,7 @@ valid_RUN_type_opts_dict = {
     'maps2d': ['model2model', 'model2obs'],
     'mapsda': ['gdas', 'ens']
 }
-if RUN not in ['tropcyc', 'fit2obs_plots']:
+if RUN not in ['fit2obs_plots']:
     for RUN_type in RUN_type_list:
         if RUN_type not in valid_RUN_type_opts_dict[RUN]:
             print("ERROR: "+RUN_type+" not a valid option for "
@@ -235,10 +227,6 @@ if RUN == 'fit2obs_plots':
     check_config_var_len_list.append(RUN+'_expnlist')
     check_config_var_len_list.append(RUN+'_expdlist')
     check_config_var_len_list.append(RUN+'_endianlist')
-elif RUN == 'tropcyc':
-    check_config_var_len_list.append(RUN+'_model_atcf_name_list')
-    check_config_var_len_list.append(RUN+'_model_plot_name_list')
-    check_config_var_len_list.append(RUN+'_model_file_format_list')
 elif RUN == 'maps2d':
     check_config_var_len_list.append(RUN+'_anl_file_format_list')
 else:
@@ -387,46 +375,6 @@ elif RUN == 'fit2obs_plots':
               +os.environ[RUN+'_cycle']+") must be 1")
         sys.exit(1)
     valid_config_var_values_dict[RUN+'_endianlist'] = ['big', 'little']
-elif RUN == 'tropcyc':
-    import get_tc_info
-    tc_dict = get_tc_info.get_tc_dict()
-    valid_basin_list = []
-    valid_year_list = []
-    for tc in list(tc_dict.keys()):
-        valid_basin = tc.split('_')[0]
-        if valid_basin not in valid_basin_list:
-            valid_basin_list.append(valid_basin)
-        valid_year = tc.split('_')[1]
-        if valid_year not in valid_year_list:
-            valid_year_list.append(valid_year)
-    for basin_year_name in os.environ[RUN+'_storm_list'].split(' '):
-        basin = basin_year_name.split('_')[0]
-        year = basin_year_name.split('_')[1]
-        name = basin_year_name.split('_')[2]
-        if basin not in valid_basin_list:
-            print("ERROR: basin value of "+basin+" in "+basin_year_name+" in "
-                  +RUN+"_storm_list not a valid option. Valid options are "
-                  +' '.join(valid_basin_list))
-            sys.exit(1)
-        elif year not in valid_year_list:
-            print("ERROR: year value of "+year+" in "+basin_year_name+" in "
-                  +RUN+"_storm_list not a valid option. Valid options are "
-                  +' '.join(valid_year_list))
-            sys.exit(1)
-        if name != 'ALLNAMED':
-            if basin_year_name not in list(tc_dict.keys()):
-                print("ERROR: name value of "+name+" in "+basin_year_name+" "
-                      +"in "+basin_year_name+" not supported")
-                sys.exit(1)
-    valid_config_var_values_dict['tropcyc_use_adeck_for_missing_data'] = [
-        'YES', 'NO'
-    ]
-    for time_type in ['init', 'valid']:
-        valid_config_var_values_dict[RUN+'_'+time_type+'_storm_level_list'] = [
-            'DB', 'TD', 'TS', 'TY', 'ST', 'TC','HU', 'SD', 'SS',
-            'EX', 'IN', 'DS', 'LO', 'WV', 'ET','XX'
-        ]
-    valid_config_var_values_dict[RUN+'_plot_CI_bars'] = ['YES', 'NO']
 elif RUN == 'maps2d':
     valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
     for RUN_type in RUN_type_list:

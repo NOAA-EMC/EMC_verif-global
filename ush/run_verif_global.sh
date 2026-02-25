@@ -79,14 +79,6 @@ if [ $RUN_FIT2OBS_PLOTS = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_TROPCYC = YES ] ; then
-    echo
-    echo "===== RUNNING TROPICAL CYCLONE VERIFICATION  ====="
-    echo "===== calculating and plotting track and intensity error using METplus ====="
-    export RUN="tropcyc"
-    python $HOMEverif_global/ush/run_batch.py
-fi
-
 if [ $RUN_MAPS2D = YES ] ; then
     echo
     echo "===== RUNNING MODEL-TO-MODEL COMPARISON AND MODEL-TO-OBSERVATION ERROR VERIFICATION  ====="

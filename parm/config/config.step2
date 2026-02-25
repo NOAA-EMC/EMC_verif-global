@@ -88,7 +88,6 @@ export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
-export SENDMETVIEWER="NO"
 export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"

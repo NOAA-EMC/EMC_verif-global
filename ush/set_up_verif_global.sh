@@ -178,7 +178,6 @@ if [ $machine = "WCOSS2" ]; then
     export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
     export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
     export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
 elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export NWROOT="/scratch3/NCEPDEV/global/role.glopara/nwpara"
     export HOMEDIR="/scratch3/NCEPDEV/global/$USER"
@@ -189,7 +188,6 @@ elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/prepbufr"
     export obdata_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/VRFY/METviewer_AWS"
 elif [ $machine = "ORION" ] || [ $machine = "HERCULES" ]; then
     export NWROOT=${NWROOT:-"/work/noaa/global/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
@@ -200,7 +198,6 @@ elif [ $machine = "ORION" ] || [ $machine = "HERCULES" ]; then
     export prepbufr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/prepbufr"
     export obdata_dir="/work2/noaa/global/role-global/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/work2/noaa/global/role-global/data/metplus.data/VRFY/METviewer_AWS"
 elif [ $machine = "GAEAC6" ]; then
     export NWROOT="/gpfs/f6/${ACCOUNT}/world-shared/global/glopara/data/nwpara"
     export HOMEDIR="/gpfs/f6/${ACCOUNT}/scratch/${USER}"
@@ -211,8 +208,6 @@ elif [ $machine = "GAEAC6" ]; then
     export prepbufr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/prepbufr"
     export obdata_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/VRFY/METviewer_AWS"
-
 fi
 
 ## Set operational directories

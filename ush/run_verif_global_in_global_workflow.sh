@@ -68,7 +68,6 @@ export MET_verbosity=${MET_verbosity:-2}
 export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH=${SENDARCH:-"YES"}
-export SENDMETVIEWER=${SENDMETVIEWER:-"NO"}
 export KEEPDATA=${KEEPDATA:-"NO"}
 export SENDECF=${SENDECF:-"NO"}
 export SENDCOM=${SENDCOM:-"NO"}
@@ -100,9 +99,6 @@ export g2g1_sfc_fhr_min=${g2g1_sfc_fhr_min:-$FHMIN_GFS}
 export g2g1_sfc_fhr_max=${g2g1_sfc_fhr_max:-$FHMAX_GFS}
 export g2g1_sfc_grid=${g2g1_sfc_grid:-"G002"}
 export g2g1_sfc_gather_by=${g2g1_sfc_gather_by:-"VALID"}
-export g2g1_mv_database_name=${g2g1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
-export g2g1_mv_database_group=${g2g1_mv_database_group:-"NOAA-NCEP"}
-export g2g1_mv_database_desc=${g2g1_mv_database_desc:-"Grid-to-grid METplus data for global workflow experiment ${PSLOT}"}
 # GRID2OBS STEP 1
 export g2o1_type_list=${g2o1_type_list:-"upper_air conus_sfc"}
 export g2o1_upper_air_msg_type_list=${g2o1_upper_air_msg_type_list:-"ADPUPA"}
@@ -127,9 +123,6 @@ export g2o1_polar_sfc_fhr_max=${g2o1_polar_sfc_fhr_max:-$FHMAX_GFS}
 export g2o1_polar_sfc_grid=${g2o1_polar_sfc_grid:-"G219"}
 export g2o1_polar_sfc_gather_by=${g2o1_polar_sfc_gather_by:-"VALID"}
 export g2o1_prepbufr_data_run_hpss=${g2o1_prepbufr_data_run_hpss:-"NO"}
-export g2o1_mv_database_name=${g2o1_mv_database_name:-"mv_${PSLOT}_grid2grid_metplus"}
-export g2o1_mv_database_group=${g2o1_mv_database_group:-"NOAA-NCEP"}
-export g2o1_mv_database_desc=${g2o1_mv_database_desc:-"Grid-to-obs METplus data for global workflow experiment ${PSLOT}"}
 # PRECIP STEP 1
 export precip1_type_list=${precip1_type_list:-"ccpa_accum24hr"}
 export precip1_ccpa_accum24hr_model_bucket_list=${precip1_ccpa_accum24hr_model_bucket:-"06"}
@@ -141,9 +134,6 @@ export precip1_ccpa_accum24hr_fhr_max=${precip1_ccpa_accum24hr_fhr_max:-$FHMAX_G
 export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
 export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VALID"}
 export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
-export precip1_mv_database_name=${precip1_mv_database_name:-"mv_${PSLOT}_precip_metplus"}
-export precip1_mv_database_group=${precip1_mv_database_group:-"NOAA-NCEP"}
-export precip1_mv_database_desc=${precip1_mv_database_desc:-"Precip METplus data for global workflow experiment ${PSLOT}"}
 # SATELLITE STEP 1
 export sat1_type_list=${sat1_type_list:-"ghrsst_ncei_avhrr_anl ghrsst_ospo_geopolar_anl"}
 export sat1_ghrsst_ncei_avhrr_anl_fcyc_list=${sat1_ghrsst_ncei_avhrr_anl_fcyc_list:-${fcyc_list}}
@@ -158,9 +148,6 @@ export sat1_ghrsst_ospo_geopolar_anl_fhr_max=${sat1_ghrsst_ospo_geopolar_anl_fhr
 export sat1_ghrsst_ospo_geopolar_anl_grid=${sat1_ghrsst_ospo_geopolar_anl_grid:-"G219"}
 export sat1_ghrsst_ospo_geopolar_anl_gather_by=${sat1_ghrsst_ospo_geopolar_anl_gather_by:-"VALID"}
 export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=${sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh:-"0.15"}
-export sat1_mv_database_name=${sat1_mv_database_name:-"mv_${PSLOT}_satellite_metplus_TEST"}
-export sat1_mv_database_group=${sat1_mv_database_group:-"NOAA NCEP"}
-export sat1_mv_database_desc=${sat1_mv_database_desc:-"Satellite METplus data for global workflow experiment ${PSLOT}"}
 export sat1_obs_dir=${sat1_obs_dir:-"/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive/"}
 
 echo

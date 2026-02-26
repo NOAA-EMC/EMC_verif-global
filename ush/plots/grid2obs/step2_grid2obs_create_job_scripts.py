@@ -613,18 +613,7 @@ if MPMD == 'YES':
     if npoe_files > 0:
         for poe_file in poe_files:
             os.remove(poe_file)
-    if RUN == 'tropcyc':
-        METplus_tropcyc_process = os.environ['METplus_tropcyc_process']
-        if METplus_tropcyc_process == 'tc_pairs':
-            njob, iproc, node = 1, 0, 1
-        else:
-            njob_from_tc_pairs = int(os.environ['ncount_job'])
-            npoe_from_tc_pairs = int(os.environ['ncount_poe'])
-            njob = njob_from_tc_pairs + 1
-            iproc = 0
-            node = npoe_from_tc_pairs + 1
-    else:
-        njob, iproc, node = 1, 0, 1
+    njob, iproc, node = 1, 0, 1
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:

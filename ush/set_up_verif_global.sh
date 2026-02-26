@@ -178,7 +178,6 @@ if [ $machine = "WCOSS2" ]; then
     export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
     export obdata_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data"
     export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/lfs/h2/emc/vpppg/save/emc.vpppg/verification/metplus/metviewer_aws_scripts"
 elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export NWROOT="/scratch3/NCEPDEV/global/role.glopara/nwpara"
     export HOMEDIR="/scratch3/NCEPDEV/global/$USER"
@@ -189,7 +188,6 @@ elif [ $machine = "HERA" -o $machine = "URSA" ]; then
     export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/prepbufr"
     export obdata_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/VRFY/METviewer_AWS"
 elif [ $machine = "ORION" ] || [ $machine = "HERCULES" ]; then
     export NWROOT=${NWROOT:-"/work/noaa/global/glopara/nwpara"}
     export HOMEDIR="/work/noaa/nems/$USER"
@@ -200,7 +198,6 @@ elif [ $machine = "ORION" ] || [ $machine = "HERCULES" ]; then
     export prepbufr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/prepbufr"
     export obdata_dir="/work2/noaa/global/role-global/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/work2/noaa/global/role-global/data/metplus.data/VRFY/METviewer_AWS"
 elif [ $machine = "GAEAC6" ]; then
     export NWROOT="/gpfs/f6/${ACCOUNT}/world-shared/global/glopara/data/nwpara"
     export HOMEDIR="/gpfs/f6/${ACCOUNT}/scratch/${USER}"
@@ -211,34 +208,17 @@ elif [ $machine = "GAEAC6" ]; then
     export prepbufr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/prepbufr"
     export obdata_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata"
     export ccpa_24hr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
-    export METviewer_AWS_scripts_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/VRFY/METviewer_AWS"
-
 fi
 
 ## Set operational directories
-export prepbufr_prod_upper_air_dir="/gpfs/dell1/nco/ops/com/gfs/prod"
-export prepbufr_prod_conus_sfc_dir="/gpfs/dell1/nco/ops/com/nam/prod"
-export ccpa_24hr_prod_dir="/gpfs/dell1/nco/ops/com/verf/prod"
-export nhc_atcfnoaa_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/btk"
-export nhc_atcfnoaa_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-noaa/aid_nws"
-export nhc_atcfnavy_bdeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/btk"
-export nhc_atcfnavy_adeck_dir="/gpfs/dell2/nhc/noscrub/data/atcf-navy/aid"
 if [ $machine = "WCOSS2" ]; then
     source ${HOMEverif_global}/versions/run.ver
     export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
     export prepbufr_prod_upper_air_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
     export prepbufr_prod_conus_sfc_dir="/lfs/h1/ops/prod/com/obsproc/${obsproc_ver}"
-    export nhc_atcfnoaa_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/btk"
-    export nhc_atcfnoaa_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-noaa/aid_nws"
-    export nhc_atcfnavy_bdeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/btk"
-    export nhc_atcfnavy_adeck_dir="/lfs/h1/nhc/nhc/noscrub/data/atcf-navy/aid"
 fi
 
 ## Set online and FTP sites
-export nhc_atcf_bdeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/btk/"
-export nhc_atcf_adeck_ftp="ftp://ftp.nhc.noaa.gov/atcf/aid_public/"
-export nhc_atfc_arch_ftp="ftp://ftp.nhc.noaa.gov/atcf/archive/"
-export navy_atcf_bdeck_ftp="https://www.metoc.navy.mil/jtwc/products/best-tracks/"
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
 export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"
 export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"

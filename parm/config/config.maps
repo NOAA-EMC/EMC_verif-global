@@ -17,7 +17,9 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 ## SET TO "YES" or "NO"
 ## EDIT SECTIONS BELOW FOR VERIFICATION TYPES REQUESTED
 #RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
+#RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
 export RUN_MAPS2D="YES"
+export RUN_MAPSDA="YES"
 
 ####################################################
 # GENERAL SETTINGS APPLIED TO ALL USE CASES
@@ -39,7 +41,7 @@ export model_hpss_dir_list="/null/path"
 export hpss_walltime="10"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
+export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_maps"
 #Archive directory for tar files
 export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files"
 ## DATE SETTINGS
@@ -82,7 +84,6 @@ export MET_verbosity="2"
 export log_MET_output_to_METplus="yes"
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH="YES"
-export SENDMETVIEWER="NO"
 export KEEPDATA="YES"
 export SENDECF="NO"
 export SENDCOM="NO"
@@ -127,6 +128,40 @@ if [ $RUN_MAPS2D = YES ]; then
     export maps2d_model2obs_regrid_to_grid="G002"
     export maps2d_model2obs_use_ceres="NO"
     export maps2d_model2obs_use_monthly_mean="NO"
+fi
+
+if [ $RUN_MAPSDA = YES ]; then
+    #mapsda_model_plot_name_list: list of models reference name on plots
+    #mapsda_latlon_area: list of lower latitude, upper latitude, start longitude, end longitude
+    #mapsda_plot_diff: plot difference from first model (YES) or just plot all model values (NO)
+    #mapsda_type_list: list type of verifications to run for mapsda: gdas, ens
+    #### For each type the followings can be set, where [type] is gdas or ens
+    #####    mapsda_[type]_make_met_data_by:       how to treat dates, "VALID" or "INIT"
+    #####    mapsda_[type]_hour_list:              all hours to be included in verification: HH
+    #####    mapsda_[type]_regrid_to_grid:         NCEP grid to regrid data to
+    #####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
+    #mapsda_gdas_model_file_format_list: file format of model GDAS files
+    #mapsda_gdas_anl_file_format_list: file format of analysis files for GDAS maps
+    #mapsda_ens_model_dir_list: directory where model ens files are located
+    #mapsda_ens_model_file_format_list: file format for ens files
+    #mapsda_ens_model_data_run_hpss: get files from HPSS ("YES") if not online
+    export mapsda_model_plot_name_list="gfs_dev"
+    export mapsda_latlon_area="-90 90 0 360"
+    export mapsda_plot_diff="NO"
+    export mapsda_type_list="gdas ens"
+    export mapsda_gdas_make_met_data_by="VALID"
+    export mapsda_gdas_hour_list="00"
+    export mapsda_gdas_regrid_to_grid="G002"
+    export mapsda_gdas_guess_hour="06"
+    export mapsda_gdas_model_file_format_list="pgbf{lead?fmt=%2H}.gdas.{init?fmt=%Y%m%d%H}.grib2"
+    export mapsda_gdas_anl_file_format_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}.grib2"
+    export mapsda_ens_make_met_data_by="INIT"
+    export mapsda_ens_hour_list="00"
+    export mapsda_ens_regrid_to_grid="G002"
+    export mapsda_ens_guess_hour="06"
+    export mapsda_ens_model_dir_list="/lfs/h1/ops/prod/com"
+    export mapsda_ens_model_file_format_list="v16.3/enkfgdas.{init?fmt=%Y%m%d}/{init?fmt=%H}/atmos/gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
+    export mapsda_ens_model_data_run_hpss="YES"
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

@@ -417,13 +417,6 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
             hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'
                                 +hpss_file.replace('atmos/','')+'\n')
         if 'pgrb2' in hpss_file:
-            cnvgrib = os.environ['CNVGRIB']
-            hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
-                                +save_data_file+' > /dev/null 2>&1\n')
-            if '/NCEPPROD' not in hpss_tar:
-                hpss_job_file.write(cnvgrib+' -g21 '
-                                    +hpss_file.replace('atmos/','')+' '
-                                    +save_data_file+' > /dev/null 2>&1\n')
             hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
         else:
             if hpss_file[0:5] != 'ccpa.':
@@ -469,43 +462,6 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                 break
             sleep_counter+=1
 
-def convert_grib2_grib1(grib2_file, grib1_file):
-    """! This converts GRIB2 data to GRIB1
-
-         Args:
-             grib2_file - string of the path to
-                          the GRIB2 file to
-                          convert
-             grib1_file - string of the path to
-                          save the converted GRIB1
-                          file
-
-         Returns:
-    """
-    print("Converting GRIB2 file "+grib2_file+" "
-          +"to GRIB1 file "+grib1_file)
-    cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g21 '+grib2_file+' '+grib1_file)
-
-def convert_grib1_grib2(grib1_file, grib2_file):
-    """! This converts GRIB2 data to GRIB1
-
-         Args:
-             grib1_file - string of the path to
-                          the GRIB1 file to
-                          convert
-             grib2_file - string of the path to
-                          save the converted GRIB2
-                          file
-
-         Returns:
-    """
-    print("Converting GRIB1 file "+grib1_file+" "
-          +"to GRIB2 file "+grib2_file)
-    cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g12 '+grib1_file+' '
-              +grib2_file+' > /dev/null 2>&1')
-
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
                    hpss_data_dir, link_data_dir, link_file_format):
@@ -533,7 +489,6 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
 
          Returns:
     """
-    grib2_file_names = ['grib2', 'grb2']
     link_filename = format_filler(link_file_format, valid_time_dt,
                                   init_time_dt, lead_str)
     link_model_file = os.path.join(link_data_dir, link_filename)
@@ -546,13 +501,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         #the model experiment name
         model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
-            if any(g in model_file for g in grib2_file_names):
-                convert_grib2_grib1(model_file, link_model_file)
-            else:
-                #if 'track' in link_filename:
-                #    os.system('cp '+model_file+' '+link_model_file)
-                #else:
-                os.system('ln -sf '+model_file+' '+link_model_file)
+            os.system('ln -sf '+model_file+' '+link_model_file)
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -631,7 +580,6 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         output_dir, output_dir.rpartition('/')[2]
         +'.'+valid_time_dt.strftime('%Y%m%d%H')
     )
-    mean_grib2_file = (mean_file+'.grib2')
     mean_model_file_list = []
     nmean_models = len(mean_model_list)
     # Variables
@@ -663,7 +611,6 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         os.environ['HOMEMET'], os.environ['HOMEMET_bin_exec'],
         'regrid_data_plane'
     )
-    wgrib = os.environ['WGRIB']
     wgrib2 = os.environ['WGRIB2']
     copygb = os.environ['COPYGB']
     ncea = os.environ['NCEA']
@@ -737,17 +684,14 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                         )
                         if not os.path.exists(template_regrid_file):
                             check_center = subprocess.check_output(
-                                wgrib+' -V '+save_mean_model_file, shell=True,
+                                wgrib2+' -center '+save_mean_model_file, shell=True,
                                 encoding='UTF-8'
                             )
-                            if 'center 7 ' in check_center:
+                            if 'center=7' in check_center:
                                 os.system(copygb+' -'+grid.lower()+' -x '
                                           +save_mean_model_file+' '
-                                          +template_regrid_file+' '
+                                          +template_grib2_file+' '
                                           +'> /dev/null 2>&1')
-                            if os.path.exists(template_regrid_file):
-                                convert_grib1_grib2(template_regrid_file,
-                                                    template_grib2_file)
                         if 'P' in var_level:
                             var_level_grib2 = var_level[1:]+' mb'
                         elif 'Z' in var_level:
@@ -842,10 +786,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                               +mean_var_grib2_file+' '
                               +'> /dev/null 2>&1')
                     os.system('cat '+mean_var_grib2_file+' >> '
-                              +mean_grib2_file)
-        # Convert mean analysis to grib1
-        if os.path.exists(mean_grib2_file):
-            convert_grib2_grib1(mean_grib2_file, mean_file)
+                              +mean_file)
         if os.path.exists(mean_file):
             print("Created "+mean_file)
     else:
@@ -1172,13 +1113,8 @@ if RUN == 'grid2grid_step1':
                             +'.'+valid_time.strftime('%Y%m%d%H')
                         )
                         if not os.path.exists(truth_file):
-                            if 'common' in RUN_abbrev_type_truth_name:
-                                mean_truth_model_list = ['gfs', 'ecm',
-                                                         'ukm', 'cmc']
-                                mean_truth_model_dir_list = [global_archive]*4
-                            elif RUN_abbrev_type_truth_name == 'model_mean':
-                                mean_truth_model_list = model_list
-                                mean_truth_model_dir_list = model_dir_list
+                            mean_truth_model_list = model_list
+                            mean_truth_model_dir_list = model_dir_list
                             create_mean_truth(
                                 mean_truth_model_list,
                                 mean_truth_model_dir_list,
@@ -1196,7 +1132,6 @@ if RUN == 'grid2grid_step1':
                         print("WARNING: "+RUN_type+" truth file ("
                               +truth_file+") not found...will try to link "
                               +"model f00 from "+link_model_dir+" instead")
-                        print(link_truth_file)
                         link_model_f00_file = os.path.join(
                             link_model_dir,
                             format_filler('f000.{init?fmt=%Y%m%d%H}',
@@ -1949,31 +1884,12 @@ elif RUN == 'precip_step1':
                                 )
                                 if os.path.exists(link_PRATE_model_file) \
                                        and not os.path.exists(link_model_file):
-                                    cnvgrib = os.environ['CNVGRIB']
                                     wgrib2 = os.environ['WGRIB2']
-                                    tmp_gb2_file = os.path.join(link_model_dir,
-                                                                'tmp_gb2')
-                                    tmp_gb2_APCP_file = os.path.join(
-                                        link_model_dir, 'tmp_gb2_APCP'
-                                    )
                                     os.system(
-                                        cnvgrib+' -g12 '
-                                        +link_PRATE_model_file+' '
-                                        +tmp_gb2_file
-                                    )
-                                    os.system(
-                                        wgrib2+' '+tmp_gb2_file+' -match '
+                                        wgrib2+' '+link_PRATE_model_file+' -match '
                                         +'":PRATE:" -rpn "3600:*" -set_var '
                                         +'APCP -set table_4.10 1 -grib_out '
-                                        +tmp_gb2_APCP_file+' >>/dev/null'
-                                    )
-                                    os.system(
-                                        cnvgrib+' -g21 '+tmp_gb2_APCP_file+' '
-                                        +link_model_file
-                                    )
-                                    os.system(
-                                        'rm '+os.path.join(link_model_dir,
-                                                           'tmp*')
+                                        +link_model_file+' >>/dev/null'
                                     )
                             elif model_var == 'APCP':
                                 get_model_file(

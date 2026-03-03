@@ -669,8 +669,9 @@ for stat in plot_stats_list:
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
                         var_info_title = (
-                            f"approx. {var_info_title}"
-                            +"[Model Native Level: {model_level} hPa]"
+                            f"approx. {var_info_title} "
+                            +"[Model Native Level: "+str(round(model_level, 2))
+                            +" hPa]"
                         )
                     # Get index data
                     model_data_lat = np.flipud(

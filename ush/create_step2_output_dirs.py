@@ -41,31 +41,6 @@ if 'step2' in RUN:
     if RUN == 'grid2grid_step2':
         if os.environ[RUN_abbrev+'_make_scorecard'] == 'YES':
             plot_output_subdir_list.append('scorecard')
-elif RUN == 'maps2d':
-    plot_output_subdir_list.append('images')
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        make_met_data_by = os.environ[RUN_abbrev_type
-                                     +'_make_met_data_by']
-        plot_by = make_met_data_by
-        plot_output_subdir_list.append(os.path.join('plot_by_'+plot_by))
-        plot_output_subdir_list.append(
-           os.path.join('make_met_data_by_'+make_met_data_by,
-                        'series_analysis', RUN_type)
-        )
-elif RUN == 'mapsda':
-    plot_output_subdir_list.append('images')
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        make_met_data_by = os.environ[RUN_abbrev_type
-                                      +'_make_met_data_by']
-        plot_by = make_met_data_by
-        plot_output_subdir_list.append(os.path.join('plot_by_'+plot_by))
-        if type == 'gdas':
-            plot_output_subdir_list.append(
-               os.path.join('make_met_data_by_'+make_met_data_by,
-                            'series_analysis', RUN_type)
-            )
 
 # Create plot output subdirectories
 for subdir in plot_output_subdir_list:

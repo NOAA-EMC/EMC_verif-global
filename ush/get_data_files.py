@@ -462,6 +462,33 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                 break
             sleep_counter+=1
 
+def check_file_type(file):
+    """! This checks if a file is netCDF, GRIB1, or GRIB2.
+
+         Args:
+             file - string of the file path
+
+         Returns:
+             file_type - string of the file's type
+    """
+    wgrib_check = subprocess.run(
+        'wgrib '+file, shell=True, stdout=subprocess.PIPE,
+         stderr=subprocess.STDOUT, encoding='UTF-8'
+    )
+    if 'use wgrib2' in wgrib_check.stdout:
+        return 'grib2'
+    elif ':kpds5' in wgrib_check.stdout:
+        return 'grib1'
+    else:
+        ncdump_check = subprocess.run(
+            'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,
+             stderr=subprocess.STDOUT, encoding='UTF-8'
+        )
+        if ncdump_check.returncode == 1:
+            return 'netcdf'
+        else:
+            return 'unknown'
+
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
                    hpss_data_dir, link_data_dir, link_file_format):
@@ -501,7 +528,11 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         #the model experiment name
         model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
-            os.system('ln -sf '+model_file+' '+link_model_file)
+            if check_file_type(model_file) in ['grib2', 'netcdf']:
+                os.system('ln -sf '+model_file+' '+link_model_file)
+            else:
+                print(f"WARNING: {model_file} is unsupported type "
+                      +f"({check_file_type(model_file)})")
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -637,7 +668,8 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                            save_mean_model_file_format,
                                            valid_time_dt, valid_time_dt, '00'
                                        ))
-        if os.path.exists(mean_model_file):
+        if os.path.exists(mean_model_file) \
+                and 'grib2' == check_file_type(mean_model_file):
             mean_model_file_list.append(mean_model_file)
     # Regrid files indivdually for variables for each model, and
     # take mean if available for all models

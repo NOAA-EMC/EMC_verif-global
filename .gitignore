@@ -1,0 +1,4 @@
+ush/__pycache__/
+ush/plots/*/__pycache__/
+*.pyc
+*.pyo

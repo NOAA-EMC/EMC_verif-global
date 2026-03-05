@@ -300,6 +300,10 @@ if RUN == 'grid2grid_step2':
                                                             'VSDB']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_event_eq'] = ['True', 'False']
+        valid_config_var_values_dict[RUN_abbrev_type+'_truth_name_list'] = [
+            'self_anl', 'self_f00', 'gfs_anl', 'gfs_f00', 'gdas_anl', 'gdas_f00',
+            'ecm_f00', 'model_mean'
+        ]
 elif RUN == 'grid2obs_step2':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

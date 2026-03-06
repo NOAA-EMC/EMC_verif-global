@@ -1411,8 +1411,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
         for var_group in list(plotting_dict.keys()):
             var_group_img_dir = os.path.join(
                 job_env_dict['DATA'], job_env_dict['RUN'], 'metplus_output',
-                'plot_by_'+job_env_dict['plot_by'], case_type,
-                var_group, 'imgs'
+                'plot_by_'+job_env_dict['plot_by'], case_type, 'images'
             )
             if not os.path.exists(var_group_img_dir):
                 os.makedirs(var_group_img_dir)
@@ -1520,7 +1519,7 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
                             job_file.write(
                                 'python '
                                  +os.path.join(job_env_dict['USHverif_global'],
-                                               'plotting_scripts',
+                                               'plots', case,
                                                 plotting_script)
                                 +'\n'
                             )

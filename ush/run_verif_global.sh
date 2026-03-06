@@ -39,7 +39,7 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_up_verif_global.sh"
 
 
-if [ $RUN_GRID2GRID_STEP2 = YES ] ; then
+if [ ${RUN_GRID2GRID_STEP2:-NO} = YES ] ; then
     echo
     echo "===== RUNNING GRID-TO-GRID STEP 2 VERIFICATION  ====="
     echo "===== calculating statistics and creating plots for grid-to-grid verification ====="
@@ -47,7 +47,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_GRID2OBS_STEP2 = YES ] ; then
+if [ ${RUN_GRID2OBS_STEP2:-NO} = YES ] ; then
     echo
     echo "===== RUNNING GRID-TO-OBSERVATIONS STEP 2 VERIFICATION  ====="
     echo "===== calculating statistics and creating plots for grid-to-observations verification ====="
@@ -55,7 +55,7 @@ if [ $RUN_GRID2OBS_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_PRECIP_STEP2 = YES ] ; then
+if [ ${RUN_PRECIP_STEP2:-NO} = YES ] ; then
     echo
     echo "===== RUNNING PRECIPITATION STEP 2 VERIFICATION  ====="
     echo "===== calculating statistics and creating plots for precipitation verification ====="
@@ -63,7 +63,7 @@ if [ $RUN_PRECIP_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_SATELLITE_STEP2 = YES ] ; then
+if [ ${RUN_SATELLITE_STEP2:-NO} = YES ] ; then
     echo
     echo "===== RUNNING SATELLITE STEP 2 VERIFICATION  ====="
     echo "===== calculating statistics and creating plots for satellite verification ====="
@@ -71,7 +71,7 @@ if [ $RUN_SATELLITE_STEP2 = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_FIT2OBS_PLOTS = YES ] ; then
+if [ ${RUN_FIT2OBS_PLOTS:-NO} = YES ] ; then
     echo
     echo "===== RUNNING FIT-TO-OBS PLOTTING  ====="
     echo "===== plotting fit-to-obs data ====="
@@ -79,7 +79,7 @@ if [ $RUN_FIT2OBS_PLOTS = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_MAPS2D = YES ] ; then
+if [ ${RUN_MAPS2D:-NO} = YES ] ; then
     echo
     echo "===== RUNNING MODEL-TO-MODEL COMPARISON AND MODEL-TO-OBSERVATION ERROR VERIFICATION  ====="
     echo "===== calculating and plotting mean errors using METplus ====="
@@ -87,7 +87,7 @@ if [ $RUN_MAPS2D = YES ] ; then
     python $HOMEverif_global/ush/run_batch.py
 fi
 
-if [ $RUN_MAPSDA = YES ] ; then
+if [ ${RUN_MAPSDA:-NO} = YES ] ; then
     echo
     echo "===== RUNNING GDAS ANALYSIS AND ENSEMBLE COMPARISON VERIFICATION  ====="
     export RUN="mapsda"

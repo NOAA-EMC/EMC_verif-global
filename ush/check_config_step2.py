@@ -88,35 +88,6 @@ RUN_type_env_vars_dict = {
                           'fit2obs_plots_endianlist', 'fit2obs_plots_cycle',
                           'fit2obs_plots_oinc', 'fit2obs_plots_finc',
                           'fit2obs_plots_fmax', 'fit2obs_plots_scrdir'],
-    'RUN_MAPS2D': ['maps2d_model_plot_name_list', 'maps2d_latlon_area',
-                   'maps2d_plot_diff', 'maps2d_anl_file_format_list',
-                   'maps2d_type_list',
-                   'maps2d_model2model_make_met_data_by',
-                   'maps2d_model2model_hour_list',
-                   'maps2d_model2model_forecast_to_plot_list',
-                   'maps2d_model2model_regrid_to_grid',
-                   'maps2d_model2model_forecast_anl_diff',
-                   'maps2d_model2obs_make_met_data_by',
-                   'maps2d_model2obs_hour_list',
-                   'maps2d_model2obs_forecast_to_plot_list',
-                   'maps2d_model2obs_regrid_to_grid',
-                   'maps2d_model2obs_use_ceres',
-                   'maps2d_model2obs_use_monthly_mean'],
-    'RUN_MAPSDA': ['mapsda_model_plot_name_list', 'mapsda_latlon_area',
-                   'mapsda_plot_diff', 'mapsda_type_list',
-                   'mapsda_gdas_make_met_data_by',
-                   'mapsda_gdas_hour_list',
-                   'mapsda_gdas_guess_hour',
-                   'mapsda_gdas_regrid_to_grid',
-                   'mapsda_gdas_model_file_format_list',
-                   'mapsda_gdas_anl_file_format_list',
-                   'mapsda_ens_make_met_data_by',
-                   'mapsda_ens_hour_list',
-                   'mapsda_ens_guess_hour',
-                   'mapsda_ens_regrid_to_grid',
-                   'mapsda_ens_model_dir_list',
-                   'mapsda_ens_model_file_format_list',
-                   'mapsda_ens_model_data_run_hpss']
 }
 RUN_type_env_check_list = ['shared', 'RUN_'+RUN.upper()]
 for RUN_type_env_check in RUN_type_env_check_list:
@@ -206,8 +177,6 @@ valid_RUN_type_opts_dict = {
     'grid2obs_step2': ['upper_air', 'conus_sfc', 'polar_sfc'],
     'precip_step2': ['ccpa_accum24hr'],
     'satellite_step2': ['ghrsst_ncei_avhrr_anl', 'ghrsst_ospo_geopolar_anl'],
-    'maps2d': ['model2model', 'model2obs'],
-    'mapsda': ['gdas', 'ens']
 }
 if RUN not in ['fit2obs_plots']:
     for RUN_type in RUN_type_list:
@@ -220,14 +189,12 @@ if RUN not in ['fit2obs_plots']:
 # Do check for list config variables lengths
 check_config_var_len_list = ['model_stat_dir_list']
 if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
-           'satellite_step2', 'maps2d', 'mapda']:
+           'satellite_step2']:
     check_config_var_len_list.append(RUN_abbrev+'_model_plot_name_list')
 if RUN == 'fit2obs_plots':
     check_config_var_len_list.append(RUN+'_expnlist')
     check_config_var_len_list.append(RUN+'_expdlist')
     check_config_var_len_list.append(RUN+'_endianlist')
-elif RUN == 'maps2d':
-    check_config_var_len_list.append(RUN+'_anl_file_format_list')
 else:
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -253,18 +220,6 @@ else:
             check_config_var_len_list.append(
                 RUN_abbrev_type+'_gather_by_list'
             )
-        elif RUN == 'mapsda':
-            check_config_var_len_list.append(
-                RUN_abbrev_type+'_model_file_format_list'
-            )
-            if RUN_type == 'gdas':
-                check_config_var_len_list.append(
-                    RUN_abbrev_type+'_anl_file_format_list'
-                )
-            if RUN_type == 'ens':
-                check_config_var_len_list.append(
-                    RUN_abbrev_type+'_model_dir_list'
-                )
 for config_var in check_config_var_len_list:
     if len(os.environ[config_var].split(' ')) \
             != len(os.environ['model_list'].split(' ')):
@@ -373,59 +328,6 @@ elif RUN == 'fit2obs_plots':
               +os.environ[RUN+'_cycle']+") must be 1")
         sys.exit(1)
     valid_config_var_values_dict[RUN+'_endianlist'] = ['big', 'little']
-elif RUN == 'maps2d':
-    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_make_met_data_by'] = ['VALID', 'INIT']
-        if RUN_type == 'model2model':
-            valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_forecast_anl_diff'] = ['YES', 'NO']
-        elif RUN_type == 'model2obs':
-            valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_use_ceres'] = ['YES', 'NO']
-            valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_use_monthly_mean'] = ['YES', 'NO']
-            if os.environ[RUN_abbrev_type+'_use_ceres'] == 'NO' \
-                    and os.environ[RUN_abbrev_type+'_use_monthly_mean'] \
-                    == 'YES':
-                print("ERROR: Cannot set "+RUN_abbrev_type+"_use_ceres to "
-                      +"NO and "+RUN_abbrev_type+"_use_monthly_mean to YES. "
-                      +"Old observational datasets from VSDB are "
-                      +"climatology only. Please set "+RUN_abbrev_type
-                      +"_use_monthly_mean to NO.")
-                sys.exit(1)
-        for forecast_to_plot \
-                in os.environ[RUN_abbrev_type
-                              +'_forecast_to_plot_list'].split(' '):
-            if forecast_to_plot[0] == 'a':
-                if forecast_to_plot != 'anl':
-                    print("ERROR: value of "+forecast_to_plot+" in "
-                          +RUN_abbrev_type+"_forecast_to_plot_list must be "
-                          +"anl to use analysis")
-                    sys.exit(1)
-            elif forecast_to_plot[0] in ['d', 'f']:
-                if not forecast_to_plot[1:].isnumeric():
-                    print("ERROR: value of "+forecast_to_plot[1:]+" in "
-                          +forecast_to_plot+" in "+RUN_abbrev_type
-                          +"_forecast_to_plot_list must be numeric")
-                    sys.exit(1)
-            else:
-                print("ERROR: value of "+forecast_to_plot+" in "
-                      +RUN_abbrev_type+"_forecast_to_plot_list must be either "
-                      +"anl or dX or fX, where X is a number")
-                sys.exit(1)
-elif RUN == 'mapsda':
-    valid_config_var_values_dict[RUN_abbrev+'_plot_diff'] = ['YES', 'NO']
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_make_met_data_by'] = ['VALID', 'INIT']
-        if RUN_type == 'ens':
-            valid_config_var_values_dict[RUN_abbrev_type
-                                         +'_model_data_run_hpss'] = ['YES',
-                                                                     'NO']
 
 # Run through and check config variables from dictionary
 for config_var in list(valid_config_var_values_dict.keys()):

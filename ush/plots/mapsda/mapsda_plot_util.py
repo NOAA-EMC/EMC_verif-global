@@ -351,7 +351,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
             sys.exit(1)
-    elif var_name == 'CLWMR': #cloud water mixing ratio (kg kg-1)
+    elif var_name == 'CLMR': #cloud water mixing ratio (kg kg-1)
         formal_var_name = 'Cloud Mixing Ratio'
         cmap = plt.cm.Blues
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)

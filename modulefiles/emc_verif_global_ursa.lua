@@ -63,3 +63,6 @@ load(pathJoin("python", python_ver))
 
 matplotlib_ver=os.getenv("matplotlib_ver") or "3.7.4"
 load(pathJoin("py-matplotlib", matplotlib_ver))
+
+cartopy_ver=os.getenv("cartopy_ver") or "0.24.1"
+load(pathJoin("py-cartopy", cartopy_ver))

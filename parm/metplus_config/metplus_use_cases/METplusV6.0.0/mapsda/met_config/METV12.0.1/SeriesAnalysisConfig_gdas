@@ -47,24 +47,22 @@ cnt_logic     = UNION;
 // Forecast and observation fields to be verified
 //
 fcst = {
+
    field = [
       {
-        name = "${obtype_var_name}";
-        level = "(*,*,*)";
+        name  = "${var_name}";
+        level = "${var_MET_level}";
+        GRIB_lvl_typ = ${var_GRIB_lvl_typ};
+        GRIB_lvl_val1 = ${var_GRIB_lvl_val1};
+        GRIB_lvl_val2 = ${var_GRIB_lvl_val2};
+        GRIB1_ptv = ${var_GRIB1_ptv};
+        GRIB1_tri = ${var_GRIB1_tri};
       }
    ];
 
 }
 
-obs = {
-   field = [
-      {
-        name = "${obtype_var_name}";
-        level = "(*,*,*)";
-      }
-   ];
-
-}
+obs = fcst;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -88,9 +86,23 @@ climo_mean = {
    hour_interval      = 6;
 }
 
+//
+// Climatology standard deviation data
+// May be set separately in the "fcst" and "obs" dictionaries
+//
 climo_stdev = climo_mean;
 climo_stdev = {
    file_name = [];
+}
+
+//
+// Climatology distribution settings
+// May be set separately in each "obs.field" entry
+//
+climo_cdf = {
+   cdf_bins    = 1;
+   center_bins = FALSE;
+   direct_prob = FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,6 +165,6 @@ output_stats = {
 
 rank_corr_flag = FALSE;
 tmp_dir        = "/tmp";
-version        = "V9.1";
+version        = "V12.0.1";
 
 ////////////////////////////////////////////////////////////////////////////////

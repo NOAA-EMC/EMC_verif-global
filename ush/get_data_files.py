@@ -484,7 +484,7 @@ def check_file_type(file):
             'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,
              stderr=subprocess.STDOUT, encoding='UTF-8'
         )
-        if ncdump_check.returncode == 1:
+        if ncdump_check.returncode == 0:
             return 'netcdf'
         else:
             return 'unknown'

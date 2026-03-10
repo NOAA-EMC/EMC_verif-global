@@ -159,7 +159,11 @@ def get_var_grib2_info(var_name, var_level):
        var_GRIB_lvl_val1 = '0'
        var_GRIB_lvl_val2 = '0'
     # Define MET level
-    if 'sfc' in var_level:
+    if 'accum' in var_level:
+        for v in var_level:
+            if v.isdigit():
+                var_MET_level = 'A'+v
+    elif 'sfc' in var_level:
         var_MET_level = 'Z0'
     elif 'AGL' in var_level:
         if var_GRIB_lvl_val1 == var_GRIB_lvl_val2:
@@ -176,10 +180,6 @@ def get_var_grib2_info(var_name, var_level):
             var_MET_level = 'P'+var_GRIB_lvl_val1
         else:
             var_MET_level = 'P'+var_GRIB_lvl_val1+'-'+var_GRIB_lvl_val2
-    elif 'accum' in var_level:
-        for v in var_level:
-            if v.isdigit():
-                var_MET_level = 'A'+v
     elif 'sigma' in var_level:
         var_MET_level = 'L'+var_GRIB_lvl_val1
     else:

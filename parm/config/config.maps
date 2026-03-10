@@ -41,7 +41,7 @@ export model_hpss_dir_list="/null/path"
 export hpss_walltime="10"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_maps"
+export OUTPUTROOT="/gpfs/f6/ira-sti/world-shared/$USER/verif_global_standalone_maps"
 #Archive directory for tar files
 export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files"
 ## DATE SETTINGS

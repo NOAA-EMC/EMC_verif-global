@@ -55,6 +55,7 @@ fcst = {
         GRIB_lvl_typ = ${var_GRIB_lvl_typ};
         GRIB_lvl_val1 = ${var_GRIB_lvl_val1};
         GRIB_lvl_val2 = ${var_GRIB_lvl_val2};
+        GRIB2_pdt = ${var_GRIB2_pdt};
       }
    ];
 

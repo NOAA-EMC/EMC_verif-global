@@ -83,6 +83,7 @@ def get_var_grib2_info(var_name, var_level):
              var_GRIB_lvl_typ  - string of the GRIB level type number
              var_GRIB_lvl_val1 - string of the GRIB level 1 number
              var_GRIB_lvl_val2 - string of the GRIB level 2 number
+             var_GRIB2_pdt     - string of the GRIB2 PDT (Table 4.0)
     """
     # Define GRIB level type
     if var_level[-3:] == 'hPa':
@@ -91,14 +92,14 @@ def get_var_grib2_info(var_name, var_level):
         if 'm' in var_level:
             var_GRIB_lvl_typ = '103'
     elif 'UGL' in var_level:
-        if 'cm' in var_level:
+        if 'm' in var_level:
             var_GRIB_lvl_typ = '106'
     elif 'sfc' in var_level:
         var_GRIB_lvl_typ = '1'
     elif 'sigma' in var_level:
         var_GRIB_lvl_typ = '104'
     elif 'msl' in var_level:
-        var_GRIB_lvl_typ = '102'
+        var_GRIB_lvl_typ = '101'
     elif 'column' in var_level:
         var_GRIB_lvl_typ = '200'
     elif 'toa' in var_level:
@@ -183,8 +184,13 @@ def get_var_grib2_info(var_name, var_level):
         var_MET_level = 'L'+var_GRIB_lvl_val1
     else:
         var_MET_level = 'L0'
+    # Define GRIB2 product definition template (Table 4.0)
+    if any(l in var_level for l in ['avg', 'accum', 'range']):
+        var_GRIB2_pdt = '8'
+    else:
+        var_GRIB2_pdt = '0'
     return (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-            var_GRIB_lvl_val2, var_MET_level)
+            var_GRIB_lvl_val2, var_MET_level, var_GRIB2_pdt)
 
 # Run for models
 for model in model_list:
@@ -263,7 +269,7 @@ for model in model_list:
                                            +'"\n')
         # extract special grib file information
         (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-         var_GRIB_lvl_val2, var_MET_level) = (
+         var_GRIB_lvl_val2, var_MET_level, var_GRIB2_pdt) = (
                 get_var_grib2_info(var_name, var_level)
         )
         series_analysis_job_file.write('export var_GRIB_lvl_typ="'
@@ -274,6 +280,8 @@ for model in model_list:
                                        +var_GRIB_lvl_val2+'"\n')
         series_analysis_job_file.write('export var_MET_level="'
                                        +var_MET_level+'"\n')
+        series_analysis_job_file.write('export var_GRIB2_pdt="'
+                                       +var_GRIB2_pdt+'"\n')
         # special case for DSWRF since not in model files, running
         # obs only
         if RUN_type == 'model2obs':

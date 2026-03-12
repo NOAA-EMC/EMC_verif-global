@@ -37,7 +37,7 @@ for env_var in ['machine', 'MACHINE']:
             break
 if 'machine' not in vars():
     hera_match = re.match(re.compile(r"^hfe[0-9]{2}$"), hostname)
-    ursa_match = re.match(re.compile(r"^ufe0[1-4]{2}$"), hostname)
+    ursa_match = re.match(re.compile(r"^ufe0[1-4]{1}$"), hostname)
     orion_match = re.match(
         re.compile(r"^orion-login-[0-9]{1}.hpc.msstate.edu$"), hostname
     )

@@ -89,7 +89,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET -o $machine = HERCULES -o $machine = GAEAC5 -o $machine = GAEAC6 ]; then
+        elif [ $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -103,9 +103,15 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine != "ORION" -a $machine != "JET" ]; then
-    python $USHverif_global/plotting_scripts/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
+if [ $machine != "ORION" ]; then
+    python $USHverif_global/plots/maps2d/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
+
+# Tar up plots
+python $USHverif_global/plots/maps2d/maps2d_tar_images.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Successfully ran maps2d_tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then

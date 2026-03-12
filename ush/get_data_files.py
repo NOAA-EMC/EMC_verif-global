@@ -1,5 +1,5 @@
 '''
-Program Name: get_data_file.py
+Program Name: get_data_files.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This gets the necessary data files to run
@@ -160,6 +160,8 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     machine = os.environ['machine']
     QUEUESERV = os.environ['QUEUESERV']
     ACCOUNT = os.environ['ACCOUNT']
+    CLUSTERS_DTN = os.environ['CLUSTERS_DTN']
+    PARTITION_DTN = os.environ['PARTITION_DTN']
     # Set up job wall time information
     walltime_seconds = (
         datetime.timedelta(minutes=int(wget_walltime)).total_seconds()
@@ -177,7 +179,15 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
                   +'-l select=1:ncpus=1 '+wget_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
-    elif machine in ['HERA', 'ORION', 'S4', 'JET', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine == 'GAEAC6':
+        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
+                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
+                  +'--partition='+PARTITION_DTN+' --constraint=f6 --qos=dtn '
+                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
+                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
+                         +wget_job_name+' -t R,PD -h | wc -l')
+    elif machine in ['URSA', 'HERA', 'ORION', 'HERCULES']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+wget_job_output+' '
@@ -345,11 +355,7 @@ def set_up_gfs_hpss_info(dt_init_time, hpss_dir, model_dump,
             hpss_tar_filename = model_dump+'.tar'
         hpss_tar = os.path.join(hpss_dir, YYYYmmddHH, hpss_tar_filename)
         # Set up file
-        if hpss_file_suffix == 'cyclone.trackatcfunix':
-            hpss_file = os.path.join(model_dump+'.'+YYYYmmdd, HH,
-                                     'atmos', 'avno.t'+HH+'z.'
-                                     +hpss_file_suffix)
-        elif model_dump == 'enkfgdas':
+        if model_dump == 'enkfgdas':
             hpss_file = os.path.join(model_dump+'.'+YYYYmmdd, HH,
                                      'atmos', 'gdas.t'+HH+'z.'
                                      +hpss_file_suffix)
@@ -411,25 +417,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
             hpss_job_file.write(HTAR+' -xf '+hpss_tar+' ./'
                                 +hpss_file.replace('atmos/','')+'\n')
         if 'pgrb2' in hpss_file:
-            cnvgrib = os.environ['CNVGRIB']
-            hpss_job_file.write(cnvgrib+' -g21 '+hpss_file+' '
-                                +save_data_file+' > /dev/null 2>&1\n')
-            if '/NCEPPROD' not in hpss_tar:
-                hpss_job_file.write(cnvgrib+' -g21 '
-                                    +hpss_file.replace('atmos/','')+' '
-                                    +save_data_file+' > /dev/null 2>&1\n')
             hpss_job_file.write('rm -r '+hpss_file.split('/')[0])
-        elif 'trackatcfunix' in hpss_file:
-            hpss_job_file.write('cp '+hpss_file.split('avno')[0]+'avno* '
-                                +save_data_file+'\n')
-            if '/NCEPPROD' not in hpss_tar:
-                hpss_job_file.write('cp '+hpss_file.replace('atmos/','') \
-                                    .split('avno')[0]+'avno* '+save_data_file
-                                    +'\n')
-            hpss_job_file.write('rm -r '+hpss_file.split('/')[0]+'\n')
-            model_atcf_abbrv = (save_data_file.split('/')[-2])[0:4].upper()
-            hpss_job_file.write('sed -i s/AVNO/'+model_atcf_abbrv+'/g '
-                                +save_data_file)
         else:
             if hpss_file[0:5] != 'ccpa.':
                 hpss_job_file.write('cp '+hpss_file+' '+save_data_file+'\n')
@@ -453,16 +441,16 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                   +'-l select=1:ncpus=1 '+hpss_job_filename)
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
-    elif machine in ['HERA', 'JET']:
+    elif machine in ['URSA', 'HERA']:
         os.system('sbatch --ntasks=1 --time='
                   +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
                   +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
                   +'--job-name='+hpss_job_name+' '+hpss_job_filename)
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
-    elif machine in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['ORION', 'HERCULES', 'GAEAC6']:
         print("ERROR: No HPSS access from "+machine)
-    if machine not in ['ORION', 'S4', 'HERCULES', 'GAEAC5', 'GAEAC6']:
+    if machine not in ['ORION', 'HERCULES', 'GAEAC6']:
         sleep_counter, sleep_checker = 1, 10
         while (sleep_counter*sleep_checker) <= walltime_seconds:
             sleep(sleep_checker)
@@ -474,43 +462,32 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                 break
             sleep_counter+=1
 
-def convert_grib2_grib1(grib2_file, grib1_file):
-    """! This converts GRIB2 data to GRIB1
+def check_file_type(file):
+    """! This checks if a file is netCDF, GRIB1, or GRIB2.
 
          Args:
-             grib2_file - string of the path to
-                          the GRIB2 file to
-                          convert
-             grib1_file - string of the path to
-                          save the converted GRIB1
-                          file
+             file - string of the file path
 
          Returns:
+             file_type - string of the file's type
     """
-    print("Converting GRIB2 file "+grib2_file+" "
-          +"to GRIB1 file "+grib1_file)
-    cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g21 '+grib2_file+' '
-              +grib1_file+' > /dev/null 2>&1')
-
-def convert_grib1_grib2(grib1_file, grib2_file):
-    """! This converts GRIB2 data to GRIB1
-
-         Args:
-             grib1_file - string of the path to
-                          the GRIB1 file to
-                          convert
-             grib2_file - string of the path to
-                          save the converted GRIB2
-                          file
-
-         Returns:
-    """
-    print("Converting GRIB1 file "+grib1_file+" "
-          +"to GRIB2 file "+grib2_file)
-    cnvgrib = os.environ['CNVGRIB']
-    os.system(cnvgrib+' -g12 '+grib1_file+' '
-              +grib2_file+' > /dev/null 2>&1')
+    wgrib_check = subprocess.run(
+        'wgrib '+file, shell=True, stdout=subprocess.PIPE,
+         stderr=subprocess.STDOUT, encoding='UTF-8'
+    )
+    if 'use wgrib2' in wgrib_check.stdout:
+        return 'grib2'
+    elif ':kpds5' in wgrib_check.stdout:
+        return 'grib1'
+    else:
+        ncdump_check = subprocess.run(
+            'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,
+             stderr=subprocess.STDOUT, encoding='UTF-8'
+        )
+        if ncdump_check.returncode == 0:
+            return 'netcdf'
+        else:
+            return 'unknown'
 
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
@@ -539,22 +516,23 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
 
          Returns:
     """
-    grib2_file_names = ['grib2', 'grb2']
     link_filename = format_filler(link_file_format, valid_time_dt,
                                   init_time_dt, lead_str)
     link_model_file = os.path.join(link_data_dir, link_filename)
     if not os.path.exists(link_model_file):
         model_filename = format_filler(file_format, valid_time_dt,
                                        init_time_dt, lead_str)
-        model_file = os.path.join(data_dir, name, model_filename)
+        #Uncomment the model_file line below if using default global archive
+        #model_file = os.path.join(data_dir, name, model_filename)
+        #Uncomment the model_file line below if ARCDIR contains
+        #the model experiment name
+        model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
-            if any(g in model_file for g in grib2_file_names):
-                convert_grib2_grib1(model_file, link_model_file)
-            else:
-                #if 'track' in link_filename:
-                #    os.system('cp '+model_file+' '+link_model_file)
-                #else:
+            if check_file_type(model_file) in ['grib2', 'netcdf']:
                 os.system('ln -sf '+model_file+' '+link_model_file)
+            else:
+                print(f"WARNING: {model_file} is unsupported type "
+                      +f"({check_file_type(model_file)})")
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -571,13 +549,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    file_lead = 'f'+lead_str.zfill(3)
                 else:
                    file_lead = lead_str
-                if 'track' in link_file_format:
-                    (model_hpss_tar, model_hpss_file,
-                     model_hpss_job_filename) = set_up_gfs_hpss_info(
-                         init_time_dt, hpss_data_dir, model_dump,
-                         'cyclone.trackatcfunix', link_data_dir
-                    )
-                elif 'ensspread' in link_file_format \
+                if 'ensspread' in link_file_format \
                         or 'ensmean' in link_file_format:
                     if 'spread' in file_format:
                         file_type = 'spread'
@@ -639,7 +611,6 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         output_dir, output_dir.rpartition('/')[2]
         +'.'+valid_time_dt.strftime('%Y%m%d%H')
     )
-    mean_grib2_file = (mean_file+'.grib2')
     mean_model_file_list = []
     nmean_models = len(mean_model_list)
     # Variables
@@ -671,7 +642,6 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         os.environ['HOMEMET'], os.environ['HOMEMET_bin_exec'],
         'regrid_data_plane'
     )
-    wgrib = os.environ['WGRIB']
     wgrib2 = os.environ['WGRIB2']
     copygb = os.environ['COPYGB']
     ncea = os.environ['NCEA']
@@ -698,7 +668,8 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                            save_mean_model_file_format,
                                            valid_time_dt, valid_time_dt, '00'
                                        ))
-        if os.path.exists(mean_model_file):
+        if os.path.exists(mean_model_file) \
+                and 'grib2' == check_file_type(mean_model_file):
             mean_model_file_list.append(mean_model_file)
     # Regrid files indivdually for variables for each model, and
     # take mean if available for all models
@@ -745,17 +716,14 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                         )
                         if not os.path.exists(template_regrid_file):
                             check_center = subprocess.check_output(
-                                wgrib+' -V '+save_mean_model_file, shell=True,
+                                wgrib2+' -center '+save_mean_model_file, shell=True,
                                 encoding='UTF-8'
                             )
-                            if 'center 7 ' in check_center:
+                            if 'center=7' in check_center:
                                 os.system(copygb+' -'+grid.lower()+' -x '
                                           +save_mean_model_file+' '
-                                          +template_regrid_file+' '
+                                          +template_grib2_file+' '
                                           +'> /dev/null 2>&1')
-                            if os.path.exists(template_regrid_file):
-                                convert_grib1_grib2(template_regrid_file,
-                                                    template_grib2_file)
                         if 'P' in var_level:
                             var_level_grib2 = var_level[1:]+' mb'
                         elif 'Z' in var_level:
@@ -772,7 +740,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                         elif var_level == 'L0_7':
                             var_level_grib2 = 'tropopause'
                         elif var_level == 'L0_200':
-                            var_level_grib2 = ('entire atmosphere \('
+                            var_level_grib2 = ('entire atmosphere ('
                                                +'considered as a single '
                                                +'layer)')
                         if os.path.exists(template_grib2_file):
@@ -850,10 +818,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                               +mean_var_grib2_file+' '
                               +'> /dev/null 2>&1')
                     os.system('cat '+mean_var_grib2_file+' >> '
-                              +mean_grib2_file)
-        # Convert mean analysis to grib1
-        if os.path.exists(mean_grib2_file):
-            convert_grib2_grib1(mean_grib2_file, mean_file)
+                              +mean_file)
         if os.path.exists(mean_file):
             print("Created "+mean_file)
     else:
@@ -958,8 +923,7 @@ make_met_data_by = os.environ['make_met_data_by']
 plot_by = os.environ['plot_by']
 machine = os.environ['machine']
 RUN_abbrev = os.environ['RUN_abbrev']
-if RUN != 'tropcyc':
-    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 
 # Set up spin up period
 check_spinup_period = False
@@ -976,8 +940,8 @@ if spinup_period_start != 'NA' and spinup_period_end != 'NA':
 hpss_prod_base_dir = '/NCEPPROD/hpssprod/runhistory'
 cwd = os.getcwd()
 
-# No HPSS access from Orion, S4, or Hercules
-if machine in ['ORION', 'S4', 'HERCULES']:
+# No HPSS access from Orion or Hercules
+if machine in ['ORION', 'HERCULES']:
     print("WARNING: "+machine+" does not currently have access to HPSS..."
           +"setting model_data_runhpss to NO")
     model_data_run_hpss = 'NO'
@@ -1181,13 +1145,8 @@ if RUN == 'grid2grid_step1':
                             +'.'+valid_time.strftime('%Y%m%d%H')
                         )
                         if not os.path.exists(truth_file):
-                            if 'common' in RUN_abbrev_type_truth_name:
-                                mean_truth_model_list = ['gfs', 'ecm',
-                                                         'ukm', 'cmc']
-                                mean_truth_model_dir_list = [global_archive]*4
-                            elif RUN_abbrev_type_truth_name == 'model_mean':
-                                mean_truth_model_list = model_list
-                                mean_truth_model_dir_list = model_dir_list
+                            mean_truth_model_list = model_list
+                            mean_truth_model_dir_list = model_dir_list
                             create_mean_truth(
                                 mean_truth_model_list,
                                 mean_truth_model_dir_list,
@@ -1281,8 +1240,8 @@ elif RUN == 'grid2obs_step1':
     prepbufr_prod_conus_sfc_dir = os.environ['prepbufr_prod_conus_sfc_dir']
     prepbufr_arch_dir = os.environ['prepbufr_arch_dir']
     iabp_ftp = os.environ['iabp_ftp']
-    # No HPSS access from Orion, S4, Hercules
-    if machine in ['ORION', 'S4', 'HERCULES']:
+    # No HPSS access from Orion or Hercules
+    if machine in ['ORION', 'HERCULES']:
         print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_prepbufr_data_run_hpss to NO")
         prepbufr_run_hpss = 'NO'
@@ -1713,11 +1672,6 @@ elif RUN == 'grid2obs_step1':
                                     prod_file = prod_file+'.nr'
                                     arch_file = arch_file+'.nr'
                                     hpss_file = hpss_file+'.nr'
-                            #Make sure using non restricted data for S4
-                            if machine == 'S4':
-                                prod_file = prod_file+'.nr'
-                                arch_file = arch_file+'.nr'
-                                hpss_file = hpss_file+'.nr'
                             if os.path.exists(prod_file):
                                 print("Linking "+prod_file+" to "
                                       +link_prepbufr_file)
@@ -1817,8 +1771,8 @@ elif RUN == 'precip_step1':
     obs_run_hpss = os.environ[RUN_abbrev+'_obs_data_run_hpss']
     ccpa_accum24hr_prod_dir = os.environ['ccpa_24hr_prod_dir']
     ccpa_accum24hr_arch_dir = os.environ['ccpa_24hr_arch_dir']
-    # No HPSS access from Orion, S4, and Hercules
-    if machine in ['ORION', 'S4', 'HERCULES']:
+    # No HPSS access from Orion and Hercules
+    if machine in ['ORION', 'HERCULES']:
         print("WARNING: "+machine+" does not currently have access to HPSS..."
               +"setting "+RUN_abbrev+"_obs_data_run_hpss to NO")
         obs_run_hpss = 'NO'
@@ -1962,31 +1916,12 @@ elif RUN == 'precip_step1':
                                 )
                                 if os.path.exists(link_PRATE_model_file) \
                                        and not os.path.exists(link_model_file):
-                                    cnvgrib = os.environ['CNVGRIB']
                                     wgrib2 = os.environ['WGRIB2']
-                                    tmp_gb2_file = os.path.join(link_model_dir,
-                                                                'tmp_gb2')
-                                    tmp_gb2_APCP_file = os.path.join(
-                                        link_model_dir, 'tmp_gb2_APCP'
-                                    )
                                     os.system(
-                                        cnvgrib+' -g12 '
-                                        +link_PRATE_model_file+' '
-                                        +tmp_gb2_file
-                                    )
-                                    os.system(
-                                        wgrib2+' '+tmp_gb2_file+' -match '
+                                        wgrib2+' '+link_PRATE_model_file+' -match '
                                         +'":PRATE:" -rpn "3600:*" -set_var '
                                         +'APCP -set table_4.10 1 -grib_out '
-                                        +tmp_gb2_APCP_file+' >>/dev/null'
-                                    )
-                                    os.system(
-                                        cnvgrib+' -g21 '+tmp_gb2_APCP_file+' '
-                                        +link_model_file
-                                    )
-                                    os.system(
-                                        'rm '+os.path.join(link_model_dir,
-                                                           'tmp*')
+                                        +link_model_file+' >>/dev/null'
                                     )
                             elif model_var == 'APCP':
                                 get_model_file(
@@ -2275,11 +2210,19 @@ elif RUN == 'satellite_step1':
                                                   RUN_type+'.'+YYYYmmddHH)
                 if RUN_type in ['ghrsst_ncei_avhrr_anl',
                                 'ghrsst_ospo_geopolar_anl']:
+                    sat1_obs_input_dir=os.environ[f"{RUN_abbrev}_obs_dir"]
                     # ghrsst_ncei_avhrr_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
                     if RUN_type == 'ghrsst_ncei_avhrr_anl':
                         RUN_type_ftp_file = os.path.join(
                             ghrsst_ncei_avhrr_anl_ftp,
                             YYYYM1, DOYM1,
+                            YYYYmmddM1
+                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
+                            +'v02.0-fv02.1.nc'
+                        )
+                        archive_obs_input_file= os.path.join(
+                            sat1_obs_input_dir, RUN_type,
+                            YYYYM1, YYYYmmM1,
                             YYYYmmddM1
                             +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
                             +'v02.0-fv02.1.nc'
@@ -2294,25 +2237,43 @@ elif RUN == 'satellite_step1':
                             +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
                             +'-GLOB-v02.0-fv01.0.nc'
                         )
+                        archive_obs_input_file= os.path.join(
+                            sat1_obs_input_dir, RUN_type,
+                            YYYYM1, YYYYmmM1,
+                            YYYYmmddM1
+                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
+                            +'-GLOB-v02.0-fv01.0.nc'
+                        )
                         adjust_time = 43200
-                    RUN_type_wget_job_filename = os.path.join(
-                        link_RUN_type_dir, 'wget_jobs',
-                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
-                    )
-                    RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
-                    RUN_type_wget_job_output = os.path.join(
-                        link_RUN_type_dir, 'wget_jobs',
-                        'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
-                    )
-                    with open(RUN_type_wget_job_filename, 'w') \
-                            as RUN_type_wget_job_file:
-                        RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
-                        RUN_type_wget_job_file.write('wget '+RUN_type_ftp_file
-                                                     +' -O '
-                                                     +link_RUN_type_file)
-                    wget_data(RUN_type_wget_job_filename,
-                              RUN_type_wget_job_name,
-                              RUN_type_wget_job_output)
+                    if os.path.exists(archive_obs_input_file):
+                        print(f"=======================================")
+                        print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
+                        print(f"=======================================")
+                        os.system(f"cp {archive_obs_input_file} {link_RUN_type_file}")
+                    else:
+                        print(f"==============================")
+                        print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
+                        print(f"==============================")
+                        RUN_type_wget_job_filename = os.path.join(
+                            link_RUN_type_dir, 'wget_jobs',
+                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
+                        )
+                        RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
+                        RUN_type_wget_job_output = os.path.join(
+                            link_RUN_type_dir, 'wget_jobs',
+                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
+                        )
+                        ftp_user="--user=ho-chun.huang@noaa.gov"
+                        ftp_password="--password=anonymous"
+                        with open(RUN_type_wget_job_filename, 'w') \
+                                as RUN_type_wget_job_file:
+                            RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
+                            RUN_type_wget_job_file.write('wget '+ftp_user+' '+ftp_password+' '+RUN_type_ftp_file
+                                                         +' -O '
+                                                         +link_RUN_type_file)
+                        wget_data(RUN_type_wget_job_filename,
+                                  RUN_type_wget_job_name,
+                                  RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
                         link_RUN_type_file_data = nc.Dataset(
@@ -2476,310 +2437,6 @@ elif RUN == 'satellite_step2':
                                         model_RUN_abbrev_type_gather_by,
                                         'satellite', RUN_type,
                                         link_model_RUN_type_dir)
-elif RUN == 'tropcyc':
-    # Read in RUN related environment variables
-    RUN_abbrev_fcyc_list = os.environ[RUN_abbrev+'_fcyc_list'].split(' ')
-    RUN_abbrev_vhr_list = os.environ[RUN_abbrev+'_vhr_list'].split(' ')
-    RUN_abbrev_model_atcf_name_list = (
-        os.environ[RUN_abbrev+'_model_atcf_name_list'].split(' ')
-    )
-    RUN_abbrev_model_file_format_list = (
-        os.environ[RUN_abbrev+'_model_file_format_list'].split(' ')
-    )
-    RUN_abbrev_tropcyc_use_adeck_for_missing_data = (
-        os.environ[RUN_abbrev+'_use_adeck_for_missing_data']
-    )
-    RUN_abbrev_config_storm_list = (
-        os.environ[RUN_abbrev+'_storm_list'].split(' ')
-    )
-    RUN_abbrev_fhr_list = os.environ[RUN_abbrev+'_fhr_list'].split(', ')
-    # Check storm_list to see if all storms for basin and year requested
-    import get_tc_info
-    tc_dict = get_tc_info.get_tc_dict()
-    RUN_abbrev_tc_list = []
-    for config_storm in RUN_abbrev_config_storm_list:
-        config_storm_basin = config_storm.split('_')[0]
-        config_storm_year = config_storm.split('_')[1]
-        config_storm_name = config_storm.split('_')[2]
-        if config_storm_name == 'ALLNAMED':
-            for byn in list(tc_dict.keys()):
-                if config_storm_basin+'_'+config_storm_year in byn:
-                    RUN_abbrev_tc_list.append(byn)
-        else:
-            RUN_abbrev_tc_list.append(config_storm)
-    # Get bdeck/truth and model track files
-    for tc in RUN_abbrev_tc_list:
-        basin = tc.split('_')[0]
-        year = tc.split('_')[1]
-        name = tc.split('_')[2]
-        tc_id = tc_dict[tc]
-        # Get adeck/bdeck files
-        for deck in ['a', 'b']:
-            link_deck_dir = os.path.join(cwd, 'data', deck+'deck')
-            if not os.path.exists(link_deck_dir):
-                os.makedirs(link_deck_dir)
-                os.makedirs(os.path.join(link_deck_dir, 'wget_jobs'))
-            deck_filename = deck+tc_id+'.dat'
-            link_deck_file = os.path.join(link_deck_dir, deck_filename)
-            if deck == 'a':
-                link_adeck_file = link_deck_file
-            elif deck == 'b':
-                link_bdeck_file = link_deck_file
-            nhc_atcfnoaa_deck_dir = os.environ['nhc_atcfnoaa_'+deck+'deck_dir']
-            nhc_atcfnavy_deck_dir = os.environ['nhc_atcfnavy_'+deck+'deck_dir']
-            nhc_atcf_deck_ftp = os.environ['nhc_atcf_'+deck+'deck_ftp']
-            nhc_atfc_arch_ftp = os.environ['nhc_atfc_arch_ftp']
-            if deck == 'b':
-                navy_atcf_bdeck_ftp = os.environ['navy_atcf_bdeck_ftp']
-            nhc_deck_file = os.path.join(nhc_atcfnoaa_deck_dir, deck_filename)
-            navy_deck_file = os.path.join(nhc_atcfnavy_deck_dir, deck_filename)
-            if os.path.exists(nhc_deck_file):
-                os.system('ln -sf '+nhc_deck_file+' '+link_deck_file)
-            elif os.path.exists(navy_deck_file):
-                os.system('ln -sf '+navy_deck_file+' '+link_deck_file)
-            else:
-                if basin in ['AL', 'CP', 'EP']:
-                    nhc_ftp_deck_file = os.path.join(nhc_atcf_deck_ftp,
-                                                     deck_filename)
-                    nhc_ftp_deck_file_wget_job_filename = os.path.join(
-                        link_deck_dir, 'wget_jobs',
-                        'wget_nhc_'+deck_filename+'.sh'
-                    )
-                    nhc_ftp_deck_file_wget_job_output = os.path.join(
-                        link_deck_dir, 'wget_jobs',
-                        'wget_nhc_'+deck_filename+'.out'
-                    )
-                    nhc_ftp_deck_file_wget_job_name = (
-                        'wget_nhc_'+deck_filename
-                    )
-                    with open(nhc_ftp_deck_file_wget_job_filename, 'w') \
-                            as nhc_ftp_deck_file_wget_job_file:
-                        nhc_ftp_deck_file_wget_job_file.write('#!/bin/sh'+'\n')
-                        nhc_ftp_deck_file_wget_job_file.write(
-                            'wget -q '+nhc_ftp_deck_file+' -P '+link_deck_dir
-                        )
-                    wget_data(nhc_ftp_deck_file_wget_job_filename,
-                              nhc_ftp_deck_file_wget_job_name,
-                              nhc_ftp_deck_file_wget_job_output)
-                    nhc_ftp_deck_gzfile = os.path.join(nhc_atfc_arch_ftp, year,
-                                                       deck_filename+'.gz')
-                    nhc_deck_gzfile = os.path.join(link_deck_dir,
-                                                   deck_filename+'.gz')
-                    nhc_ftp_deck_gzfile_wget_job_filename = os.path.join(
-                        link_deck_dir, 'wget_jobs',
-                        'wget_nhc_gz_'+deck_filename+'.sh'
-                    )
-                    nhc_ftp_deck_gzfile_wget_job_output = os.path.join(
-                        link_deck_dir, 'wget_jobs',
-                        'wget_nhc_gz_'+deck_filename+'.out'
-                    )
-                    nhc_ftp_deck_gzfile_wget_job_name = (
-                        'wget_nhc_gz_'+deck_filename
-                    )
-                    with open(nhc_ftp_deck_gzfile_wget_job_filename, 'w') \
-                            as nhc_ftp_deck_gzfile_wget_job_file:
-                        nhc_ftp_deck_gzfile_wget_job_file.write(
-                            '#!/bin/sh'+'\n'
-                        )
-                        nhc_ftp_deck_gzfile_wget_job_file.write(
-                            'wget -q '+nhc_ftp_deck_gzfile+' -P '+link_deck_dir
-                        )
-                    wget_data(nhc_ftp_deck_gzfile_wget_job_filename,
-                              nhc_ftp_deck_gzfile_wget_job_name,
-                              nhc_ftp_deck_gzfile_wget_job_output)
-                    if os.path.exists(nhc_deck_gzfile):
-                        os.system('gunzip -q -f '+nhc_deck_gzfile)
-                    if not os.path.exists(link_deck_file):
-                        print("Did not find "+nhc_deck_file+" or "
-                              +navy_deck_file+" and could not get from NHC "
-                              +"ftp ("+nhc_ftp_deck_file+", "
-                              +nhc_ftp_deck_gzfile+") for "+tc)
-                elif basin == 'WP' and deck == 'b':
-                    navy_ftp_bdeck_zipfile = os.path.join(navy_atcf_bdeck_ftp,
-                                                          year, year+'s-bwp',
-                                                          'bwp'+year+'.zip')
-                    navy_bdeck_zipfile = os.path.join(link_deck_dir,
-                                                      'bwp'+year+'.zip')
-                    if not os.path.exists(navy_bdeck_zipfile):
-                        navy_ftp_bdeck_zfile_wget_job_filename = os.path.join(
-                            link_deck_dir, 'wget_jobs',
-                            'wget_navy_zip_bwp'+year+'.sh'
-                        )
-                        navy_ftp_bdeck_zfile_wget_job_output = os.path.join(
-                            link_deck_dir, 'wget_jobs',
-                            'wget_navy_zip_bwp'+year+'.out'
-                        )
-                        navy_ftp_bdeck_zfile_wget_job_name = (
-                            'wget_navy_zip_bwp'+year
-                        )
-                        with open(navy_ftp_bdeck_zfile_wget_job_filename,
-                                  'w') \
-                                as navy_ftp_bdeck_zfile_wget_job_file:
-                            navy_ftp_bdeck_zfile_wget_job_file.write(
-                                '#!/bin/sh'+'\n'
-                            )
-                            navy_ftp_bdeck_zfile_wget_job_file.write(
-                                'wget -q '+navy_ftp_bdeck_zipfile+' -P '
-                                +link_deck_dir
-                            )
-                        wget_data(navy_ftp_bdeck_zfile_wget_job_filename,
-                                  navy_ftp_bdeck_zfile_wget_job_name,
-                                  navy_ftp_bdeck_zfile_wget_job_output)
-                    if os.path.exists(navy_bdeck_zipfile):
-                        os.system('unzip -qq -o -d '+link_deck_dir+' '
-                                  +navy_bdeck_zipfile+' '+deck_filename)
-                    if not os.path.exists(link_deck_file):
-                        print("Did not find "+nhc_deck_file+" or "
-                              +navy_deck_file+" and could not get from Navy "
-                              +"ftp ("+navy_ftp_bdeck_zipfile+" "
-                              +deck_filename+") for "+tc)
-                elif basin == 'WP' and deck == 'a':
-                    if not os.path.exists(link_deck_file):
-                        print("Did not find "+nhc_deck_file+" or "
-                              +navy_deck_file+" for "+tc)
-        # Get model track files
-        # currently set up to mimic VSDB verification
-        # which uses model track data initialized
-        # in storm dates
-        if os.path.exists(link_bdeck_file):
-            tc_start_date, tc_end_date = get_tc_info.get_tc_dates(
-                link_bdeck_file
-            )
-            tc_time_info_dict = get_time_info(
-                tc_start_date[0:8], tc_end_date[0:8],
-                tc_start_date[-2:], tc_end_date[-2:],
-                '21600', ['00'], 'INIT'
-            )
-            for model in model_list:
-                model_idx = model_list.index(model)
-                model_num = model_idx + 1
-                model_dir = model_dir_list[model_idx]
-                model_hpss_dir = model_hpss_dir_list[model_idx]
-                model_file_format = (
-                    RUN_abbrev_model_file_format_list[model_idx]
-                )
-                model_atcf_name = (
-                    RUN_abbrev_model_atcf_name_list[model_idx]
-                )
-                link_model_dir = os.path.join(cwd, 'data', model)
-                if not os.path.exists(link_model_dir):
-                    os.makedirs(link_model_dir)
-                    os.makedirs(os.path.join(link_model_dir, 'HPSS_jobs'))
-                for time in tc_time_info_dict:
-                    valid_time = time['valid_time']
-                    init_time = time['init_time']
-                    lead = time['lead']
-                    if init_time.strftime('%H') not in RUN_abbrev_fcyc_list:
-                        continue
-                    elif valid_time.strftime('%H') not in RUN_abbrev_vhr_list:
-                        continue
-                    else:
-                        if 'NCEPPROD' in model_hpss_dir:
-                            RUN_model_data_run_hpss = 'NO'
-                        else:
-                            RUN_model_data_run_hpss = model_data_run_hpss
-                        if not os.path.exists(os.path.join(link_model_dir,
-                                                           tc)):
-                            os.mkdir(os.path.join(link_model_dir, tc))
-                        link_tc_init_track_file = os.path.join(
-                           link_model_dir, tc,
-                           format_filler('track.{init?fmt=%Y%m%d%H}.dat',
-                           valid_time, init_time, '00')
-                        )
-                        if not os.path.exists(link_tc_init_track_file):
-                            if model_file_format != 'ADECK':
-                                link_init_track_file = os.path.join(
-                                    link_model_dir,
-                                    format_filler('track.{init?fmt=%Y%m%d%H}'
-                                                  +'.dat', valid_time,
-                                                  init_time, '00')
-                                )
-                                if not os.path.exists(link_init_track_file):
-                                    get_model_file(
-                                        valid_time, init_time, lead,
-                                        model, model_dir, model_file_format,
-                                        RUN_model_data_run_hpss,
-                                        model_hpss_dir, link_model_dir,
-                                        'track.{init?fmt=%Y%m%d%H}.dat'
-                                    )
-                                    if os.path.exists(link_init_track_file):
-                                        try:
-                                            init_track_grep = (
-                                                subprocess.check_output(
-                                                    'grep -R "'+basin+', '
-                                                    +tc_id[2:4]+', '
-                                                    +init_time.strftime(
-                                                        '%Y%m%d%H'
-                                                    )+'" '
-                                                    +link_init_track_file,
-                                                    shell=True,
-                                                    encoding='UTF-8'
-                                                )
-                                            )
-                                            if len(init_track_grep) > 0:
-                                                with open(
-                                                    link_tc_init_track_file,
-                                                    'w'
-                                                ) as ltf:
-                                                    ltf.write(init_track_grep)
-                                        except:
-                                            print("WARNING: Could not make "+
-                                                  link_tc_init_track_file
-                                                  +" from "
-                                                  +link_init_track_file)
-                                            pass
-                            if not os.path.exists(link_tc_init_track_file) \
-                                    and os.path.exists(link_adeck_file) \
-                                    and RUN_abbrev_tropcyc_use_adeck_for_missing_data \
-                                    == 'YES':
-                                print("Going to try to make "
-                                      +link_tc_init_track_file+" from "
-                                      +"adeck file "+link_adeck_file+" for "
-                                      +model+" searching for ATCF name "
-                                      +model_atcf_name+" and init time "
-                                      +init_time.strftime('%Y%m%d%H'))
-                                try:
-                                    adeck_grep = subprocess.check_output(
-                                        'grep -R "'+model_atcf_name+'," '
-                                        +link_adeck_file+' | grep "'
-                                        +init_time.strftime('%Y%m%d%H')+'"',
-                                        shell=True, encoding='UTF-8'
-                                    )
-                                    if len(adeck_grep) > 0:
-                                        with open(link_tc_init_track_file,
-                                                  'w') as ltf:
-                                             ltf.write(adeck_grep)
-                                except:
-                                    print("WARNING: Could not make "
-                                          +link_tc_init_track_file+" from "
-                                          +"adeck file "+link_adeck_file)
-                                    pass
-                            ## Check to make sure listed ATCF name in the file
-                            ## and do replacements
-                            if os.path.exists(link_tc_init_track_file):
-                                try:
-                                    model_atcf_name_grep = (
-                                        subprocess.check_output(
-                                            'grep -R "'+model_atcf_name+'" '
-                                             +link_tc_init_track_file,
-                                             shell=True, encoding='UTF-8'
-                                        )
-                                    )
-                                    model_tmp_atcf_name = (
-                                        'M'+str(model_num).zfill(3)
-                                    )
-                                    print("Replacing "+model+" ATCF name "
-                                          +model_atcf_name+" with "
-                                          +model_tmp_atcf_name+" in "
-                                          +link_tc_init_track_file)
-                                    os.system('sed -i s/'+model_atcf_name+'/'
-                                              +model_tmp_atcf_name+'/g '
-                                              +link_tc_init_track_file)
-                                except:
-                                     print("WARNING: "+model_atcf_name+" "
-                                           +"ATCF name for "+model+" not in "
-                                           +link_tc_init_track_file)
-                                     pass
 elif RUN == 'maps2d':
     # Read in RUN related environment variables
     global_archive = os.environ['global_archive']

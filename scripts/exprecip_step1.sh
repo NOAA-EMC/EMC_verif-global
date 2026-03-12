@@ -89,7 +89,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERCULES -o $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET -o $machine = GAEAC5 -o $machine = GAEAC6 ]; then
+        elif [ $machine = HERCULES -o $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = GAEAC6 ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -109,16 +109,8 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
 echo
 
-# Send data to METviewer AWS server and clean up
-if [ $SENDMETVIEWER = YES ]; then
-    python $USHverif_global/load_to_METviewer_AWS.py
-    status=$?
-    [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran load_to_METviewer_AWS.py"
-    echo
-else
-    if [ $KEEPDATA = NO ]; then
-        cd ..
-        rm -rf $RUN
-    fi
+# Clean up
+if [ $KEEPDATA = NO ]; then
+    cd ..
+    rm -rf $RUN
 fi

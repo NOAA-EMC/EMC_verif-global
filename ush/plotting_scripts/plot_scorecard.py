@@ -537,7 +537,7 @@ if SEND2WEB == 'YES':
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
                   +'-e '+web_job_output+' -N '+web_job_name+' '
                   +'-l select=1:ncpus=1 '+web_job_filename)
-    elif machine in ['HERA', 'ORION', 'S4', 'HERCULES', 'JET', 'GAEAC5', 'GAEAC6']:
+    elif machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
         os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
                   +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
                   +'--output='+web_job_output+' '

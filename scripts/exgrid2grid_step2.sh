@@ -1,14 +1,14 @@
 #!/bin/ksh
 # Program Name: grid2grid_step2
 # Author(s)/Contact(s): Mallory Row
-# Abstract: Run METplus for global grid-to-grid verification
+# Abstract: Run Python for global grid-to-grid verification
 #           to create plots from step 1
 # History Log:
 #   2/2019: Initial version of script
 #
 # Usage:
 #   Parameters:
-#       agrument to script
+#       argument to script
 #   Input Files:
 #       file
 #   Output Files:
@@ -35,87 +35,115 @@ if [ $machine = "WCOSS2" ]; then
 fi
 
 # Check user's configuration file
-python $USHverif_global/check_config.py
+python $USHverif_global/check_config_step2.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
+[[ $status -eq 0 ]] && echo "Successfully ran check_config_step2.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
 python $USHverif_global/set_init_valid_fhr_info.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran set_init_valid_fhr_info.py"
+[[ $status -eq 0 ]] && echo "Successfully ran set_init_valid_fhr_info.py"
 echo
 . $DATA/$RUN/python_gen_env_vars.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully sourced python_gen_env_vars.sh"
+[[ $status -eq 0 ]] && echo "Successfully sourced python_gen_env_vars.sh"
 echo
 
 # Link needed data files and set up model information
 mkdir -p data
-python $USHverif_global/get_data_files.py
+python $USHverif_global/get_data_files_step2.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
+[[ $status -eq 0 ]] && echo "Successfully ran get_data_files_step2.py"
 echo
 
-# Create output directories for METplus
-python $USHverif_global/create_METplus_output_dirs.py
+# Create output directories for plots
+python $USHverif_global/create_step2_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Successfully ran create_step2_output_dirs.py"
 echo
 
-# Create job scripts to run METplus
-python $USHverif_global/create_METplus_job_scripts.py
-status=$?
-[[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
-
-# Run METplus job scripts
-chmod u+x metplus_job_scripts/job*
-ncount_poe=$(ls -l  metplus_job_scripts/poe* |wc -l)
-ncount_job=$(ls -l  metplus_job_scripts/job* |wc -l)
-if [ $MPMD = YES ]; then
-    nc=0
-    while [ $nc -lt $ncount_poe ]; do
-        nc=$((nc+1))
-        poe_script=$DATA/$RUN/metplus_job_scripts/poe_jobs${nc}
-        chmod 775 $poe_script
-        export MP_PGMMODEL=mpmd
-        export MP_CMDFILE=${poe_script}
-        if [ $machine = WCOSS2 ]; then
-            export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET -o $machine = HERCULES -o $machine = GAEAC5 -o $machine = GAEAC6 ]; then
-            launcher="srun --export=ALL --multi-prog"
+if [[ "$g2g2_make_scorecard" == "YES" ]]; then
+    IFS=' ' read -ra mdl_list <<< "${model_list}"
+    let num_mdl=${#mdl_list[@]}
+    if [[ $num_mdl -lt 2 ]]; then
+        echo "DEBUG :: The number of models defined in model_list is less than two."
+        echo "DEBUG :: Switch g2g2_make_scorecard from YES to NO"
+        export g2g2_make_scorecard="NO"
+        exec_procs="condense_stats filter_stats make_plots"
+    else
+        if [[ $num_mdl -gt 2 ]]; then
+            echo "DEBUG :: The number of models defined in model_list is more than two."
+            echo "DEBUG :: Will use the first two model for scorecard generation"
         fi
-        $launcher $MP_CMDFILE
-    done
+        exec_procs="condense_stats filter_stats scorecard_avg_ci make_plots"
+    fi
 else
-    nc=0
-    while [ $nc -lt $ncount_job ]; do
-        nc=$((nc+1))
-        sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
-    done
+    exec_procs="condense_stats filter_stats make_plots"
 fi
 
-# Create scorecard, if needed
-if [ $g2g2_make_scorecard = YES ]; then
-    python $USHverif_global/plotting_scripts/plot_scorecard.py
+
+# Create and run job scripts for condense_stats, filter_stats, and make_plots
+for group in ${exec_procs}; do
+    export JOB_GROUP=$group
+    echo "Creating and running jobs for grid-to-grid plots: ${JOB_GROUP}"
+    python $USHverif_global/plots/grid2grid/step2_grid2grid_create_job_scripts.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran plot_scorecard.py"
+    [[ $status -eq 0 ]] && echo "Successfully ran step2_grid2grid_create_job_scripts.py"
+    chmod u+x plot_job_scripts/$group/*
+    group_ncount_poe=$(ls -l  plot_job_scripts/$group/poe* |wc -l)
+    group_ncount_job=$(ls -l  plot_job_scripts/$group/job* |wc -l)
+    if [ $MPMD = YES ]; then
+        nc=0
+        while [ $nc -lt $group_ncount_poe ]; do
+            nc=$((nc+1))
+            poe_script=$DATA/$RUN/plot_job_scripts/$group/poe_jobs${nc}
+            chmod 775 $poe_script
+            export MP_PGMMODEL=mpmd
+            export MP_CMDFILE=${poe_script}
+            if [ $machine = WCOSS2 ]; then
+                export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
+                launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
+            elif [ $machine = HERA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
+                launcher="srun --export=ALL --multi-prog"
+            fi
+            $launcher $MP_CMDFILE
+        done
+    else
+        nc=0
+        while [ $nc -lt $group_ncount_job ]; do
+            nc=$((nc+1))
+            sh +x $DATA/$RUN/plot_job_scripts/$group/job${nc}
+        done
+    fi
+done
+
+# Create scorecard, if needed
+if [[ "$g2g2_make_scorecard" == "YES" ]]; then
+    python $USHverif_global/plots/grid2grid/plot_scorecard.py
+    status=$?
+    [[ $status -ne 0 ]] && exit $status
+    [[ $status -eq 0 ]] && echo "Successfully ran plot_scorecard.py"
 fi
+
+# Tar up plots
+python $USHverif_global/plots/grid2grid/step2_grid2grid_tar_images.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Successfully ran step2_grid2grid_tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
     python $USHverif_global/build_webpage.py
     status=$?
     [[ $status -ne 0 ]] && exit $status
-    [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
+    [[ $status -eq 0 ]] && echo "Successfully ran build_webpage.py"
     echo
 else
     if [ $KEEPDATA = NO ]; then

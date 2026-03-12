@@ -90,7 +90,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERA -o $machine = ORION -o $machine = S4 -o $machine = JET -o $machine = HERCULES -o $machine = GAEAC5 -o $machine = GAEAC6 ]; then
+        elif [ $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -102,6 +102,12 @@ else
         sh +x $DATA/$RUN/metplus_job_scripts/job${nc}
     done
 fi
+
+# Tar up plots
+python $USHverif_global/plots/mapsda/mapsda_tar_images.py
+status=$?
+[[ $status -ne 0 ]] && exit $status
+[[ $status -eq 0 ]] && echo "Successfully ran mapsda_tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then

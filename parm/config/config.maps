@@ -1,0 +1,167 @@
+#!/bin/sh -e
+##---------------------------------------------------------------------------
+##---------------------------------------------------------------------------
+## NCEP EMC GLOBAL MODEL VERIFICATION
+##
+## CONTRIBUTORS: Mallory Row, mallory.row@noaa.gov, NOAA/NWS/NCEP/EMC-VPPPGB
+## PURPOSE: Set up configurations to run user requested verification
+##---------------------------------------------------------------------------
+##--------------------------------------------------------------------------
+
+echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
+
+####################################################
+# WHAT METPLUS USE CASES TO RUN
+####################################################
+## STEP 2 PRODUCES PLOTS FOR STATISTICS FROM .STAT FILES FROM STEP 1
+## SET TO "YES" or "NO"
+## EDIT SECTIONS BELOW FOR VERIFICATION TYPES REQUESTED
+#RUN_MAPS2D:          run to make forecast maps including lat-lon and zonal-mean distributions
+#RUN_MAPSDA:          run to make analysis maps of time-mean increments, ENKF ensemble mean and ensemble spread
+export RUN_MAPS2D="YES"
+export RUN_MAPSDA="YES"
+
+####################################################
+# GENERAL SETTINGS APPLIED TO ALL USE CASES
+####################################################
+## INPUT DATA SETTINGS
+#model_list:             model names
+#model_dir_list:         directory path to model forecast files
+#model_stat_dir_list:    directory path to model .stat files
+#model_file_format_list: file format of model files
+#model_hpss_dir_list:    HPSS directory of data
+#model_data_run_hpss:    get files from HPSS ("YES") if not online
+#hpss_walltime:          how long to run HPSS job to get data in minutes
+export model_list="gfs_dev"
+export model_dir_list="/gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/gfs_dev"
+export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/dev"
+export model_file_format_list="pgbf{lead?fmt=%2H}.gfs.{init?fmt=%Y%m%d%H}.grib2"
+export model_data_run_hpss="NO"
+export model_hpss_dir_list="/null/path"
+export hpss_walltime="10"
+## OUTPUT DATA SETTINGS
+#OUTPUTROOT: base output directory
+export OUTPUTROOT="/gpfs/f6/ira-sti/world-shared/$USER/verif_global_standalone_maps"
+#Archive directory for tar files
+export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files"
+## DATE SETTINGS
+#start_date:          verification start date, format YYYYMMDD
+#end_date:            verification end date, format YYYYMMDD
+#spinup_period_start: spinup period start, format YYYYMMDDHH, if none use "NA"
+#spinup_period_end:   spinup period end, format YYYYMMDDHH, if none use "NA"
+#make_met_data_by:    how to treat dates, "VALID" or "INIT"
+#plot_by:             how to plot data, "VALID" or "INIT"
+export start_date=20241116
+export end_date=20241119
+export spinup_period_start="NA"
+export spinup_period_end="NA"
+export make_met_data_by="VALID"
+export plot_by="VALID"
+## WEB SETTINGS
+#SEND2WEB:    whether or not to send maps to webhost
+#webhost:     webhost(rzdm) computer
+#webhostid:   webhost(rzdm) user name
+#webdir:      directory where to send maps on webhost
+#img_quality: image quality/resolution: "low", "medium", "high"
+#             "low", use if you are just viewing the images (internal use)
+#             "medium", use for internal use with collegues (internal use)
+#             "high", use for journals or professional presentations (external use)
+export SEND2WEB="NO"
+export webhost="emcrzdm.ncep.noaa.gov"
+export webhostid="$USER"
+export webdir="/home/people/emc/www/htdocs/gmb/${webhostid}/TEST"
+export img_quality="low"
+## METPLUS SETTINGS
+#MET_version:               MET version to use: 12.0.1
+#METplus_version:           METplus version to use: 6.0.0
+#MET_verbosity:             MET verbosity for logging, 1-5 (most verbose is 5)
+#METplus_verbosity:         DEBUG, INFO, WARN, ERROR (most verbose is DEBUG)
+#log_MET_output_to_METplus: log MET output to METplus log, yes or no
+export MET_version="12.0.1"
+export METplus_version="6.0.0"
+export METplus_verbosity="INFO"
+export MET_verbosity="2"
+export log_MET_output_to_METplus="yes"
+## DATA DIRECTIVE SETTINGS
+export SENDARCH="YES"
+export KEEPDATA="YES"
+export SENDECF="NO"
+export SENDCOM="NO"
+export SENDDBN="NO"
+export SENDDBN_NTC="NO"
+####################################################
+# SETTINGS FOR SPECIFIC USE CASES
+####################################################
+if [ $RUN_MAPS2D = YES ]; then
+    #maps2d_model_plot_name_list: list of models reference name on plots
+    #maps2d_latlon_area: list of lower latitude, upper latitude, start longitude, end longitude
+    #maps2d_plot_diff: plot difference from first model (YES) or just plot all model values (NO)
+    #maps2d_anl_file_format_list: model's own analysis file format used for if
+    #                             anl in maps2d_[type]_forecast_to_plot
+    #                             or maps2d_model2model_forecast_anl_diff YES
+    #maps2d_type_list: list type of verifications to run for maps2d: model2model, model2obs
+    #### For each type the followings can be set, where [type] is model2model or model2obs
+    #####    maps2d_[type]_make_met_data_by: how to treat dates, "VALID" or "INIT"
+    #####    maps2d_[type]_hour_list:        all forecast cycles to be included in verification: HH
+    #####    maps2d_[type]_forecast_to_plot: list of model forecast times to plot:
+    #####                                        for analysis use anl,
+    #####                                        for a single forecast hour use f (ex. f120),
+    #####                                        for a day use d (ex. d5) which will include the 4 forecast hours for that day
+    #####                                                 (d5 = f120 f114 f108 and f102)
+    #####    maps2d_regrid_to_grid:          NCEP grid to regrid data to
+    #maps2d_model2model_forecast_anl_diff: plot the difference of model forecast from an analysis (YES) or don't (NO)
+    #maps2d_model2obs_use_ceres: use CERES data for cloud and radiation obs. (YES) or use ISCCP, SRB, NVAP, UWisc for cloud and radiation obs. (NO)
+    #maps2d_model2obs_use_monthly_mean: use monthly mean from datasets, if available (YES) or use climatology generated from datasets (NO)
+    export maps2d_model_plot_name_list="gfs_dev"
+    export maps2d_latlon_area="-90 90 0 360"
+    export maps2d_plot_diff="YES"
+    export maps2d_anl_file_format_list="pgbanl.gfs.{valid?fmt=%Y%m%d%H}.grib2"
+    export maps2d_type_list="model2model model2obs"
+    export maps2d_model2model_make_met_data_by="INIT"
+    export maps2d_model2model_hour_list="00"
+    export maps2d_model2model_forecast_to_plot_list="anl d1"
+    export maps2d_model2model_regrid_to_grid="G002"
+    export maps2d_model2model_forecast_anl_diff="NO"
+    export maps2d_model2obs_make_met_data_by="INIT"
+    export maps2d_model2obs_hour_list="00"
+    export maps2d_model2obs_forecast_to_plot_list="anl d1"
+    export maps2d_model2obs_regrid_to_grid="G002"
+    export maps2d_model2obs_use_ceres="NO"
+    export maps2d_model2obs_use_monthly_mean="NO"
+fi
+
+if [ $RUN_MAPSDA = YES ]; then
+    #mapsda_model_plot_name_list: list of models reference name on plots
+    #mapsda_latlon_area: list of lower latitude, upper latitude, start longitude, end longitude
+    #mapsda_plot_diff: plot difference from first model (YES) or just plot all model values (NO)
+    #mapsda_type_list: list type of verifications to run for mapsda: gdas, ens
+    #### For each type the followings can be set, where [type] is gdas or ens
+    #####    mapsda_[type]_make_met_data_by:       how to treat dates, "VALID" or "INIT"
+    #####    mapsda_[type]_hour_list:              all hours to be included in verification: HH
+    #####    mapsda_[type]_regrid_to_grid:         NCEP grid to regrid data to
+    #####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
+    #mapsda_gdas_model_file_format_list: file format of model GDAS files
+    #mapsda_gdas_anl_file_format_list: file format of analysis files for GDAS maps
+    #mapsda_ens_model_dir_list: directory where model ens files are located
+    #mapsda_ens_model_file_format_list: file format for ens files
+    #mapsda_ens_model_data_run_hpss: get files from HPSS ("YES") if not online
+    export mapsda_model_plot_name_list="gfs_dev"
+    export mapsda_latlon_area="-90 90 0 360"
+    export mapsda_plot_diff="NO"
+    export mapsda_type_list="gdas"
+    export mapsda_gdas_make_met_data_by="VALID"
+    export mapsda_gdas_hour_list="00"
+    export mapsda_gdas_regrid_to_grid="G002"
+    export mapsda_gdas_guess_hour="06"
+    export mapsda_gdas_model_file_format_list="pgbf{lead?fmt=%2H}.gdas.{init?fmt=%Y%m%d%H}.grib2"
+    export mapsda_gdas_anl_file_format_list="pgbanl.gdas.{valid?fmt=%Y%m%d%H}.grib2"
+    export mapsda_ens_make_met_data_by="INIT"
+    export mapsda_ens_hour_list="00"
+    export mapsda_ens_regrid_to_grid="G002"
+    export mapsda_ens_guess_hour="06"
+    export mapsda_ens_model_dir_list="/some/path/gfs_dev"
+    export mapsda_ens_model_file_format_list="gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc"
+    export mapsda_ens_model_data_run_hpss="NO"
+fi
+
+echo "END: $(basename ${BASH_SOURCE[0]})"

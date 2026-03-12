@@ -20,12 +20,10 @@ echo "BEGIN: $(basename ${BASH_SOURCE[0]})"
 #RUN_GRID2OBS_STEP2:  runs METplus stat_analysis, make_plots
 #RUN_PRECIP_STEP2:    runs METplus stat_analysis, make_plots
 #RUN_SATELLITE_STEP2: runs METplus stat_analysis, make_plots
-#RUN_FIT2OBS_PLOTS:   runs fit2obs code to make plots
 export RUN_GRID2GRID_STEP2="YES"
 export RUN_GRID2OBS_STEP2="YES"
 export RUN_PRECIP_STEP2="YES"
 export RUN_SATELLITE_STEP2="NO"
-export RUN_FIT2OBS_PLOTS="NO"
 
 ####################################################
 # GENERAL SETTINGS APPLIED TO ALL USE CASES
@@ -228,25 +226,6 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     export sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
     export sat2_ghrsst_ospo_geopolar_anl_event_eq="False"
     export sat2_ghrsst_ospo_geopolar_anl_grid="G219"
-fi
-
-if [ $RUN_FIT2OBS_PLOTS = YES ]; then
-   #fit2obs_plots_expnlist:   experiment names, only 7 allowed, fnl is operational GFS
-   #fit2obs_plots_expdlist:   fcst data directories, can be different
-   #fit2obs_plots_endianlist: endian of fits data: big or little
-   #fit2obs_plots_cycle:      forecast cycle to verify, only one cycle allowed
-   #fit2obs_plots_oinc:       increment (hours) between observation verify times for timeout plots
-   #fit2obs_plots_finc:       increment (hours) between forecast lengths for timeout plots
-   #fit2obs_plots_fmax:       max forecast length to show for timeout plots
-   #fit2obs_plots_scrdir:     source directory of fit-to-obs scripts
-   export fit2obs_plots_expnlist="fnl"
-   export fit2obs_plots_expdlist="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/fit2obs_data"
-   export fit2obs_plots_endianlist="little"
-   export fit2obs_plots_cycle="00"
-   export fit2obs_plots_oinc=24
-   export fit2obs_plots_finc=12
-   export fit2obs_plots_fmax=120
-   export fit2obs_plots_scrdir="/lfs/h2/emc/global/noscrub/Jack.Woollen/plotfits"
 fi
 
 echo "END: $(basename ${BASH_SOURCE[0]})"

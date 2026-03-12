@@ -8,6 +8,7 @@ Abstract: This script is run by all step1 scripts in scripts/.
 
 import os
 import datetime
+import sys
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -129,7 +130,7 @@ for RUN_type in RUN_type_list:
                 else:
                     print("**************************************************")
                     print("** WARNING: "+verif_global_file+" "
-                          +"was not generated or zero size")
+                          +"was either not generated or zero size. So SKIP copying this file")
                     print("**************************************************\n")
         date = date + datetime.timedelta(days=1)
 

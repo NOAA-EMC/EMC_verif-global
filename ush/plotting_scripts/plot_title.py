@@ -123,7 +123,7 @@ def get_vx_mask_title(vx_mask):
         'APL': 'Appalachians',
         'NEC': 'Northeast Coast',
         'SEC': 'Southeast Coast',
-        'GMC': 'Gulf of Mexico Coast',
+        'GMC': 'Gulf of America Coast',
         'NAK': 'Northern Alaska',
         'SAK': 'Southern Alaska',
         'G211': 'CONUS - NCEP Grid 211',

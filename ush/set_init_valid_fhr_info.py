@@ -29,7 +29,11 @@ def get_hr_list_info(hr_list):
     """
     hr_beg = (hr_list[0]).zfill(2)
     hr_end = (hr_list[-1]).zfill(2)
-    hr_inc = str(int((24/len(hr_list))*3600))
+    if len(hr_list) <= 1:
+        hr_inc = "86400"
+    else:
+        hr_inc = str(3600 * int((int(hr_end) - int(hr_beg)) / (len(hr_list)-1)))
+
     return hr_beg, hr_end, hr_inc
 
 def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
@@ -48,12 +52,22 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
     """
     fhr_min = float(fhr_min_str)
     fhr_max = float(fhr_max_str)
+    fcyc_list = [int(fcyc) for fcyc in fcyc_list]
+    vhr_list = [int(vhr) for vhr in vhr_list]
     nfcyc = len(fcyc_list)
     nvhr = len(vhr_list)
+    # Calculate the interval based on the forecast cycle or verification hour
+    # Assumes that the hours are evenly spaced (6,12,18 or 0, 12 or 6,9,12,15, but not 0,6,9)
     if nfcyc > nvhr:
-        fhr_intvl = int(24/nfcyc)
+        if nfcyc <= 1:
+            fhr_intvl = 24
+        else:
+            fhr_intvl = (max(fcyc_list) - min(fcyc_list)) / (len(fcyc_list) - 1)
     else:
-        fhr_intvl = int(24/nvhr)
+        if nvhr <= 1:
+            fhr_intvl = 24
+        else:
+            fhr_intvl = (max(vhr_list) - min(vhr_list)) / (len(vhr_list) - 1)
     nfhr = fhr_max/fhr_intvl
     fhr_max = int(nfhr*fhr_intvl)
     fhr_list = []
@@ -67,8 +81,7 @@ def get_forecast_hours(fcyc_list, vhr_list, fhr_min_str, fhr_max_str):
 # Get environment variables
 RUN = os.environ['RUN']
 RUN_abbrev = os.environ['RUN_abbrev']
-if RUN != 'tropcyc':
-    RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
+RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 
 # Build dictionary
 env_var_dict = {}
@@ -170,43 +183,6 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
         env_var_dict[RUN_abbrev_type+'_fhr_end'] = (
             RUN_abbrev_type_fhr_list_str.split(', ')[-1]
         )
-elif RUN == 'tropcyc':
-    # Process forecast initialization cycles
-    RUN_abbrev_fcyc_list = os.environ[RUN_abbrev+'_fcyc_list'].split(' ')
-    RUN_abbrev_fcyc_beg, RUN_abbrev_fcyc_end, RUN_abbrev_fcyc_inc = (
-        get_hr_list_info(RUN_abbrev_fcyc_list)
-    )
-    env_var_dict[RUN_abbrev+'_fcyc_list'] = (
-        os.environ[RUN_abbrev+'_fcyc_list']
-    )
-    env_var_dict[RUN_abbrev+'_init_hr_list'] = ', '.join(
-        RUN_abbrev_fcyc_list
-    )
-    env_var_dict[RUN_abbrev+'_init_hr_beg'] = RUN_abbrev_fcyc_beg
-    env_var_dict[RUN_abbrev+'_init_hr_end'] = RUN_abbrev_fcyc_end
-    env_var_dict[RUN_abbrev+'_init_hr_inc'] = RUN_abbrev_fcyc_inc
-    # Process valid hours
-    RUN_abbrev_vhr_list = os.environ[RUN_abbrev+'_vhr_list'].split(' ')
-    RUN_abbrev_vhr_beg, RUN_abbrev_vhr_end, RUN_abbrev_vhr_inc = (
-        get_hr_list_info(RUN_abbrev_vhr_list)
-    )
-    env_var_dict[RUN_abbrev+'_vhr_list'] = (
-        os.environ[RUN_abbrev+'_vhr_list']
-    )
-    env_var_dict[RUN_abbrev+'_valid_hr_list'] = ', '.join(
-        RUN_abbrev_vhr_list
-    )
-    env_var_dict[RUN_abbrev+'_valid_hr_beg'] = RUN_abbrev_vhr_beg
-    env_var_dict[RUN_abbrev+'_valid_hr_end'] = RUN_abbrev_vhr_end
-    env_var_dict[RUN_abbrev+'_valid_hr_inc'] = RUN_abbrev_vhr_inc
-    # Process forecast hours
-    RUN_abbrev_fhr_min = os.environ[RUN_abbrev+'_fhr_min']
-    RUN_abbrev_fhr_max = os.environ[RUN_abbrev+'_fhr_max']
-    RUN_abbrev_fhr_list_str = get_forecast_hours(
-        RUN_abbrev_fcyc_list, RUN_abbrev_vhr_list,
-        RUN_abbrev_fhr_min, RUN_abbrev_fhr_max
-    )
-    env_var_dict[RUN_abbrev+'_fhr_list'] = RUN_abbrev_fhr_list_str
 elif RUN in ['maps2d', 'mapsda']:
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

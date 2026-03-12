@@ -244,15 +244,15 @@ base_plot_jobs_info_dict = {
         'TSOILtop': {'vx_masks': ['G002', 'NHX', 'SHX', 'N60', 'S60', 'TRO', 'NPO',
                                   'SPO', 'NAO', 'SAO', 'CONUS'],
                      'fcst_var_dict': {'name': 'TSOIL',
-                                       'levels': ['Z10-0']},
+                                       'levels': ['Z0.1-0']},
                      'obs_var_dict': {'name': 'TSOIL',
-                                      'levels': ['Z10-0']}},
+                                      'levels': ['Z0.1-0']}},
         'SOILWtop': {'vx_masks': ['G002', 'NHX', 'SHX', 'N60', 'S60', 'TRO', 'NPO',
                                   'SPO', 'NAO', 'SAO', 'CONUS'],
                      'fcst_var_dict': {'name': 'SOILW',
-                                       'levels': ['Z10-0']},
+                                       'levels': ['Z0.1-0']},
                      'obs_var_dict': {'name': 'SOILW',
-                                      'levels': ['Z10-0']}},
+                                      'levels': ['Z0.1-0']}},
         'WEASD': {'vx_masks': ['G002', 'NHX', 'SHX', 'N60', 'S60', 'TRO', 'NPO',
                                'SPO', 'NAO', 'SAO', 'CONUS'],
                   'fcst_var_dict': {'name': 'WEASD',
@@ -456,10 +456,14 @@ for case_type in case_type_list:
             valid_hrs = list(range(valid_hr_start,
                                    valid_hr_end+valid_hr_inc,
                                    valid_hr_inc))
-        obs_list = (
+        config_obs_list = (
             os.environ[RUN_abbrev_type+'_truth_name_list']\
             .split(' ')
         )
+        obs_list = []
+        for cobs in config_obs_list:
+            idx = config_obs_list.index(cobs)
+            obs_list.append(cobs.replace('self', model_list[idx]))
         for data_name in ['fcst', 'obs']:
             job_env_dict[data_name+'_var_name'] =  (
                 case_type_plot_jobs_dict[case_type_job]\

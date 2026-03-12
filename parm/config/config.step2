@@ -41,7 +41,7 @@ export model_list="gfsv${prod_ver} gfsv${dev_ver}"
 export model_stat_dir_list="/gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/prod /gpfs/f6/ira-sti/world-shared/Qi.Shi/KEEP_archive/dev"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
-export OUTPUTROOT="/gpfs/f6/drsa-precip3/world-shared/$USER/verif_global_standalone_step2"
+export OUTPUTROOT="/gpfs/f6/ira-sti/world-shared/$USER/verif_global_standalone_step2"
 #Archive directory for tar files
 export tar_archive_dir="/gpfs/f6/ira-sti/world-shared/$USER/plots/tar_plot_files"
 ## DATE SETTINGS
@@ -105,9 +105,9 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     #####    g2g2_[type]_event_eq:        do event equalization (True) or not (False)
     #####    g2g2_[type]_grid:            NCEP grid verification was done on
     #g2g2_make_scorecard: create scorecard (YES) or not (NO)
-    export g2g2_model_plot_name_list="GFSv${prod_ver} RETROv17_01_stream4"
+    export g2g2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
     export g2g2_type_list="anom pres sfc"
-    export g2g2_anom_truth_name_list="gfsv${prod_ver}_anl retrov17_01_stream4_anl"
+    export g2g2_anom_truth_name_list="self_anl self_anl"
     export g2g2_anom_gather_by_list="VALID VALID"
     export g2g2_anom_fcyc_list="00"
     export g2g2_anom_vhr_list="00"
@@ -115,7 +115,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_anom_fhr_max="240"
     export g2g2_anom_event_eq="False"
     export g2g2_anom_grid="G002"
-    export g2g2_pres_truth_name_list="gfsv${prod_ver}_anl retrov17_01_stream4_anl"
+    export g2g2_pres_truth_name_list="self_anl self_anl"
     export g2g2_pres_gather_by_list="VALID VALID"
     export g2g2_pres_fcyc_list="00"
     export g2g2_pres_vhr_list="00"
@@ -123,7 +123,7 @@ if [ $RUN_GRID2GRID_STEP2 = YES ]; then
     export g2g2_pres_fhr_max="240"
     export g2g2_pres_event_eq="False"
     export g2g2_pres_grid="G002"
-    export g2g2_sfc_truth_name_list="gfsv${prod_ver}_f00 retrov17_01_stream4_f00"
+    export g2g2_sfc_truth_name_list="self_f00 self_f00"
     export g2g2_sfc_gather_by_list="VALID VALID"
     export g2g2_sfc_fcyc_list="00"
     export g2g2_sfc_vhr_list="00"
@@ -188,7 +188,7 @@ if [ $RUN_PRECIP_STEP2 = YES ]; then
     #####    precip2_[type]_fhr_max:        forecast hour to end verification HH[H]
     #####    precip2_[type]_event_eq:       do event equalization (True) or not (False)
     #####    precip2_[type]_grid:           NCEP grid verification was done on
-    export precip2_model_plot_name_list="gfsv${prod_ver} gfsv${dev_ver}"
+    export precip2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
     export precip2_type_list="ccpa_accum24hr"
     export precip2_ccpa_accum24hr_truth_name_list="ccpa_accum24hr ccpa_accum24hr"
     export precip2_ccpa_accum24hr_gather_by_list="VALID VALID"
@@ -210,7 +210,7 @@ if [ $RUN_SATELLITE_STEP2 = YES ]; then
     #####    sat2_[type]_sea_ice_thresh:       threshold for sea ice, anything >= considered ice, anything below no ice
     #####    sat2_[type]_event_eq:             do event equalization (True) or not (False)
     #####    sat2_[type]_grid:                 NCEP grid verification was done on
-    export sat2_model_plot_name_list="gfsv${prod_ver} RETROv17_01_stream4"
+    export sat2_model_plot_name_list="GFSv${prod_ver} GFSv${dev_ver}"
     export sat2_type_list="ghrsst_ospo_geopolar_anl"
     export sat2_ghrsst_ncei_avhrr_anl_gather_by_list="VALID VALID"
     export sat2_ghrsst_ncei_avhrr_anl_truth_name_list="ghrsst_ncei_avhrr_anl ghrsst_ncei_avhrr_anl"

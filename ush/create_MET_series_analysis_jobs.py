@@ -9,6 +9,7 @@ Abstract: This script is run by the maps2d and mapsda jobs scripts.
 import sys
 import os
 import re
+import subprocess
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -68,12 +69,9 @@ series_analysis_config = '-config '+os.path.join(PARMverif_global,
                                                  'SeriesAnalysisConfig_'
                                                  +RUN_type)
 
-def get_var_grib1_info(var_name, var_level):
-    """! This returns special GRIB1 variable information to use
+def get_var_grib2_info(var_name, var_level):
+    """! This returns special GRIB2 variable information to use
          with MET's series_analysis.
-         Information from:
-             https://www.nco.ncep.noaa.gov/pmb/docs/on388/table2.html
-             https://www.nco.ncep.noaa.gov/pmb/docs/on388/table3.html
 
          Args:
              var_name          - string of the grib file variable
@@ -85,27 +83,23 @@ def get_var_grib1_info(var_name, var_level):
              var_GRIB_lvl_typ  - string of the GRIB level type number
              var_GRIB_lvl_val1 - string of the GRIB level 1 number
              var_GRIB_lvl_val2 - string of the GRIB level 2 number
-             var_GRIB1_ptv     - string of the GRIB1 parameter table
-                                 where the variable is defined
-             var_GRIB1_tri     - string of the GRIB1 time range indicator
+             var_GRIB2_pdt     - string of the GRIB2 PDT (Table 4.0)
     """
     # Define GRIB level type
     if var_level[-3:] == 'hPa':
         var_GRIB_lvl_typ = '100'
     elif 'AGL' in var_level:
-        if 'hPa' in var_level:
-            var_GRIB_lvl_typ = '116'
-        elif 'm' in var_level:
-            var_GRIB_lvl_typ = '105'
+        if 'm' in var_level:
+            var_GRIB_lvl_typ = '103'
     elif 'UGL' in var_level:
-        if 'cm' in var_level:
-            var_GRIB_lvl_typ = '112'
+        if 'm' in var_level:
+            var_GRIB_lvl_typ = '106'
     elif 'sfc' in var_level:
         var_GRIB_lvl_typ = '1'
     elif 'sigma' in var_level:
-        var_GRIB_lvl_typ = '107'
+        var_GRIB_lvl_typ = '104'
     elif 'msl' in var_level:
-        var_GRIB_lvl_typ = '102'
+        var_GRIB_lvl_typ = '101'
     elif 'column' in var_level:
         var_GRIB_lvl_typ = '200'
     elif 'toa' in var_level:
@@ -158,40 +152,18 @@ def get_var_grib1_info(var_name, var_level):
        if '-' in var_level_nums:
            var_GRIB_lvl_val1 = var_level_nums.split('-')[0]
            var_GRIB_lvl_val2 = var_level_nums.split('-')[1]
-       elif 'sigma' in var_level:
-           var_GRIB_lvl_val1 = str(
-               int(float(var_level_nums)*1000)
-           ).ljust(4, '0')
-           var_GRIB_lvl_val2 = str(
-               int(float(var_level_nums)*1000)
-           ).ljust(4, '0')
        else:
            var_GRIB_lvl_val1 = var_level_nums
            var_GRIB_lvl_val2 = var_level_nums
     else:
        var_GRIB_lvl_val1 = '0'
        var_GRIB_lvl_val2 = '0'
-    # Define GRIB1 parameter table
-    if var_name in ['VRATE', 'HINDEX', 'DUVB', 'CDUVB']:
-        var_GRIB1_ptv = '129'
-    elif var_name in ['WILT', 'FLDCP']:
-        var_GRIB1_ptv = '130'
-    elif var_name in ['SUNSD']:
-        var_GRIB1_ptv = '133'
-    else:
-        var_GRIB1_ptv = '2'
-    # Define time range indicator
-    if '_' in var_level:
-        if 'accum' in var_level:
-            var_GRIB1_tri = '4'
-        elif 'avg' in var_level:
-            var_GRIB1_tri = '3'
-        elif 'range' in var_level:
-            var_GRIB1_tri = '2'
-    else:
-        var_GRIB1_tri = '10'
     # Define MET level
-    if 'sfc' in var_level:
+    if 'accum' in var_level:
+        for v in var_level:
+            if v.isdigit():
+                var_MET_level = 'A'+v
+    elif 'sfc' in var_level:
         var_MET_level = 'Z0'
     elif 'AGL' in var_level:
         if var_GRIB_lvl_val1 == var_GRIB_lvl_val2:
@@ -208,17 +180,17 @@ def get_var_grib1_info(var_name, var_level):
             var_MET_level = 'P'+var_GRIB_lvl_val1
         else:
             var_MET_level = 'P'+var_GRIB_lvl_val1+'-'+var_GRIB_lvl_val2
-    elif 'accum' in var_level:
-        for v in var_level:
-            if v.isdigit():
-                var_MET_level = 'A'+v
     elif 'sigma' in var_level:
         var_MET_level = 'L'+var_GRIB_lvl_val1
     else:
         var_MET_level = 'L0'
+    # Define GRIB2 product definition template (Table 4.0)
+    if any(l in var_level for l in ['avg', 'accum', 'range']):
+        var_GRIB2_pdt = '8'
+    else:
+        var_GRIB2_pdt = '0'
     return (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-            var_GRIB_lvl_val2, var_GRIB1_ptv, var_GRIB1_tri,
-            var_MET_level)
+            var_GRIB_lvl_val2, var_MET_level, var_GRIB2_pdt)
 
 # Run for models
 for model in model_list:
@@ -258,7 +230,19 @@ for model in model_list:
     series_analysis_job_file.write('export obtype="'+model_obtype+'"\n')
     series_analysis_job_file.write('export regrid_grid="'
                                    +regrid_to_grid+'"\n')
-    series_analysis_job_file.write('export var_name="'+var_name+'"\n')
+    ### Special check for GFSv16 vs. GFSv17 CLWMR/CLMR
+    model_var_name = var_name
+    if var_name == "CLMR":
+        data_file = series_analysis_fcst_files.replace('-fcst ','')
+        with open(data_file, 'r') as rfile:
+            check_file = rfile.readline()
+        wgrib2_check = subprocess.run(
+            f'wgrib2 -match "{var_name}" {check_file}',
+            shell=True, capture_output=True, text=True
+        )
+        if len(wgrib2_check.stdout) == 0: # GFSv16 file
+            model_var_name = "CLWMR"
+    series_analysis_job_file.write('export var_name="'+model_var_name+'"\n')
     # For series_analysis to create the series of all the files,
     # it needs to be run separately for each level
     for var_level in var_levels_list:
@@ -285,8 +269,8 @@ for model in model_list:
                                            +'"\n')
         # extract special grib file information
         (var_GRIB_lvl_typ, var_GRIB_lvl_val1,
-         var_GRIB_lvl_val2, var_GRIB1_ptv, var_GRIB1_tri, var_MET_level) = (
-                get_var_grib1_info(var_name, var_level)
+         var_GRIB_lvl_val2, var_MET_level, var_GRIB2_pdt) = (
+                get_var_grib2_info(var_name, var_level)
         )
         series_analysis_job_file.write('export var_GRIB_lvl_typ="'
                                        +var_GRIB_lvl_typ+'"\n')
@@ -294,12 +278,10 @@ for model in model_list:
                                        +var_GRIB_lvl_val1+'"\n')
         series_analysis_job_file.write('export var_GRIB_lvl_val2="'
                                        +var_GRIB_lvl_val2+'"\n')
-        series_analysis_job_file.write('export var_GRIB1_ptv="'
-                                       +var_GRIB1_ptv+'"\n')
-        series_analysis_job_file.write('export var_GRIB1_tri="'
-                                       +var_GRIB1_tri+'"\n')
         series_analysis_job_file.write('export var_MET_level="'
                                        +var_MET_level+'"\n')
+        series_analysis_job_file.write('export var_GRIB2_pdt="'
+                                       +var_GRIB2_pdt+'"\n')
         # special case for DSWRF since not in model files, running
         # obs only
         if RUN_type == 'model2obs':

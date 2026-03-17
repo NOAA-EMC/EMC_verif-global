@@ -65,7 +65,7 @@ fi
 
 ## Set machine specific account, queues, and run settings
 if [[ "${on_machine}" ==  "GAEAC6" ]]; then
-    export ACCOUNT=gfs-cpu  
+    export ACCOUNT=gfs-cpu
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6
     export CLUSTERS_DTN="es"
@@ -219,7 +219,7 @@ echo "END: config.metp"
 ###############################################################
 ## Abstract:
 ## Inline METplus verification and diagnostics driver script
-## HOMEglobal : /full/path/to/workflow
+## HOMEglobal   : /full/path/to/workflow
 ## EXPDIR : /full/path/to/config/files
 ## CDATE  : current analysis date (YYYYMMDDHH)
 ## PDY    : current date (YYYYMMDD)

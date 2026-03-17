@@ -246,7 +246,7 @@ if __name__ == "__main__":
     user_stats_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/stats"
 
     # Define the common configuration file name (in current directory) to be merged
-    common_script_to_append = "my_standalone_step1_stats.append"
+    common_script_to_append = "standalone_step1_stats.append"
     
     # --- Define runtime script igenerated and runtime log file directory location ---
     # --- For example, 

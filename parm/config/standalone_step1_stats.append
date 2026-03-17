@@ -125,7 +125,6 @@ export get_data_from_hpss="NO"
 export hpss_walltime="10"
 ## OUTPUT SETTINGS
 export make_met_data_by="VALID"
-export SENDMETVIEWER="NO"
 ## DATE SETTINGS
 export VRFYBACK_HRS="0"
 ## METPLUS SETTINGS
@@ -152,9 +151,6 @@ export g2g1_sfc_fhr_min=${FHMIN_GFS}
 export g2g1_sfc_fhr_max=${FHMAX_GFS}
 export g2g1_sfc_grid="G002"
 export g2g1_sfc_gather_by="VALID"
-export g2g1_mv_database_name="mv_${PSLOT}_grid2grid_metplus"
-export g2g1_mv_database_group="NOAA NCEP"
-export g2g1_mv_database_desc="Grid-to-grid METplus data for global workflow experiment ${PSLOT}"
 # GRID-TO-OBS STEP 1: gfsmetpg2o1
 export g2o1_type_list="upper_air conus_sfc"
 export g2o1_upper_air_msg_type_list="ADPUPA"
@@ -176,9 +172,6 @@ export g2o1_polar_sfc_fhr_max="240"
 export g2o1_polar_sfc_grid="G219"
 export g2o1_polar_sfc_gather_by="VALID"
 export g2o1_prepbufr_data_run_hpss="NO"
-export g2o1_mv_database_name="mv_${PSLOT}_grid2obs_metplus"
-export g2o1_mv_database_group="NOAA NCEP"
-export g2o1_mv_database_desc="Grid-to-obs METplus data for global workflow experiment ${PSLOT}"
 # PRECIP STEP 1: gfsmetppcp1
 export precip1_type_list="ccpa_accum24hr"
 export precip1_ccpa_accum24hr_model_bucket="06"
@@ -191,9 +184,6 @@ export precip1_ccpa_accum24hr_fhr_max="384"
 export precip1_ccpa_accum24hr_grid="G211"
 export precip1_ccpa_accum24hr_gather_by="VALID"
 export precip1_obs_data_run_hpss="NO"
-export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
-export precip1_mv_database_group="NOAA NCEP"
-export precip1_mv_database_desc="Precip METplus data for global workflow experiment ${PSLOT}"
 # SATELLITE STEP 1: gfsmetpsat1
 # The option for the sat1_type_lists are "ghrsst_ncei_avhrr_anl" or "ghrsst_ospo_geopolar_anl" or both
 # To avoid a runtime error, please ensure that the observation file exists in
@@ -213,9 +203,6 @@ export sat1_ghrsst_ospo_geopolar_anl_fhr_max="240"
 export sat1_ghrsst_ospo_geopolar_anl_grid="G219"
 export sat1_ghrsst_ospo_geopolar_anl_gather_by="VALID"
 export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
-export sat1_mv_database_name="mv_${PSLOT}_satellite_metplus_TEST"
-export sat1_mv_database_group="NOAA NCEP"
-export sat1_mv_database_desc="Satellite METplus data for global workflow experiment ${PSLOT}"
 if [ $on_machine = "URSA" ]; then
     export sat1_obs_dir="/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive/"
 elif [ $on_machine = "GAEAC6" ]; then
@@ -232,7 +219,7 @@ echo "END: config.metp"
 ###############################################################
 ## Abstract:
 ## Inline METplus verification and diagnostics driver script
-## HOMEgfs   : /full/path/to/workflow
+## HOMEglobal : /full/path/to/workflow
 ## EXPDIR : /full/path/to/config/files
 ## CDATE  : current analysis date (YYYYMMDDHH)
 ## PDY    : current date (YYYYMMDD)
@@ -292,7 +279,7 @@ done
 if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" || "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
     "${VERIF_GLOBALSH}"
     err=$?
-    if [[ ${err} -ne 0 ]]; 
+    if [[ ${err} -ne 0 ]];
         then exit "${err}"
     fi
 fi

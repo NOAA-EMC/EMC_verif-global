@@ -4,18 +4,22 @@ import subprocess
 import sys
 
 
-def create_run_script(target_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, experiment_name, user_model_output_location):
+def create_run_script(target_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, model_name, user_model_output_location, script_dir, log_dir, user_stats_output_location, user_select_task_cpu):
     """
     Generates a SLURM or PBS batch script for a specific date to transfer a file to stats.
 
     Args:
-        target_date (datetime.date): The date for which to generate the script.
-        machine_name (str): The name of the machine (e.g., 'gaeac6', 'wcoss2').
-        application_name (str): The name of the application (e.g., 'grid2obs').
+        target_date (datetime.date)      : The date for which to generate the script.
+        machine_name (str)               : The name of the machine (e.g., 'gaeac6', 'wcoss2').
+        application_name (str)           : The name of the application (e.g., 'grid2obs').
         max_forecast_hour_for_stats (int): The maximum forecast hour to consider for stats.
-        common_script_to_append (str): The name of the common script file to append.
-        experiment_name (str): The name of the experiment for the PSLOT variable.
-        user_model_output_location (str): The base path for user model output.
+        common_script_to_append (str)    : The name of the common script file to append.
+        model_name (str)                 : The name of the experiment for the PSLOT variable.
+        user_model_output_location (str) : The base path for user model output.
+        script_dir (str)                 : The base path for batch job created.
+        log_dir (str)                    : The base path for runtime logfile of batch job submitted.
+        user_stats_output_location (str) : The base path for verification stats output.
+        user_select_task_cpu (str)       : The cpu time setting for batch job.
     """
     # --- 1. Define Variables ---
     # Format the date into 'yyyymmdd' string
@@ -31,13 +35,16 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
     edate_gfs_str = edate_gfs.strftime('%Y%m%d') + '18'
     
     # Define model input location for step1_stats
-    step1_model_input_directory = f"{user_model_output_location}/${{PSLOT}}"
+    step1_model_input_directory = f"{user_model_output_location}"
     
-    # Define date-dependent variables
-    jobname = f"{machine_name}_{application_name}_stats_{date_str}"
-    log_dir = "." # Set log directory to the current directory
-    logfile = f"{log_dir}/{jobname}_{date_str}.log"
-    run_batch_file = f"submit_{machine_name}_{application_name}_{date_str}.sh" # The output script name
+    # Ensure the script and log directory exist
+    os.makedirs(script_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Define datei- and model_name- dependent job_name
+    jobname = f"{machine_name}_{application_name}_stats_{model_name}_{date_str}"
+    logfile = f"{log_dir}/{jobname}.log"
+    run_batch_file = f"{script_dir}/submit_{jobname}.sh" # The output script name
 
     # Check for and remove existing files ---
     if os.path.exists(run_batch_file):
@@ -49,7 +56,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             sys.exit(1)
 
     # Check for the log file only for wcoss2, as it's the only one that defines a specific log file
-    if machine_name == 'wcoss2' and os.path.exists(logfile):
+    if os.path.exists(logfile):
         try:
             os.remove(logfile)
             print(f"INFO: Removed existing log file '{logfile}'.")
@@ -58,11 +65,11 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             sys.exit(1)
 
     # Define static variables (can be changed as needed)
-    task_cpu = "01:00:00"
+    task_cpu = user_select_task_cpu
     if application_name == 'grid2obs':
         # Convert HH:MM:SS string to timedelta, add 30 minutes, and convert back
         h, m, s = map(int, task_cpu.split(':'))
-        new_time = datetime.timedelta(hours=h, minutes=m, seconds=s) + datetime.timedelta(minutes=30)
+        new_time = datetime.timedelta(hours=h, minutes=m, seconds=s) + datetime.timedelta(minutes=60)
 
         # Format timedelta back to HH:MM:SS string
         total_seconds = int(new_time.total_seconds())
@@ -72,12 +79,9 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
         task_cpu = f"{hours:02}:{minutes:02}:{seconds:02}"
         print(f"INFO: Increased CPU time for '{application_name}' to {task_cpu}")
 
-    # Set the root path for verif-global by going up two directories
+    # Set the root path for verif-global by going up two directories from ${home_verif_global_path}/parm/config
     current_dir = os.getcwd()
     home_verif_global_path = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
-
-    # Ensure the log directory exists
-    os.makedirs(log_dir, exist_ok=True)
 
     # --- 2. Write the Machine-Specific Part of the Batch Script ---
     try:
@@ -92,7 +96,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
                 qos = "normal"
                 sh.write(f"#SBATCH --account={account}\n")
                 sh.write(f"#SBATCH --job-name={jobname}\n")
-                sh.write(f"#SBATCH --output={jobname}.out.%j\n")
+                sh.write(f"#SBATCH --output={logfile}\n")
                 sh.write(f"#SBATCH --time={task_cpu}\n")
                 sh.write(f"#SBATCH --ntasks=1\n")
                 sh.write(f"#SBATCH --cpus-per-task=1\n")
@@ -100,9 +104,21 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
                 sh.write(f"#SBATCH --partition={partition}\n")
                 sh.write(f"#SBATCH --qos={qos}\n")
 
+            elif machine_name == 'ursa':
+                account = "naqfc"
+                qos = "batch"
+                sh.write(f"#SBATCH --account={account}\n")
+                sh.write(f"#SBATCH --job-name={jobname}\n")
+                sh.write(f"#SBATCH --output={logfile}\n")
+                sh.write(f"#SBATCH --time={task_cpu}\n")
+                sh.write(f"#SBATCH --ntasks=1\n")
+                sh.write(f"#SBATCH --cpus-per-task=1\n")
+                sh.write(f"#SBATCH --qos={qos}\n")
+                sh.write(f"#SBATCH --get-user-env\n")
+
             # --- WCOSS2 (PBS) Job Card ---
             elif machine_name == 'wcoss2':
-                account = "AQM-DEV" # Example account for WCOSS2
+                account = "VERF-DEV" # Example account for WCOSS2
                 queue = "dev" # Example queue for WCOSS2
                 sh.write(f"#PBS -o {logfile}\n")
                 sh.write(f"#PBS -e {logfile}\n")
@@ -118,10 +134,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             # --- Set Machine Name ---
             sh.write("\n")
             sh.write("# Set the machine name\n")
-            if machine_name == 'gaeac6':
-                sh.write("export machine=gaeac6\n")
-            elif machine_name == 'wcoss2':
-                sh.write("export machine=wcoss2\n")
+            sh.write(f"export machine={machine_name}\n")
 
             # --- Experiment Date Configuration ---
             sh.write("\n")
@@ -151,20 +164,21 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             sh.write("# Set the root path to the verif-global package\n")
             sh.write(f"export HOMEverif_global=\"{home_verif_global_path}\"\n")
             
-            # --- Set Experiment Name ---
+            # --- Set Model Name to be verified ---
             sh.write("\n")
-            sh.write("# Change PSLOT to the name of your experiment\n")
-            sh.write(f"export PSLOT={experiment_name}\n")
+            sh.write(f"export PSLOT={model_name}\n")
 
             # --- Set Archive Directory ---
             sh.write("\n")
             sh.write("# Set the location of your online archive\n")
-            sh.write(f"export ARCDIR={step1_model_input_directory}\n")
-            sh.write("# NOTE: the location of the statistic files will be one directory up from ARCDIR\n")
-            sh.write("#       then appended by /metplus_data/by_${gather_by}/\n")
-            sh.write("#       followed by the validation type (e.g. grid2grid, grid2obs, precip)\n")
-            sh.write("#       validation type (e.g. pres, sfc, upper_air, conus_sfc, ccpa_accum24hr)\n")
-            sh.write("#       then /${cyc}z/${model}/${model}_${PDY}.stat\n")
+            sh.write(f"export ARCDIR={step1_model_input_directory}/{model_name}\n")
+            sh.write(f"export model_stat_dir={user_stats_output_location}\n")
+            sh.write(f"export model={model_name}\n")
+            sh.write("# NOTE: the location of the statistic files will be {user_stats_output_location}/ \n")
+            sh.write("#       + metplus_data/by_${gather_by}/\n")
+            sh.write("#       + application name (e.g. grid2grid, grid2obs, precip)\n")
+            sh.write("#       + validation type (e.g. pres, sfc, upper_air, conus_sfc, ccpa_accum24hr)\n")
+            sh.write("#       + /${cyc}z/${model}/${model}_${PDY}.stat\n")
 
 
         print(f"Successfully created initial script: '{run_batch_file}'")
@@ -173,13 +187,12 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
         print(f"Error writing to initial script file {run_batch_file}: {e}")
         return
 
-    # --- 3. Append the Common Lines from the separate file ---
+    # --- 3. Append the Common Lines from a fixed onfigure file ---
     try:
         with open(common_script_to_append, 'r') as common_file:
             common_content = common_file.read()
 
         with open(run_batch_file, 'a') as sh:
-            sh.write("\n# --- Appending Common Post-Processing Commands ---\n")
             sh.write(common_content)
 
         print(f"Successfully appended '{common_script_to_append}' to '{run_batch_file}'.")
@@ -191,17 +204,16 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
         return
 
     # --- 4. Print info and submit the job ---
-    print("Script    = "+run_batch_file)
+    print(f"Script    = {run_batch_file}")
+    print(f"LogFile   = {logfile}")
     
     # Speculate on the final stats directory based on the script's comments
-    stats_dir_pattern = f"{user_model_output_location}/metplus_data/by_${{gather_by}}/{application_name}/<validation_type>/${{cyc}}z/${{model}}/"
+    stats_dir_pattern = f"{user_stats_output_location}/metplus_data/by_${{gather_by}}/{application_name}/<validation_type>/${{cyc}}z/${{model}}/"
 
-    if machine_name == 'gaeac6':
-        print(f"Log File Pattern  = {jobname}.out.%j")
+    if machine_name == 'gaeac6' or 'ursa':
         print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"sbatch {run_batch_file}"
     elif machine_name == 'wcoss2':
-        print("Log File          = "+logfile)
         print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"qsub {run_batch_file}"
     else:
@@ -215,15 +227,54 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
 
 # --- Main execution block to demonstrate usage ---
 if __name__ == "__main__":
-    # --- Define settings ---
-    max_forecast_hour_for_stats = 120 # 5 days
-    experiment_name = "gfs_dev"
-    # Define user-defined model output location
-    user_model_output_location = "/gpfs/f6/ira-sti/world-shared/${USER}/KEEP_archive"
-    common_script_to_append = "standalone_step1_stats.append"
+    user=os.environ['USER']
+
+    # =============================================
+    #     Please define batch job settings here    
+    # =============================================
+
+    # User-defined maximum forecast hours to be verified
+    max_forecast_hour_for_stats = 240 # 10 days
+
+    # User-defined model name and model grib2 files output location
+    # user_model_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/KEEP_archive"
+    user_model_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/gfs_data"
+    com_model_list = [ "gfsv16", "retrov17_01_stream4" ]
+
+    # User-defined verification stats output location
+    # user_stats_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/stats"
+    user_stats_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/stats"
+
+    # Define the common configuration file name (in current directory) to be merged
+    common_script_to_append = "my_standalone_step1_stats.append"
     
+    # --- Define runtime script igenerated and runtime log file directory location ---
+    # --- For example, 
+    # [1] the exact directory path
+    #     script_dir = f"/gpfs/f6/ira-sti/world-shared/{user}/script"
+    #     log_dir    = f"/gpfs/f6/ira-sti/world-shared/{user}/logs"
+    # [2] link to current working directory
+    #     current_script_path = os.path.abspath(__file__)
+    #     current_directory = os.path.dirname(current_script_path)
+    #     parent_directory = os.path.dirname(current_directory)
+    #     script_dir = os.path.join(parent_directory, "run_script")
+    #     log_dir    = os.path.join(parent_directory, "run_log")
+    # script_dir = f"/gpfs/f6/ira-sti/world-shared/{user}/script"
+    # log_dir    = f"/gpfs/f6/ira-sti/world-shared/{user}/logs"
+    script_dir = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/script"
+    log_dir    = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/logs"
+
+    # --- Define cpu time for the batch job ---
+    user_select_task_cpu = "03:00:00"
+
+    for model_name in com_model_list:
+        if not os.path.exists(f"{user_model_output_location}/{model_name}"):
+            print(f"Can not find model output directory - {user_model_output_location}/{model_name}")
+            print(f"Please place {model_name} model output to the directory listed above.")
+            sys.exit(1)
+
     # --- Define allowed inputs ---
-    ALLOWED_MACHINES = ['gaeac6']
+    ALLOWED_MACHINES = ['gaeac6', 'wcoss2', 'ursa' ]
     ALLOWED_APPLICATIONS = ['grid2obs', 'grid2grid', 'precip', 'satellite']
 
     # --- Check for number of USER-PROVIDED arguments ---
@@ -288,11 +339,12 @@ if __name__ == "__main__":
     
     # --- Script Generation Loop ---
     delta = datetime.timedelta(days=1)
-    current_date = start_date
-    while current_date <= end_date:
-        print(f"--- Generating script for {current_date.strftime('%Y-%m-%d')} ---")
-        create_run_script(current_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, experiment_name, user_model_output_location)
-        current_date += delta
-        print("-" * 30)
+    for model_name in com_model_list:
+        current_date = start_date
+        while current_date <= end_date:
+            print(f"--- Generating script for {current_date.strftime('%Y-%m-%d')} ---")
+            create_run_script(current_date, machine_name, application_name, max_forecast_hour_for_stats, common_script_to_append, model_name, user_model_output_location, script_dir, log_dir, user_stats_output_location, user_select_task_cpu)
+            current_date += delta
+            print("-" * 30)
 
     print("\nScript generation complete.")

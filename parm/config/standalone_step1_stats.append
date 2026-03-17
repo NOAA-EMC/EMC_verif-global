@@ -1,28 +1,34 @@
-#!/usr/bin/bash
 # LOOK HERE!!
 ##############EDIT THIS SECTION######################
 # Set a base working directory.  Subdirectories for each job will be created under this.
-export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
+if [ $machine = "ursa" ]; then
+    export DATAROOT=/scratch4/NCEPDEV/stmp/${USER}/tmp_metp
+elif [ $machine = "gaeac6" ]; then
+    export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
+else
+    echo "DATAROOT dir is not defined on this machine : $machine. Program EXIT"
+fi
 # Change COMROOT to the appropriate location
 export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
-# cyc specifies the last forecast init time to use.
+# cyc specifies the last forecast init time to use. 
 # If cyc=18 and if INTERVAL_GFS=6, then forecasts inits 0, 6, 12, and 18Z are used
 export cyc=18
 #
 # Whether to keep the temporary working directory or not
 export KEEPDATA=YES
+#
+# For the location of HPSS directory of HPSS data transfer if activated
+export HPSS_PROJECT="emc-naqfc"
 ##################DO NOT EDIT BELOW THIS LINE######################
 
-# Find the root of this git repository
-# Start by finding the directory of this script
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-HOMEverif_global=$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)
-
 # Load the needed modules for METplus
-source "${HOMEverif_global}/ush/detect_machine.sh"
-module reset
+if [ $machine = "ursa" ]; then
+    module purge
+else
+    module reset
+fi
 module use "${HOMEverif_global}/modulefiles"
-module load "emc_verif_global_${MACHINE_ID}"
+module load "emc_verif_global_${machine}"
 
 # Set some workflow environment variables
 export jobid=$$
@@ -49,8 +55,8 @@ export FIXgfs=${DATA}
 on_machine=$(echo $machine | tr '[a-z]' '[A-Z]')  ## in uppercase
 if [ $on_machine = "WCOSS2" ]; then
     ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
-elif [ $on_machine = "HERA" ]; then
-    ln -sf /scratch1/NCEPDEV/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+elif [ $on_machine = "URSA" ]; then
+    ln -sf /scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
 elif [ $on_machine = "GAEAC6" ]; then
@@ -59,7 +65,7 @@ fi
 
 ## Set machine specific account, queues, and run settings
 if [[ "${on_machine}" ==  "GAEAC6" ]]; then
-    export ACCOUNT=gfs-cpu
+    export ACCOUNT=gfs-cpu  
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6
     export CLUSTERS_DTN="es"
@@ -111,7 +117,6 @@ export nproc=${tasks_per_node:-1}
 ## EMC_VERIF_GLOBAL SETTINGS
 export VERIF_GLOBALSH=${HOMEverif_global}/ush/run_verif_global_in_global_workflow.sh
 ## INPUT DATA SETTINGS
-export model=gfs
 export model_file_format="pgbf{lead?fmt=%2H}.${RUN}.{init?fmt=%Y%m%d%H}.grib2"
 ### DBH Note -- I don't think this is needed for this script
 ##export model_hpss_dir=${ATARDIR}/..
@@ -119,8 +124,8 @@ export model_dir=${ARCDIR}
 export get_data_from_hpss="NO"
 export hpss_walltime="10"
 ## OUTPUT SETTINGS
-export model_stat_dir=${ARCDIR}/..
 export make_met_data_by="VALID"
+export SENDMETVIEWER="NO"
 ## DATE SETTINGS
 export VRFYBACK_HRS="0"
 ## METPLUS SETTINGS
@@ -147,6 +152,9 @@ export g2g1_sfc_fhr_min=${FHMIN_GFS}
 export g2g1_sfc_fhr_max=${FHMAX_GFS}
 export g2g1_sfc_grid="G002"
 export g2g1_sfc_gather_by="VALID"
+export g2g1_mv_database_name="mv_${PSLOT}_grid2grid_metplus"
+export g2g1_mv_database_group="NOAA NCEP"
+export g2g1_mv_database_desc="Grid-to-grid METplus data for global workflow experiment ${PSLOT}"
 # GRID-TO-OBS STEP 1: gfsmetpg2o1
 export g2o1_type_list="upper_air conus_sfc"
 export g2o1_upper_air_msg_type_list="ADPUPA"
@@ -168,6 +176,9 @@ export g2o1_polar_sfc_fhr_max="240"
 export g2o1_polar_sfc_grid="G219"
 export g2o1_polar_sfc_gather_by="VALID"
 export g2o1_prepbufr_data_run_hpss="NO"
+export g2o1_mv_database_name="mv_${PSLOT}_grid2obs_metplus"
+export g2o1_mv_database_group="NOAA NCEP"
+export g2o1_mv_database_desc="Grid-to-obs METplus data for global workflow experiment ${PSLOT}"
 # PRECIP STEP 1: gfsmetppcp1
 export precip1_type_list="ccpa_accum24hr"
 export precip1_ccpa_accum24hr_model_bucket="06"
@@ -180,6 +191,9 @@ export precip1_ccpa_accum24hr_fhr_max="384"
 export precip1_ccpa_accum24hr_grid="G211"
 export precip1_ccpa_accum24hr_gather_by="VALID"
 export precip1_obs_data_run_hpss="NO"
+export precip1_mv_database_name="mv_${PSLOT}_precip_metplus"
+export precip1_mv_database_group="NOAA NCEP"
+export precip1_mv_database_desc="Precip METplus data for global workflow experiment ${PSLOT}"
 # SATELLITE STEP 1: gfsmetpsat1
 # The option for the sat1_type_lists are "ghrsst_ncei_avhrr_anl" or "ghrsst_ospo_geopolar_anl" or both
 # To avoid a runtime error, please ensure that the observation file exists in
@@ -189,17 +203,28 @@ export precip1_obs_data_run_hpss="NO"
 export sat1_type_list="ghrsst_ospo_geopolar_anl"
 export sat1_ghrsst_ncei_avhrr_anl_fcyc_list="00"
 export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${FHMIN_GFS}
-export sat1_ghrsst_ncei_avhrr_anl_fhr_max="168"
+export sat1_ghrsst_ncei_avhrr_anl_fhr_max="240"
 export sat1_ghrsst_ncei_avhrr_anl_grid="G219"
 export sat1_ghrsst_ncei_avhrr_anl_gather_by="VALID"
 export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh="0.15"
 export sat1_ghrsst_ospo_geopolar_anl_fcyc_list="00"
 export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${FHMIN_GFS}
-export sat1_ghrsst_ospo_geopolar_anl_fhr_max="168"
+export sat1_ghrsst_ospo_geopolar_anl_fhr_max="240"
 export sat1_ghrsst_ospo_geopolar_anl_grid="G219"
 export sat1_ghrsst_ospo_geopolar_anl_gather_by="VALID"
 export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
-export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive/"
+export sat1_mv_database_name="mv_${PSLOT}_satellite_metplus_TEST"
+export sat1_mv_database_group="NOAA NCEP"
+export sat1_mv_database_desc="Satellite METplus data for global workflow experiment ${PSLOT}"
+if [ $on_machine = "URSA" ]; then
+    export sat1_obs_dir="/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive/"
+elif [ $on_machine = "GAEAC6" ]; then
+    export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive/"
+else
+    echo "sat1_obs_dir is not defined in this machine : $on_machine. Program EXIT"
+    if [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then exit; fi
+fi
+
 
 echo "END: config.metp"
 #######################################################
@@ -207,7 +232,7 @@ echo "END: config.metp"
 ###############################################################
 ## Abstract:
 ## Inline METplus verification and diagnostics driver script
-## HOMEglobal   : /full/path/to/workflow
+## HOMEgfs   : /full/path/to/workflow
 ## EXPDIR : /full/path/to/config/files
 ## CDATE  : current analysis date (YYYYMMDDHH)
 ## PDY    : current date (YYYYMMDD)
@@ -267,9 +292,9 @@ done
 if [[ "${RUN_GRID2GRID_STEP1}" == "YES" || "${RUN_GRID2OBS_STEP1}" == "YES" || "${RUN_PRECIP_STEP1}" == "YES" || "${RUN_SATELLITE_STEP1}" == "YES" ]]; then
     "${VERIF_GLOBALSH}"
     err=$?
-    if [[ ${err} -ne 0 ]];
+    if [[ ${err} -ne 0 ]]; 
         then exit "${err}"
     fi
 fi
 
-if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATA}" ; fi  # TODO: This should be $DATA
+if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATA}" ; fi

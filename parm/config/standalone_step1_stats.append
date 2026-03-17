@@ -50,17 +50,17 @@ mkdir -p "${DATA}"
 cd "${DATA}" || exit 1
 
 # Link in fix files
-export FIXgfs=${DATA}
+export FIXglobal=${DATA}
 ## Set machine specific fix directory
 on_machine=$(echo $machine | tr '[a-z]' '[A-Z]')  ## in uppercase
 if [ $on_machine = "WCOSS2" ]; then
-    ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXgfs}/verif"
+    ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXglobal}/verif"
 elif [ $on_machine = "URSA" ]; then
-    ln -sf /scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+    ln -sf /scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805 "${FIXglobal}/verif"
 elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
-    ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXgfs}/verif"
+    ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXglobal}/verif"
 elif [ $on_machine = "GAEAC6" ]; then
-    ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXgfs}/verif"
+    ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXglobal}/verif"
 fi
 
 ## Set machine specific account, queues, and run settings

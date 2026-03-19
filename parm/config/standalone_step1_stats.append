@@ -2,9 +2,11 @@
 ##############EDIT THIS SECTION######################
 # Set a base working directory.  Subdirectories for each job will be created under this.
 if [ $machine = "ursa" ]; then
-    export DATAROOT=/scratch4/NCEPDEV/stmp/${USER}/tmp_metp
+    export DATAROOT=/scratch4/NCEPDEV/stmp/${USER}/tmp_emc_verif_global
 elif [ $machine = "gaeac6" ]; then
-    export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_metp
+    export DATAROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/tmp_emc_verif_global
+elif [ $machine = "wcoss2" ]; then
+    export DATAROOT=/lfs/h2/emc/stmp/${USER}/tmp_emc_verif_global
 else
     echo "DATAROOT dir is not defined on this machine : $machine. Program EXIT"
 fi
@@ -22,6 +24,10 @@ export HPSS_PROJECT="emc-naqfc"
 ##################DO NOT EDIT BELOW THIS LINE######################
 
 # Load the needed modules for METplus
+if [ $machine = "wcoss2" ]; then
+    source ${HOMEverif_global}/versions/run.ver
+fi
+
 if [ $machine = "ursa" ]; then
     module purge
 else

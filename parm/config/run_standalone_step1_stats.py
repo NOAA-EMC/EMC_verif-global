@@ -205,12 +205,12 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
 
     # --- 4. Print info and submit the job ---
     print(f"Script    = {run_batch_file}")
-    print(f"LogFile   = {logfile}")
+    print(f"Log File   = {logfile}")
     
     # Speculate on the final stats directory based on the script's comments
     stats_dir_pattern = f"{user_stats_output_location}/metplus_data/by_${{gather_by}}/{application_name}/<validation_type>/${{cyc}}z/${{model}}/"
 
-    if machine_name == 'gaeac6' or 'ursa':
+    if machine_name in [ 'gaeac6', 'ursa']:
         print(f"Stats Dir Pattern = {stats_dir_pattern}")
         submission_command = f"sbatch {run_batch_file}"
     elif machine_name == 'wcoss2':

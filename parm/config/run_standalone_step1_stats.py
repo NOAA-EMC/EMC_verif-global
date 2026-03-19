@@ -171,7 +171,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
             # --- Set Archive Directory ---
             sh.write("\n")
             sh.write("# Set the location of your online archive\n")
-            sh.write(f"export ARCDIR={step1_model_input_directory}/{model_name}\n")
+            sh.write(f"export model_dir={step1_model_input_directory}/{model_name}\n")
             sh.write(f"export model_stat_dir={user_stats_output_location}\n")
             sh.write(f"export model={model_name}\n")
             sh.write("# NOTE: the location of the statistic files will be {user_stats_output_location}/ \n")

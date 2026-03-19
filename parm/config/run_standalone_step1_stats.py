@@ -118,8 +118,8 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
 
             # --- WCOSS2 (PBS) Job Card ---
             elif machine_name == 'wcoss2':
-                account = "VERF-DEV" # Example account for WCOSS2
-                queue = "dev" # Example queue for WCOSS2
+                account = "VERF-DEV"
+                queue = "dev"
                 sh.write(f"#PBS -o {logfile}\n")
                 sh.write(f"#PBS -e {logfile}\n")
                 sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")

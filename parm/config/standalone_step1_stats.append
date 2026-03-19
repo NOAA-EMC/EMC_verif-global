@@ -52,19 +52,18 @@ cd "${DATA}" || exit 1
 # Link in fix files
 export FIXglobal=${DATA}
 ## Set machine specific fix directory
-on_machine=$(echo $machine | tr '[a-z]' '[A-Z]')  ## in uppercase
-if [ $on_machine = "WCOSS2" ]; then
+if [ $machine = "wcoss2" ]; then
     ln -sf /lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805 "${FIXglobal}/verif"
-elif [ $on_machine = "URSA" ]; then
+elif [ $machine = "ursa" ]; then
     ln -sf /scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805 "${FIXglobal}/verif"
-elif [ $on_machine = "ORION" -o $on_machine = "HERCULES" ]; then
+elif [ $machine = "orion" -o $machine = "hercules" ]; then
     ln -sf /work/noaa/global/glopara/fix/verif/20220805 "${FIXglobal}/verif"
-elif [ $on_machine = "GAEAC6" ]; then
+elif [ $machine = "gaeac6" ]; then
     ln -sf /gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805 "${FIXglobal}/verif"
 fi
 
 ## Set machine specific account, queues, and run settings
-if [[ "${on_machine}" ==  "GAEAC6" ]]; then
+if [[ "${machine}" ==  "gaeac6" ]]; then
     export ACCOUNT=gfs-cpu
     export QUEUE_SERVICE="service"
     export PARTITION_DTN=dtn_f5_f6
@@ -202,12 +201,12 @@ export sat1_ghrsst_ospo_geopolar_anl_fhr_max="240"
 export sat1_ghrsst_ospo_geopolar_anl_grid="G219"
 export sat1_ghrsst_ospo_geopolar_anl_gather_by="VALID"
 export sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh="0.15"
-if [ $on_machine = "URSA" ]; then
+if [ $machine = "ursa" ]; then
     export sat1_obs_dir="/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive/"
-elif [ $on_machine = "GAEAC6" ]; then
+elif [ $machine = "gaeac6" ]; then
     export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive/"
 else
-    echo "sat1_obs_dir is not defined in this machine : $on_machine. Program EXIT"
+    echo "sat1_obs_dir is not defined in this machine : $machine. Program EXIT"
     if [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then exit; fi
 fi
 

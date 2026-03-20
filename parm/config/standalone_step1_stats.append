@@ -51,7 +51,7 @@ export RUN_ENVIR=emc
 export ROTDIR=${COMROOT}/${PSLOT}
 
 # Create and navigate to a temporary working directory in the current directory
-export DATA=${DATAROOT}/met.${jobid}
+export DATA=${DATAROOT}/emc_verif_global.${jobid}
 mkdir -p "${DATA}"
 cd "${DATA}" || exit 1
 

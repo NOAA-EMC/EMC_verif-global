@@ -211,6 +211,8 @@ if [ $machine = "ursa" ]; then
     export sat1_obs_dir="/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive/"
 elif [ $machine = "gaeac6" ]; then
     export sat1_obs_dir="/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive/"
+elif [ $machine = "wcoss2" ]; then
+    export sat1_obs_dir="/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
 else
     echo "sat1_obs_dir is not defined in this machine : $machine. Program EXIT"
     if [[ "${RUN_SATELLITE_STEP1}" == "YES" ]]; then exit; fi

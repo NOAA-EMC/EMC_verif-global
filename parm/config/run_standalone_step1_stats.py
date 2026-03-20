@@ -337,8 +337,23 @@ if __name__ == "__main__":
     print(f"Machine: {machine_name}, Application: {application_name}")
     print(f"Generating scripts from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
     
-    # --- Script Generation Loop ---
     delta = datetime.timedelta(days=1)
+    # --- Check number of jobs to submit ---
+    njobs = 0
+    for model_name in com_model_list:
+        current_date = start_date
+        while current_date <= end_date:
+            njobs+=1
+            current_date += delta
+    if njobs >= 50:
+        print(f"You are about to submit {njobs} jobs to the queue")
+        print("Please respect the queue and the number of jobs you are submitting")
+        proceed = input(f"Proceed to submit {njobs}? [Y/n]")
+        if proceed != 'Y':
+            print(f"Not proceeding, adjust your set up to submit less jobs")
+            sys.exit(1)
+
+    # --- Script Generation Loop ---
     for model_name in com_model_list:
         current_date = start_date
         while current_date <= end_date:

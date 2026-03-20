@@ -122,7 +122,7 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
                 queue = "dev"
                 sh.write(f"#PBS -o {logfile}\n")
                 sh.write(f"#PBS -e {logfile}\n")
-                sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=25GB\n")
                 sh.write(f"#PBS -N {jobname}\n")
                 sh.write(f"#PBS -q {queue}\n")
                 sh.write(f"#PBS -A {account}\n")

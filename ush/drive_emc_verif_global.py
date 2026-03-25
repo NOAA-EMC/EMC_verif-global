@@ -96,6 +96,9 @@ def create_job_script(
         ccpa_24hr_archive = (
             "/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
         )
+        sat_obs_archive = (
+            "/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive"
+        )
     elif machine_name == 'ursa':
         account = "fv3-cpu"
         queue = "batch"
@@ -116,6 +119,9 @@ def create_job_script(
         ccpa_24hr_archive = (
             "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
         )
+        sat_obs_archive = (
+            "/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive"
+        )
     elif machine_name == 'wcoss2':
         account = "VERF-DEV"
         queue = "dev"
@@ -135,6 +141,9 @@ def create_job_script(
         )
         ccpa_24hr_archive = (
             "/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
+        )
+        sat_obs_archive = (
+            "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
         )
 
     sh = open(jobfile, "w")   
@@ -234,6 +243,7 @@ def create_job_script(
     sh.write(f"export prepbufr_arch_dir={prepbufr_archive}\n")
     sh.write(f"export obdata_dir={obs_archive}\n")
     sh.write(f"export ccpa_24hr_arch_dir={ccpa_24hr_archive}\n")
+    sh.write(f"export sat1_obs_dir={sat_obs_archive}\n")
     sh.write(f"export prepbufr_prod_upper_air_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
     sh.write(f"export prepbufr_prod_conus_sfc_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
     sh.write(f"export ccpa_24hr_prod_dir=/lfs/h1/ops/prod/com/verf_precip/${{verf_precip_ver}}\n")

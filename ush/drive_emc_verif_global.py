@@ -227,14 +227,29 @@ def create_job_script(
     sh.write("export FIXglobal=${DATA}\n")
     sh.write(f"ln -sf {fix_files} \"${{FIXglobal}}/verif\"\n")
 
-    # --- Set archive directories ---
+    # --- Set data directories ---
     sh.write("\n")
-    sh.write("# Set archive directories\n")
+    sh.write("# Set data directories\n")
     sh.write(f"export global_archive={global_archive}\n")
     sh.write(f"export prepbufr_arch_dir={prepbufr_archive}\n")
     sh.write(f"export obdata_dir={obs_archive}\n")
     sh.write(f"export ccpa_24hr_arch_dir={ccpa_24hr_archive}\n")
-
+    sh.write(f"export prepbufr_prod_upper_air_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
+    sh.write(f"export prepbufr_prod_conus_sfc_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
+    sh.write(f"export ccpa_24hr_prod_dir=/lfs/h1/ops/prod/com/verf_precip/${{verf_precip_ver}}\n")
+    sh.write(
+        'export iabp_ftp="http://iabp.apl.washington.edu/'
+        +'Data_Products/Daily_Full_Res_Data"\n'
+    )
+    sh.write(
+        'export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov'
+        +'/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"\n'
+    )
+    sh.write(
+        'export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans'
+        +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
+    )
+    
     # --- Clean up ---
     sh.write("\n")
     sh.write("# Final clean up\n")

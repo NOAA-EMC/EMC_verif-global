@@ -63,6 +63,28 @@ def create_job_script(
                     f"Could not removed existing log file {check_file}: {e}"
                 )
     # --- Define Variables ---
+    if "STEP1" in case:
+        model_idx = (
+            user_config["INPUT_OUTPUT"]\
+            ["model_list"].split(" ").index(model_name)
+        )
+        reset_value_dict = {}
+        reset_value_dict["model_list"] = model_name
+        reset_keys = [
+            "model_dir_list", "model_stat_dir_list",
+            "model_file_format_list", "model_hpss_dir_list"
+        ]
+        for key in reset_keys:
+            reset_value_dict[key] = (
+                user_config["INPUT_OUTPUT"]\
+                [key].split(" ")[model_idx]
+            )
+        if "GRID2GRID" in case:
+            for ctype in ["anom", "pres", "sfc"]:
+                reset_value_dict[f"g2g1_{ctype}_truth_file_format_list"] = (
+                    user_config[case][f"g2g1_{ctype}_truth_file_format_list"]\
+                    .split(" ")[model_idx]
+                )
     # Set job run name
     jobname = jobfile.rpartition("/")[2].replace(".sh", "")
     # Set EMC_verif-global home location
@@ -146,7 +168,7 @@ def create_job_script(
             "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
         )
 
-    sh = open(jobfile, "w")   
+    sh = open(jobfile, "w")
     # --- Write the Machine-Specific Part of the Batch Script ---
     sh.write("#!/usr/bin/env bash\n")
     if machine_name == "gaeac6":
@@ -196,7 +218,7 @@ def create_job_script(
     sh.write(f'export HOMEverif_global="{home_verif_global_path}"\n')
     sh.write(f"export PARMverif_global=\"${{HOMEverif_global}}/parm\"\n")
     sh.write(f"export USHverif_global=\"${{HOMEverif_global}}/ush\"\n")
-    
+
     # --- Set module load section ---
     sh.write("\n")
     sh.write("# Load the needed modules for METplus\n")
@@ -215,7 +237,7 @@ def create_job_script(
 
     # --- Set temporary working directory ---
     sh.write("\n")
-    sh.write("# Create and navigate to a temporary working directory")
+    sh.write("# Create and navigate to a temporary working directory\n")
     sh.write("export jobid=$$\n")
     sh.write("export DATA=${DATAROOT}/emc_verif_global.${jobid}\n")
     sh.write('mkdir -p "${DATA}"\n')
@@ -259,7 +281,24 @@ def create_job_script(
         'export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans'
         +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
     )
-    
+
+
+    # --- Clean up ---
+    sh.write("\n")
+    sh.write("# Configuration settings\n")
+    sections = ["INPUT_OUTPUT", "DATES"]
+    if "STEP1" not in case:
+        sections.append("WEB")
+    sections.append(case.upper())
+    for section in sections:
+        for key, value in user_config.items(section):
+            if key in list(reset_value_dict.keys()):
+                sh.write(
+                    f'export {key}="{reset_value_dict[key]}"\n'
+                )
+            else:
+                sh.write(f'export {key}="{value}"\n')
+
     # --- Clean up ---
     sh.write("\n")
     sh.write("# Final clean up\n")
@@ -268,7 +307,7 @@ def create_job_script(
 
     print(f"Script     = {jobfile}")
     print(f"Log File   = {logfile}")
-    
+
 ##########################################################
 ### Check and read the passed config
 if len(sys.argv) != 2:
@@ -347,10 +386,10 @@ if machine not in ALLOWED_MACHINES:
 for case_switch, case_switch_value in config["RUN"].items():
     if "STEP1" in case_switch and case_switch_value == "YES":
         model_list = config["INPUT_OUTPUT"]["model_list"].split(" ")
-        delta = timedelta(days=1) 
+        delta = timedelta(days=1)
         ### Check number of jobs to submit
         njobs = 0
-        for model_name in model_list:
+        for model in model_list:
             current_date = start_date
             while current_date <= end_date:
                 njobs+=1
@@ -372,12 +411,12 @@ for case_switch, case_switch_value in config["RUN"].items():
                 )
                 job_script = os.path.join(
                     os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
-                    f"submit_{case_switch.replace('RUN_', '').lower()}_{model_name}_"
+                    f"submit_{case_switch.replace('RUN_', '').lower()}_{model}_"
                     +f"{current_date:%Y%m%d}.sh"
                 )
                 log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
                 create_job_script(
-                    case_switch.replace("RUN", ""), config, machine, model,
+                    case_switch.replace("RUN_", ""), config, machine, model,
                     current_date, current_date, job_script, log_script
                 )
                 current_date += delta

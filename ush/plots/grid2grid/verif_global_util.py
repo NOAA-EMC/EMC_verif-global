@@ -1049,8 +1049,12 @@ def condense_model_stat_files(logger, input_dir, output_dir, model, obs,
                                     line_type]
             additional_grep = ''
             for item in additional_grep_list:
-                additional_grep = (additional_grep
-                                   +f' | grep "{item} "')
+                if item == vx_mask:
+                    additional_grep = (additional_grep
+                                       +f' | grep -w "{item}"')
+                else:
+                    additional_grep = (additional_grep
+                                       +f' | grep "{item} "')
             all_grep_output = ''
             for model_stat_file in model_stat_files:
                 logger.info(f"Grep'ing {model_stat_file} for "

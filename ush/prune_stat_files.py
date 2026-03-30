@@ -51,7 +51,7 @@ for env_var_model in env_var_model_list:
               +fcst_var_name+", line_type "+line_type+", interp "
               +os.environ['interp'])
         filter_cmd = (
-            ' | grep "'+vx_mask
+            ' | grep -w "'+vx_mask
             +'" | grep "'+fcst_var_name
             +'" | grep "'+line_type
             +'" | grep "'+os.environ['interp']+'"'
@@ -60,7 +60,7 @@ for env_var_model in env_var_model_list:
         print("Pruning "+data_dir+" files for vx_mask "+vx_mask+", variable "
               +fcst_var_name+", line_type "+line_type)
         filter_cmd = (
-            ' | grep "'+vx_mask
+            ' | grep -w "'+vx_mask
             +'" | grep "'+fcst_var_name
             +'" | grep "'+line_type+'"'
         )

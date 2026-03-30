@@ -461,8 +461,8 @@ for case_type in case_type_list:
             .split(' ')
         )
         obs_list = []
-        for cobs in config_obs_list:
-            idx = config_obs_list.index(cobs)
+        for idx in range(len(config_obs_list)):
+            cobs = config_obs_list[idx]
             obs_list.append(cobs.replace('self', model_list[idx]))
         for data_name in ['fcst', 'obs']:
             job_env_dict[data_name+'_var_name'] =  (

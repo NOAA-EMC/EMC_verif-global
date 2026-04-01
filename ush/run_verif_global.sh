@@ -39,6 +39,38 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran set_up_verif_global.sh"
 
 
+if [ ${RUN_GRID2GRID_STEP1:-NO} = YES ] ; then
+    echo
+    echo "===== RUNNING GRID-TO-GRID STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for grid-to-grid verification using METplus ====="
+    export RUN="grid2grid_step1"
+    python $HOMEverif_global/ush/run_batch.py
+fi
+
+if [ ${RUN_GRID2OBS_STEP1:-NO} = YES ] ; then
+    echo
+    echo "===== RUNNING GRID-TO-OBSERVATIONS STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for grid-to-observations verification using METplus ====="
+    export RUN="grid2obs_step1"
+    python $HOMEverif_global/ush/run_batch.py
+fi
+
+if [ ${RUN_PRECIP_STEP1:-NO} = YES ] ; then
+    echo
+    echo "===== RUNNING PRECIPITATION STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for precipitation verification using METplus ====="
+    export RUN="precip_step1"
+    python $HOMEverif_global/ush/run_batch.py
+fi
+
+if [ ${RUN_SATELLITE_STEP1:-NO} = YES ] ; then
+    echo
+    echo "===== RUNNING SATELLITE STEP 1 VERIFICATION  ====="
+    echo "===== creating partial sum data for satellite verification using METplus ====="
+    export RUN="satellite_step1"
+    python $HOMEverif_global/ush/run_batch.py
+fi
+
 if [ ${RUN_GRID2GRID_STEP2:-NO} = YES ] ; then
     echo
     echo "===== RUNNING GRID-TO-GRID STEP 2 VERIFICATION  ====="

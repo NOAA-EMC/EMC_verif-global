@@ -17,7 +17,7 @@ export COMROOT=/gpfs/f6/drsa-precip3/world-shared/${USER}/para_KEEP/COMROOT
 export cyc=18
 #
 # Whether to keep the temporary working directory or not
-export KEEPDATA=YES
+export KEEPDATA=NO
 #
 # For the location of HPSS directory of HPSS data transfer if activated
 export HPSS_PROJECT="emc-naqfc"

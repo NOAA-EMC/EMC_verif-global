@@ -20,7 +20,7 @@ import copy
 import warnings
 from time import sleep
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='once', category=FutureWarning)
 
 def run_shell_command(command):
     """! Run shell command

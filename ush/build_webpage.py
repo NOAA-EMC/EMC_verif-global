@@ -432,8 +432,8 @@ with open(web_job_filename, 'a') as web_job_file:
                                +os.path.join(webdir, RUN_type, '.')+'\n')
             web_job_file.write('ssh -q -l '+webhostid+' '+webhost
                                +' "cd '+os.path.join(webdir, RUN_type)
-                               +' ; tar -xf images.tar'
-                               +' ; rm images.tar "'+'\n')
+                               +' && tar -xf images.tar'
+                               +' && rm images.tar "'+'\n')
             if RUN == 'grid2grid_step2':
                 scorecard_dir = os.path.join(DATA, RUN, 'scorecard')
                 if os.path.exists(scorecard_dir):

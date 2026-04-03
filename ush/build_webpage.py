@@ -44,7 +44,8 @@ if RUN == 'fit2obs_plots':
         nimages = nimages + len(glob.glob(os.path.join(root, '*.png')))
     print("Webhost location: "+webdir)
     print("\nTotal images within "+web_fits_dir+": "+str(nimages))
-elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2']:
+elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+             'satellite_step2']:
     plot_by = os.environ['plot_by']
     RUN_abbrev = os.environ['RUN_abbrev']
     case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
@@ -401,7 +402,8 @@ with open(web_job_filename, 'a') as web_job_file:
             web_job_file.write('scp -r '+ os.path.join(DATA, RUN, 'images')
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
-        elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2']:
+        elif RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+                     'satellite_step2']:
             images_dir = os.path.join(DATA, RUN, 'images')
             if not os.path.exists(images_dir):
                 os.makedirs(images_dir)
@@ -410,12 +412,28 @@ with open(web_job_filename, 'a') as web_job_file:
                                        'plot_by_'+plot_by,
                                        'make_plots', case_type)
                 if os.path.exists(src_dir):
-                    for img_file in glob.glob(os.path.join(src_dir,
-                                                           '*.png')):
-                        shutil.copy(img_file, images_dir)
-            web_job_file.write('scp -r '+images_dir
+                    if RUN == 'satellite_step2':
+                        case_images_dir = os.path.join(images_dir,
+                                                       case_type)
+                        if not os.path.exists(case_images_dir):
+                            os.makedirs(case_images_dir)
+                        for img_file in glob.glob(os.path.join(src_dir,
+                                                               '*.png')):
+                            shutil.copy(img_file, case_images_dir)
+                    else:
+                        for img_file in glob.glob(os.path.join(src_dir,
+                                                               '*.png')):
+                            shutil.copy(img_file, images_dir)
+            images_tar = os.path.join(DATA, RUN, 'images.tar')
+            web_job_file.write('cd '+os.path.join(DATA, RUN)+'\n')
+            web_job_file.write('tar -cf images.tar images\n')
+            web_job_file.write('scp -q '+images_tar
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
+            web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                               +' "cd '+os.path.join(webdir, RUN_type)
+                               +' ; tar -xf images.tar'
+                               +' ; rm images.tar "'+'\n')
             if RUN == 'grid2grid_step2':
                 scorecard_dir = os.path.join(DATA, RUN, 'scorecard')
                 if os.path.exists(scorecard_dir):

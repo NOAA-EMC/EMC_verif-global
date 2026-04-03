@@ -130,11 +130,33 @@ def create_run_script(target_date, machine_name, application_name, max_forecast_
                 sh.write("#PBS -l debug=true\n")
             
             sh.write("\nset -eux\n")
-
+        
             # --- Set Machine Name ---
-            sh.write("\n")
+            sh.write("\n")               
             sh.write("# Set the machine name\n")
-            sh.write(f"export machine={machine_name}\n")
+            sh.write(f"export machine={machine_name}\n") 
+        
+            # --- Set verif-global Path ---
+            sh.write("\n")
+            sh.write("# Set the root path to the verif-global package\n")
+            sh.write(f'export HOMEverif_global="{home_verif_global_path}"\n')
+    
+            sh.write("\n")
+            sh.write("# Load the needed modules for METplus\n")
+            sh.write("if [ $machine = \"wcoss2\" ]; then\n")
+            sh.write(f"    source ${{HOMEverif_global}}/versions/run.ver\n")
+            sh.write("fi\n")
+    
+            # --- Set module load section ---
+            sh.write("\n")
+            sh.write("if [ $machine = \"ursa\" ]; then\n")
+            sh.write("    module purge\n")
+            sh.write("else\n")
+            sh.write("    module reset\n")
+            sh.write("fi\n")
+    
+            sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
+            sh.write(f"module load \"emc_verif_global_${{machine}}\"\n")
 
             # --- Experiment Date Configuration ---
             sh.write("\n")
@@ -234,16 +256,19 @@ if __name__ == "__main__":
     # =============================================
 
     # User-defined maximum forecast hours to be verified
-    max_forecast_hour_for_stats = 240 # 10 days
+    max_forecast_hour_for_stats = 384 
 
-    # User-defined model name and model grib2 files output location
-    # user_model_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/KEEP_archive"
-    user_model_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/gfs_data"
-    com_model_list = [ "gfsv16", "retrov17_01_stream4" ]
+    # User-defined model name and model grib2 files output location, e.g.,
+    # GAEAc6 - user_model_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/KEEP_archive"
+    # WCOSS2 - 
+    user_model_output_location = f"/lfs/h2/emc/vpppg/noscrub/mallory.row/verification/global/archive/model_data"
+    com_model_list = [ "gfs" ]
 
-    # User-defined verification stats output location
-    # user_stats_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/stats"
-    user_stats_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/stats"
+    # User-defined verification stats output location, e.g.,
+    # GAEAc6 - user_stats_output_location = f"/gpfs/f6/ira-sti/world-shared/{user}/stats"
+    # URSA   - user_stats_output_location = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/stats"
+    # WCOSS2 - 
+    user_stats_output_location = f"/lfs/h2/emc/ptmp/{user}/stats"
 
     # Define the common configuration file name (in current directory) to be merged
     common_script_to_append = "standalone_step1_stats.append"
@@ -259,10 +284,14 @@ if __name__ == "__main__":
     #     parent_directory = os.path.dirname(current_directory)
     #     script_dir = os.path.join(parent_directory, "run_script")
     #     log_dir    = os.path.join(parent_directory, "run_log")
-    # script_dir = f"/gpfs/f6/ira-sti/world-shared/{user}/script"
-    # log_dir    = f"/gpfs/f6/ira-sti/world-shared/{user}/logs"
-    script_dir = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/script"
-    log_dir    = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/logs"
+    # For example 
+    # GAEAc6 - script_dir = f"/gpfs/f6/ira-sti/world-shared/{user}/script"
+    # GAEAc6 - log_dir    = f"/gpfs/f6/ira-sti/world-shared/{user}/logs"
+    # URSA   - script_dir = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/script"
+    # URSA   - log_dir    = f"/scratch4/NCEPDEV/naqfc/{user}/noscrub/logs"
+    # WCOSS2 - 
+    script_dir = f"/lfs/h2/emc/ptmp/{user}/script"
+    log_dir    = f"/lfs/h2/emc/ptmp/{user}/logs"
 
     # --- Define cpu time for the batch job ---
     user_select_task_cpu = "03:00:00"

@@ -367,6 +367,8 @@ for pres_job in list(scorecard_avg_ci_jobs_dict['pres'].keys()):
     scorecard_avg_ci_jobs_dict['pres'][pres_job]['metric'] = [
         'bias', 'rmse'
     ]
+# sfc
+del scorecard_avg_ci_jobs_dict['sfc']
 
 # Assign the final dictionary to JOB_GROUP_dict for return
 if JOB_GROUP == 'scorecard_avg_ci':

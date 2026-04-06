@@ -384,12 +384,28 @@ with open(web_job_filename, 'a') as web_job_file:
                                +os.path.join(webdir, RUN_type, '.')+'\n')
         else:
             for tar_file in tar_files:
+                if RUN == "satellite_step2":
+                    case_type = (
+                        tar_file.rpartition("/")[2].replace(
+                            "verif_global_satellite_step2_", ""
+                        ).replace(
+                            ".tar", ""
+                        )
+                    )
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images', case_type
+                    )
+                else:
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images'
+                    )
+                web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                                   +' "mkdir -p "'+web_image_dir+'\n')
                 web_job_file.write(f"scp "+tar_file
                                    +' '+webhostid+'@'+webhost+':'
-                                   +os.path.join(webdir, RUN_type, 'images')+'\n')
+                                   +web_image_dir+'\n')
                 web_job_file.write('ssh -q -l '+webhostid+' '+webhost
-                                   +' "cd '+os.path.join(webdir, RUN_type, 'images')
-                                   +' ; tar -xvf '
+                                   +' "cd '+web_image_dir+' ; tar -xvf '
                                    +tar_file.rpartition("/")[2]+' "'+'\n')
             if RUN == 'grid2grid_step2':
                 scorecard_dir = os.path.join(DATA, RUN, 'scorecard')

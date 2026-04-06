@@ -277,8 +277,6 @@ for pd_row in pd_rows_list:
         verif_type = 'pres'
         model1_truth_name = pres_truth_name_list[0].replace('self', model1)
         model2_truth_name = pres_truth_name_list[1].replace('self', model2)
-        model1_truth_name = pres_truth_name_list[0]
-        model2_truth_name = pres_truth_name_list[1]
         valid_hour_start = pres_vhr_list[0].zfill(2)
         valid_hour_end = pres_vhr_list[-1].zfill(2)
         init_hour_start = pres_fcyc_list[0].zfill(2)

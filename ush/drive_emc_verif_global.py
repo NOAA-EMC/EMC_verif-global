@@ -85,18 +85,22 @@ def create_job_script(
                     user_config[case][f"g2g1_{ctype}_truth_file_format_list"]\
                     .split(" ")[model_idx]
                 )
-    # Set job run name
-    jobname = jobfile.rpartition("/")[2].replace(".sh", "")
     # Set EMC_verif-global home location
     current_dir = os.getcwd()
     home_verif_global_path = os.path.abspath(
         os.path.join(current_dir, os.pardir)
     )
-    # Set job run settings
+    # Set job specifics
+    jobname = jobfile.rpartition("/")[2].replace(".sh", "")
+    job_ex_script = os.path.join(
+        home_verif_global_path, "scripts",
+        f"ex{case.lower()}.sh"
+    )
     if "STEP1" in case:
         walltime = "04:00:00"
         memory = "25GB"
         nproc = "1"
+    # Set machine specifics
     if machine_name == 'gaeac6':
         account = "gfs-cpu"
         partition = "batch"
@@ -169,7 +173,9 @@ def create_job_script(
         )
 
     sh = open(jobfile, "w")
-    # --- Write the Machine-Specific Part of the Batch Script ---
+
+    submission_command = None
+    # --- Write the machine-specific part ---
     sh.write("#!/usr/bin/env bash\n")
     if machine_name == "gaeac6":
         sh.write(f"#SBATCH --account={account}\n")
@@ -181,6 +187,7 @@ def create_job_script(
         sh.write(f"#SBATCH --clusters={clusters}\n")
         sh.write(f"#SBATCH --partition={partition}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
+        submission_command = f"sbatch {jobfile}"
     elif machine_name == "ursa":
         sh.write(f"#SBATCH --account={account}\n")
         sh.write(f"#SBATCH --job-name={jobname}\n")
@@ -190,6 +197,7 @@ def create_job_script(
         sh.write(f"#SBATCH --cpus-per-task={nproc}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
         sh.write(f"#SBATCH --get-user-env\n")
+        submission_command = f"sbatch {jobfile}"
     elif machine_name == "wcoss2":
         sh.write(f"#PBS -o {logfile}\n")
         sh.write(f"#PBS -e {logfile}\n")
@@ -199,9 +207,10 @@ def create_job_script(
         sh.write(f"#PBS -A {account}\n")
         sh.write(f"#PBS -l walltime={walltime}\n")
         sh.write("#PBS -l debug=true\n")
+        submission_command = f"qsub {jobfile}"
     sh.write("\nset -eux\n")
 
-    # --- Set Machine Name ---
+    # --- Set machine name ---
     sh.write("\n")
     sh.write("# Set the machine name\n")
     sh.write(f"export machine={machine_name}\n")
@@ -212,7 +221,7 @@ def create_job_script(
     sh.write(f"export nproc={nproc}\n")
     sh.write(f"export MPMD=YES\n")
 
-    # --- Set verif-global Path ---
+    # --- Set verif-global path ---
     sh.write("\n")
     sh.write("# Set the root path to the verif-global package\n")
     sh.write(f'export HOMEverif_global="{home_verif_global_path}"\n')
@@ -230,8 +239,9 @@ def create_job_script(
         sh.write("module reset\n")
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
     sh.write(f"module load \"emc_verif_global_${{machine}}\"\n")
-    sh.write(f"export HOMEMET=\"${{HOMEMET}}\"\n")
-    sh.write(f"export HOMEMETplus=\"${{HOMEMETplus}}\"\n")
+    sh.write(f"export HOMEMET=\"${{MET_ROOT}}\"\n")
+    sh.write(f"export HOMEMET_bin_exec=bin\n")
+    sh.write(f"export HOMEMETplus=\"${{METPLUS_ROOT}}\"\n")
     sh.write(f"export USHMETplus=\"${{HOMEMETplus}}/ush\"\n")
     sh.write(f"export PYTHONPATH=\"${{USHMETplus}}:${{PYTHONPATH}}\"\n")
 
@@ -239,6 +249,7 @@ def create_job_script(
     sh.write("\n")
     sh.write("# Create and navigate to a temporary working directory\n")
     sh.write("export jobid=$$\n")
+    sh.write(f'export DATAROOT={user_config["INPUT_OUTPUT"]["DATAROOT"]}\n')
     sh.write("export DATA=${DATAROOT}/emc_verif_global.${jobid}\n")
     sh.write('mkdir -p "${DATA}"\n')
     sh.write('cd "${DATA}" || exit 1\n')
@@ -247,7 +258,7 @@ def create_job_script(
     #sh.write('export pgmout="OUTPUT.${pid}"\n')
     #sh.write("export pgmerr=errfile\n")
     #sh.write("export pgm=metplus\n")
-    #sh.write("export RUN=gfs\n")
+    sh.write(f"export RUN={case.lower()}\n")
     #sh.write("export NET=gfs\n")
     #sh.write("export envir=prod\n")
     #sh.write("export RUN_ENVIR=emc\n")
@@ -282,11 +293,18 @@ def create_job_script(
         +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
     )
 
+    # --- Set fix files ---
+    if "STEP1" in case:
+        sh.write("\n")
+        sh.write("# Set MET and METplus versions\n")
+        sh.write("MET_version=12.0.1\n")
+        sh.write("METplus_version=6.0.0\n")
 
-    # --- Clean up ---
+    # --- Write configuration settings ---
     sh.write("\n")
     sh.write("# Configuration settings\n")
     sections = ["INPUT_OUTPUT", "DATES"]
+    skip_keys = ["DATAROOT"]
     if "STEP1" not in case:
         sections.append("WEB")
     sections.append(case.upper())
@@ -296,17 +314,43 @@ def create_job_script(
                 sh.write(
                     f'export {key}="{reset_value_dict[key]}"\n'
                 )
+            elif key in skip_keys:
+                continue
             else:
                 sh.write(f'export {key}="{value}"\n')
+
+    # --- Write Execution script ---
+    sh.write("\n")
+    sh.write("# Execute script\n")
+    sh.write(f"{job_ex_script}\n")
 
     # --- Clean up ---
     sh.write("\n")
     sh.write("# Final clean up\n")
     sh.write('if [[ ${KEEPDATA:-"NO"} = "NO" ]] ; then rm -rf "${DATA}" ; fi')
+
     sh.close()
 
+    # --- Submit job ---
+    if submission_command:
+       print(f"Submitting job with: {submission_command}")
+       subprocess.call([submission_command], shell=True)
+    else:
+       error_and_exit(
+           f"Unknown machine '{machine_name}'."
+           "Cannot determine submission command."
+       )
     print(f"Script     = {jobfile}")
     print(f"Log File   = {logfile}")
+    if "STEP1" in case:
+        stats_dir_pattern = os.path.join(
+            reset_value_dict["model_stat_dir_list"],
+            "metplus_data", f'by_{user_config["DATES"]["make_met_data_by"]}',
+            case.replace("_STEP1", "").lower(),
+            "<<type>>", "<<hour>>Z", model_name
+        )
+        print(f"Stats Dir Pattern = {stats_dir_pattern}")
+
 
 ##########################################################
 ### Check and read the passed config

@@ -1,5 +1,5 @@
 '''
-Program Name: check_config_settings.py
+Program Name: check_env.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This does a check on the user's settings in
@@ -20,14 +20,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 # Do check for all environment variables needed by config
 RUN_type_env_vars_dict = {
     'shared': ['model_list', 'model_dir_list', 'model_stat_dir_list',
-               'model_file_format_list', 'model_data_run_hpss',
-               'model_hpss_dir_list', 'hpss_walltime', 'OUTPUTROOT',
-               'start_date', 'end_date', 'spinup_period_start',
-               'spinup_period_end', 'make_met_data_by', 'plot_by',
-               'SEND2WEB', 'webhost', 'webhostid', 'webdir', 'img_quality',
-               'MET_version', 'METplus_version', 'METplus_verbosity',
-               'MET_verbosity', 'log_MET_output_to_METplus', 'SENDARCH',
-               'KEEPDATA', 'SENDECF', 'SENDCOM', 'SENDDBN', 'SENDDBN_NTC'],
+               'model_file_format_list', 'OUTPUTROOT',
+               'start_date', 'end_date', 'SENDARCH', 'KEEPDATA'],
     'RUN_GRID2GRID_STEP1': ['g2g1_type_list', 'g2g1_anom_truth_name',
                             'g2g1_anom_truth_file_format_list',
                             'g2g1_anom_fcyc_list', 'g2g1_anom_vhr_list',
@@ -174,6 +168,25 @@ RUN_type_env_vars_dict = {
                    'mapsda_ens_model_file_format_list',
                    'mapsda_ens_model_data_run_hpss']
 }
+
+if 'step1' in RUN:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['make_met_data_by', 'spinup_period_start', 'spinup_period_end',
+         'MET_version', 'METplus_version', 'model_data_run_hpss',
+         'model_hpss_dir_list', 'hpss_walltime',]
+    )
+if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+           'satellite_step2', 'fit2obs', 'mapsda', 'mapsda']:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['SEND2WEB', 'webhost', 'webhostid', 'webdir',
+         'img_quality', 'plot_by']
+    )
+    if RUN in ['maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].extend(
+            ['model_data_run_hpss', 'model_hpss_dir_list', 'hpss_walltime']
+        )
+      
+
 RUN_type_env_check_list = ['shared', 'RUN_'+RUN.upper()]
 for RUN_type_env_check in RUN_type_env_check_list:
     RUN_type_env_var_check_list = RUN_type_env_vars_dict[RUN_type_env_check]
@@ -367,16 +380,8 @@ valid_config_var_values_dict = {
     'plot_by': ['VALID', 'INIT'],
     'SEND2WEB': ['YES', 'NO'],
     'img_quality': ['low', 'medium', 'high'],
-    'METplus_verbosity': ['DEBUG', 'INFO', 'WARN', 'ERORR'],
-    'MET_verbosity': ['0', '1', '2', '3', '4', '5'],
-    'log_MET_output_to_METplus': ['yes', 'no'],
     'SENDARCH': ['YES', 'NO'],
     'KEEPDATA': ['YES', 'NO'],
-    'SENDARCH': ['YES', 'NO'],
-    'SENDECF': ['YES', 'NO'],
-    'SENDCOM': ['YES', 'NO'],
-    'SENDDBN': ['YES', 'NO'],
-    'SENDDBN_NTC': ['YES', 'NO']
 }
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:

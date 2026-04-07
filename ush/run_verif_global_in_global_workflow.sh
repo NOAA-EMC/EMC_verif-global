@@ -63,9 +63,6 @@ export img_quality="low"
 ## METPLUS SETTINGS
 export MET_version="12.0.1"
 export METplus_version="6.0.0"
-export METplus_verbosity=${METplus_verbosity:-INFO}
-export MET_verbosity=${MET_verbosity:-2}
-export log_MET_output_to_METplus=${log_MET_output_to_METplus:-yes}
 ## DATA DIRECTIVE SETTINGS
 export SENDARCH=${SENDARCH:-"YES"}
 export KEEPDATA=${KEEPDATA:-"NO"}
@@ -241,7 +238,6 @@ if [ $machine = "ORION" ]; then
     export NCEA=$(which ncea | sed 's/ncea is //g')
     export HTAR="/null/htar"
 fi
-export HOMEMET_bin_exec="bin"
 export HOMEMET=${met_ROOT:-${MET_ROOT:?met_ROOT is undefined!}}
 export HOMEMETplus=${metplus_ROOT:-${METPLUS_ROOT:?metplus_ROOT is undefined!}}
 echo "Using HOMEMET=${HOMEMET}"

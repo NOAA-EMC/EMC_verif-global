@@ -27,8 +27,8 @@ export RUN_abbrev="precip1"
 mkdir -p $RUN
 cd $RUN
 
-# wcoss2: Remove cray-mpich, proj if loaded
-if [ $machine = "wcoss2" ]; then
+# WCOSS2: Remove cray-mpich, proj if loaded
+if [ $machine = "WCOSS2" ]; then
     if [[ "$_LMFILES_" == *"/cray-mpich/"* ]]; then
         module unload cray-mpich
     fi
@@ -86,7 +86,7 @@ if [ $MPMD = YES ]; then
         chmod 775 $poe_script
         export MP_PGMMODEL=mpmd
         export MP_CMDFILE=${poe_script}
-        if [ $machine = wcoss2 ]; then
+        if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
         else

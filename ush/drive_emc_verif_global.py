@@ -36,11 +36,11 @@ def check_machine(config_machine):
     )
     gaeac6_match = re.match(re.compile(r"^gaea6[1-8]{1}"), hostname)
     if cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
-        machine = "wcoss2"
+        machine = "WCOSS2"
     elif ursa_match:
-        machine = "ursa"
+        machine = "URSA"
     elif gaeac6_match:
-        machine = "gaeac6"
+        machine = "GAEAC6"
     else:
         error_and_exit(f"Cannot find match for {hostname}")
     if config_machine != machine:
@@ -279,6 +279,7 @@ def create_job_script(
     sh.write("# Link in fix files\n")
     sh.write("export FIXglobal=${DATA}\n")
     sh.write(f"ln -sf {fix_files} \"${{FIXglobal}}/verif\"\n")
+    sh.write(f"export FIXverif_global=\"${{FIXglobal}}/verif\"\n")
 
     # --- Set data directories ---
     sh.write("\n")

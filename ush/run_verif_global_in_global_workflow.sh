@@ -213,31 +213,22 @@ else
 fi
 
 ## Environment variables
-if [ $machine != "ORION" ]; then
-    export RM=$(which rm)
+if [ $machine = "ORION" ]; then
+    export CUT=$(which cut | sed 's/cut is //g')
+    export TR=$(which tr | sed 's/tr is //g')
+    export CONVERT=$(which convert | sed 's/convert is //g')
+    export NCDUMP=$(which ncdump | sed 's/ncdump is //g')
+    export NCEA=$(which ncea | sed 's/ncea is //g')
+    export HTAR="/null/htar"
+else
     export CUT=$(which cut)
     export TR=$(which tr)
     export CONVERT=$(which convert)
     export NCDUMP=$(which ncdump)
     export NCEA=$(which ncea)
-    if [ $machine == "WCOSS2" ]; then
-        export HTAR=$(which htar)
-        export NCAP2="/null/ncap2"
-    else
-        export HTAR=$(which htar)
-        export NCAP2=$(which ncap2)
-    fi
+    export HTAR=$(which htar)
 fi
-if [ $machine = "ORION" ]; then
-    export RM=$(which rm | sed 's/rm is //g')
-    export CUT=$(which cut | sed 's/cut is //g')
-    export TR=$(which tr | sed 's/tr is //g')
-    export NCAP2=$(which ncap2 | sed 's/ncap2 is //g')
-    export CONVERT=$(which convert | sed 's/convert is //g')
-    export NCDUMP=$(which ncdump | sed 's/ncdump is //g')
-    export NCEA=$(which ncea | sed 's/ncea is //g')
-    export HTAR="/null/htar"
-fi
+export HOMEMET_bin_exec="bin"
 export HOMEMET=${met_ROOT:-${MET_ROOT:?met_ROOT is undefined!}}
 export HOMEMETplus=${metplus_ROOT:-${METPLUS_ROOT:?metplus_ROOT is undefined!}}
 echo "Using HOMEMET=${HOMEMET}"

@@ -240,9 +240,11 @@ def create_job_script(
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
     sh.write(f"module load \"emc_verif_global_${{machine}}\"\n")
     sh.write(f"export HOMEMET=\"${{MET_ROOT}}\"\n")
-    sh.write(f"export HOMEMET_bin_exec=bin\n")
+    sh.write(f"export HOMEMET_bin_exec=\"bin\"\n")
     sh.write(f"export HOMEMETplus=\"${{METPLUS_ROOT}}\"\n")
     sh.write(f"export USHMETplus=\"${{HOMEMETplus}}/ush\"\n")
+    sh.write(f"export MET_version=\"12.0.1\"\n")
+    sh.write(f"export METplus_version=\"6.0.0\"\n")
     sh.write(f"export PYTHONPATH=\"${{USHMETplus}}:${{PYTHONPATH}}\"\n")
 
     # --- Set temporary working directory ---
@@ -262,6 +264,15 @@ def create_job_script(
     #sh.write("export NET=gfs\n")
     #sh.write("export envir=prod\n")
     #sh.write("export RUN_ENVIR=emc\n")
+
+
+    # --- Set executable tpaths ---
+    sh.write("\n")
+    sh.write("# Set executable paths\n")
+    sh.write("export CUT=$(which cut)\n")
+    sh.write("export TR=$(which tr)\n")
+    sh.write("export CONVERT=$(which convert)\n")
+    sh.write("export NCDUMP=$(which ncdump)\n")
 
     # --- Set fix files ---
     sh.write("\n")

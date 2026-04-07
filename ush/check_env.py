@@ -399,7 +399,7 @@ if RUN == 'grid2grid_step1':
             expected_truth_file_format = (
                 'pgb'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[1]
                 +'.'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[0]
-                +'.{valid?fmt=%Y%m%d%H}'
+                +'.{valid?fmt=%Y%m%d%H}.grib2'
             )
             if os.environ[RUN_abbrev_type+'_truth_file_format_list'] \
                     != expected_truth_file_format:
@@ -440,8 +440,6 @@ elif RUN == 'grid2grid_step2':
                                                              'gdas_anl',
                                                              'gdas_f00',
                                                              'ecm_f00',
-                                                             'common_anl',
-                                                             'common_f00',
                                                              'model_mean']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',

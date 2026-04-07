@@ -23,20 +23,6 @@ anom_vhr_list = os.environ['g2g2_anom_vhr_list'].split(' ')
 pres_truth_name_list = os.environ['g2g2_pres_truth_name_list'].split(' ')
 pres_fcyc_list = os.environ['g2g2_pres_fcyc_list'].split(' ')
 pres_vhr_list = os.environ['g2g2_pres_vhr_list'].split(' ')
-SEND2WEB = os.environ['SEND2WEB']
-webhost = os.environ['webhost']
-webhostid = os.environ['webhostid']
-webdir = os.environ['webdir']
-QUEUESERV = os.environ['QUEUESERV']
-ACCOUNT = os.environ['ACCOUNT']
-PARTITION_BATCH = os.environ['PARTITION_BATCH']
-
-# Set up job wall time information
-web_walltime = '180'
-walltime_seconds = datetime.timedelta(minutes=int(web_walltime)) \
-        .total_seconds()
-walltime = (datetime.datetime.min
-           + datetime.timedelta(minutes=int(web_walltime))).time()
 
 # Definitions
 def get_day_value(filename, filename_cols, day):
@@ -277,11 +263,8 @@ for pd_row in pd_rows_list:
     print("Row "+str(row_count)+": "+stat+" "+var+" "+level)
     if stat == 'acc':
         verif_type = 'anom'
-        ## if both are set as self_anl
-        ## model1_truth_name = anom_truth_name_list[1].replace('self', model1)
-        ## model2_truth_name = anom_truth_name_list[1].replace('self', model2)
-        model1_truth_name = anom_truth_name_list[0]
-        model2_truth_name = anom_truth_name_list[1]
+        model1_truth_name = anom_truth_name_list[0].replace('self', model1)
+        model2_truth_name = anom_truth_name_list[1].replace('self', model2)
         valid_hour_start = anom_vhr_list[0].zfill(2)
         valid_hour_end = anom_vhr_list[-1].zfill(2)
         init_hour_start = anom_fcyc_list[0].zfill(2)
@@ -292,11 +275,8 @@ for pd_row in pd_rows_list:
             line_type = 'SAL1L2'
     else:
         verif_type = 'pres'
-        ## if both are set as self_anl
-        ## model1_truth_name = pres_truth_name_list[1].replace('self', model1)
-        ## model2_truth_name = pres_truth_name_list[1].replace('self', model2)
-        model1_truth_name = pres_truth_name_list[0]
-        model2_truth_name = pres_truth_name_list[1]
+        model1_truth_name = pres_truth_name_list[0].replace('self', model1)
+        model2_truth_name = pres_truth_name_list[1].replace('self', model2)
         valid_hour_start = pres_vhr_list[0].zfill(2)
         valid_hour_end = pres_vhr_list[-1].zfill(2)
         init_hour_start = pres_fcyc_list[0].zfill(2)
@@ -536,54 +516,4 @@ with open(scorecard_html_filename, 'w') as scorecard_html_file:
                 scorecard_html_file.write('   <tr>\n')
     scorecard_html_file.write(' </tbody>\n')
     scorecard_html_file.write('</table>\n')
-
-# Send to website
-if SEND2WEB == 'YES':
-    print("Webhost: "+webhost)
-    print("Webhost location: "+webdir)
-    # Create job card
-    web_job_filename = os.path.join(DATA, 'batch_jobs',
-                                    NET+'_'+RUN
-                                    +'_scorecard_web.sh')
-    with open(web_job_filename, 'a') as web_job_file:
-        web_job_file.write('#!/bin/sh'+'\n')
-        if machine == 'WCOSS2':
-            web_job_file.write('cd $PBS_O_WORKDIR\n')
-        web_job_file.write('ssh -q -l '+webhostid+' '+webhost+' " ls -l '
-                           +webdir+' "'+'\n')
-        web_job_file.write('if [ $? -ne 0 ]; then'+'\n')
-        web_job_file.write('    echo "Making directory '+webdir+'"'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "mkdir -p '+webdir+' "'+'\n')
-        web_job_file.write('    sleep 30\n')
-        web_job_file.write('    scp -q '+os.path.join(USHverif_global,
-                                                      'webpage.tar')+'  '
-                           +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "cd '+webdir+' ; tar -xvf webpage.tar "'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "rm '+os.path.join(webdir, 'webpage.tar')
-                           +' "'+'\n')
-        web_job_file.write('fi'+'\n')
-        web_job_file.write('\n')
-        web_job_file.write('scp -r '+os.path.join(DATA, RUN,
-                                                  'scorecard', '*')
-                           +' '+webhostid+'@'+webhost+':'
-                           +os.path.join(webdir, 'scorecard', '.'))
-    # Submit job card
-    os.chmod(web_job_filename, 0o755)
-    web_job_output = web_job_filename.replace('.sh', '.out')
-    web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
-    print("Submitting "+web_job_filename+" to "+QUEUESERV)
-    print("Output sent to "+web_job_output)
-    if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
-                  +'-e '+web_job_output+' -N '+web_job_name+' '
-                  +'-l select=1:ncpus=1 '+web_job_filename)
-    elif machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
-        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
 

@@ -1090,7 +1090,11 @@ if RUN == 'grid2grid_step1':
                                 model_hpss_dir
                             )
                         else:
-                            model_RUN_abbrev_type_truth_dir = global_archive
+                            if RUN_abbrev_type_truth_name_short == 'gdas':
+                                RUN_abbrev_type_truth_name_short = 'gfs'
+                            model_RUN_abbrev_type_truth_dir = os.path.join(
+                                global_archive,  RUN_abbrev_type_truth_name_short
+                            )
                             model_RUN_abbrev_type_truth_file_format = (
                                 RUN_abbrev_type_truth_file_format_list[0]
                             )
@@ -1104,8 +1108,6 @@ if RUN == 'grid2grid_step1':
                                 model_RUN_abbrev_type_data_run_hpss = (
                                     model_data_run_hpss
                                 )
-                            if RUN_abbrev_type_truth_name_short == 'gdas':
-                                RUN_abbrev_type_truth_name_short = 'gfs'
                         get_model_file(
                             valid_time, valid_time,
                             RUN_abbrev_type_truth_name_lead,
@@ -1119,25 +1121,17 @@ if RUN == 'grid2grid_step1':
                         )
                         truth_file = os.path.join(
                             model_RUN_abbrev_type_truth_dir,
-                            RUN_abbrev_type_truth_name_short,
                             format_filler(
                                 model_RUN_abbrev_type_truth_file_format,
                                 valid_time, valid_time,
                                 RUN_abbrev_type_truth_name_lead
                             )
                         )
-                    elif RUN_abbrev_type_truth_name in ['common_anl',
-                                                        'common_f00',
-                                                        'model_mean']:
-                        if 'common' in RUN_abbrev_type_truth_name:
-                            mean_truth_dir = os.path.join(
-                                cwd, 'data', RUN_abbrev_type_truth_name
-                            )
-                        elif RUN_abbrev_type_truth_name == 'model_mean':
-                            mean_truth_dir = os.path.join(
-                                cwd, 'data',
-                                RUN_type+'_'+RUN_abbrev_type_truth_name
-                            )
+                    elif RUN_abbrev_type_truth_name in ['model_mean']:
+                        mean_truth_dir = os.path.join(
+                            cwd, 'data',
+                            RUN_type+'_'+RUN_abbrev_type_truth_name
+                        )
                         if not os.path.exists(mean_truth_dir):
                             os.makedirs(mean_truth_dir)
                         truth_file = os.path.join(

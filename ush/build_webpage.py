@@ -32,7 +32,8 @@ PARTITION_BATCH = os.environ['PARTITION_BATCH']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
-print("Webhost: "+webhost)
+tar_archive_dir = os.environ['tar_archive_dir']
+
 if RUN == 'fit2obs_plots':
     DATA = DATA.replace('/fit2obs_plots/data', '')
     webdir = webdir.replace(
@@ -42,32 +43,12 @@ if RUN == 'fit2obs_plots':
     nimages = 0
     for root, dirs, files in os.walk(web_fits_dir, topdown=False):
         nimages = nimages + len(glob.glob(os.path.join(root, '*.png')))
-    print("Webhost location: "+webdir)
-    print("\nTotal images within "+web_fits_dir+": "+str(nimages))
-elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
-    plot_by = os.environ['plot_by']
-    RUN_abbrev = os.environ['RUN_abbrev']
-    case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-    for case_type in case_type_list:
-        image_list = os.listdir(
-            os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
-                         'make_plots', case_type)
-        )
-        nimages = len(image_list)
-        print("Webhost location: "+webdir)
-        print("\nTotal images in "
-              +os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
-                            'make_plots', case_type)+": "
-              +str(nimages))
 else:
-    image_list = os.listdir(
-        os.path.join(DATA, RUN, 'metplus_output', 'images')
+    tar_files = glob.glob(
+         os.path.join(tar_archive_dir, f"verif_global_{RUN}_*.tar")
     )
-    nimages = len(image_list)
-    print("Webhost location: "+webdir)
-    print("\nTotal images in "
-          +os.path.join(DATA, RUN, 'metplus_output', 'images')+": "
-          +str(nimages))
+print("Webhost: "+webhost)
+print("Webhost location: "+webdir)
 
 # Set up job wall time information
 web_walltime = '180'
@@ -401,20 +382,38 @@ with open(web_job_filename, 'a') as web_job_file:
             web_job_file.write('scp -r '+ os.path.join(DATA, RUN, 'images')
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
-        elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
-            for case_type in case_type_list:
-                web_job_file.write('scp -r '+os.path.join(DATA, RUN,
-                                                          'plot_output',
-                                                          'plot_by_'+plot_by,
-                                                          'make_plots', case_type)
-                                   +' '+webhostid+'@'+webhost+':'
-                                   +os.path.join(webdir, RUN_type, '.')+'\n')
         else:
-            web_job_file.write('scp -r '+os.path.join(DATA, RUN,
-                                                      'metplus_output',
-                                                      'images')
-                               +' '+webhostid+'@'+webhost+':'
-                               +os.path.join(webdir, RUN_type, '.')+'\n')
+            for tar_file in tar_files:
+                if RUN == "satellite_step2":
+                    case_type = (
+                        tar_file.rpartition("/")[2].replace(
+                            "verif_global_satellite_step2_", ""
+                        ).replace(
+                            ".tar", ""
+                        )
+                    )
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images', case_type
+                    )
+                else:
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images'
+                    )
+                web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                                   +' "mkdir -p "'+web_image_dir+'\n')
+                web_job_file.write(f"scp "+tar_file
+                                   +' '+webhostid+'@'+webhost+':'
+                                   +web_image_dir+'\n')
+                web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                                   +' "cd '+web_image_dir+' ; tar -xvf '
+                                   +tar_file.rpartition("/")[2]+' "'+'\n')
+            if RUN == 'grid2grid_step2':
+                scorecard_dir = os.path.join(DATA, RUN, 'scorecard')
+                if os.path.exists(scorecard_dir):
+                    web_job_file.write('scp -r '+scorecard_dir+'/*'
+                                       +' '+webhostid+'@'+webhost+':'
+                                       +os.path.join(webdir, 'scorecard',
+                                                     '.')+'\n')
         if RUN == 'fit2obs_plots':
             for stat in ['bias', 'rmse']:
                 web_job_file.write('scp -r '+os.path.join(DATA, RUN,
@@ -423,10 +422,6 @@ with open(web_job_filename, 'a') as web_job_file:
                                    +' '+webhostid+'@'+webhost+':'
                                    +os.path.join(webdir, RUN_type, stat, '.\n')
                 )
-        if KEEPDATA == 'NO':
-            web_job_file.write('\n')
-            web_job_file.write('cd ..\n')
-            web_job_file.write('rm -rf '+RUN)
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)
@@ -435,7 +430,7 @@ web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
 print("Submitting "+web_job_filename+" to "+QUEUESERV)
 print("Output sent to "+web_job_output)
 if machine == 'WCOSS2':
-    os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+    os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
               +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
               +'-e '+web_job_output+' -N '+web_job_name+' '
               +'-l select=1:ncpus=1 '+web_job_filename)

@@ -365,11 +365,10 @@ for anom_job in list(scorecard_avg_ci_jobs_dict['anom'].keys()):
 # pres
 for pres_job in list(scorecard_avg_ci_jobs_dict['pres'].keys()):
     scorecard_avg_ci_jobs_dict['pres'][pres_job]['metric'] = [
-        'bias', 'rmse', 'msess', 'rsd', 'rmse_md', 'rmse_pv'
+        'bias', 'rmse'
     ]
 # sfc
-for sfc_job in list(scorecard_avg_ci_jobs_dict['sfc'].keys()):
-    scorecard_avg_ci_jobs_dict['sfc'][sfc_job]['metric'] = ['fbar']
+del scorecard_avg_ci_jobs_dict['sfc']
 
 # Assign the final dictionary to JOB_GROUP_dict for return
 if JOB_GROUP == 'scorecard_avg_ci':
@@ -430,6 +429,8 @@ for case_type in case_type_list:
     model_plot_name_list = (
         os.environ[RUN_abbrev+'_model_plot_name_list'].split(' ')
     )
+    if JOB_GROUP == 'scorecard_avg_ci' and case_type == 'sfc':
+        continue
     case_type_plot_jobs_dict = JOB_GROUP_dict[case_type]
     for case_type_job in list(case_type_plot_jobs_dict.keys()):
         # Initialize job environment dictionary

@@ -35,7 +35,7 @@ status=$?
 echo
 
 # Set GrADS paths
-if [ $machine = "ORION" ]; then
+if [ $machine = "orion" ]; then
     export GRADS=$(which grads | sed 's/grads is //g')
 else
     export GRADS=$(which grads)

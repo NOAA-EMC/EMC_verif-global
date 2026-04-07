@@ -89,7 +89,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = wcoss2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERCULES -o $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = GAEAC6 ]; then
+        else
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

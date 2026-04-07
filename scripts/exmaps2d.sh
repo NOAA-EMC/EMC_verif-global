@@ -89,7 +89,7 @@ if [ $MPMD = YES ]; then
         if [ $machine = wcoss2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
+        else:
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE
@@ -103,7 +103,7 @@ else
 fi
 
 # Run special calculated variables for model2obs
-if [ $machine != "ORION" ]; then
+if [ $machine != "orion" ]; then
     python $USHverif_global/plots/maps2d/plot_maps2d_model2obs_calc_vars_lat_lon_errors.py
 fi
 

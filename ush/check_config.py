@@ -20,8 +20,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 # Do check for all environment variables needed by config
 RUN_type_env_vars_dict = {
     'shared': ['model_list', 'model_dir_list', 'model_stat_dir_list',
-               'model_file_format_list', 'OUTPUTROOT',
-               'start_date', 'end_date', 'SENDARCH', 'KEEPDATA'],
+               'model_file_format_list', 'OUTPUTROOT', 'start_date',
+               'end_date', 'KEEPDATA'],
     'RUN_GRID2GRID_STEP1': ['g2g1_type_list', 'g2g1_anom_truth_name',
                             'g2g1_anom_truth_file_format_list',
                             'g2g1_anom_fcyc_list', 'g2g1_anom_vhr_list',
@@ -173,7 +173,7 @@ if 'step1' in RUN:
     RUN_type_env_vars_dict['shared'].extend(
         ['make_met_data_by', 'spinup_period_start', 'spinup_period_end',
          'MET_version', 'METplus_version', 'model_data_run_hpss',
-         'model_hpss_dir_list', 'hpss_walltime',]
+         'model_hpss_dir_list', 'hpss_walltime', 'SENDARCH']
     )
 if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
            'satellite_step2', 'fit2obs', 'mapsda', 'mapsda']:
@@ -383,6 +383,22 @@ valid_config_var_values_dict = {
     'SENDARCH': ['YES', 'NO'],
     'KEEPDATA': ['YES', 'NO'],
 }
+if 'step1' in RUN:
+    valid_config_var_values_dict = {
+        'model_data_run_hpss': ['YES', 'NO'],
+        'make_met_data_by': ['VALID', 'INIT'],
+        'SENDARCH': ['YES', 'NO'],
+        'KEEPDATA': ['YES', 'NO'],
+    }
+else:
+    valid_config_var_values_dict = {
+        'model_data_run_hpss': ['YES', 'NO'],
+        'plot_by': ['VALID', 'INIT'],
+        'SEND2WEB': ['YES', 'NO'],
+        'img_quality': ['low', 'medium', 'high'],
+        'KEEPDATA': ['YES', 'NO'],
+}
+
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type

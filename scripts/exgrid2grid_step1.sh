@@ -34,11 +34,11 @@ if [ $machine = "WCOSS2" ]; then
     fi
 fi
 
-# Check user's environment file
-python $USHverif_global/check_env.py
+# Check user's config file
+python $USHverif_global/check_config.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran check_env.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them

@@ -1,5 +1,5 @@
 '''
-Program Name: create_METplus_job_scripts.py
+Program Name: create_job_scripts.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This creates multiple independent job cards. These

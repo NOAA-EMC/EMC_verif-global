@@ -1,5 +1,5 @@
 '''
-Program Name: create_METplus_output_dirs.py
+Program Name: create_output_dirs.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This creates the base directories and their subdirectories

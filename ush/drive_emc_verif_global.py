@@ -238,7 +238,7 @@ def create_job_script(
     else:
         sh.write("module reset\n")
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
-    sh.write(f"module load \"emc_verif_global_${{machine}}\"\n")
+    sh.write(f"module load \"emc_verif_global_{machine.lower()}\"\n")
     sh.write(f"export HOMEMET=\"${{MET_ROOT}}\"\n")
     sh.write(f"export HOMEMET_bin_exec=\"bin\"\n")
     sh.write(f"export HOMEMETplus=\"${{METPLUS_ROOT}}\"\n")

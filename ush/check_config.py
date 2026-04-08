@@ -374,15 +374,6 @@ for config_var in check_config_var_len_list:
      sys.exit(1)
 
 # Do check for valid list config variable options
-valid_config_var_values_dict = {
-    'model_data_run_hpss': ['YES', 'NO'],
-    'make_met_data_by': ['VALID', 'INIT'],
-    'plot_by': ['VALID', 'INIT'],
-    'SEND2WEB': ['YES', 'NO'],
-    'img_quality': ['low', 'medium', 'high'],
-    'SENDARCH': ['YES', 'NO'],
-    'KEEPDATA': ['YES', 'NO'],
-}
 if 'step1' in RUN:
     valid_config_var_values_dict = {
         'model_data_run_hpss': ['YES', 'NO'],

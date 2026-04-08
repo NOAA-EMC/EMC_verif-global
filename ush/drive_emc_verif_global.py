@@ -44,7 +44,7 @@ def check_machine(config_machine):
     else:
         error_and_exit(f"Cannot find match for {hostname}")
     if config_machine != machine:
-        error_and_exist(
+        error_and_exit(
             f"Machine name passed in config was {config_machine} "
             +f"but found hostname {hostname} matching machine {machine}"
         )
@@ -101,7 +101,7 @@ def create_job_script(
         memory = "25GB"
         nproc = "1"
     # Set machine specifics
-    if machine_name == 'gaeac6':
+    if machine_name == 'GAEAC6':
         account = "gfs-cpu"
         partition = "batch"
         clusters = "c6"
@@ -125,7 +125,7 @@ def create_job_script(
         sat_obs_archive = (
             "/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive"
         )
-    elif machine_name == 'ursa':
+    elif machine_name == 'URSA':
         account = "fv3-cpu"
         queue = "batch"
         queueserv = "u1-service"
@@ -148,7 +148,7 @@ def create_job_script(
         sat_obs_archive = (
             "/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive"
         )
-    elif machine_name == 'wcoss2':
+    elif machine_name == 'WCOSS2':
         account = "VERF-DEV"
         queue = "dev"
         queueserv = "dev_transfer"
@@ -177,7 +177,7 @@ def create_job_script(
     submission_command = None
     # --- Write the machine-specific part ---
     sh.write("#!/usr/bin/env bash\n")
-    if machine_name == "gaeac6":
+    if machine_name == "GAEAC6":
         sh.write(f"#SBATCH --account={account}\n")
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
@@ -188,7 +188,7 @@ def create_job_script(
         sh.write(f"#SBATCH --partition={partition}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
         submission_command = f"sbatch {jobfile}"
-    elif machine_name == "ursa":
+    elif machine_name == "URSA":
         sh.write(f"#SBATCH --account={account}\n")
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
@@ -198,7 +198,7 @@ def create_job_script(
         sh.write(f"#SBATCH --qos={queue}\n")
         sh.write(f"#SBATCH --get-user-env\n")
         submission_command = f"sbatch {jobfile}"
-    elif machine_name == "wcoss2":
+    elif machine_name == "WCOSS2":
         sh.write(f"#PBS -o {logfile}\n")
         sh.write(f"#PBS -e {logfile}\n")
         sh.write(f"#PBS -l place=shared,select=1:ncpus={nproc}:mem={memory}\n")
@@ -231,9 +231,9 @@ def create_job_script(
     # --- Set module load section ---
     sh.write("\n")
     sh.write("# Load the needed modules for METplus\n")
-    if machine_name == "wcoss2":
+    if machine_name == "WCOSS2":
         sh.write(f"source ${{HOMEverif_global}}/versions/run.ver\n")
-    if machine_name == "ursa":
+    if machine_name == "URSA":
         sh.write("module purge\n")
     else:
         sh.write("module reset\n")
@@ -429,9 +429,9 @@ if start_date > end_date:
     )
 
 ### Check machine
-machine = config["MACHINE"]["name"]
+machine = config["MACHINE"]["name"].upper()
 check_machine(machine)
-ALLOWED_MACHINES = ["gaeac6", "wcoss2", "ursa"]
+ALLOWED_MACHINES = ["GAEAC6", "WCOSS2", "URSA"]
 if machine not in ALLOWED_MACHINES:
     error_and_exit(
         f"Invalid machine name '{machine}'. "

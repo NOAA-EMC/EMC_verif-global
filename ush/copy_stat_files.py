@@ -2,13 +2,13 @@
 Program Name: copy_stat_files.py
 Contact(s): Mallory Row
 Abstract: This script is run by all step1 scripts in scripts/.
-          It copies the stat files to the online archive or
-          to COMROOT.
+          It copies the stat files to the online archive.
 '''
 
 import os
 import datetime
 import sys
+import shutil
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -22,8 +22,6 @@ end_date = os.environ['end_date']
 make_met_data_by = os.environ['make_met_data_by']
 RUN_abbrev = os.environ['RUN_abbrev']
 RUN_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-SENDCOM = os.environ['SENDCOM']
-SENDDBN = os.environ ['SENDDBN']
 SENDARCH = os.environ['SENDARCH']
 
 # Set up date information
@@ -57,16 +55,6 @@ for RUN_type in RUN_type_list:
     date = sdate
     while date <= edate:
         DATE = date.strftime('%Y%m%d')
-        COMIN = os.getenv(
-            'COMIN',
-            os.path.join(os.environ['OUTPUTROOT'], 'com', os.environ['NET'],
-                         os.environ['envir'], RUN+'.'+DATE)
-        )
-        COMOUT = os.getenv(
-            'COMOUT',
-            os.path.join(os.environ['OUTPUTROOT'], 'com', os.environ['NET'],
-                         os.environ['envir'], RUN+'.'+DATE)
-        )
         for model in model_list:
             model_idx = model_list.index(model)
             model_stat_dir = model_stat_dir_list[model_idx]
@@ -103,11 +91,6 @@ for RUN_type in RUN_type_list:
                      RUN.split('_')[0], RUN_type, gather_by_hour+'Z',
                      model, model+'_'+DATE+'.stat'
                 )
-                comout_file = os.path.join(
-                    COMOUT, model+'_'+RUN.split('_')[0]+'_'+RUN_type
-                    +'_'+DATE+'_'+gather_by_hour+'Z_'
-                    +RUN_abbrev_type_gather_by+'.stat'
-                )
                 if os.path.exists(verif_global_file) \
                         and os.path.getsize(verif_global_file):
                     if SENDARCH == 'YES':
@@ -115,18 +98,7 @@ for RUN_type in RUN_type_list:
                         if not os.path.exists(archive_file_dir):
                             os.makedirs(archive_file_dir)
                         print("Copying "+verif_global_file+" to "+archive_file)
-                        os.system('cpfs '+verif_global_file+' '+archive_file)
-                    if SENDCOM == 'YES':
-                        if not os.path.exists(COMOUT):
-                            os.makedirs(COMOUT)
-                        print("Copying "+verif_global_file+" to "+comout_file)
-                        os.system('cpfs '+verif_global_file+' '+comout_file)
-                        if SENDDBN == 'YES':
-                            os.system(
-                                os.getenv('DBNROOT', '')+'/bin/dbn_alert '
-                                +'MODEL VERIF_GLOBAL '+os.environ['job']+' '
-                                +comout_file
-                        )
+                        shutil.copy(verif_global_file, archive_file)
                 else:
                     print("**************************************************")
                     print("** WARNING: "+verif_global_file+" "

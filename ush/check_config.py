@@ -1,5 +1,5 @@
 '''
-Program Name: check_env.py
+Program Name: check_config.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This does a check on the user's settings in

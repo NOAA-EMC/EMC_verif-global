@@ -173,7 +173,7 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
                   +'-e '+wget_job_output+' -N '+wget_job_name+' '
                   +'-l select=1:ncpus=1 '+wget_job_filename)
@@ -435,7 +435,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
                   +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
                   +'-l select=1:ncpus=1 '+hpss_job_filename)

@@ -273,6 +273,7 @@ def create_job_script(
     sh.write("export TR=$(which tr)\n")
     sh.write("export CONVERT=$(which convert)\n")
     sh.write("export NCDUMP=$(which ncdump)\n")
+    sh.write("export HTAR=$(which htar)\n")
 
     # --- Set fix files ---
     sh.write("\n")

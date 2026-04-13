@@ -198,6 +198,27 @@ precip1_obs_data_run_hpss=NO
 [PRECIP_STEP2]
 
 [SATELLITE_STEP1]
+#sat1_type_list: list of satellite/satellite analysis to run verification for: ghrsst_ncei_avhrr_anl, ghrsst_ospo_geopolar_anl
+#### For each type the followings can be set, where [type] is ghrsst_ncei_avhrr_anl or ghrsst_ospo_geopolar_anl
+#####    sat1_[type]_fyc_list:       all forecst cycles to be included in verification: HH
+#####    sat1_[type]_fhr_min:        forecast hour to start verification HH[H]
+#####    sat1_[type]_fhr_max:        forecast hour to end verification HH[H]
+#####    sat1_[type]_grid:           NCEP grid to do verification on
+#####    sat1_[type]_gather_by:      how to group the verification data, VSDB, VALID, INIT
+#####    sat1_[type]_sea_ice_thresh: threshold for sea ice, anything >= considered ice, anything below no ice
+sat1_type_list=ghrsst_ospo_geopolar_anl
+sat1_ghrsst_ncei_avhrr_anl_fcyc_list=00
+sat1_ghrsst_ncei_avhrr_anl_fhr_min=00
+sat1_ghrsst_ncei_avhrr_anl_fhr_max=168
+sat1_ghrsst_ncei_avhrr_anl_grid=G219
+sat1_ghrsst_ncei_avhrr_anl_gather_by=VALID
+sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh=0.15
+sat1_ghrsst_ospo_geopolar_anl_fcyc_list=00
+sat1_ghrsst_ospo_geopolar_anl_fhr_min=00
+sat1_ghrsst_ospo_geopolar_anl_fhr_max=168
+sat1_ghrsst_ospo_geopolar_anl_grid=G219
+sat1_ghrsst_ospo_geopolar_anl_gather_by=VALID
+sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 
 [SATELLITE_STEP2]
 

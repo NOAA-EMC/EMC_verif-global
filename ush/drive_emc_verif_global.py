@@ -107,6 +107,8 @@ def create_job_script(
         clusters = "c6"
         queue = "normal"
         queueserv = "service"
+        clusters_dtn = "es"
+        partition_dtn = "dtn_f5_f6"
         fix_files = (
             "/gpfs/f6/drsa-precip3/world-shared/role.glopara/fix/verif/20220805"
         )
@@ -123,13 +125,15 @@ def create_job_script(
             "/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/gpfs/f6/drsa-precip3/world-shared/${USER}/obs_archive"
+            "/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive"
         )
     elif machine_name == 'URSA':
         account = "fv3-cpu"
         queue = "batch"
         queueserv = "u1-service"
         partition = "u1-compute"
+        clusters_dtn = ""
+        partition_dtn = ""
         fix_files = (
             "/scratch3/NCEPDEV/global/role.glopara/fix/verif/20220805"
         )
@@ -146,13 +150,15 @@ def create_job_script(
             "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/scratch4/NCEPDEV/naqfc/${USER}/noscrub/obs_archive"
+            "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"
         )
     elif machine_name == 'WCOSS2':
         account = "VERF-DEV"
         queue = "dev"
         queueserv = "dev_transfer"
         partition = ""
+        clusters_dtn = ""
+        partition_dtn = ""
         fix_files = (
             "/lfs/h2/emc/global/noscrub/emc.global/FIX/fix/verif/20220805"
         )
@@ -218,6 +224,8 @@ def create_job_script(
     sh.write(f"export QUEUE={queue}\n")
     sh.write(f"export QUEUESERV={queueserv}\n")
     sh.write(f"export PARTITION_BATCH={partition}\n")
+    sh.write(f"export PARTITION_DTN={partition_dtn}\n")
+    sh.write(f"export CLUSTERS_DTN={clusters_dtn}\n")
     sh.write(f"export nproc={nproc}\n")
     sh.write(f"export MPMD=YES\n")
 

@@ -85,6 +85,12 @@ def create_job_script(
                     user_config[case][f"g2g1_{ctype}_truth_file_format_list"]\
                     .split(" ")[model_idx]
                 )
+        elif "PRECIP" in case:
+            for ctype in ["ccpa_accum24hr"]:
+                reset_value_dict[f"precip1_{ctype}_model_file_format_list"] = (
+                    user_config[case][f"precip1_{ctype}_model_file_format_list"]\
+                    .split(" ")[model_idx]
+                )
     # Set EMC_verif-global home location
     current_dir = os.getcwd()
     home_verif_global_path = os.path.abspath(

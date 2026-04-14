@@ -527,6 +527,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
             model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
             if check_file_type(model_file) in ['grib2', 'netcdf']:
+                print(f"Linking {model_file} to {link_model_file}")
                 os.system('ln -sf '+model_file+' '+link_model_file)
             else:
                 print(f"WARNING: {model_file} is unsupported type "

@@ -63,12 +63,12 @@ def create_job_script(
                     f"Could not removed existing log file {check_file}: {e}"
                 )
     # --- Define Variables ---
+    reset_value_dict = {}
     if "STEP1" in case:
         model_idx = (
             user_config["INPUT_OUTPUT"]\
             ["model_list"].split(" ").index(model_name)
         )
-        reset_value_dict = {}
         reset_value_dict["model_list"] = model_name
         reset_keys = [
             "model_dir_list", "model_stat_dir_list",
@@ -105,9 +105,12 @@ def create_job_script(
     if "STEP1" in case:
         walltime = "04:00:00"
         memory = "25GB"
-        nproc = "1"
+    else:
+        walltime = "06:00:00"
+        memory = "100GB"
     # Set machine specifics
     if machine_name == 'GAEAC6':
+        nproc = "192"
         account = "gfs-cpu"
         partition = "batch"
         clusters = "c6"
@@ -134,6 +137,7 @@ def create_job_script(
             "/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive"
         )
     elif machine_name == 'URSA':
+        nproc = "192"
         account = "fv3-cpu"
         queue = "batch"
         queueserv = "u1-service"
@@ -159,6 +163,7 @@ def create_job_script(
             "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"
         )
     elif machine_name == 'WCOSS2':
+        nproc = "128"
         account = "VERF-DEV"
         queue = "dev"
         queueserv = "dev_transfer"
@@ -184,8 +189,10 @@ def create_job_script(
             "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
         )
 
-    sh = open(jobfile, "w")
+    if "STEP1" in case:
+        nproc = 1
 
+    sh = open(jobfile, "w")
     submission_command = None
     # --- Write the machine-specific part ---
     sh.write("#!/usr/bin/env bash\n")
@@ -321,7 +328,7 @@ def create_job_script(
     )
 
     # --- Set fix files ---
-    if "STEP1" in case:
+    if "STEP1" in case or "MAPS" in case:
         sh.write("\n")
         sh.write("# Set MET and METplus versions\n")
         sh.write("MET_version=12.0.1\n")
@@ -454,41 +461,58 @@ if machine not in ALLOWED_MACHINES:
     )
 
 ### Run jobs
+model_list = config["INPUT_OUTPUT"]["model_list"].split(" ")
 for case_switch, case_switch_value in config["RUN"].items():
-    if "STEP1" in case_switch and case_switch_value == "YES":
-        model_list = config["INPUT_OUTPUT"]["model_list"].split(" ")
-        delta = timedelta(days=1)
-        ### Check number of jobs to submit
-        njobs = 0
-        for model in model_list:
-            current_date = start_date
-            while current_date <= end_date:
-                njobs+=1
-                current_date += delta
-        if njobs >= 50:
-            print(f"You are about to submit {njobs} jobs to the queue")
-            print("Please mind the number of jobs you are submitting")
-            proceed = input(f"Proceed to submit {njobs}? [Y/n]")
-            if proceed != 'Y':
-                error_and_exit(
-                    f"Not proceeding, adjust your set up to submit less jobs"
-                )
-            print("")
-        for model in model_list:
-            current_date = start_date
-            while current_date <= end_date:
-                print(
-                    f"--- Generating script for {model} {current_date:%Y-%m-%d} ---"
-                )
-                job_script = os.path.join(
-                    os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
-                    f"submit_{case_switch.replace('RUN_', '').lower()}_{model}_"
-                    +f"{current_date:%Y%m%d}.sh"
-                )
-                log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
-                create_job_script(
-                    case_switch.replace("RUN_", ""), config, machine, model,
-                    current_date, current_date, job_script, log_script
-                )
-                current_date += delta
-                print("-" * 30)
+    if case_switch_value == "YES":
+        if "STEP1" in case_switch:
+            delta = timedelta(days=1)
+            ### Check number of jobs to submit
+            njobs = 0
+            for model in model_list:
+                current_date = start_date
+                while current_date <= end_date:
+                    njobs+=1
+                    current_date += delta
+            if njobs >= 50:
+                print(f"You are about to submit {njobs} jobs to the queue")
+                print("Please mind the number of jobs you are submitting")
+                proceed = input(f"Proceed to submit {njobs}? [Y/n]")
+                if proceed != 'Y':
+                    error_and_exit(
+                        f"Not proceeding, adjust your set up to submit less jobs"
+                    )
+                print("")
+            for model in model_list:
+                current_date = start_date
+                while current_date <= end_date:
+                    print(
+                        f"--- Generating script for {case_switch.replace('RUN_', '')} "
+                        +f"{model} {current_date:%Y-%m-%d} ---"
+                    )
+                    job_script = os.path.join(
+                        os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
+                        f"submit_{case_switch.replace('RUN_', '').lower()}_{model}_"
+                        +f"{current_date:%Y%m%d}.sh"
+                    )
+                    log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
+                    create_job_script(
+                        case_switch.replace("RUN_", ""), config, machine, model,
+                        current_date, current_date, job_script, log_script
+                    )
+                    current_date += delta
+                    print("-" * 30)
+        else:
+            print(
+                f"--- Generating script for {case_switch.replace('RUN_', '')} "
+                +f"{start_date:%Y%m%d} to {end_date:%Y%m%d}---"
+            )
+            job_script = os.path.join(
+                os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
+                f"submit_{case_switch.replace('RUN_', '').lower()}_"
+                +f"{start_date:%Y%m%d}_to_{end_date:%Y%m%d}.sh"
+            )
+            log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
+            create_job_script(
+                case_switch.replace("RUN_", ""), config, machine, model_list,
+                start_date, end_date, job_script, log_script
+            )

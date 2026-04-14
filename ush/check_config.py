@@ -176,17 +176,18 @@ if 'step1' in RUN:
          'model_hpss_dir_list', 'hpss_walltime', 'SENDARCH']
     )
 if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
-           'satellite_step2', 'fit2obs', 'mapsda', 'mapsda']:
+           'satellite_step2', 'fit2obs_plots', 'maps2d', 'mapsda']:
     RUN_type_env_vars_dict['shared'].extend(
         ['SEND2WEB', 'webhost', 'webhostid', 'webdir',
-         'img_quality', 'plot_by']
+         'img_quality', 'plot_by', 'tar_archive_dir']
     )
     if RUN in ['maps2d', 'mapsda']:
         RUN_type_env_vars_dict['shared'].extend(
             ['model_data_run_hpss', 'model_hpss_dir_list', 'hpss_walltime']
         )
+    if RUN in ['fit2obs_plots', 'maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].remove('model_stat_dir_list')
       
-
 RUN_type_env_check_list = ['shared', 'RUN_'+RUN.upper()]
 for RUN_type_env_check in RUN_type_env_check_list:
     RUN_type_env_var_check_list = RUN_type_env_vars_dict[RUN_type_env_check]

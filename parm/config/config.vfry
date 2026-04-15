@@ -175,7 +175,7 @@ g2o1_prepbufr_data_run_hpss=NO
 
 [PRECIP_STEP1]
 #precip1_type_list: precip observation type/name and accumulation length: ccpa_accum24hr
-#precip1_model_bucket_list: model file accumulation bucket in HH, use "continuous" for accumulating bucket
+#precip1_model_bucket_list: model file accumulation bucket in HH, use continuous for accumulating bucket
 #precip1_model_varname_list: model file precip variable to use: APCP or PRATE
 #precip1_model_file_format_list: file format of model files [overrides model_file_format_list]
 #### For each type the followings can be set, where [type] is ccpa_accum24hr
@@ -185,7 +185,7 @@ g2o1_prepbufr_data_run_hpss=NO
 #####    precip1_[type]_type_list: precip observation type/name, ccpa_accum_24hr
 #####    precip1_[type]_grid:      NCEP grid to do verification on
 #####    precip1_[type]_gather_by: how to group the verification data, VSDB, VALID, INIT
-#precip1_obs_data_run_hpss: get files from HPSS ("YES") if not online
+#precip1_obs_data_run_hpss: get files from HPSS (YES) if not online
 precip1_type_list=ccpa_accum24hr
 precip1_ccpa_accum24hr_model_bucket_list=06
 precip1_ccpa_accum24hr_model_var_list=APCP
@@ -193,7 +193,7 @@ precip1_ccpa_accum24hr_model_file_format_list=pgbf{lead?fmt=%2H}.gfs.{init?fmt=%
 precip1_ccpa_accum24hr_fcyc_list=00
 precip1_ccpa_accum24hr_fhr_min=00
 precip1_ccpa_accum24hr_fhr_max=180
-precip1_ccpa_accum24hr_grid="G211
+precip1_ccpa_accum24hr_grid=G211
 precip1_ccpa_accum24hr_gather_by=VALID
 precip1_obs_data_run_hpss=NO
 
@@ -235,7 +235,7 @@ sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 #                             or maps2d_model2model_forecast_anl_diff YES
 #maps2d_type_list: list type of verifications to run for maps2d: model2model, model2obs
 #### For each type the followings can be set, where [type] is model2model or model2obs
-#####    maps2d_[type]_make_met_data_by: how to treat dates, "VALID" or "INIT"
+#####    maps2d_[type]_make_met_data_by: how to treat dates, VALID or INIT
 #####    maps2d_[type]_hour_list:        all forecast cycles to be included in verification: HH
 #####    maps2d_[type]_forecast_to_plot: list of model forecast times to plot:
 #####                                        for analysis use anl,
@@ -264,3 +264,34 @@ maps2d_model2obs_use_ceres=NO
 maps2d_model2obs_use_monthly_mean=NO
 
 [MAPSDA]
+#mapsda_model_plot_name_list: list of models reference name on plots
+#mapsda_latlon_area: list of lower latitude, upper latitude, start longitude, end longitude
+#mapsda_plot_diff: plot difference from first model (YES) or just plot all model values (NO)
+#mapsda_type_list: list type of verifications to run for mapsda: gdas, ens
+#### For each type the followings can be set, where [type] is gdas or ens
+#####    mapsda_[type]_make_met_data_by:       how to treat dates, VALID or INIT
+#####    mapsda_[type]_hour_list:              all hours to be included in verification: HH
+#####    mapsda_[type]_regrid_to_grid:         NCEP grid to regrid data to
+#####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
+#mapsda_gdas_model_file_format_list: file format of model GDAS files
+#mapsda_gdas_anl_file_format_list: file format of analysis files for GDAS maps
+#mapsda_ens_model_dir_list: directory where model ens files are located
+#mapsda_ens_model_file_format_list: file format for ens files
+#mapsda_ens_model_data_run_hpss: get files from HPSS (YES) if not online
+mapsda_model_plot_name_list=gfs
+mapsda_latlon_area=-90 90 0 360
+mapsda_plot_diff=NO
+mapsda_type_list=gdas
+mapsda_gdas_make_met_data_by=VALID
+mapsda_gdas_hour_list=00
+mapsda_gdas_regrid_to_grid=G002
+mapsda_gdas_guess_hour=06
+mapsda_gdas_model_file_format_list=pgbf{lead?fmt=%2H}.gdas.{init?fmt=%Y%m%d%H}.grib2
+mapsda_gdas_anl_file_format_list=pgbanl.gdas.{valid?fmt=%Y%m%d%H}.grib2
+mapsda_ens_make_met_data_by=INIT
+mapsda_ens_hour_list=00
+mapsda_ens_regrid_to_grid=G002
+mapsda_ens_guess_hour=06
+mapsda_ens_model_dir_list=/some/path/gfs_dev
+mapsda_ens_model_file_format_list=gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc
+mapsda_ens_model_data_run_hpss=NO

@@ -37,11 +37,11 @@ if float(matplotlib.__version__[0:3]) >= 3.3:
 title_loc = 'center'
 cmap_diff = plt.cm.bwr
 noaa_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'noaa.png')
+    os.path.join(os.environ['USHverif_global'], 'plots', 'mapsda', 'logos', 'noaa.png')
 )
 noaa_logo_alpha = 0.5
 nws_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plotting_scripts', 'nws.png')
+    os.path.join(os.environ['USHverif_global'], 'plots', 'mapsda', 'logos', 'nws.png')
 )
 nws_logo_alpha = 0.5
 

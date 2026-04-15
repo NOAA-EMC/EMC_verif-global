@@ -62,18 +62,18 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
-# Create output directories for METplus
-python $USHverif_global/create_METplus_output_dirs.py
+# Create output directories
+python $USHverif_global/create_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_output_dirs.py"
 echo
 
-# Create job scripts to run METplus
-python $USHverif_global/create_METplus_job_scripts.py
+# Create job scripts to run
+python $USHverif_global/create_job_scripts.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_job_scripts.py"
 
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*

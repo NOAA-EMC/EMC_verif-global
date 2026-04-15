@@ -225,6 +225,22 @@ sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 [SATELLITE_STEP2]
 
 [FIT2OBS_PLOTS]
+#fit2obs_plots_expnlist:   experiment names, only 7 allowed, fnl is operational GFS
+#fit2obs_plots_expdlist:   fcst data directories, can be different
+#fit2obs_plots_endianlist: endian of fits data: big or little
+#fit2obs_plots_cycle:      forecast cycle to verify, only one cycle allowed
+#fit2obs_plots_oinc:       increment (hours) between observation verify times for timeout plots
+#fit2obs_plots_finc:       increment (hours) between forecast lengths for timeout plots
+#fit2obs_plots_fmax:       max forecast length to show for timeout plots
+#fit2obs_plots_scrdir:     source directory of fit-to-obs scripts
+fit2obs_plots_expnlist=fnl
+fit2obs_plots_expdlist=/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/fit2obs_data
+fit2obs_plots_endianlist=little little
+fit2obs_plots_cycle=00
+fit2obs_plots_oinc=24
+fit2obs_plots_finc=12
+fit2obs_plots_fmax=120
+fit2obs_plots_scrdir=/lfs/h2/emc/global/noscrub/Jack.Woollen/plotfits
 
 [MAPS2D]
 #maps2d_model_plot_name_list: list of models reference name on plots

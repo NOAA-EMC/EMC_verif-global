@@ -282,7 +282,7 @@ def create_job_script(
     #sh.write("export pgmerr=errfile\n")
     #sh.write("export pgm=metplus\n")
     sh.write(f"export RUN={case.lower()}\n")
-    #sh.write("export NET=gfs\n")
+    sh.write("export NET=verif_global\n")
     #sh.write("export envir=prod\n")
     #sh.write("export RUN_ENVIR=emc\n")
 

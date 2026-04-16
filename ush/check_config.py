@@ -50,7 +50,9 @@ RUN_type_env_vars_dict = {
                             'g2g2_sfc_gather_by_list', 'g2g2_sfc_fcyc_list',
                             'g2g2_sfc_vhr_list', 'g2g2_sfc_fhr_min',
                             'g2g2_sfc_fhr_max', 'g2g2_sfc_event_eq',
-                            'g2g2_sfc_grid', 'g2g2_make_scorecard'],
+                            'g2g2_sfc_grid', 'g2g2_make_scorecard',
+                            'g2g2_scorecard_ci_method',
+                            'g2g2_scorecard_average_method'],
     'RUN_GRID2OBS_STEP1': ['g2o1_type_list',
                            'g2o1_upper_air_msg_type_list',
                            'g2o1_upper_air_fcyc_list',
@@ -375,21 +377,20 @@ for config_var in check_config_var_len_list:
      sys.exit(1)
 
 # Do check for valid list config variable options
-if 'step1' in RUN:
-    valid_config_var_values_dict = {
-        'model_data_run_hpss': ['YES', 'NO'],
-        'make_met_data_by': ['VALID', 'INIT'],
-        'SENDARCH': ['YES', 'NO'],
-        'KEEPDATA': ['YES', 'NO'],
-    }
-else:
-    valid_config_var_values_dict = {
-        'model_data_run_hpss': ['YES', 'NO'],
-        'plot_by': ['VALID', 'INIT'],
-        'SEND2WEB': ['YES', 'NO'],
-        'img_quality': ['low', 'medium', 'high'],
-        'KEEPDATA': ['YES', 'NO'],
+valid_config_var_values_dict = {
+    'KEEPDATA': ['YES', 'NO']
 }
+if 'step1' in RUN:
+    valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
+    valid_config_var_values_dict['make_met_data_by'] = ['VALID', 'INIT']
+    valid_config_var_values_dict['SENDARCH'] = ['YES', 'NO']
+else:
+    valid_config_var_values_dict['SEND2WEB'] = ['YES', 'NO']
+    valid_config_var_values_dict['img_quality'] = ['low', 'medium', 'high']
+    if 'step2' in RUN:
+        valid_config_var_values_dict['plot_by'] = ['VALID', 'INIT']
+    elif RUN in ['maps2d', 'mapsda']:
+        valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
 
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:
@@ -438,6 +439,8 @@ if RUN == 'grid2grid_step1':
                               +os.environ[RUN_abbrev_type+'_truth_name'])
                         sys.exit(1)
 elif RUN == 'grid2grid_step2':
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_ci_method"] = ["EMC"]
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_average_method"] = ["MEAN"]
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type

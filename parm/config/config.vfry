@@ -133,6 +133,47 @@ g2g1_sfc_grid=G002
 g2g1_sfc_gather_by=VALID
 
 [GRID2GRID_STEP2]
+#g2g2_model_plot_name_list: list of models reference name on plots
+#g2g2_type_list: list type of verifications to run for grid-to-grid: anom, pres, sfc
+#### For each type the following can be set, where [type] is anom, pres, or sfc
+#####    g2g2_[type]_truth_name_list: list of analysis type used for model in step 1
+#####    g2g2_[type]_gather_by_list:  list of how model data was gathered in step 1
+#####    g2g2_[type]_fyc_list:        all forecst cycles to be included in verification: HH
+#####    g2g2_[type]_vhr_list:        all valid hours to be included in verification: HH
+#####    g2g2_[type]_fhr_min:         forecast hour to start verification HH[H]
+#####    g2g2_[type]_fhr_max:         forecast hour to end verification HH[H]
+#####    g2g2_[type]_event_eq:        do event equalization (True) or not (False)
+#####    g2g2_[type]_grid:            NCEP grid verification was done on
+#g2g2_make_scorecard: create scorecard (YES) or not (NO)
+g2g2_model_plot_name_list=gfs
+g2g2_type_list=anom pres sfc
+g2g2_anom_truth_name_list=self_anl
+g2g2_anom_gather_by_list=VALID
+g2g2_anom_fcyc_list=00
+g2g2_anom_vhr_list=00
+g2g2_anom_fhr_min=00
+g2g2_anom_fhr_max=240
+g2g2_anom_event_eq=False
+g2g2_anom_grid=G002
+g2g2_pres_truth_name_list=self_anl
+g2g2_pres_gather_by_list=VALID
+g2g2_pres_fcyc_list=00
+g2g2_pres_vhr_list=00
+g2g2_pres_fhr_min=00
+g2g2_pres_fhr_max=240
+g2g2_pres_event_eq=False
+g2g2_pres_grid=G002
+g2g2_sfc_truth_name_list=self_f00
+g2g2_sfc_gather_by_list=VALID
+g2g2_sfc_fcyc_list=00
+g2g2_sfc_vhr_list=00
+g2g2_sfc_fhr_min=00
+g2g2_sfc_fhr_max=240
+g2g2_sfc_event_eq=False
+g2g2_sfc_grid=G002
+g2g2_make_scorecard=YES
+g2g2_scorecard_ci_method=EMC
+g2g2_scorecard_average_method=MEAN
 
 [GRID2OBS_STEP1]
 #g2o1_type_list: list type of verifications to run for grid-to-obs: upper_air, conus_sfc, polar_sfc

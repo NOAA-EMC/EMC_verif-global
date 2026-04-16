@@ -36,8 +36,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
-CI_METHOD = os.environ["CI_METHOD"]
-AVERAGE_METHOD = os.environ["AVERAGE_METHOD"]
+CI_METHOD = os.environ["g2g2_scorecard_ci_method"]
+AVERAGE_METHOD = os.environ["g2g2_scorecard_average_method"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,

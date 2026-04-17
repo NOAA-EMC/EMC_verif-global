@@ -321,6 +321,34 @@ sat1_ghrsst_ospo_geopolar_anl_gather_by=VALID
 sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 
 [SATELLITE_STEP2]
+#sat2_model_plot_name_list: list of models reference name on plots
+#sat2_type_list: list of satellite/satellite analysis to run for: ghrsst_ncei_avhrr_anl, ghrsst_ospo_geopolar_anl
+#### For each type the followings can be set, where [type] is ghrsst_ncei_avhrr_anl or ghrsst_ospo_geopolar_anl
+#####    sat2_[type]_gather_by_list:       list of how model data was gathered in step 1
+#####    sat2_[type]_fyc_list:             all forecst cycles to be included in verification: HH
+#####    sat2_[type]_fhr_min:              forecast hour to start verification HH[H]
+#####    sat2_[type]_fhr_max:              forecast hour to end verification HH[H]
+#####    sat2_[type]_sea_ice_thresh:       threshold for sea ice, anything >= considered ice, anything below no ice
+#####    sat2_[type]_event_eq:             do event equalization (True) or not (False)
+#####    sat2_[type]_grid:                 NCEP grid verification was done on
+sat2_model_plot_name_list=gfs
+sat2_type_list=ghrsst_ospo_geopolar_anl
+sat2_ghrsst_ncei_avhrr_anl_gather_by_list=VALID
+sat2_ghrsst_ncei_avhrr_anl_truth_name_list=ghrsst_ncei_avhrr_anl
+sat2_ghrsst_ncei_avhrr_anl_fcyc_list=00
+sat2_ghrsst_ncei_avhrr_anl_fhr_min=00
+sat2_ghrsst_ncei_avhrr_anl_fhr_max=240
+sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh=0.15
+sat2_ghrsst_ncei_avhrr_anl_event_eq=True
+sat2_ghrsst_ncei_avhrr_anl_grid=G219
+sat2_ghrsst_ospo_geopolar_anl_gather_by_list=VALID
+sat2_ghrsst_ospo_geopolar_anl_truth_name_list=ghrsst_ospo_geopolar_anl
+sat2_ghrsst_ospo_geopolar_anl_fcyc_list=00
+sat2_ghrsst_ospo_geopolar_anl_fhr_min=00
+sat2_ghrsst_ospo_geopolar_anl_fhr_max=240
+sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
+sat2_ghrsst_ospo_geopolar_anl_event_eq=False
+sat2_ghrsst_ospo_geopolar_anl_grid=G219
 
 [FIT2OBS_PLOTS]
 #fit2obs_plots_expnlist:   experiment names, only 7 allowed, fnl is operational GFS

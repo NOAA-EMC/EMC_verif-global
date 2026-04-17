@@ -35,10 +35,10 @@ if [ $machine = "WCOSS2" ]; then
 fi
 
 # Check user's configuration file
-python $USHverif_global/check_config_step2.py
+python $USHverif_global/check_config.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran check_config_step2.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
@@ -55,17 +55,17 @@ echo
 
 # Link needed data files and set up model information
 mkdir -p data
-python $USHverif_global/get_data_files_step2.py
+python $USHverif_global/get_data_files.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
-# Create output directories for METplus
-python $USHverif_global/create_step2_output_dirs.py
+# Create output directories for plots
+python $USHverif_global/create_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_output_dirs.py"
 echo
 
 

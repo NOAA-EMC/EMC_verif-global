@@ -456,7 +456,6 @@ for case_type in case_type_list:
                 job.write('\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
-                    print("name",name,"value",value)
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
@@ -592,8 +591,6 @@ for case_type in case_type_list:
                         # Write environment variables
                         job_env_dict['job_id'] = 'job'+str(njobs)
                         for name, value in job_env_dict.items():
-                            print("name", name)
-                            print("value",value)
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(

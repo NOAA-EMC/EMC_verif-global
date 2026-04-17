@@ -144,9 +144,6 @@ if JOB_GROUP in ['filter_stats', 'make_plots']:
     original_date_info_dict['init_hr_end'] = init_hr_end
     original_date_info_dict['init_hr_inc'] = init_hr_inc
     valid_hr_start = valid_hr_start.strip().rstrip(',')
-    print("valid_hr_start",valid_hr_start)
-    print("vaild_hr_end",valid_hr_end)
-    print("valid_hr_inc",valid_hr_inc)
     valid_hrs = list(range(int(valid_hr_start),
                            int(valid_hr_end)+int(valid_hr_inc),
                            int(valid_hr_inc)))

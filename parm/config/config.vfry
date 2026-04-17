@@ -213,6 +213,45 @@ g2o1_polar_sfc_gather_by=VALID
 g2o1_prepbufr_data_run_hpss=NO
 
 [GRID2OBS_STEP2]
+#g2o2_model_plot_name_list: list of models reference name on plots
+#g2o2_type_list: list type of verifications to run for grid-to-obs: upper_air, conus_sfc, polar_sfc
+#### For each type the followings can be set, where [type] is upper_air, conus_sfc, or polar_sfc
+#####    g2o2_[type]_msg_type_list:    observation message type(s) to be used
+#####                                  upper_air, conus_sfc: any prepbufr
+#####                                  polar_sfc: IABP
+#####    g2o2_[type]_gather_by_list:   list of how model data was gathered in step 1
+#####    g2o2_[type]_fyc_list:         all forecst cycles to be included in verification: HH
+#####    g2o2_[type]_vhr_list:         all valid hours to be included in verification: HH
+#####    g2o2_[type]_fhr_min:          forecast hour to start verification HH[H]
+#####    g2o2_[type]_fhr_max:          forecast hour to end verification HH[H]
+#####    g2o2_[type]_event_eq:         do event equalization (True) or not (False)
+#####    g2o2_[type]_grid:             NCEP grid verification was done on
+g2o2_model_plot_name_list=gfs
+g2o2_type_list=upper_air conus_sfc
+g2o2_upper_air_msg_type_list=ADPUPA
+g2o2_upper_air_gather_by_list=VALID
+g2o2_upper_air_fcyc_list=00
+g2o2_upper_air_vhr_list=00 06 12 18
+g2o2_upper_air_fhr_min=00
+g2o2_upper_air_fhr_max=168
+g2o2_upper_air_event_eq=True
+g2o2_upper_air_grid=G003
+g2o2_conus_sfc_msg_type_list=ONLYSF ADPUPA
+g2o2_conus_sfc_gather_by_list=VALID
+g2o2_conus_sfc_fcyc_list=00
+g2o2_conus_sfc_vhr_list=00 06 12 18
+g2o2_conus_sfc_fhr_min=00
+g2o2_conus_sfc_fhr_max=168
+g2o2_conus_sfc_event_eq=True
+g2o2_conus_sfc_grid=G104
+g2o2_polar_sfc_msg_type_list=IABP
+g2o2_polar_sfc_gather_by_list=VALID
+g2o2_polar_sfc_fcyc_list=00
+g2o2_polar_sfc_vhr_list=00 06 12 18
+g2o2_polar_sfc_fhr_min=00
+g2o2_polar_sfc_fhr_max=168
+g2o2_polar_sfc_event_eq=True
+g2o2_polar_sfc_grid=G223
 
 [PRECIP_STEP1]
 #precip1_type_list: precip observation type/name and accumulation length: ccpa_accum24hr

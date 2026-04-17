@@ -221,7 +221,6 @@ class TimeSeries:
             xtick_intvl = 1
         else:
             xtick_intvl = int(len(plot_dates)/n_xticks)
-        print("plot_dates",plot_dates)    
         date_intvl = int((plot_dates[1]-plot_dates[0]).total_seconds())
         stat_min = np.ma.masked_invalid(np.nan)
         stat_max = np.ma.masked_invalid(np.nan)

@@ -32,10 +32,10 @@ For questions or issues, please e-mail Mallory Row (mallory.row@noaa.gov).
 
 # Running EMC-verif-global
 ## 1. Set up configuration file
-There is an example configuration file in parm/config to serve as an example for users. Users cna copy it and edit for their needed uses, and can have numerous configuration files for various uses and experiments. Users are free to name their configuration files however they wish. Within the configuration file are switches to run the various types of verifications listed above. To run, set the switch to YES, if not set the switch to NO. Then, follows a section of settings that generally apply to running all the verification types. Finally, each verification type/switch has its own section of settings specifically related to it. Setting up a configuration file is the only change a user needs to do to run EMC_verif-global.
+There is an example configuration file in parm/config named *config.vrfy* to serve as a reference for users. Users can copy and make their own configuration files for their verification needs and can have numerous configuration files for various uses and experiments. Users are free to name their configuration files however they wish. Within the configuration file are switches to run the various types of verifications listed above. To run, set the switch to YES, if not set the switch to NO. Then, follows a section of settings that generally apply to running all the verification types. Finally, each verification type/switch has its own section of settings specifically related to it. Setting up a configuration file is the only change a user needs to do to run EMC_verif-global.
 
 ## 2. Run
-To run, users will move to the /ush directory. Here is the script *drive_emc_verif_global.py* thar runs EMC_verif-global. It takes on run time agrument which is the path to the configuration file that the user wishes to run with. An example run time command may look like below
+To run, users will move to the /ush directory. Here is the script *drive_emc_verif_global.py* that runs EMC_verif-global. It takes one run time agrument which is the path to the configuration file that the user wants to run with. An example run time command may look like below
 
 ```
 python drive_emc_verif_global.py ../parm/config/config.vrfy

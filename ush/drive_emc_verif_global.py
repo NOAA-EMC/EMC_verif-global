@@ -109,9 +109,9 @@ def create_job_script(
         walltime = "06:00:00"
         memory = "100GB"
     # Set machine specifics
+    account = user_config["MACHINE"]["queue_account"]
     if machine_name == 'GAEAC6':
         nproc = "192"
-        account = "gfs-cpu"
         partition = "batch"
         clusters = "c6"
         queue = "normal"
@@ -138,7 +138,6 @@ def create_job_script(
         )
     elif machine_name == 'URSA':
         nproc = "192"
-        account = "fv3-cpu"
         queue = "batch"
         queueserv = "u1-service"
         partition = "u1-compute"
@@ -164,7 +163,6 @@ def create_job_script(
         )
     elif machine_name == 'WCOSS2':
         nproc = "128"
-        account = "VERF-DEV"
         queue = "dev"
         queueserv = "dev_transfer"
         partition = ""

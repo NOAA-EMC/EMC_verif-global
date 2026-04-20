@@ -37,6 +37,7 @@ RUN_MAPSDA=NO
 [MACHINE]
 name=wcoss2
 user=$USER
+queue_account=VERF-DEV
 
 [INPUT_OUTPUT]
 #model_list:             model names

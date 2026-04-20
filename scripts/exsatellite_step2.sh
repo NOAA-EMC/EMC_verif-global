@@ -36,10 +36,10 @@ if [ $machine = "WCOSS2" ]; then
 fi
 
 # Check user's configuration file
-python $USHverif_global/check_config_step2.py
+python $USHverif_global/check_config.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran check_config_step2.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran check_config.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
@@ -56,17 +56,17 @@ echo
 
 # Link needed data files and set up model information
 mkdir -p data
-python $USHverif_global/get_data_files_step2.py
+python $USHverif_global/get_data_files.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran get_data_files_step2.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
 # Create output directories for plot
-python $USHverif_global/create_step2_output_dirs.py
+python $USHverif_global/create_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_step2_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_output_dirs.py"
 echo
 
 # Create and run job scripts for condense_stats, filter_stats, and make_plots
@@ -90,8 +90,8 @@ for group in condense_stats filter_stats make_plots; do
             export MP_CMDFILE=${poe_script}
             if [ $machine = WCOSS2 ]; then
                 export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-                launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-            elif [ $machine = HERA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
+                launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,depth cfp"
+            else
                 launcher="srun --export=ALL --multi-prog"
             fi
             $launcher $MP_CMDFILE

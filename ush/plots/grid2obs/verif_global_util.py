@@ -670,11 +670,9 @@ def initialize_job_env_dict(case_type, group,
                 #case_type_valid_hr_list_clean = [
                 #                 x.strip() for x in case_type_valid_hr_list.split(',') if x.strip() != '']
                 case_type_valid_hr_list = [x.replace(',', '').strip() for x in case_type_valid_hr_list]
-                print('case_type_valid_hr_list',case_type_valid_hr_list)
                 case_type_valid_hr_inc = np.min(
                     np.diff(np.array(case_type_valid_hr_list, dtype=int))
                 )
-                print('case_type_valid_hr_inc',case_type_valid_hr_inc)
             else:
                 case_type_valid_hr_inc = 24
             job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)
@@ -769,7 +767,6 @@ def get_plot_dates(logger, plot_by, start_date, end_date,
     """
     # Build date_type date array
     if plot_by == 'VALID':
-        print('end_date',end_date, 'valid_hr_end',valid_hr_start)
         start_date_dt = datetime.datetime.strptime(start_date+valid_hr_start,
                                                    '%Y%m%d%H')
         #start_date_dt = datetime.datetime.strptime(start_date, '%Y%m%d')

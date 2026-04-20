@@ -1,5 +1,5 @@
 '''
-Program Name: check_config_settings.py
+Program Name: check_config.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This does a check on the user's settings in
@@ -20,14 +20,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 # Do check for all environment variables needed by config
 RUN_type_env_vars_dict = {
     'shared': ['model_list', 'model_dir_list', 'model_stat_dir_list',
-               'model_file_format_list', 'model_data_run_hpss',
-               'model_hpss_dir_list', 'hpss_walltime', 'OUTPUTROOT',
-               'start_date', 'end_date', 'spinup_period_start',
-               'spinup_period_end', 'make_met_data_by', 'plot_by',
-               'SEND2WEB', 'webhost', 'webhostid', 'webdir', 'img_quality',
-               'MET_version', 'METplus_version', 'METplus_verbosity',
-               'MET_verbosity', 'log_MET_output_to_METplus', 'SENDARCH',
-               'KEEPDATA', 'SENDECF', 'SENDCOM', 'SENDDBN', 'SENDDBN_NTC'],
+               'model_file_format_list', 'OUTPUTROOT', 'start_date',
+               'end_date', 'KEEPDATA'],
     'RUN_GRID2GRID_STEP1': ['g2g1_type_list', 'g2g1_anom_truth_name',
                             'g2g1_anom_truth_file_format_list',
                             'g2g1_anom_fcyc_list', 'g2g1_anom_vhr_list',
@@ -56,7 +50,9 @@ RUN_type_env_vars_dict = {
                             'g2g2_sfc_gather_by_list', 'g2g2_sfc_fcyc_list',
                             'g2g2_sfc_vhr_list', 'g2g2_sfc_fhr_min',
                             'g2g2_sfc_fhr_max', 'g2g2_sfc_event_eq',
-                            'g2g2_sfc_grid', 'g2g2_make_scorecard'],
+                            'g2g2_sfc_grid', 'g2g2_make_scorecard',
+                            'g2g2_scorecard_ci_method',
+                            'g2g2_scorecard_average_method'],
     'RUN_GRID2OBS_STEP1': ['g2o1_type_list',
                            'g2o1_upper_air_msg_type_list',
                            'g2o1_upper_air_fcyc_list',
@@ -174,6 +170,26 @@ RUN_type_env_vars_dict = {
                    'mapsda_ens_model_file_format_list',
                    'mapsda_ens_model_data_run_hpss']
 }
+
+if 'step1' in RUN:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['make_met_data_by', 'spinup_period_start', 'spinup_period_end',
+         'MET_version', 'METplus_version', 'model_data_run_hpss',
+         'model_hpss_dir_list', 'hpss_walltime', 'SENDARCH']
+    )
+if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+           'satellite_step2', 'fit2obs_plots', 'maps2d', 'mapsda']:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['SEND2WEB', 'webhost', 'webhostid', 'webdir',
+         'img_quality', 'plot_by', 'tar_archive_dir']
+    )
+    if RUN in ['maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].extend(
+            ['model_data_run_hpss', 'model_hpss_dir_list', 'hpss_walltime']
+        )
+    if RUN in ['fit2obs_plots', 'maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].remove('model_stat_dir_list')
+      
 RUN_type_env_check_list = ['shared', 'RUN_'+RUN.upper()]
 for RUN_type_env_check in RUN_type_env_check_list:
     RUN_type_env_var_check_list = RUN_type_env_vars_dict[RUN_type_env_check]
@@ -362,22 +378,20 @@ for config_var in check_config_var_len_list:
 
 # Do check for valid list config variable options
 valid_config_var_values_dict = {
-    'model_data_run_hpss': ['YES', 'NO'],
-    'make_met_data_by': ['VALID', 'INIT'],
-    'plot_by': ['VALID', 'INIT'],
-    'SEND2WEB': ['YES', 'NO'],
-    'img_quality': ['low', 'medium', 'high'],
-    'METplus_verbosity': ['DEBUG', 'INFO', 'WARN', 'ERORR'],
-    'MET_verbosity': ['0', '1', '2', '3', '4', '5'],
-    'log_MET_output_to_METplus': ['yes', 'no'],
-    'SENDARCH': ['YES', 'NO'],
-    'KEEPDATA': ['YES', 'NO'],
-    'SENDARCH': ['YES', 'NO'],
-    'SENDECF': ['YES', 'NO'],
-    'SENDCOM': ['YES', 'NO'],
-    'SENDDBN': ['YES', 'NO'],
-    'SENDDBN_NTC': ['YES', 'NO']
+    'KEEPDATA': ['YES', 'NO']
 }
+if 'step1' in RUN:
+    valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
+    valid_config_var_values_dict['make_met_data_by'] = ['VALID', 'INIT']
+    valid_config_var_values_dict['SENDARCH'] = ['YES', 'NO']
+else:
+    valid_config_var_values_dict['SEND2WEB'] = ['YES', 'NO']
+    valid_config_var_values_dict['img_quality'] = ['low', 'medium', 'high']
+    if 'step2' in RUN:
+        valid_config_var_values_dict['plot_by'] = ['VALID', 'INIT']
+    elif RUN in ['maps2d', 'mapsda']:
+        valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
+
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -425,6 +439,8 @@ if RUN == 'grid2grid_step1':
                               +os.environ[RUN_abbrev_type+'_truth_name'])
                         sys.exit(1)
 elif RUN == 'grid2grid_step2':
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_ci_method"] = ["EMC"]
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_average_method"] = ["MEAN"]
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type

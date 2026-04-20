@@ -2,8 +2,7 @@
 Program Name: get_data_files.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
-          This gets the necessary data files to run
-          the METplus use case.
+          This gets the necessary data files to run the job.
 '''
 
 import os
@@ -173,7 +172,7 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
                   +'-e '+wget_job_output+' -N '+wget_job_name+' '
                   +'-l select=1:ncpus=1 '+wget_job_filename)
@@ -435,7 +434,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
+        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
                   +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
                   +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
                   +'-l select=1:ncpus=1 '+hpss_job_filename)
@@ -522,13 +521,12 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
     if not os.path.exists(link_model_file):
         model_filename = format_filler(file_format, valid_time_dt,
                                        init_time_dt, lead_str)
-        #Uncomment the model_file line below if using default global archive
-        #model_file = os.path.join(data_dir, name, model_filename)
-        #Uncomment the model_file line below if ARCDIR contains
-        #the model experiment name
-        model_file = os.path.join(data_dir, model_filename)
+        model_file = os.path.join(data_dir, name, model_filename)
+        if not os.path.exists(model_file):
+            model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
             if check_file_type(model_file) in ['grib2', 'netcdf']:
+                print(f"Linking {model_file} to {link_model_file}")
                 os.system('ln -sf '+model_file+' '+link_model_file)
             else:
                 print(f"WARNING: {model_file} is unsupported type "
@@ -903,6 +901,7 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
                                                  +'.stat')
     if not os.path.exists(link_model_stat_file):
         if os.path.exists(model_stat_file):
+            print(f"Linking {model_stat_file} to {link_model_stat_file}")
             os.system('ln -sf '+model_stat_file+' '+link_model_stat_file)
         else:
             print("WARNING: "+model_stat_file+" does not exist")
@@ -1169,64 +1168,6 @@ if RUN == 'grid2grid_step1':
                         if not os.path.exists(link_truth_file):
                             print("WARNING: Unable to link model f00 file as "
                                   +"subsitute truth file "+link_truth_file)
-elif RUN == 'grid2grid_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                   model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'grid2grid', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'grid2obs_step1':
     # Read in RUN related environment variables
     prepbufr_run_hpss = os.environ[RUN_abbrev+'_prepbufr_data_run_hpss']
@@ -1702,64 +1643,6 @@ elif RUN == 'grid2obs_step1':
                                           +"at "+YYYYmmddHH)
                     else:
                         print("Already got "+link_prepbufr_file)
-elif RUN == 'grid2obs_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                        model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'grid2obs', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'precip_step1':
     # Read in RUN related environment variables
     obs_run_hpss = os.environ[RUN_abbrev+'_obs_data_run_hpss']
@@ -2020,64 +1903,6 @@ elif RUN == 'precip_step1':
                     else:
                         print("WARNING: "+RUN_type_prod_file+" and "
                                +RUN_type_arch_file+" do not exist")
-elif RUN == 'precip_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                   model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'precip', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'satellite_step1':
     import netCDF4 as nc
     # Read in RUN related environment variables
@@ -2373,7 +2198,7 @@ elif RUN == 'satellite_step1':
                         os.remove(link_RUN_type_file)
                     else:
                         print("WARNING: could not get "+RUN_type_ftp_file)
-elif RUN == 'satellite_step2':
+elif 'step2' in RUN:
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
@@ -2429,7 +2254,7 @@ elif RUN == 'satellite_step2':
                     get_model_stat_file(valid_time, init_time, lead,
                                         model, model_stat_dir,
                                         model_RUN_abbrev_type_gather_by,
-                                        'satellite', RUN_type,
+                                        RUN.replace('_step2', ''), RUN_type,
                                         link_model_RUN_type_dir)
 elif RUN == 'maps2d':
     # Read in RUN related environment variables

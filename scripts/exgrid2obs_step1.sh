@@ -61,18 +61,18 @@ status=$?
 [[ $status -eq 0 ]] && echo "Succesfully ran get_data_files.py"
 echo
 
-# Create output directories for METplus
-python $USHverif_global/create_METplus_output_dirs.py
+# Create output directories
+python $USHverif_global/create_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_output_dirs.py"
 echo
 
-# Create job scripts to run METplus
-python $USHverif_global/create_METplus_job_scripts.py
+# Create job scripts
+python $USHverif_global/create_job_scripts.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Succesfully ran create_METplus_job_scripts.py"
+[[ $status -eq 0 ]] && echo "Succesfully ran create_job_scripts.py"
 
 # Run METplus job scripts
 chmod u+x metplus_job_scripts/job*
@@ -88,8 +88,8 @@ if [ $MPMD = YES ]; then
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-        elif [ $machine = HERA -o $machine = URSA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
+            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,depth cfp"
+        else
             launcher="srun --export=ALL --multi-prog"
         fi
         $launcher $MP_CMDFILE

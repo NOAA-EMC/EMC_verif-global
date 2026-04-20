@@ -1,5 +1,5 @@
 '''
-Program Name: create_METplus_job_scripts.py
+Program Name: create_job_scripts.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This creates multiple independent job cards. These
@@ -31,9 +31,7 @@ def init_env_dict():
     env_var_list = [
         'machine', 'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
         'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
-        'log_MET_output_to_METplus', 'METplus_verbosity', 'MET_version',
-        'HOMEMET', 'HOMEMET_bin_exec', 'MET_verbosity', 'DATA', 'RUN', 'RM',
-        'CUT', 'TR', 'NCAP2', 'CONVERT', 'NCDUMP'
+        'MET_version', 'HOMEMET', 'DATA', 'RUN', 'CUT', 'TR', 'CONVERT', 'NCDUMP'
     ]
     env_var_dict = {}
     for env_var in env_var_list:

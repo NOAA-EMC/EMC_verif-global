@@ -98,7 +98,7 @@ end_date_dt = datetime.datetime.strptime(end_date, '%Y%m%d')
 now = datetime.datetime.now()
 
 # Set up directory paths
-logo_dir = os.path.join(USHverif_global, 'plots', 'precip', 'logos')
+logo_dir = os.path.join(USHverif_global, 'plots', 'logos')
 RUN_dir = os.path.join(DATA, RUN)
 stat_base_dir = os.path.join(RUN_dir, 'data')
 logging_dir = os.path.join(DATA, RUN, 'plot_output', 'logs')

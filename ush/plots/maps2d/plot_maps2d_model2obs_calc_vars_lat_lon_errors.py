@@ -47,12 +47,12 @@ cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
     'cmap_diff', colors_diff
 )
 noaa_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plots', 'maps2d', 'logos',
+    os.path.join(os.environ['USHverif_global'], 'plots', 'logos',
                  'noaa.png')
 )
 noaa_logo_alpha = 0.5
 nws_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plots', 'maps2d', 'logos',
+    os.path.join(os.environ['USHverif_global'], 'plots', 'logos',
                  'nws.png')
 )
 nws_logo_alpha = 0.5

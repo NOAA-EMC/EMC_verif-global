@@ -329,8 +329,14 @@ def create_job_script(
     if "STEP1" in case or "MAPS" in case:
         sh.write("\n")
         sh.write("# Set MET and METplus versions\n")
-        sh.write("MET_version=12.0.1\n")
-        sh.write("METplus_version=6.0.0\n")
+        sh.write("export MET_version=12.0.1\n")
+        sh.write("export METplus_version=6.0.0\n")
+
+    # --- Set python files ---
+    if "STEP2" in case or "MAPS" in case:
+        sh.write("\n")
+        sh.write("# Set PYTHONPATH\n")
+        sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}/plots\n")
 
     # --- Write configuration settings ---
     sh.write("\n")

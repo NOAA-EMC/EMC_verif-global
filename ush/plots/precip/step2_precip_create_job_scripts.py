@@ -511,7 +511,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_precip_command('precip_plots.py',[])
+                    vfg_util.python_command('precip', 'precip_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -640,7 +640,7 @@ for case_type in case_type_list:
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_precip_command('precip_plots.py',[])
+                            vfg_util.python_command('precip', 'precip_plots.py',[])
                             +'\n'
                         )
                         job.close()

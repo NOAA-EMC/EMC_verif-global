@@ -459,7 +459,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2o_command('grid2obs_plots.py',[])
+                    vfg_util.python_command('grid2obs', 'grid2obs_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -594,7 +594,7 @@ for case_type in case_type_list:
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_g2o_command('grid2obs_plots.py',[])
+                            vfg_util.python_command('grid2obs', 'grid2obs_plots.py',[])
                             +'\n'
                         )
                         job.close()

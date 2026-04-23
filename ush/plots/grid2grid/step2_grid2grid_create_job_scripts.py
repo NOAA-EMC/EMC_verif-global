@@ -553,7 +553,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                    vfg_util.python_command('grid2grid', 'grid2grid_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -607,7 +607,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2g_command('scorecard_avg_ci.py',[])
+                    vfg_util.python_command('grid2grid', 'scorecard_avg_ci.py',[])
                     +'\n'
                 )
                 job.close()
@@ -738,7 +738,7 @@ for case_type in case_type_list:
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                            vfg_util.python_command('grid2grid', 'grid2grid_plots.py',[])
                             +'\n'
                         )
                         job.close()

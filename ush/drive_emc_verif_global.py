@@ -492,6 +492,7 @@ for case_switch, case_switch_value in config["RUN"].items():
                     case_switch.replace("RUN_", ""), config, machine, model,
                     start_date, end_date, job_script, log_script
                 )
+                print("-" * 30)
         else:
             print(
                 f"--- Generating script for {case_switch.replace('RUN_', '')} "

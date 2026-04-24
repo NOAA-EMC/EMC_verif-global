@@ -467,10 +467,7 @@ for case_switch, case_switch_value in config["RUN"].items():
             ### Check number of jobs to submit
             njobs = 0
             for model in model_list:
-                current_date = start_date
-                while current_date <= end_date:
-                    njobs+=1
-                    current_date += delta
+                njobs+=1
             if njobs >= 50:
                 print(f"You are about to submit {njobs} jobs to the queue")
                 print("Please mind the number of jobs you are submitting")
@@ -481,24 +478,20 @@ for case_switch, case_switch_value in config["RUN"].items():
                     )
                 print("")
             for model in model_list:
-                current_date = start_date
-                while current_date <= end_date:
-                    print(
-                        f"--- Generating script for {case_switch.replace('RUN_', '')} "
-                        +f"{model} {current_date:%Y-%m-%d} ---"
-                    )
-                    job_script = os.path.join(
-                        os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
-                        f"submit_{case_switch.replace('RUN_', '').lower()}_{model}_"
-                        +f"{current_date:%Y%m%d}.sh"
-                    )
-                    log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
-                    create_job_script(
-                        case_switch.replace("RUN_", ""), config, machine, model,
-                        current_date, current_date, job_script, log_script
-                    )
-                    current_date += delta
-                    print("-" * 30)
+                print(
+                    f"--- Generating script for {case_switch.replace('RUN_', '')} "
+                    +f"{model} {start_date:%Y%m%d} to {end_date:%Y%m%d}---"
+                )
+                job_script = os.path.join(
+                    os.path.join(config["INPUT_OUTPUT"]["DATAROOT"]), "jobs",
+                    f"submit_{case_switch.replace('RUN_', '').lower()}_{model}_"
+                    +f"{start_date:%Y%m%d}_to_{end_date:%Y%m%d}.sh"
+                )
+                log_script = job_script.replace("jobs", "logs").replace(".sh", ".log")
+                create_job_script(
+                    case_switch.replace("RUN_", ""), config, machine, model,
+                    start_date, end_date, job_script, log_script
+                )
         else:
             print(
                 f"--- Generating script for {case_switch.replace('RUN_', '')} "

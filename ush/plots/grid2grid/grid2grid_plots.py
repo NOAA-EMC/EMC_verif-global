@@ -431,7 +431,10 @@ elif JOB_GROUP == 'make_plots':
                 plot_lbd.make_lead_by_date()
     elif plot == 'lead_by_level':
         import plot_lead_by_level as p_lbl
-        fhrs_lbl = fhrs
+        fhrs_lbl = []
+        for fhr in fhrs:
+            if fhr % 24 == 0:
+                fhrs_lbl.append(fhr)
         vert_profiles = [os.environ['vert_profile']]
         for lbl_info in list(itertools.product(valid_hrs, vert_profiles)):
             date_info_dict['valid_hr_start'] = str(lbl_info[0])

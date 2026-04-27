@@ -307,7 +307,7 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
         pres_levs_job_line_type_stats
     )
     make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
-        'time_series', 'lead_average','stat_by_level'
+        'time_series', 'lead_average','stat_by_level', 'lead_by_level'
     ]
 # sfc
 for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):

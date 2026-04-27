@@ -188,7 +188,12 @@ def create_job_script(
         )
 
     if "STEP1" in case:
-        nproc = 1
+        delta = timedelta(days=1)
+        nproc = 0
+        current_date = start_date
+        while current_date <= end_date:
+            nproc+=1
+            current_date += delta
 
     sh = open(jobfile, "w")
     submission_command = None
@@ -463,7 +468,6 @@ model_list = config["INPUT_OUTPUT"]["model_list"].split(" ")
 for case_switch, case_switch_value in config["RUN"].items():
     if case_switch_value == "YES":
         if "STEP1" in case_switch:
-            delta = timedelta(days=1)
             ### Check number of jobs to submit
             njobs = 0
             for model in model_list:

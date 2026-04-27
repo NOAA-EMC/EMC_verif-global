@@ -495,50 +495,26 @@ def initialize_job_env_dict(case_type, group,
             )
             fhr_list = [str(i) for i in fhr_range]
         job_env_dict['fhr_list'] = ', '.join(fhr_list)
-        if case_type in ['pres', 'anom', 'sfc', 'ptype']:
-            case_type_valid_hr_list = (
-                os.environ[run_abbrev_type+'_valid_hr_list']\
-                .split(' ')
+        case_type_valid_hr_list = (
+            os.environ[run_abbrev_type+'_valid_hr_list']\
+             .split(' ')
+        )
+        job_env_dict['valid_hr_start'] = (
+            case_type_valid_hr_list[0].zfill(2)
+        )
+        job_env_dict['valid_hr_end'] = (
+            case_type_valid_hr_list[-1].zfill(2)
+        )
+        if len(case_type_valid_hr_list) > 1:
+            case_type_valid_hr_list = [
+                x.replace(',', '').strip() for x in case_type_valid_hr_list
+            ]
+            case_type_valid_hr_inc = np.min(
+                np.diff(np.array(case_type_valid_hr_list, dtype=int))
             )
-            job_env_dict['valid_hr_start'] = (
-                case_type_valid_hr_list[0].zfill(2)
-            )
-            job_env_dict['valid_hr_end'] = (
-                case_type_valid_hr_list[-1].zfill(2)
-            )
-            if len(case_type_valid_hr_list) > 1:
-                case_type_valid_hr_inc = np.min(
-                    np.diff(np.array(case_type_valid_hr_list, dtype=int))
-                )
-            else:
-                case_type_valid_hr_inc = 24
-            job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)
         else:
-            if case_type == 'precip_accum24hr':
-                valid_hr_start, valid_hr_end, valid_hr_inc = (
-                    get_obs_valid_hrs('24hrCCPA')
-                )
-            elif case_type == 'precip_accum3hr':
-                valid_hr_start, valid_hr_end, valid_hr_inc = (
-                    get_obs_valid_hrs('3hrCCPA')
-                )
-            elif case_type == 'snow':
-                valid_hr_start, valid_hr_end, valid_hr_inc = (
-                    get_obs_valid_hrs('24hrNOHRSC')
-                )
-            elif case_type == 'sea_ice':
-                valid_hr_start, valid_hr_end, valid_hr_inc = (
-                    get_obs_valid_hrs('OSI-SAF')
-                )
-            elif case_type == 'sst':
-                valid_hr_start, valid_hr_end, valid_hr_inc = (
-                    get_obs_valid_hrs('GHRSST-OSPO')
-                )
-            else:
-                 valid_hr_start, valid_hr_end, valid_hr_inc = 12, 12, 23
-            job_env_dict['valid_hr_start'] = str(valid_hr_start).zfill(2)
-            job_env_dict['valid_hr_end'] = str(valid_hr_end).zfill(2)
-            job_env_dict['valid_hr_inc'] = str(valid_hr_inc)
+            case_type_valid_hr_inc = 24
+        job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)
         case_type_init_hr_list = (
             os.environ[run_abbrev_type+'_init_hr_list']\
             .split(' ')
@@ -550,6 +526,9 @@ def initialize_job_env_dict(case_type, group,
             case_type_init_hr_list[-1].zfill(2)
         )
         if len(case_type_init_hr_list) > 1:
+            case_type_valid_hr_list = [
+                x.replace(',', '').strip() for x in case_type_valid_hr_list
+            ]
             case_type_init_hr_inc = np.min(
                 np.diff(np.array(case_type_init_hr_list, dtype=int))
             )

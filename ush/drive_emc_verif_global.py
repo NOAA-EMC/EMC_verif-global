@@ -189,11 +189,20 @@ def create_job_script(
 
     if "STEP1" in case:
         delta = timedelta(days=1)
-        nproc = 0
+        ndate = 0
         current_date = start_date
         while current_date <= end_date:
-            nproc+=1
+            ndate+=1
             current_date += delta
+        if "GRID2GRID" in case:
+            nveriftype = 3
+        if "GRID2OBS" in case:
+            nveriftype = 2
+        if "PRECIP" in case:
+            nveriftype = 1
+        if "SATELLITE" in case:
+            nveriftype = 1
+        nproc = ndate * nveriftype
 
     sh = open(jobfile, "w")
     submission_command = None

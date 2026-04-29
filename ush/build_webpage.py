@@ -354,7 +354,7 @@ if RUN == 'fit2obs_plots':
                         shutil.copy(bias_src, bias_dest)
 
 # Create job card
-web_job_filename = os.path.join(DATA, 'batch_jobs',
+web_job_filename = os.path.join(DATA, '..', 'jobs',
                                 NET+'_'+RUN+'_web.sh')
 with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')

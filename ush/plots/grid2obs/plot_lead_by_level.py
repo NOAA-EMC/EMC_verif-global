@@ -222,7 +222,6 @@ class LeadByLevel:
                         stat_vert_prof_forecast_hours_avg_df.loc[
                             (model_idx, forecast_hour), level
                         ] = model_idx_forecast_hour_avg
-        print(stat_vert_prof_forecast_hours_avg_df)
         # Set up plot
         self.logger.info(f"Setting up plot")
         plot_specs_lbl = PlotSpecs(self.logger, 'lead_by_level')

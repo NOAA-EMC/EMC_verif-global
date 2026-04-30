@@ -344,8 +344,6 @@ for case_type in case_type_list:
     model_plot_name_list = (
         os.environ[RUN_abbrev+'_model_plot_name_list'].split(' ')
     )
-    print("DEBUG: case_type =", case_type)
-    print("DEBUG: JOB_GROUP_dict keys =", list(JOB_GROUP_dict.keys()))
     case_type_plot_jobs_dict = JOB_GROUP_dict[f"grid2obs_{case_type}"]
     for case_type_job in list(case_type_plot_jobs_dict.keys()):
         # Initialize job environment dictionary

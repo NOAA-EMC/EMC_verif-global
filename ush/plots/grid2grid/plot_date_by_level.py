@@ -204,6 +204,9 @@ class DateByLevel:
         )
         ymesh, xmesh = np.meshgrid(vert_profile_levels_int, plot_dates)
         nsubplots = len(model_idx_list)
+        if nsubplots == 0:
+             self.logger.info(f"Empty dataframe, skipping")
+             sys.exit(0)
         if nsubplots == 1:
             gs_row, gs_col = 1, 1
             gs_hspace, gs_wspace = 0, 0

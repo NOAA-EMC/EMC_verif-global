@@ -212,7 +212,7 @@ class DateByLevel:
             cbar_height = 0.02
         elif nsubplots == 2:
             gs_row, gs_col = 1, 2
-            gs_hspace, gs_wspace = 0, 0.1
+            gs_hspace, gs_wspace = 0, 0.15
             gs_bottom, gs_top = 0.225, 0.85
             cbar_bottom = 0.075
             cbar_height = 0.02
@@ -369,7 +369,7 @@ class DateByLevel:
                     or (nsubplots % 2 != 0 \
                         and model_idx_list.index(model_idx) \
                         == nsubplots-1):
-                ax.xaxis.set_major_formatter(md.DateFormatter('%d%b%Y'))
+                ax.xaxis.set_major_formatter(md.DateFormatter('%d%b\n%Y'))
                 ax.set_xlabel(self.date_info_dict['plot_by'].title()+' Date')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)

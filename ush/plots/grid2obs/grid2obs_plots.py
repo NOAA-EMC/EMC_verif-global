@@ -352,10 +352,6 @@ elif JOB_GROUP == 'make_plots':
                 make_ts = True
             else:
                 make_ts = False
-            if plot_info_dict['stat'] == 'FBAR_OBAR' \
-                    and str(date_info_dict['forecast_hour']) not in \
-                    ['24', '72', '120']:
-                make_ts = False
             if make_ts:
                 plot_ts = p_ts.TimeSeries(logger, job_input_dir,
                                           job_DATA_dir, model_info_dict,

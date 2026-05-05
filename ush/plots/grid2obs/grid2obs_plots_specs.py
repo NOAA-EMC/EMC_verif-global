@@ -328,7 +328,7 @@ class PlotSpecs:
             'SPFH/P925': '925 hPa Specific Humidity',
             'SPFH/P1000': '1000 hPa Specific Humidity',
             'SPFH/Z2': '2 meter Specific Humidity',
-            'TCDC/L0': 'Total Cloud Cover',
+            'TCDC/TOTAL': 'Total Cloud Cover',
             'TMP/all': 'Temperature - All Levels',
             'TMP/trop': 'Temperature - Troposphere',
             'TMP/ltrop': 'Temperature - Lower Troposphere',
@@ -782,12 +782,6 @@ class PlotSpecs:
                  plot_type_savefig_name+'_'
                  +''.join(['f'+f.zfill(3) for \
                             f in date_info_dict['forecast_hours']])
-            )
-        elif self.plot_type in ['lead_average', 'lead_by_level',
-                                'lead_by_date']:
-            plot_type_savefig_name = (
-                 plot_type_savefig_name+'_'
-                 +'f'+str(date_info_dict['forecast_hours'][-1]).zfill(3)
             )
         grid_savefig_name = plot_info_dict['grid']
         region_savefig_dict = {

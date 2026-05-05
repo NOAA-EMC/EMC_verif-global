@@ -146,9 +146,9 @@ base_plot_jobs_info_dict = {
                                'SEC', 'NWC', 'SWC', 'NMT', 'SMT', 'SWD',
                                'GRB', 'LMV', 'GMC', 'APL', 'NAK', 'SAK'],
                           'fcst_var_dict': {'name': 'TCDC',
-                                            'levels': ['L0']},
+                                            'levels': ['TOTAL']},
                           'obs_var_dict': {'name': 'TCDC',
-                                           'levels': ['L0']},
+                                           'levels': ['TOTAL']},
                           'obs_name': 'ADPSFC'},
 
         'PRMSL': {'vx_masks': ['G104','WEST', 'EAST', 'MDW', 'NPL', 'SPL', 'NEC',

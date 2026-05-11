@@ -454,6 +454,7 @@ for case_type in case_type_list:
             valid_hr_start = int(job_env_dict['valid_hr_beg'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
+            valid_hr_inc = valid_hr_inc // 3600
             valid_hrs = list(range(valid_hr_start,
                                    valid_hr_end+valid_hr_inc,
                                    valid_hr_inc))

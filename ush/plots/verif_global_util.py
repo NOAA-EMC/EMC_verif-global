@@ -497,7 +497,7 @@ def initialize_job_env_dict(case_type, group,
         job_env_dict['fhr_list'] = ', '.join(fhr_list)
         case_type_valid_hr_list = (
             os.environ[run_abbrev_type+'_valid_hr_list']\
-             .split(' ')
+             .split(', ')
         )
         job_env_dict['valid_hr_start'] = (
             case_type_valid_hr_list[0].zfill(2)

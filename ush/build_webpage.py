@@ -356,6 +356,8 @@ if RUN == 'fit2obs_plots':
 # Create job card
 web_job_filename = os.path.join(DATA, '..', 'jobs',
                                 NET+'_'+RUN+'_web.sh')
+if os.path.exists(web_job_filename):
+    os.remove(web_job_filename)
 with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')
         web_job_file.write('set -x'+'\n')
@@ -425,7 +427,8 @@ with open(web_job_filename, 'a') as web_job_file:
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)
-web_job_output = web_job_filename.replace('.sh', '.out')
+web_job_output = os.path.join(DATA, '..', 'logs',
+                              NET+'_'+RUN+'_web.out')
 web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
 print("Submitting "+web_job_filename+" to "+QUEUESERV)
 print("Output sent to "+web_job_output)

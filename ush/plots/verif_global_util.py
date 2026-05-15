@@ -495,7 +495,6 @@ def initialize_job_env_dict(case_type, group,
             )
             fhr_list = [str(i) for i in fhr_range]
         job_env_dict['fhr_list'] = ', '.join(fhr_list)
-
         case_type_valid_hr_list = (
             os.environ[run_abbrev_type+'_valid_hr_list']\
              .split(', ')
@@ -516,7 +515,6 @@ def initialize_job_env_dict(case_type, group,
         else:
             case_type_valid_hr_inc = 24
         job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)
-
         case_type_init_hr_list = (
             os.environ[run_abbrev_type+'_init_hr_list']\
             .split(' ')

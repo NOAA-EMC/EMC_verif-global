@@ -495,10 +495,14 @@ def initialize_job_env_dict(case_type, group,
             )
             fhr_list = [str(i) for i in fhr_range]
         job_env_dict['fhr_list'] = ', '.join(fhr_list)
+
         case_type_valid_hr_list = (
             os.environ[run_abbrev_type+'_valid_hr_list']\
              .split(', ')
         )
+        case_type_valid_hr_list = [
+            x.replace(',', '').strip() for x in case_type_valid_hr_list
+        ]
         job_env_dict['valid_hr_start'] = (
             case_type_valid_hr_list[0].zfill(2)
         )
@@ -506,19 +510,20 @@ def initialize_job_env_dict(case_type, group,
             case_type_valid_hr_list[-1].zfill(2)
         )
         if len(case_type_valid_hr_list) > 1:
-            case_type_valid_hr_list = [
-                x.replace(',', '').strip() for x in case_type_valid_hr_list
-            ]
             case_type_valid_hr_inc = np.min(
                 np.diff(np.array(case_type_valid_hr_list, dtype=int))
             )
         else:
             case_type_valid_hr_inc = 24
         job_env_dict['valid_hr_inc'] = str(case_type_valid_hr_inc)
+
         case_type_init_hr_list = (
             os.environ[run_abbrev_type+'_init_hr_list']\
             .split(' ')
         )
+        case_type_init_hr_list = [
+            x.replace(',', '').strip() for x in case_type_init_hr_list
+        ]
         job_env_dict['init_hr_start'] = (
             case_type_init_hr_list[0].zfill(2)
         )
@@ -526,9 +531,6 @@ def initialize_job_env_dict(case_type, group,
             case_type_init_hr_list[-1].zfill(2)
         )
         if len(case_type_init_hr_list) > 1:
-            case_type_valid_hr_list = [
-                x.replace(',', '').strip() for x in case_type_valid_hr_list
-            ]
             case_type_init_hr_inc = np.min(
                 np.diff(np.array(case_type_init_hr_list, dtype=int))
             )

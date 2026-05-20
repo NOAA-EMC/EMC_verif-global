@@ -34,7 +34,7 @@ export vhr_list="$(seq -s ' ' -f '%02g' ${start_cyc} ${INTERVAL_GFS:-24} ${cyc2r
 export RUN_GRID2GRID_STEP1=${RUN_GRID2GRID_STEP1:-NO}
 export RUN_GRID2OBS_STEP1=${RUN_GRID2OBS_STEP1:-NO}
 export RUN_PRECIP_STEP1=${RUN_PRECIP_STEP1:-NO}
-export HOMEverif_global=${HOMEverif_global:-${HOMEgfs}/sorc/verif-global.fd}
+export HOMEverif_global=${HOMEverif_global:-${HOMEglobal}/sorc/verif-global.fd}
 ## INPUT DATA SETTINGS
 export model_list=${model:-$PSLOT}
 export model_dir_list=${model_dir:-${NOSCRUB}/archive}
@@ -256,7 +256,7 @@ export nproc=${nproc:-1}
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global
 export PARMverif_global=$HOMEverif_global/parm
-export FIXverif_global=$FIXgfs/verif
+export FIXverif_global=$FIXglobal/verif
 export USHverif_global=$HOMEverif_global/ush
 export UTILverif_global=$HOMEverif_global/util
 export EXECverif_global=$HOMEverif_global/exec

@@ -1503,12 +1503,18 @@ elif RUN == 'grid2obs_step1':
                         prepbufr_dict['file_type'] = prepbufr
                         prepbufr_dict_list.append(prepbufr_dict)
                     elif RUN_type == 'conus_sfc':
-                        prepbufr = 'nam'
+                        if valid_time >= datetime.datetime(2026, 6, 1, 0):
+                            prepbufr = 'rrfs'
+                        else:
+                            prepbufr = 'nam'
                         link_prepbufr_file = os.path.join(
                             link_prepbufr_dir, 'prepbufr.'+prepbufr+'.'
                             +YYYYmmddHH
                         )
-                        offset_hr = str(int(HH)%6).zfill(2)
+                        if prepbufr == 'nam':
+                            offset_hr = str(int(HH)%6).zfill(2)
+                        elif prepbufr == 'rrfs':
+                            offset_hr = '00'
                         offset_time = valid_time + datetime.timedelta(
                             hours=int(offset_hr)
                         )
@@ -1520,20 +1526,20 @@ elif RUN == 'grid2obs_step1':
                         offset_dd = offset_time.strftime('%d')
                         offset_HH = offset_time.strftime('%H')
                         offset_filename = (
-                            'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
+                            prepbufr+'.t'+offset_HH+'z.prepbufr.tm'+offset_hr
                         )
                         prepbufr_prod_file = os.path.join(
-                            prepbufr_prod_conus_sfc_dir, 'nam.'
+                            prepbufr_prod_conus_sfc_dir, prepbufr+'.'
                             +offset_YYYYmmdd, offset_filename
                         )
                         prepbufr_arch_file = os.path.join(
-                            prepbufr_arch_dir, 'nam', 'nam.'
+                            prepbufr_arch_dir, prepbufr, prepbufr+'.'
                             +offset_YYYYmmdd, offset_filename
                         )
                         if offset_time \
                                 >= datetime.datetime.strptime('20240522',
                                                               '%Y%m%d'):
-                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.2_nam.'
+                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.2_.'+prepbufr
                         elif offset_time \
                                 >= datetime.datetime.strptime('20221129',
                                                               '%Y%m%d') \

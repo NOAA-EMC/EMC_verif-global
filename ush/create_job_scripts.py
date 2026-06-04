@@ -98,7 +98,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 if case_type == 'upper_air':
                     obtype = 'gdas'
                 elif case_type == 'conus_sfc':
-                        obtype = 'nam'
+                    obtype = 'nam'
                 elif case_type == 'polar_sfc':
                     obtype = 'iabp'
                 job_env_dict['obtype'] = obtype
@@ -130,6 +130,11 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
             while date_dt <= end_date_dt:
                 njob+=1
                 job_env_dict['DATE'] = date_dt.strftime('%Y%m%d')
+                # Check date for prepbufr NAM vs. RRFS
+                if case == 'grid2obs' and case_type == 'conus_sfc':
+                    if date_dt >= datetime.datetime(2026, 6, 1, 0):
+                        obtype = 'rrfs'
+                        job_env_dict['obtype'] = 'rrfs'
                 # Need to do check on grid-to-grid truth file
                 # for the date: was requested truth subsituted?
                 if case == 'grid2grid':

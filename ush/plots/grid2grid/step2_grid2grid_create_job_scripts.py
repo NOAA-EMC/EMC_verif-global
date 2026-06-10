@@ -442,16 +442,13 @@ for case_type in case_type_list:
         job_env_dict['start_date'] = start_date
         job_env_dict['end_date'] = end_date
         job_env_dict['plot_by'] = plot_by
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
-                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
-                              'init_hr_inc']
+        case_type_env_list = ['grid', 'event_eq']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
         if JOB_GROUP in ['filter_stats', 'scorecard_avg_ci', 'make_plots']:
-            valid_hr_start = int(job_env_dict['valid_hr_beg'])
+            valid_hr_start = int(job_env_dict['valid_hr_start'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
             valid_hr_inc = valid_hr_inc // 3600

@@ -484,7 +484,7 @@ def initialize_job_env_dict(case_type, group,
     if group in ['filter_stats', 'make_plots']:
         if run_abbrev_type+'_fhr_list' in list(os.environ.keys()):
             fhr_list = (
-                os.environ[run_abbrev_type+'_fhr_list'].split(' ')
+                os.environ[run_abbrev_type+'_fhr_list'].split(', ')
             )
         else:
             fhr_range = range(

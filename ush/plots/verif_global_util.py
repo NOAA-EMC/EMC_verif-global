@@ -894,20 +894,19 @@ def condense_model_stat_files(logger, input_dir, output_dir, model, obs,
             for item in additional_grep_list:
                 if item == vx_mask:
                     additional_grep = (additional_grep
-                                       +f' | grep -w "{item}"')
+                                       +f' | fgrep -w "{item}"')
                 else:
                     additional_grep = (additional_grep
-                                       +f' | grep "{item} "')
+                                       +f' | fgrep "{item} "')
             all_grep_output = ''
-            for model_stat_file in model_stat_files:
-                logger.info(f"Grep'ing {model_stat_file} for "
-                            +f"{model}, {', '.join(additional_grep_list)}")
-                grep = subprocess.run(
-                    'grep -R "'+model+' " '+model_stat_file+additional_grep,
-                    shell=True, capture_output=True, encoding="utf8"
-                )
-                logger.debug(f"Ran {grep.args}")
-                all_grep_output = all_grep_output+grep.stdout
+            logger.info(f"Grep'ing {model_stat_files_wildcard} for "
+                        +f"{model}, {', '.join(additional_grep_list)}")
+            grep = subprocess.run(
+                'fgrep -Rh "'+model+' " '+model_stat_files_wildcard+additional_grep,
+                shell=True, capture_output=True, encoding="utf8"
+            )
+            logger.debug(f"Ran {grep.args}")
+            all_grep_output = all_grep_output+grep.stdout
             logger.info(f"Condensed {model} stat files at "
                         +f"{output_file}")
             with open(output_file, 'w') as f:

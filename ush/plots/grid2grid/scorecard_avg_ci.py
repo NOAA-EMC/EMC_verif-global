@@ -205,7 +205,7 @@ def calculate_scorecard_avg_ci(
     scorecard_write_avg_ci(
         logger, modelA_avg_output_file, f"{fcst_lead_string} {modelA_metric_avg}", file_write_tracker
     )
-    logger.info(f"   Wrote {modelA_name} Avg to: {os.path.basename(modelA_avg_output_file)}")
+    logger.info(f"   Wrote {modelA_name} Avg to: {modelA_avg_output_file}")
     
     # Write Model B Average
     modelB_avg_output_file = vfg_util.get_lead_avg_file(
@@ -214,7 +214,7 @@ def calculate_scorecard_avg_ci(
     scorecard_write_avg_ci(
         logger, modelB_avg_output_file, f"{fcst_lead_string} {modelB_metric_avg}", file_write_tracker
     )
-    logger.info(f"   Wrote {modelB_name} Avg to: {os.path.basename(modelB_avg_output_file)}")
+    logger.info(f"   Wrote {modelB_name} Avg to: {modelB_avg_output_file}")
     
     # Write CI
     ci_output_file = vfg_util.get_ci_file(
@@ -223,7 +223,7 @@ def calculate_scorecard_avg_ci(
     scorecard_write_avg_ci(
         logger, ci_output_file, f"{fcst_lead_string} {modelB_ci}", file_write_tracker
     )
-    logger.info(f"   Wrote CI to: {os.path.basename(ci_output_file)}")
+    logger.info(f"   Wrote CI to: {ci_output_file}")
 
 
 def main():
@@ -337,11 +337,11 @@ def main():
             # Log a debug info for missing file(s) and skip to the next lead time
             if not model1_exists:
                 logger.info(
-                    f"Missing file: {model1_name} for lead {fhr}hrs, level {plevel} {os.path.basename(model1_input_file)}"
+                    f"Missing file: {model1_name} for lead {fhr}hrs, level {plevel} {model1_input_file}"
                 )
             if not model2_exists:
                 logger.info(
-                    f"Missing file: {model2_name} for lead {fhr}hrs, level {plevel} {os.path.basename(model2_input_file)}"
+                    f"Missing file: {model2_name} for lead {fhr}hrs, level {plevel} {model2_input_file}"
                 )
             continue # Skip to the next 'fhr' iteration
         

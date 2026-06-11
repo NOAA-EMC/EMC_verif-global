@@ -704,6 +704,8 @@ for case_type in case_type_list:
                             ['obs_var_dict']['levels']
                         )
                     else:
+                        if 'vert_profile' in job_env_dict:
+                            job_env_dict.pop('vert_profile')
                         job_env_dict['fcst_var_level_list'] = plot_loop_info[2]
                         job_env_dict['obs_var_level_list'] = (
                             case_type_plot_jobs_dict[case_type_job]\

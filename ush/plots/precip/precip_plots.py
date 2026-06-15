@@ -407,10 +407,10 @@ elif JOB_GROUP == 'make_plots':
             plot_info_dict['fcst_var_threshs'] = fcst_var_thresh_list
             plot_info_dict['obs_var_name'] = obs_var_name
             plot_info_dict['obs_var_threshs'] = obs_var_thresh_list
-            #init_hr = vfg_util.get_init_hour(
-            #    int(date_info_dict['valid_hr_start']),
-            #    int(date_info_dict['forecast_hour'])
-            #)
+            init_hr = vfg_util.get_init_hour(
+                int(date_info_dict['valid_hr_start']),
+                int(date_info_dict['forecast_hour'])
+            )
             for l in range(len(fcst_var_level_list)):
                 plot_info_dict['fcst_var_level'] = fcst_var_level_list[l]
                 plot_info_dict['obs_var_level'] = obs_var_level_list[l]
@@ -418,7 +418,8 @@ elif JOB_GROUP == 'make_plots':
                     job_DATA_dir, plot_info_dict, date_info_dict
                 )
                 job_input_dir = make_plots_input_dir
-                if not os.path.exists(job_DATA_image_name) \
+                if init_hr in init_hrs \
+                    and not os.path.exists(job_DATA_image_name) \
                     and plot_info_dict['stat'] != 'FBAR_OBAR':
                     if len(plot_info_dict['fcst_var_threshs']) <= 1:
                         logger.warning("No span of thresholds to plot, "

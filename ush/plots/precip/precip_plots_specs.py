@@ -966,7 +966,7 @@ class PlotSpecs:
                  subplot0_cmap  - colormap for subplot 0
                  subplotsN_cmap - colormap for other subplots
         """
-        if stat in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+        if stat in ['BIAS', 'ME', 'FBIAS']:
             cmap_bias_original = plt.cm.PiYG_r
             colors_bias = cmap_bias_original(
                 np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
@@ -975,8 +975,8 @@ class PlotSpecs:
                 'cmap_bias', colors_bias
             )
         else:
-            subplot0_cmap = plt.cm.BuPu_r
-        if stat in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+            subplot0_cmap = plt.cm.BuPu
+        if stat in ['BIAS', 'ME', 'FBIAS']:
             subplotsN_cmap = subplot0_cmap
         else:
             if stat == 'RMSE':
@@ -1059,17 +1059,15 @@ class PlotSpecs:
         if stat == 'ETS':
             have_subplot0_levs = True
             have_subplotsN_levs = True
-            subplot0_levs = np.array([0.06, 0.12, 0.18, 0.24, 0.3, 0.36,
-                                       0.42, 0.48, 0.54, 0.6, 0.66, 0.72])
-            subplotsN_levs = np.array([0.06, 0.12, 0.18, 0.24, 0.3, 0.36,
-                                       0.42, 0.48, 0.54, 0.6, 0.66, 0.72])
+            subplot0_levs = np.array([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4,
+                                      0.5, 0.6, 0.7, 0.8, 0.9])
+            subplotsN_levs = np.array([-0.1, -0.075, -0.05, -0.025, -0.01, 0,
+                                       0.01, 0.025, 0.05, 0.075, 0.1])
         elif stat == 'FBIAS':
             have_subplot0_levs = True
             have_subplotsN_levs = True
-            subplot0_levs = np.array([0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2,
-                                       1.4, 1.6, 2.0, 2.4, 2.8])
-            subplotsN_levs = np.array([0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2,
-                                       1.4, 1.6, 2.0, 2.4, 2.8])
+            subplot0_levs = np.array([0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8])
+            subplotsN_levs = np.array([0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8])
         return have_subplot0_levs, subplot0_levs, have_subplotsN_levs, subplotsN_levs
 
     def get_vert_profile_levels(self, vert_profile):

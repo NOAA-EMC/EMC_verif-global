@@ -228,7 +228,8 @@ class ThresholdByLead:
             stat_forecast_hour_thresh_avg_df.index\
             .get_level_values(1).unique().tolist()
         )
-        ymesh, xmesh = np.meshgrid(fcst_var_threshs_int, fhr_idx_list)
+        thresh_idx = np.arange(len(fcst_var_threshs_int))
+        ymesh, xmesh = np.meshgrid(fhr_idx_list, thresh_idx)
         nsubplots = len(model_idx_list)
         if nsubplots == 0:
              self.logger.info(f"Empty dataframe, skipping")
@@ -290,7 +291,12 @@ class ThresholdByLead:
             if len(xticks) > n_xticks:
                 xtick_intvl = int(len(xticks)/n_xticks)
                 xticks = xticks[::xtick_intvl]
-        fcst_var_threshs_int_ticks =fcst_var_threshs_int
+        fcst_var_threshs_int_ticks =  []
+        for x in fcst_var_threshs_int:
+            if int(x) == float(x):
+                fcst_var_threshs_int_ticks.append(str(int(x)))
+            else:
+                fcst_var_threshs_int_ticks.append(str(float(x)))
         fcst_units = np.unique(fcst_units)
         fcst_units = np.delete(fcst_units, np.where(fcst_units == 'nan'))
         if len(fcst_units) > 1:
@@ -399,30 +405,27 @@ class ThresholdByLead:
             masked_model_num_data = np.ma.masked_invalid(model_num_data)
             ax = plt.subplot(gs[model_idx_list.index(model_idx)])
             ax.grid(True)
-            ax.set_xlim([self.date_info_dict['forecast_hours'][0],
+            ax.set_ylim([self.date_info_dict['forecast_hours'][0],
                          self.date_info_dict['forecast_hours'][-1]])
-            ax.set_xticks(xticks)
+            ax.set_yticks(xticks)
+            if ax.get_subplotspec().is_first_col() \
+                    or (nsubplots % 2 != 0 \
+                        and model_idx_list.index(model_idx) \
+                        == nsubplots-1):
+                ax.set_ylabel('Forecast Hour')
+            else:
+                plt.setp(ax.get_yticklabels(), visible=False)
+            ax.minorticks_off()
+            ax.set_xticks(thresh_idx)
+            ax.set_xticklabels(fcst_var_threshs_int_ticks)
+            ax.set_xlim([thresh_idx[0], thresh_idx[-1]])
             if ax.get_subplotspec().is_last_row() \
                     or (nsubplots % 2 != 0 \
                         and model_idx_list.index(model_idx) \
                         == nsubplots-1):
-                ax.set_xlabel('Forecast Hour')
+                ax.set_xlabel('Thresholds (kg/m^2)')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)
-            ax.set_yscale('log')
-            ax.minorticks_off()
-            ax.set_yticks(fcst_var_threshs_int_ticks)
-            ax.set_yticklabels(fcst_var_threshs_int_ticks)
-            ax.set_ylim([fcst_var_threshs_int[0],
-                         fcst_var_threshs_int[-1]])
-            if ax.get_subplotspec().is_first_col() \
-                    or (nsubplots % 2 != 0 \
-                        and model_idx_list.index(model_idx) \
-                        == nsubplots -1):
-                ax.set_ylabel('Thresholds (kg/m^2)')
-            else:
-                plt.setp(ax.get_yticklabels(), visible=False)
-
             #First sub-plot: 
             if model_idx == model_idx_list[0]:
                 self.logger.debug(f"Plotting {model_num} ["
@@ -434,15 +437,15 @@ class ThresholdByLead:
                 subplot0_data = masked_model_num_data
                 if not subplot0_data.mask.all():
                     if have_subplot0_levs:
-                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data,
+                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data.T,
                                           levels=subplot0_levs,
                                           cmap=subplot0_cmap,
                                           extend='both')
                     else:
-                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data,
+                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data.T,
                                           cmap=subplot0_cmap,
                                           extend='both')
-                    C0 = ax.contour(xmesh, ymesh, subplot0_data,
+                    C0 = ax.contour(xmesh, ymesh, subplot0_data.T,
                                     levels=CF0.levels, colors='k',
                                     linewidths=1.0)
                     C0_labels_list = []
@@ -458,7 +461,7 @@ class ThresholdByLead:
                         C0_fmt[lev] = label
                     ax.clabel(C0, C0.levels, fmt=C0_fmt, inline=True,
                               fontsize=12.5)
-                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                         if not make_colorbar:
                             make_colorbar = True
                             cbar_CF = CF0
@@ -472,7 +475,7 @@ class ThresholdByLead:
                                       +"masked")
             else:
                 #Other sub-plots
-                if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                     self.logger.debug(f"Plotting {model_num} ["
                                       +f"{model_num_name},"
                                       +f"{model_num_plot_name}]")
@@ -490,13 +493,13 @@ class ThresholdByLead:
                     subplotN_data = masked_model_num_data - subplot0_data
                 if not subplotN_data.mask.all():
                     if have_subplotsN_levs:
-                        CFN = ax.contourf(xmesh, ymesh, subplotN_data,
+                        CFN = ax.contourf(xmesh, ymesh, subplotN_data.T,
                                           levels=subplotsN_levs,
                                           cmap=subplotsN_cmap,
                                           extend='both')
                         if self.plot_info_dict['stat'] in ['BIAS', 'ME',
-                                                           'FBIAS', 'ETS']:
-                            CN = ax.contour(xmesh, ymesh, subplotN_data,
+                                                           'FBIAS']:
+                            CN = ax.contour(xmesh, ymesh, subplotN_data.T,
                                             levels=CFN.levels, colors='k',
                                             linewidths=1.0)
                             CN_labels_list = []
@@ -519,7 +522,7 @@ class ThresholdByLead:
                             cbar_CF = CFN
                             cbar_ticks = CFN.levels
                             if self.plot_info_dict['stat'] in ['BIAS', 'ME',
-                                                               'FBIAS', 'ETS']:
+                                                               'FBIAS']:
                                 cbar_label = (
                                     plot_specs_tbl.get_stat_plot_name(
                                         self.plot_info_dict['stat']
@@ -531,7 +534,7 @@ class ThresholdByLead:
                         self.logger.debug("Do not have contour levels "
                                           +"to plot")
                 else:
-                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                         self.logger.debug(f"{model_num} ["
                                           +f"{model_num_name},"
                                           +f"{model_num_plot_name}] is fully "

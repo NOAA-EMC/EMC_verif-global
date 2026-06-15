@@ -440,11 +440,11 @@ elif JOB_GROUP == 'make_plots':
                                                        met_info_dict,
                                                        logo_dir)
                     plot_ta.make_threshold_average()
-    elif plot == 'lead_by_threshold':
-        import plot_lead_by_threshold as p_lbt
-        for lbt_info in list(itertools.product(valid_hrs, var_info)):
-            date_info_dict['valid_hr_start'] = str(lbt_info[0])
-            date_info_dict['valid_hr_end'] = str(lbt_info[0])
+    elif plot == 'threshold_by_lead':
+        import plot_threshold_by_lead as p_tbl
+        for tbl_info in list(itertools.product(valid_hrs, var_info)):
+            date_info_dict['valid_hr_start'] = str(tbl_info[0])
+            date_info_dict['valid_hr_end'] = str(tbl_info[0])
             date_info_dict['valid_hr_inc'] = '24'
             date_info_dict['forecast_hours'] = fhrs
             plot_info_dict['fcst_var_threshs'] = fcst_var_thresh_list
@@ -463,23 +463,23 @@ elif JOB_GROUP == 'make_plots':
                     if len(date_info_dict['forecast_hours']) <= 1:
                         logger.warning("No span of forecast hours to plot, "
                                        +"given 1 forecast hour, skipping "
-                                       +"lead_by_threshold plots")
-                        make_lbt = False
+                                       +"threshold_by_lead plots")
+                        make_tbl = False
                     else:
-                        make_lbt = True
+                        make_tbl = True
                 else:
-                    make_lbt = False
+                    make_tbl = False
                 del plot_info_dict['fcst_var_level']
                 del plot_info_dict['obs_var_level']
-                if make_lbt:
-                    plot_lbt = p_lbt.LeadByThreshold(logger,
-                                                 job_input_dir,
-                                                 job_DATA_dir,
-                                                 model_info_dict,
-                                                 date_info_dict,
-                                                 plot_info_dict,
-                                                 met_info_dict, logo_dir)
-                    plot_lbt.make_lead_by_threshold()
+                if make_tbl:
+                    plot_tbl = p_tbl.ThresholdByLead(logger,
+                                                     job_input_dir,
+                                                     job_DATA_dir,
+                                                     model_info_dict,
+                                                     date_info_dict,
+                                                     plot_info_dict,
+                                                     met_info_dict, logo_dir)
+                    plot_tbl.make_threshold_by_lead()
     else:
         logger.error(plot+" not recognized")
         sys.exit(1)

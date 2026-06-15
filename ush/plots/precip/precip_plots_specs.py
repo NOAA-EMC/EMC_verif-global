@@ -82,7 +82,7 @@ class PlotSpecs:
             self.xtick_label_size = 15
             self.ytick_label_size = 15
         elif self.plot_type in ['lead_average', 'valid_hour_average',
-                                'threshold_average', 'lead_by_threshold',
+                                'threshold_average', 'threshold_by_lead',
                                 'long_term_time_series_diff']:
             self.fig_size = (16., 16.)
             self.fig_subplot_top = 0.9
@@ -645,7 +645,7 @@ class PlotSpecs:
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list)
                               +', valid: '+', '.join(title_other_hr_list))
         if plot_type not in ['lead_average', 'valid_hour_average',
-                             'lead_by_date', 'lead_by_level', 'lead_by_threshold']:
+                             'lead_by_date', 'lead_by_level', 'threshold_by_lead']:
             forecast_day_list = []
             for forecast_hour in forecast_hour_list:
                 forecast_day = int(forecast_hour)/24.
@@ -728,7 +728,7 @@ class PlotSpecs:
             var_level_for_title = plot_info_dict['vert_profile']
         else:
             var_level_for_title = plot_info_dict['fcst_var_level']
-        if self.plot_type in ['lead_by_threshold', 'threshold_average']:
+        if self.plot_type in ['threshold_by_lead', 'threshold_average']:
             var_thresh_for_title = 'NA'
         else:
             var_thresh_for_title = plot_info_dict['fcst_var_thresh']
@@ -829,13 +829,13 @@ class PlotSpecs:
             plot_type_savefig_name = 'threshmean'
         elif self.plot_type == 'valid_hour_average':
             plot_type_savefig_name = 'vhrmean'
-        elif self.plot_type == 'lead_by_threshold':
-            plot_type_savefig_name = 'lead_by_threshold'
+        elif self.plot_type == 'threshold_by_lead':
+            plot_type_savefig_name = 'threshold_by_lead'
         else:
             plot_type_savefig_name = self.plot_type.replace('_', '')
         if self.plot_type in ['time_series', 'time_series_multifhr',
                               'lead_average', 'stat_by_level', 'lead_by_level',
-                              'lead_by_date', 'date_by_level', 'lead_by_threshold',
+                              'lead_by_date', 'date_by_level', 'threshold_by_lead',
                               'performance_diagram', 'threshold_average']:
             plot_type_savefig_name = plot_type_savefig_name+'_valid'
             valid_hr = int(date_info_dict['valid_hr_start'])

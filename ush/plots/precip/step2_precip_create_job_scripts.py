@@ -89,7 +89,7 @@ for ccpa_accum24hr_job in list(make_plots_jobs_dict['ccpa_accum24hr'].keys()):
         'CTC/ETS', 'CTC/FBIAS'
     ]
     make_plots_jobs_dict['ccpa_accum24hr']['24hrCCPA']['plots'] = [
-        'time_series', 'lead_average', 'threshold_average', 'lead_by_threshold'
+        'time_series', 'lead_average', 'threshold_average', 'threshold_by_lead'
     ] 
 
 if JOB_GROUP == 'make_plots':
@@ -232,7 +232,7 @@ for case_type in case_type_list:
                 else:
                     plot_valid_hrs_loop = valid_hrs
                 if job_env_dict['plot'] in ['threshold_average',
-                                            'lead_by_threshold']:
+                                            'threshold_by_lead']:
                     plot_fcst_threshs_loop = [
                         case_type_plot_jobs_dict[case_type_job]\
                         ['fcst_var_dict']['threshs']
@@ -260,7 +260,7 @@ for case_type in case_type_list:
                     ).zfill(2)
                     job_env_dict['valid_hr_inc'] = str(valid_hr_inc)
                     if job_env_dict['plot'] in ['threshold_average',
-                                                'lead_by_threshold']:
+                                                'threshold_by_lead']:
                         job_env_dict['fcst_var_thresh_list'] = ', '.join(
                             plot_loop_info[1]
                         )

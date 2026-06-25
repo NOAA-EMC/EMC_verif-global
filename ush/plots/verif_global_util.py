@@ -513,6 +513,8 @@ def initialize_job_env_dict(case_type, group,
         job_env_dict['init_hr_inc'] = str(
             int(os.environ[run_abbrev_type+'_init_hr_inc']) // 3600
         )
+    if group == 'make_plots':
+        job_env_dict['img_quality'] = os.environ['img_quality']
     return job_env_dict
 
 def get_logger(log_file):

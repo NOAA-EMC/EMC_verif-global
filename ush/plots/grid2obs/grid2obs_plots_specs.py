@@ -189,6 +189,11 @@ class PlotSpecs:
         plt.rcParams['legend.borderaxespad'] = self.legend_border_axis_pad
         plt.rcParams['legend.columnspacing'] = self.legend_col_space
         plt.rcParams['legend.frameon'] = self.legend_frame_on
+        img_quality = os.environ['img_quality']
+        if img_quality == 'low':
+            plt.rcParams['savefig.dpi'] = 50
+        elif img_quality == 'medium':
+            plt.rcParams['savefig.dpi'] = 75
         if float(matplotlib.__version__[0:3]) >= 3.3:
             plt.rcParams['date.epoch'] = '0000-12-31T00:00:00'
 

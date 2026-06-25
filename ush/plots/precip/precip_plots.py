@@ -91,6 +91,7 @@ elif JOB_GROUP == 'make_plots':
     obs_var_thresh_list = os.environ['obs_var_thresh_list'].split(', ')
     stat = os.environ['stat']
     plot = os.environ['plot']
+    img_quality = os.environ['img_quality']
 
 # Set variables
 start_date_dt = datetime.datetime.strptime(start_date, '%Y%m%d')
@@ -171,6 +172,7 @@ if JOB_GROUP in ['filter_stats', 'make_plots']:
         original_plot_info_dict['obs_var_thresh'] = obs_var_thresh
     elif JOB_GROUP == 'make_plots':
         original_plot_info_dict['stat'] = stat
+        original_plot_info_dict['img_quality'] = img_quality
         fcst_var_prod = list(
             itertools.product([fcst_var_name], fcst_var_level_list,
                               fcst_var_thresh_list)

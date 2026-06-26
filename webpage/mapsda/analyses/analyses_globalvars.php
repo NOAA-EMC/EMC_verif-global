@@ -1,0 +1,33 @@
+<?php include '../../globalvars.php';
+      $stat_title = 'Data Assimilation Plots: Analysis';
+      $TMP_url = $image_location.'/gdas_VVV_preslevs_TMP_LLL.png';
+      $UGRD_url = $image_location.'/gdas_VVV_preslevs_UGRD_LLL.png';
+      $VGRD_url = $image_location.'/gdas_VVV_preslevs_VGRD_LLL.png';
+      $RH_url = $image_location.'/gdas_VVV_preslevs_RH_LLL.png';
+      $O3MR_url = $image_location.'/gdas_VVV_preslevs_O3MR_LLL.png';
+      $MSLET_url = $image_location.'/gdas_VVV_sfc_MSLET_LLL.png';
+      $Increments_name = 'inc';
+      $RMSE_name = 'rmse';
+      $P1_name = '1hPa';
+      $P2_name = '2hPa';
+      $P3_name = '3hPa';
+      $P5_name = '5hPa';
+      $P7_name = '7hPa';
+      $P10_name = '10hPa';
+      $P30_name = '30hPa';
+      $P50_name = '50hPa';
+      $P70_name = '70hPa';
+      $P100_name = '100hPa';
+      $P200_name = '200hPa';
+      $P500_name = '500hPa';
+      $P700_name = '700hPa';
+      $P800_name = '800hPa';
+      $P925_name = '925hPa';
+      $P1000_name = '1000hPa';
+      $Sfc_name = 'msl';
+      $LevelAll_name = 'all_zonalmean';
+      $LevelTrop_name = 'trop_zonalmean';
+      $LevelLowTrop_name = 'lowertrop_zonalmean';
+      $LevelUpTrop_name = 'uppertrop_zonalmean';
+      $LevelStrat_name = 'strat_zonalmean';?>
+

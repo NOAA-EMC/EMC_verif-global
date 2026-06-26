@@ -21,7 +21,7 @@ print("BEGIN: "+os.path.basename(__file__))
 # Read in environment variables
 KEEPDATA = os.environ['KEEPDATA']
 machine = os.environ['machine']
-HOMEverif_global = os.environ['HOMEverif_global']
+USHverif_global = os.environ['USHverif_global']
 DATA = os.environ['DATA']
 NET = os.environ['NET']
 RUN = os.environ['RUN']
@@ -370,7 +370,7 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
                            +' "mkdir -p '+webdir+' "'+'\n')
         web_job_file.write('    sleep 30\n')
-        web_job_file.write('    scp -rq '+os.path.join(HOMEverif_global,
+        web_job_file.write('    scp -rq '+os.path.join(USHverif_global,
                                                       'webpage/*')+'  '
                            +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')
         web_job_file.write('fi'+'\n')

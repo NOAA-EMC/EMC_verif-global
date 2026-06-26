@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>GFS Experiment Verification</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
+<link href="../default.css" rel="stylesheet" type="text/css" media="all" />
+<link href="../fonts.css" rel="stylesheet" type="text/css" media="all" />
+<!--[if IE 6]><link href="default_ie6.css" rel="stylesheet" type="text/css" /><![endif]-->
+<!--DAP script -->
+<script src="//dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=DOC&amp;subagency=NOAA" id="_fed_an_ua_tag"></script>
+</head>
+
+<script>
+function createDropdown(opt) {
+  /* When the user clicks on the button, 
+     toggle between hiding and showing the dropdown content */
+  document.getElementById(opt.nextElementSibling.id).classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  var oFrame = document.getElementById("body_frame");
+  oFrame.contentWindow.document.onclick = function() {
+        var i;
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+  };
+  if (!event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+          }
+      }
+  }
+  if (event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (event.target.nextElementSibling.id != openDropdown.id) {
+              if (openDropdown.classList.contains('show')) {
+                  openDropdown.classList.remove('show');
+               }
+          }
+      }
+  }
+}
+</script>
+
+<body>
+<div id="page" class="container">
+	<div id="header">
+		<div id="logo">
+			<img src="../images/noaa.png" alt="" width="100" />
+			<img src="../images/nws.png" alt="" width="100" />
+                        <h1><font color="white">GFS<br>Experiment<br>Verification</font></h1>
+		</div>
+		<div id="menu">
+			<ul>
+                            <li><a href="../" accesskey="1" title="">Home</a></li>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="2">Grid-to-Grid &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_grid2grid" class="dropdown-content">
+                                         <a href="../grid2grid/acc">Anomaly Correlation Coefficient</a>
+                                         <a href="../grid2grid/bias">Bias</a>
+                                         <a href="../grid2grid/rmse">RMSE</a>
+                                         <a href="../grid2grid/msess">Murphy's MSE Skill Score</a>
+                                         <a href="../grid2grid/rsd">Ratio of Standard Deviation</a>
+                                         <a href="../grid2grid/rmse_md">RMSE from Mean Difference</a>
+                                         <a href="../grid2grid/rmse_pv">RMSE from Pattern Variation</a>
+                                         <a href="../grid2grid/means">Means</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="3">Grid-to-Obs &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_grid2obs" class="dropdown-content">
+                                         <a href="../grid2obs/bias">Bias</a>
+                                         <a href="../grid2obs/rmse">RMSE</a>
+                                         <a href="../grid2obs/means">Means</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="4">Precipitation &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_precip" class="dropdown-content">
+                                         <a href="../precip/bias">Bias</a>
+                                         <a href="../precip/ets">ETS</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="5">Satellite &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_satellite" class="dropdown-content">
+                                         <a href="../satellite/bias">Bias</a>
+                                         <a href="../satellite/rmse">RMSE</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="6">Fit-to-Obs &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_fit2obs" class="dropdown-content">
+                                         <a href="../fit2obs/bias">Bias</a>
+                                         <a href="../fit2obs/rmse">RMSE</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" id="active" accesskey="8">2D Plots &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_maps2d" class="dropdown-content">
+                                         <a href="model2model">Model-to-Model</a>
+                                         <a href="model2obs">Model-to-Obs</a>
+                                     </div>
+                            </div>
+                            <div class="dropdown">
+                                <button onclick="createDropdown(this)" class="dropbtn" accesskey="9">DA Plots &rsaquo;&rsaquo;</button>
+                                     <div id="Dropdown_mapsda" class="dropdown-content">
+                                         <a href="../mapsda/analyses">Analyses</a>
+                                         <a href="../mapsda/ensemble">Ensemble</a>
+                                     </div>
+                            </div>
+                            <li><a href="../scorecard" accesskey="10" title="">Scorecard</a></li>
+                            <li></li>
+                        </ul>
+		</div>
+	</div>
+	<div id="main">
+		<div id="banner">
+                    <iframe id="body_frame" src="main.php" width="1100" height="1100" style="border: 1px solid black;"></iframe>
+		</div>
+		<div id="welcome">
+			<p>This page displays verification for the Global Forecast System (GFS) developer experiments.</p>
+                        <p>DISCLAIMER: This web page is not "operational" and therefore not subject to 24-hr monitoring by NCEP's Central Operations staff.</p>
+		</div>
+                <div id="contact">
+                        <p><br><b>CONTACT INFORMATION</b>
+                </div>
+		<div id="footer">
+			<img src="../images/noaa.png" alt="" width="100" />
+			<img src="../images/nws.png" alt="" width="100" />
+			<img src="../images/commerce.png" alt="" width="100" />
+			<img src="../images/usagov.png" alt="" width="100" />
+			<br>
+			<a href="https://www.weather.gov/privacy">Privacy Policy</a> | <a href="https://www.weather.gov/disclaimer">Disclaimer</a> | <a href="https://www.commerce.gov">Department of Commerce</a> | <a href="https://www.noaa.gov">NOAA</a> | <a href="https://www.weather.gov">NWS</a> | <a href="https://www.ncep.noaa.gov">NCEP</a> | <a href="https://www.emc.ncep.noaa.gov">EMC</a>
+		</div>
+		<div id="copyright">
+		</div>
+	</div>
+</div>
+</body>
+</html>

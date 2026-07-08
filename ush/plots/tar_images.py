@@ -51,9 +51,9 @@ for case_type in case_type_list:
     if len(glob.glob(job_input_dir+'/*')) != 0:
         print(f"Making tar file {tar_file} "
               +f"from {job_input_dir}")
-        os.chdir(job_input_dir)
-        vfg_util.run_shell_command(['tar', '-cvf', tar_file, '*'])
-        os.chdir(cwd)
+        vfg_util.run_shell_command(
+            ['tar', '-cvf', tar_file, '-C', job_input_dir, '.']
+        )
     else:
         print(f"No images generated in {job_input_dir}, "
               +"cannot make tar file")

@@ -1,0 +1,29 @@
+<?php include '../../globalvars.php';
+      $stat_title = '2D Plots: Model-to-Obs';
+      $Sfc_url = $image_location.'/model2obs_sfc_VVV_SSS.png';
+      $TotCol_url = $image_location.'/model2obs_totcol_VVV_SSS.png';
+      $Precip_url = $image_location.'/model2obs_precip_VVV_SSS.png';
+      $CloudsRad_url = $image_location.'/model2obs_cloudsrad_VVV_SSS.png';
+      $sfc_Temp2m_name = 'TMP_2mAGL';
+      $totcol_PrecipWtrClm_name = 'PWAT_column';
+      $totcol_CldWtrClm_name = 'CWAT_column';
+      $precip_PrecipRate_name = 'PRATE_sfc_avg6hr';
+      $cloudsrad_DownLWRadFlxSfc_name = 'DLWRF_sfc_avg6hr';
+      $cloudsrad_UpLWRadFlxSfc_name = 'ULWRF_sfc_avg6hr';
+      $cloudsrad_UpLWRadFlxTOA_name = 'ULWRF_toa_avg6hr';
+      $cloudsrad_DownSWRadFlxSfc_name = 'DSWRF_sfc_avg6hr';
+      $cloudsrad_UpSWRadFlxSfc_name = 'USWRF_sfc_avg6hr';
+      $cloudsrad_UpSWRadFlxTOA_name = 'USWRF_toa_avg6hr';
+      $cloudsrad_SWAlbdoSfc_name = 'SWALBDO_sfc_avg6hr';
+      $cloudsrad_SWAbsorb_name = 'SWABSORB_atm_avg6hr';
+      $cloudsrad_LWEmit_name = 'LWEMIT_atm_avg6hr';
+      $cloudsrad_CldFracClm_name = 'TCDC_column_avg6hr';
+      $cloudsrad_CldFracLow_name = 'LCDC_low_avg6hr';
+      $cloudsrad_CldFracMid_name = 'MCDC_mid_avg6hr';
+      $cloudsrad_CldFracHigh_name = 'HCDC_high_avg6hr'; 
+      $NoLevel_name = '_';
+      $Anl_name = 'anl';
+      $Day1_name = 'd1';
+      $Day5_name = 'd5';
+      $Day10_name = 'd10';?>
+

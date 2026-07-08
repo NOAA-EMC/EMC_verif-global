@@ -1,0 +1,22 @@
+<?php include '../../globalvars.php';
+      $stat_title = 'Data Assimilation Plots: Ensemble';
+      $TMP_url = $image_location.'/ens_VVV_preslevs_TMP_LLL.png';
+      $UGRD_url = $image_location.'/ens_VVV_preslevs_UGRD_LLL.png';
+      $VGRD_url = $image_location.'/ens_VVV_preslevs_VGRD_LLL.png';
+      $SPFH_url = $image_location.'/ens_VVV_preslevs_SPFH_LLL.png';
+      $O3MR_url = $image_location.'/ens_VVV_preslevs_O3MR_LLL.png';
+      $PRES_url = $image_location.'/ens_VVV_sfc_PRES_LLL.png';
+      $Mean_name = 'mean';
+      $Spread_name = 'spread';
+      $P1_name = '1hPa';
+      $P10_name = '10hPa';
+      $P250_name = '250hPa';
+      $P500_name = '500hPa';
+      $P850_name = '850hPa';
+      $P1000_name = '1000hPa';
+      $Sfc_name = 'sfc';
+      $LevelAll_name = 'all_zonalmean';
+      $LevelTrop_name = 'trop_zonalmean';
+      $LevelLowTrop_name = 'lowertrop_zonalmean';
+      $LevelUpTrop_name = 'uppertrop_zonalmean';
+      $LevelStrat_name = 'strat_zonalmean';?>

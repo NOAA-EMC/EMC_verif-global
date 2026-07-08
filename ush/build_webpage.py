@@ -5,7 +5,7 @@ Abstract: This is run at the end of all step2 scripts
           in scripts/.
           This creates a job card to:
               1) if needed, create website from
-                 EMC_verif-global template (webpage.tar)
+                 EMC_verif-global template (webpage/)
                  at specified user location on web server
               2) send images to web server
           It then submits to the transfer queue.
@@ -370,14 +370,9 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
                            +' "mkdir -p '+webdir+' "'+'\n')
         web_job_file.write('    sleep 30\n')
-        web_job_file.write('    scp -q '+os.path.join(USHverif_global,
-                                                      'webpage.tar')+'  '
+        web_job_file.write('    scp -rq '+os.path.join(USHverif_global,
+                                                      'webpage/*')+'  '
                            +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "cd '+webdir+' ; tar -xvf webpage.tar "'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "rm '+os.path.join(webdir, 'webpage.tar')
-                           +' "'+'\n')
         web_job_file.write('fi'+'\n')
         web_job_file.write('\n')
         if RUN == 'fit2obs_plots':

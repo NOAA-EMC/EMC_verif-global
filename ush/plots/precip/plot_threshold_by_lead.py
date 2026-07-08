@@ -1,9 +1,9 @@
 '''
-Name: plot_lead_by_threshold.py
+Name: plot_threshold_by_lead.py
 Contact(s): Mallory Row (mallory.row@noaa.gov)
-Abstract: This script generates a lead by level plot.
-          (x-axis: forecast hour; y-axis: pressure levels; contours: statistics values)
-          (Graphics Naming Convention: vertprof_fhrmean)
+Abstract: This script generates a threshold by lead plot.
+          (x-axis: threshold; y-axis: forecast hours contours: statistics values)
+          (Graphics Naming Convention: threshold_by_lead)
 '''
 
 import sys
@@ -22,14 +22,14 @@ import matplotlib.gridspec as gridspec
 import verif_global_util as vfg_util
 from precip_plots_specs import PlotSpecs
 
-class LeadByThreshold:
+class ThresholdByLead:
     """
-    Make a lead by threshold graphic
+    Make a threshold by lead graphic
     """
 
     def __init__(self, logger, input_dir, output_dir, model_info_dict,
                  date_info_dict, plot_info_dict, met_info_dict, logo_dir):
-        """! Initialize LeadByThreshold class
+        """! Initialize ThresholdByLead class
 
              Args:
                  logger          - logger object
@@ -52,14 +52,14 @@ class LeadByThreshold:
         self.met_info_dict = met_info_dict
         self.logo_dir = logo_dir
 
-    def make_lead_by_threshold(self):
+    def make_threshold_by_lead(self):
         """! Make the lead by level graphic
 
              Args:
 
              Returns:
         """
-        self.logger.info(f"Plot Type: Lead By Threshold...")
+        self.logger.info(f"Plot Type: Threshold By Lead...")
         self.logger.debug(f"Input directory: {self.input_dir}")
         self.logger.debug(f"Output directory: {self.output_dir}")
         self.logger.debug(f"Model information dictionary: "
@@ -70,35 +70,17 @@ class LeadByThreshold:
                           +f"{self.plot_info_dict}")
         # Check stat
         if self.plot_info_dict['stat'] == 'FBAR_OBAR':
-            self.logger.error("Cannot make lead_by_threshold for stat "
+            self.logger.error("Cannot make threshold_by_lead for stat "
                               +f"{self.plot_info_dict['stat']}")
             sys.exit(1)
-        plot_specs_lbt = PlotSpecs(self.logger, 'lead_by_threshold')
+        plot_specs_tbl = PlotSpecs(self.logger, 'threshold_by_lead')
         self.logger.info(f"Building data for {self.plot_info_dict['stat']} "
-                         +"- lead by threshold ")
-        #                 +f"{self.plot_info_dict['vert_profile']}")
-        #vert_profile_levels = plot_specs_lbt.get_vert_profile_levels(
-        #    self.plot_info_dict['vert_profile']
-        #)
-        #if self.plot_info_dict['fcst_var_name'] == 'O3MR' and \
-        #        self.plot_info_dict['vert_profile'] == 'all':
-        #    vert_profile_levels = ['P100', 'P70', 'P50', 'P30', 'P20', 'P10', 'P5', 'P1']
-        #vert_profile_levels_int = np.empty(len(vert_profile_levels),
-        #                                   dtype=int)
+                         +"- threshold by lead")
 
         fcst_var_threshs = self.plot_info_dict['fcst_var_threshs']
         fcst_var_threshs_int = np.empty(len(fcst_var_threshs))
         self.plot_info_dict['fcst_var_level'] = "A24"
         self.plot_info_dict['obs_var_level'] = "A24"
-
-        #fcst_var_threshs_int = np.empty(len(fcst_var_threshs),
-        #                                    dtype=int)
-        #self.plot_info_dict['fcst_var_level'] = (
-        #    self.plot_info_dict['vert_profile']
-        #)
-        #self.plot_info_dict['obs_var_level'] = (
-        #    self.plot_info_dict['vert_profile']
-        #)
         fcst_units = []
         # Make dataframe for all levels and all forecast hours
         for fcst_var_thresh in fcst_var_threshs:
@@ -236,8 +218,8 @@ class LeadByThreshold:
                         ] = model_idx_forecast_hour_avg
         # Set up plot
         self.logger.info(f"Setting up plot")
-        plot_specs_lbt = PlotSpecs(self.logger, 'lead_by_threshold')
-        plot_specs_lbt.set_up_plot()
+        plot_specs_tbl = PlotSpecs(self.logger, 'threshold_by_lead')
+        plot_specs_tbl.set_up_plot()
         model_idx_list = (
             stat_forecast_hour_thresh_avg_df.index\
             .get_level_values(0).unique().tolist()
@@ -246,7 +228,8 @@ class LeadByThreshold:
             stat_forecast_hour_thresh_avg_df.index\
             .get_level_values(1).unique().tolist()
         )
-        ymesh, xmesh = np.meshgrid(fcst_var_threshs_int, fhr_idx_list)
+        thresh_idx = np.arange(len(fcst_var_threshs_int))
+        ymesh, xmesh = np.meshgrid(fhr_idx_list, thresh_idx)
         nsubplots = len(model_idx_list)
         if nsubplots == 0:
              self.logger.info(f"Empty dataframe, skipping")
@@ -291,9 +274,9 @@ class LeadByThreshold:
             self.logger.error("Too many subplots requested, maximum is 10")
             sys.exit(1)
         if nsubplots <= 2:
-            plot_specs_lbt.fig_size = (16., 8.)
-            plot_specs_lbt.fig_title_size = 16
-            plt.rcParams['figure.titlesize'] = plot_specs_lbt.fig_title_size
+            plot_specs_tbl.fig_size = (16., 8.)
+            plot_specs_tbl.fig_title_size = 16
+            plt.rcParams['figure.titlesize'] = plot_specs_tbl.fig_title_size
         if nsubplots >= 2:
             n_xticks = 8
         else:
@@ -308,7 +291,12 @@ class LeadByThreshold:
             if len(xticks) > n_xticks:
                 xtick_intvl = int(len(xticks)/n_xticks)
                 xticks = xticks[::xtick_intvl]
-        fcst_var_threshs_int_ticks =fcst_var_threshs_int
+        fcst_var_threshs_int_ticks =  []
+        for x in fcst_var_threshs_int:
+            if int(x) == float(x):
+                fcst_var_threshs_int_ticks.append(str(int(x)))
+            else:
+                fcst_var_threshs_int_ticks.append(str(float(x)))
         fcst_units = np.unique(fcst_units)
         fcst_units = np.delete(fcst_units, np.where(fcst_units == 'nan'))
         if len(fcst_units) > 1:
@@ -317,7 +305,7 @@ class LeadByThreshold:
         elif len(fcst_units) == 0:
             self.logger.debug("Cannot get variables units, leaving blank")
             fcst_units = ['']
-        plot_title = plot_specs_lbt.get_plot_title(
+        plot_title = plot_specs_tbl.get_plot_title(
             self.plot_info_dict, self.date_info_dict,
             fcst_units[0]
         )
@@ -328,9 +316,9 @@ class LeadByThreshold:
                 plot_left_logo_path
             )
             left_logo_xpixel_loc, left_logo_ypixel_loc, left_logo_alpha = (
-                plot_specs_lbt.get_logo_location(
-                    'left', plot_specs_lbt.fig_size[0],
-                    plot_specs_lbt.fig_size[1], plt.rcParams['figure.dpi']
+                plot_specs_tbl.get_logo_location(
+                    'left', plot_specs_tbl.fig_size[0],
+                    plot_specs_tbl.fig_size[1], plt.rcParams['figure.dpi']
                 )
             )
         else:
@@ -343,18 +331,21 @@ class LeadByThreshold:
                  plot_right_logo_path
             )
             right_logo_xpixel_loc, right_logo_ypixel_loc, right_logo_alpha = (
-                plot_specs_lbt.get_logo_location(
-                    'right', plot_specs_lbt.fig_size[0],
-                    plot_specs_lbt.fig_size[1], plt.rcParams['figure.dpi']
+                plot_specs_tbl.get_logo_location(
+                    'right', plot_specs_tbl.fig_size[0],
+                    plot_specs_tbl.fig_size[1], plt.rcParams['figure.dpi']
                 )
             )
         else:
             plot_right_logo = False
             self.logger.debug(f"{plot_right_logo_path} does not exist")
-        image_name = plot_specs_lbt.get_savefig_name(
+        if self.plot_info_dict['img_quality'] != 'high':
+            plot_left_logo = False
+            plot_right_logo = False
+        image_name = plot_specs_tbl.get_savefig_name(
             self.output_dir, self.plot_info_dict, self.date_info_dict
         )
-        subplot0_cmap, subplotsN_cmap = plot_specs_lbt.get_plot_colormaps(
+        subplot0_cmap, subplotsN_cmap = plot_specs_tbl.get_plot_colormaps(
             self.plot_info_dict['stat']
         )
         subplot0_data = (
@@ -377,7 +368,7 @@ class LeadByThreshold:
             subplotsN_data = [np.nan]
         (have_subplot0_levs, subplot0_levs,
          have_subplotsN_levs, subplotsN_levs) = (
-            plot_specs_lbt.get_plot_contour_levels(
+            plot_specs_tbl.get_plot_contour_levels(
                 self.plot_info_dict['stat'], subplot0_data, subplotsN_data
             )
         )
@@ -386,8 +377,8 @@ class LeadByThreshold:
         # Make plot  
         #################################################
         self.logger.info(f"Making plot ...............")
-        fig = plt.figure(figsize=(plot_specs_lbt.fig_size[0],
-                                  plot_specs_lbt.fig_size[1]))
+        fig = plt.figure(figsize=(plot_specs_tbl.fig_size[0],
+                                  plot_specs_tbl.fig_size[1]))
         gs = gridspec.GridSpec(gs_row, gs_col,
                                bottom=gs_bottom, top=gs_top,
                                hspace=gs_hspace, wspace=gs_wspace)
@@ -417,30 +408,27 @@ class LeadByThreshold:
             masked_model_num_data = np.ma.masked_invalid(model_num_data)
             ax = plt.subplot(gs[model_idx_list.index(model_idx)])
             ax.grid(True)
-            ax.set_xlim([self.date_info_dict['forecast_hours'][0],
+            ax.set_ylim([self.date_info_dict['forecast_hours'][0],
                          self.date_info_dict['forecast_hours'][-1]])
-            ax.set_xticks(xticks)
+            ax.set_yticks(xticks)
+            if ax.get_subplotspec().is_first_col() \
+                    or (nsubplots % 2 != 0 \
+                        and model_idx_list.index(model_idx) \
+                        == nsubplots-1):
+                ax.set_ylabel('Forecast Hour')
+            else:
+                plt.setp(ax.get_yticklabels(), visible=False)
+            ax.minorticks_off()
+            ax.set_xticks(thresh_idx)
+            ax.set_xticklabels(fcst_var_threshs_int_ticks)
+            ax.set_xlim([thresh_idx[0], thresh_idx[-1]])
             if ax.get_subplotspec().is_last_row() \
                     or (nsubplots % 2 != 0 \
                         and model_idx_list.index(model_idx) \
                         == nsubplots-1):
-                ax.set_xlabel('Forecast Hour')
+                ax.set_xlabel('Thresholds (kg/m^2)')
             else:
                 plt.setp(ax.get_xticklabels(), visible=False)
-            ax.set_yscale('log')
-            ax.minorticks_off()
-            ax.set_yticks(fcst_var_threshs_int_ticks)
-            ax.set_yticklabels(fcst_var_threshs_int_ticks)
-            ax.set_ylim([fcst_var_threshs_int[0],
-                         fcst_var_threshs_int[-1]])
-            if ax.get_subplotspec().is_first_col() \
-                    or (nsubplots % 2 != 0 \
-                        and model_idx_list.index(model_idx) \
-                        == nsubplots -1):
-                ax.set_ylabel('Thresholds (kg/m^2)')
-            else:
-                plt.setp(ax.get_yticklabels(), visible=False)
-
             #First sub-plot: 
             if model_idx == model_idx_list[0]:
                 self.logger.debug(f"Plotting {model_num} ["
@@ -452,15 +440,15 @@ class LeadByThreshold:
                 subplot0_data = masked_model_num_data
                 if not subplot0_data.mask.all():
                     if have_subplot0_levs:
-                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data,
+                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data.T,
                                           levels=subplot0_levs,
                                           cmap=subplot0_cmap,
                                           extend='both')
                     else:
-                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data,
+                        CF0 = ax.contourf(xmesh, ymesh, subplot0_data.T,
                                           cmap=subplot0_cmap,
                                           extend='both')
-                    C0 = ax.contour(xmesh, ymesh, subplot0_data,
+                    C0 = ax.contour(xmesh, ymesh, subplot0_data.T,
                                     levels=CF0.levels, colors='k',
                                     linewidths=1.0)
                     C0_labels_list = []
@@ -476,12 +464,12 @@ class LeadByThreshold:
                         C0_fmt[lev] = label
                     ax.clabel(C0, C0.levels, fmt=C0_fmt, inline=True,
                               fontsize=12.5)
-                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                         if not make_colorbar:
                             make_colorbar = True
                             cbar_CF = CF0
                             cbar_ticks = CF0.levels
-                            cbar_label = plot_specs_lbt.get_stat_plot_name(
+                            cbar_label = plot_specs_tbl.get_stat_plot_name(
                                 self.plot_info_dict['stat']
                             )
                 else:
@@ -490,7 +478,7 @@ class LeadByThreshold:
                                       +"masked")
             else:
                 #Other sub-plots
-                if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                     self.logger.debug(f"Plotting {model_num} ["
                                       +f"{model_num_name},"
                                       +f"{model_num_plot_name}]")
@@ -508,13 +496,13 @@ class LeadByThreshold:
                     subplotN_data = masked_model_num_data - subplot0_data
                 if not subplotN_data.mask.all():
                     if have_subplotsN_levs:
-                        CFN = ax.contourf(xmesh, ymesh, subplotN_data,
+                        CFN = ax.contourf(xmesh, ymesh, subplotN_data.T,
                                           levels=subplotsN_levs,
                                           cmap=subplotsN_cmap,
                                           extend='both')
                         if self.plot_info_dict['stat'] in ['BIAS', 'ME',
-                                                           'FBIAS', 'ETS']:
-                            CN = ax.contour(xmesh, ymesh, subplotN_data,
+                                                           'FBIAS']:
+                            CN = ax.contour(xmesh, ymesh, subplotN_data.T,
                                             levels=CFN.levels, colors='k',
                                             linewidths=1.0)
                             CN_labels_list = []
@@ -537,9 +525,9 @@ class LeadByThreshold:
                             cbar_CF = CFN
                             cbar_ticks = CFN.levels
                             if self.plot_info_dict['stat'] in ['BIAS', 'ME',
-                                                               'FBIAS', 'ETS']:
+                                                               'FBIAS']:
                                 cbar_label = (
-                                    plot_specs_lbt.get_stat_plot_name(
+                                    plot_specs_tbl.get_stat_plot_name(
                                         self.plot_info_dict['stat']
                                     )
                                 )
@@ -549,7 +537,7 @@ class LeadByThreshold:
                         self.logger.debug("Do not have contour levels "
                                           +"to plot")
                 else:
-                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS', 'ETS']:
+                    if self.plot_info_dict['stat'] in ['BIAS', 'ME', 'FBIAS']:
                         self.logger.debug(f"{model_num} ["
                                           +f"{model_num_name},"
                                           +f"{model_num_plot_name}] is fully "
@@ -653,9 +641,9 @@ def main():
     logger_info = f"Log file: {job_logging_file}"
     print(logger_info)
     logger.info(logger_info)
-    p = LeadByThreshold(logger, INPUT_DIR, OUTPUT_DIR, MODEL_INFO_DICT,
-                    DATE_INFO_DICT, PLOT_INFO_DICT, MET_INFO_DICT, LOGO_DIR)
-    p.make_lead_by_threshold()
+    p = ThresholdByLead(logger, INPUT_DIR, OUTPUT_DIR, MODEL_INFO_DICT,
+                        DATE_INFO_DICT, PLOT_INFO_DICT, MET_INFO_DICT, LOGO_DIR)
+    p.make_threshold_by_lead()
 
 if __name__ == "__main__":
     main()

@@ -51,13 +51,13 @@ base_plot_jobs_info_dict = {
                                                'P700', 'P500', 'P400',
                                                'P300', 'P250', 'P200',
                                                'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                               'P20', 'P10', 'P5', 'P1']},
                  'obs_var_dict': {'name': 'TMP',
                                   'levels': ['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                 'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                  'obs_name': 'ADPUPA'},
         'RH': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                    'fcst_var_dict': {'name': 'RH',
@@ -65,13 +65,13 @@ base_plot_jobs_info_dict = {
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                    'obs_var_dict': {'name': 'RH',
                                     'levels': ['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                    'obs_name': 'ADPUPA'},
         'SPFH': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                     'fcst_var_dict': {'name': 'SPFH',
@@ -79,13 +79,13 @@ base_plot_jobs_info_dict = {
                                                   'P700', 'P500', 'P400',
                                                   'P300', 'P250', 'P200',
                                                   'P150', 'P100', 'P50',
-                                                  'P10', 'P5', 'P1']},
+                                                  'P20', 'P10', 'P5', 'P1']},
                     'obs_var_dict': {'name': 'SPFH',
                                      'levels':['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                 'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                     'obs_name': 'ADPUPA'},
 
         'HGT': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
@@ -94,13 +94,13 @@ base_plot_jobs_info_dict = {
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']},
+                                                   'P20', 'P10', 'P5', 'P1']},
                       'obs_var_dict': {'name': 'HGT',
                                        'levels': ['P1000', 'P925', 'P850',
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']},
+                                                   'P20', 'P10', 'P5', 'P1']},
                    'obs_name': 'ADPUPA'},
         'UGRD_VGRD': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                        'fcst_var_dict': {'name': 'UGRD_VGRD',
@@ -108,13 +108,13 @@ base_plot_jobs_info_dict = {
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']}, 
+                                                   'P20', 'P10', 'P5', 'P1']},
                        'obs_var_dict': {'name': 'UGRD_VGRD',
                                         'levels':  ['P1000', 'P925', 'P850',
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']}, 
+                                                   'P20', 'P10', 'P5', 'P1']},
                        'obs_name': 'ADPUPA'}        
     },
     'grid2obs_conus_sfc': {
@@ -355,19 +355,15 @@ for case_type in case_type_list:
         job_env_dict['start_date'] = start_date
         job_env_dict['end_date'] = end_date
         job_env_dict['plot_by'] = plot_by
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
-                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
-                              'init_hr_inc']
+        case_type_env_list = ['grid', 'event_eq']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
         if JOB_GROUP in ['filter_stats', 'make_plots']:
-            valid_hr_start = int(job_env_dict['valid_hr_beg'])
+            valid_hr_start = int(job_env_dict['valid_hr_start'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
-            valid_hr_inc = valid_hr_inc // 3600
             valid_hrs = list(range(valid_hr_start,
                                    valid_hr_end+valid_hr_inc,
                                    valid_hr_inc))
@@ -560,6 +556,8 @@ for case_type in case_type_list:
                             ['obs_var_dict']['levels']
                         )
                     else:
+                        if 'vert_profile' in job_env_dict:
+                            job_env_dict.pop('vert_profile')
                         job_env_dict['fcst_var_level_list'] = plot_loop_info[2]
                         job_env_dict['obs_var_level_list'] = (
                             case_type_plot_jobs_dict[case_type_job]\

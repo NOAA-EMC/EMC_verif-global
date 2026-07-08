@@ -91,6 +91,7 @@ elif JOB_GROUP == 'make_plots':
     obs_var_thresh_list = os.environ['obs_var_thresh_list'].split(', ')
     stat = os.environ['stat']
     plot = os.environ['plot']
+    img_quality = os.environ['img_quality']
 
 # Set variables
 start_date_dt = datetime.datetime.strptime(start_date, '%Y%m%d')
@@ -171,6 +172,7 @@ if JOB_GROUP in ['filter_stats', 'make_plots']:
         original_plot_info_dict['obs_var_thresh'] = obs_var_thresh
     elif JOB_GROUP == 'make_plots':
         original_plot_info_dict['stat'] = stat
+        original_plot_info_dict['img_quality'] = img_quality
         fcst_var_prod = list(
             itertools.product([fcst_var_name], fcst_var_level_list,
                               fcst_var_thresh_list)
@@ -488,6 +490,10 @@ elif JOB_GROUP == 'make_plots':
             plot_info_dict['vert_profile'] = dbl_info[2]
             plot_info_dict['fcst_var_level'] = dbl_info[2]
             plot_info_dict['obs_var_level'] = dbl_info[2]
+            init_hr = vfg_util.get_init_hour(
+                int(date_info_dict['valid_hr_start']),
+                int(date_info_dict['forecast_hour'])
+            )
             for t in range(len(fcst_var_thresh_list)):
                 plot_info_dict['fcst_var_thresh'] = fcst_var_thresh_list[t]
                 plot_info_dict['obs_var_thresh'] = obs_var_thresh_list[t]
@@ -495,7 +501,8 @@ elif JOB_GROUP == 'make_plots':
                     job_DATA_dir, plot_info_dict, date_info_dict
                 )
                 job_input_dir = make_plots_input_dir
-                if not os.path.exists(job_DATA_image_name) \
+                if init_hr in init_hrs \
+                        and not os.path.exists(job_DATA_image_name) \
                         and plot_info_dict['stat'] != 'FBAR_OBAR':
                     make_dbl = True
                 else:

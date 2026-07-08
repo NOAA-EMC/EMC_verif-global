@@ -1,0 +1,225 @@
+body {
+        font-family: 'Source Sans Pro', sans-serif;
+        font-size: 12pt;
+        font-weight: 300;
+	margin:0;
+	padding:0px;
+}
+
+a, a:visited {
+	text-decoration:none;
+	color:#930B01;
+}
+a.sublink, a.sublink:visited {
+        text-decoration:none;
+        color:#930B01;
+}
+a:hover {
+	text-decoration:underline;
+	color:#FF0000;
+}
+p {
+	margin:4px;
+}
+table {
+	font-size:11px;
+	font-family:'Source Sans Pro', sans-serif;
+}
+form {
+	margin:0;
+	padding:0;
+}
+input {
+	font-size:11px;
+	font-family:'Source Sans Pro', sans-serif;
+}
+ul {
+	text-indent:0px;
+	margin:0px;
+	padding:0px;
+}
+li {
+	text-indent:0px;
+	margin:0px;
+	padding:0px;
+	list-style-position:inside;
+}
+center {
+	margin:0;
+        margin-left:50px;
+	padding:0;
+}
+pre {
+	margin:0;
+	padding:0;
+}
+/* BODY DIV FORMATS*/
+#pageTitle {
+        position:absolute;
+        text-align:center;
+        color:rgba(255,255,255,1);
+        background: #112e51;
+        top:5px;
+        left:100px;
+        padding:0px;
+        width:900px;
+        height:36px;
+        font-size:1.75em;
+        font-weight:700;
+        border-radius:12px;
+        border-style:solid;
+        border-color:#112e51;
+}
+
+#pageContents {
+        position:absolute;
+        text-align:left;
+        top:75px;
+        left:50px;
+        padding:0px;
+        width:1000px;
+        font-size:1.5em;
+        font-weight:50;
+}
+
+.bold{
+        font-weight: bold;
+        margin: 0px;
+        padding: 0px;
+}
+
+/* ====================================================================================== */
+/* Top menu */
+/* ====================================================================================== */
+
+.page-menu{
+        width: 100%;
+        padding-top:5%;
+        background: #e0e0e0;
+        font-size: 15px;
+}
+
+.page-menu .table{
+        display: table;
+        margin: auto;
+}
+
+.page-menu .element{
+        display: table-cell;
+        padding: 2px;
+}
+
+/* ====================================================================================== */
+/* Middle menu */
+/* ====================================================================================== */
+
+.page-middle{
+        width: 100%;
+        background: #e0e0e0;
+        font-size: 13px;
+        padding-top: 2px;
+        padding-bottom: 3px;
+        text-align: center;
+        font-weight: bold;
+        vertical-align: top;
+        border-bottom: 1px solid black;
+}
+
+/* ====================================================================================== */
+/* Element containing map */
+/* ====================================================================================== */
+
+#page-map{
+        width: 70%;
+        margin: auto;
+        margin-top: 10px;
+}
+
+#loading{
+        position: absolute;
+        z-index: 100;
+        margin: auto;
+        width: 99%;
+        display: none;
+        text-align: center;
+}
+
+/* ====================================================================================== */
+/* Information Window */
+/* ====================================================================================== */
+
+ /* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  height: 30%;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+} 
+
+.infobutton {
+  padding: 0px;
+  background-color: #e0e0e0;
+  border: none;
+  color:#930B01;
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.infobutton:hover {
+        cursor: pointer;
+        text-decoration:underline;
+        color:#FF0000;
+}
+
+/* ====================================================================================== */
+/* Mobile screen handling */
+/* ====================================================================================== */
+
+@media only screen and (max-width: 800px){
+        .page-menu .element{
+                display: block;
+                margin-top: 4px;
+                margin-bottom: 4px;
+                font-size: 10px;
+        }
+        select{
+                font-size:14px;
+        }
+}
+@media only screen and (max-width: 950px){
+        #page-map{
+                width: 98%;
+        }

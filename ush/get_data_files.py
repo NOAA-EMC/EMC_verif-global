@@ -1503,18 +1503,16 @@ elif RUN == 'grid2obs_step1':
                         prepbufr_dict['file_type'] = prepbufr
                         prepbufr_dict_list.append(prepbufr_dict)
                     elif RUN_type == 'conus_sfc':
-                        if valid_time >= datetime.datetime(2026, 6, 1, 0):
+                        if valid_time >= datetime.datetime(2026, 7, 13, 0):
                             prepbufr = 'rrfs'
+                            offset_hr = '00'
                         else:
                             prepbufr = 'nam'
+                            offset_hr = str(int(HH)%6).zfill(2)
                         link_prepbufr_file = os.path.join(
                             link_prepbufr_dir, 'prepbufr.'+prepbufr+'.'
                             +YYYYmmddHH
                         )
-                        if prepbufr == 'nam':
-                            offset_hr = str(int(HH)%6).zfill(2)
-                        elif prepbufr == 'rrfs':
-                            offset_hr = '00'
                         offset_time = valid_time + datetime.timedelta(
                             hours=int(offset_hr)
                         )
@@ -1539,7 +1537,9 @@ elif RUN == 'grid2obs_step1':
                         if offset_time \
                                 >= datetime.datetime.strptime('20240522',
                                                               '%Y%m%d'):
-                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.2_.'+prepbufr
+                            prepbufr_hpss_tar_prefix = (
+                                'com_obsproc_v1.2_'+prepbufr+'.'
+                            )
                         elif offset_time \
                                 >= datetime.datetime.strptime('20221129',
                                                               '%Y%m%d') \
@@ -1572,11 +1572,29 @@ elif RUN == 'grid2obs_step1':
                             )
                         else:
                             prepbufr_hpss_tar_prefix = 'com2_nam_prod_nam.'
-                        prepbufr_hpss_tar = os.path.join(
-                            hpss_prod_base_dir, 'rh'+offset_YYYY,
-                            offset_YYYYmm, offset_YYYYmmdd,
-                            prepbufr_hpss_tar_prefix
-                            +offset_YYYYmmddHH+'.bufr.tar')
+                        if prepbufr == 'rrfs':
+                            if int(offset_HH) >= 0 and int(offset_HH) <= 5:
+                                tar_hr_span = "00-05"
+                            elif int(offset_HH) >= 6 and int(offset_HH) <= 11:
+                                tar_hr_span = "06-11"
+                            elif int(offset_HH) >= 12 and int(offset_HH) <= 17:
+                                tar_hr_span = "12-17"
+                            else:
+                                tar_hr_span = "18-23"
+                            prepbufr_hpss_tar = os.path.join(
+                                hpss_prod_base_dir, 'rh'+offset_YYYY,
+                                offset_YYYYmm, offset_YYYYmmdd,
+                                prepbufr_hpss_tar_prefix
+                                +offset_YYYYmmdd+tar_hr_span
+                                +'.obsproc_bufr.tar'
+                            )
+                        else:
+                            prepbufr_hpss_tar = os.path.join(
+                                hpss_prod_base_dir, 'rh'+offset_YYYY,
+                                offset_YYYYmm, offset_YYYYmmdd,
+                                prepbufr_hpss_tar_prefix
+                                +offset_YYYYmmddHH+'.bufr.tar'
+                            )
                         prepbufr_hpss_file = offset_filename
                         prepbufr_dict = {}
                         prepbufr_dict['prod_file'] = prepbufr_prod_file

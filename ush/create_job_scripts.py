@@ -132,7 +132,7 @@ def create_job_scripts_step1(start_date_dt, end_date_dt, case, case_abbrev,
                 job_env_dict['DATE'] = date_dt.strftime('%Y%m%d')
                 # Check date for prepbufr NAM vs. RRFS
                 if case == 'grid2obs' and case_type == 'conus_sfc':
-                    if date_dt >= datetime.datetime(2026, 6, 1, 0):
+                    if date_dt >= datetime.datetime(2026, 7, 13, 0):
                         obtype = 'rrfs'
                         job_env_dict['obtype'] = 'rrfs'
                 # Need to do check on grid-to-grid truth file

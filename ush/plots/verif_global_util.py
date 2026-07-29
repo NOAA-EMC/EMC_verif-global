@@ -1078,6 +1078,10 @@ def build_df(job_group, logger, input_dir, output_dir, model_info_dict,
                 filtered_model_df['FCST_VALID_BEG'] = (
                     filtered_model_df['FCST_VALID_BEG'].dt.strftime('%Y%m%d_%H%M%S')
                 )
+                filtered_model_df = filtered_model_df[
+                    filtered_model_df["VERSION"].str.split('.')\
+                    .str[0].str[1:].astype(int) >= 12
+                ]
                 filtered_model_df.to_csv(
                     filtered_model_stat_file, header=met_version_line_type_col_list,
                     index=None, sep=' ', mode='w'

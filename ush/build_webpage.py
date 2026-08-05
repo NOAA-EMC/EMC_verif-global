@@ -15,6 +15,7 @@ import os
 import datetime
 import glob
 import shutil
+import verif_global_util as vfg_util
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -428,28 +429,36 @@ web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
 print("Submitting "+web_job_filename+" to "+QUEUESERV)
 print("Output sent to "+web_job_output)
 if machine == 'WCOSS2':
-    os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
-              +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
-              +'-e '+web_job_output+' -N '+web_job_name+' '
-              +'-l select=1:ncpus=1 '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+         '-q', QUEUESERV, '-A', ACCOUNT, '-o', web_job_output,
+         '-e', web_job_output, '-N', web_job_name,
+         '-l', 'select=1:ncpus=1', web_job_filename]
+    )
 elif machine == 'HERA':
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+         '--partition='+QUEUESERV, '--account='+ACCOUNT,
+         '--output='+web_job_output, '--job-name='+web_job_name,
+         web_job_filename]
+    )
 elif machine == 'GAEAC6':
     CLUSTERS = os.environ['CLUSTERS']
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+         '--clusters='+CLUSTERS, '--account='+ACCOUNT,
+         '--output='+web_job_output, '--job-name='+web_job_name,
+         web_job_filename]
+    )
 elif machine in ["ORION", "HERCULES", "GAEAC6"]:
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently " + machine + " cannot connect to "+webhost)
     else:
-        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT,
+             '--output='+web_job_output, '--job-name='+web_job_name,
+             web_job_filename]
+        )
 
 print("END: "+os.path.basename(__file__))

@@ -17,6 +17,7 @@ import cartopy.crs as ccrs
 from cartopy.util import add_cyclic_point
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy import config
+import verif_global_util as vfg_util
 
 warnings.filterwarnings('ignore')
 
@@ -814,6 +815,9 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
         DATA, RUN, 'metplus_output', 'images/.'
     )
     print("Linking image to "+link_image_dir)
-    os.system('ln -sf '+savefig_name+' '+link_image_dir)
+    os.symlink(
+        savefig_name,
+        os.path.join(link_image_dir, savefig_name.rpartition('/')[2])
+    )
     plt.close()
     plt.close()

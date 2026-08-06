@@ -349,7 +349,7 @@ def create_job_script(
     # --- Set python files ---
     sh.write("\n")
     sh.write("# Set PYTHONPATH\n")
-    sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}/plots\n")
+    sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}\n")
 
     # --- Write configuration settings ---
     sh.write("\n")

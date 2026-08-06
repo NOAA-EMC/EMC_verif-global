@@ -2202,9 +2202,9 @@ elif RUN == 'satellite_step1':
                              os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
                                           +'.vx_mask.SEA_ICE_FREE.nc '),
-                             +'-type', 'data', '-thresh', "'==0'", '-intersection',
-                             +'-mask_field', "'name="+'"SEA_ICE";',
-                             +'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
+                             '-type', 'data', '-thresh', "'==0'", '-intersection',
+                             '-mask_field', "'name="+'"SEA_ICE";',
+                             'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
                         )
                         vfg_util.run_shell_command(
                             [gen_vx_mask,

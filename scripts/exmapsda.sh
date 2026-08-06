@@ -116,9 +116,4 @@ if [ $SEND2WEB = YES ] ; then
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Succesfully ran build_webpage.py"
     echo
-else
-    if [ $KEEPDATA = NO ]; then
-        cd ..
-        rm -rf $RUN
-    fi
 fi

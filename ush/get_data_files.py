@@ -2698,7 +2698,6 @@ elif RUN == 'mapsda':
                     print("Creating average files for "+model+" "
                           +"ens"+ens_file_type+" from available data. "
                           +"Saving as "+avg_file)
-                    ncea = os.environ['NCEA']
                     if '.nc4' in model_file_format:
                         process_vars = ''
                     else:
@@ -2707,7 +2706,7 @@ elif RUN == 'mapsda':
                         )
                     if exisiting_file_list != '':
                         vfg_util.run_shell_command(
-                            [ncea, exisiting_file_list, '-o',
+                            ["ncea", exisiting_file_list, '-o',
                              avg_file+process_vars]
                         )
 

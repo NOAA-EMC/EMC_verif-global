@@ -17,7 +17,6 @@ import cartopy.crs as ccrs
 from cartopy.util import add_cyclic_point
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy import config
-import verif_global_util as vfg_util
 
 warnings.filterwarnings('ignore')
 

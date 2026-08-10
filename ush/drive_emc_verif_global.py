@@ -105,7 +105,7 @@ def create_job_script(
     # Set machine specifics
     account = user_config["MACHINE"]["queue_account"]
     if machine_name == 'GAEAC6':
-        max_ncpus = "192"
+        max_ncpus_per_node = "192"
         partition = "batch"
         clusters = "c6"
         queue = "normal"
@@ -131,7 +131,7 @@ def create_job_script(
             "/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive"
         )
     elif machine_name == 'URSA':
-        max_ncpus = "192"
+        max_ncpus_per_node = "192"
         queue = "batch"
         queueserv = "u1-service"
         partition = "u1-compute"
@@ -156,7 +156,7 @@ def create_job_script(
             "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"
         )
     elif machine_name == 'WCOSS2':
-        max_ncpus = "128"
+        max_ncpus_per_node = "128"
         queue = "dev"
         queueserv = "dev_transfer"
         partition = ""
@@ -182,12 +182,13 @@ def create_job_script(
         )
 
     nnodes = user_config["MACHINE"]["nodes"]
-    ncpus = user_config["MACHINE"]["cpus"]
+    ncpus_per_node = user_config["MACHINE"]["cpus_per_node"]
     memory = user_config["MACHINE"]["memory"]
     walltime = user_config["MACHINE"]["walltime"]
-    if int(ncpus) > int(max_ncpus):
+    if int(ncpus_per_node) > int(max_ncpus_per_node):
         error_and_exit(
-            f"Requested cpus ({ncpus}) greater than {machine_name} max ({max_ncpus})"
+            f"Requested cpus ({ncpus_per_node}) greater than "
+            +f"{machine_name} max ({max_ncpus_per_node})"
         )
     sh = open(jobfile, "w")
     submission_command = None
@@ -199,7 +200,7 @@ def create_job_script(
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
         sh.write(f"#SBATCH --ntasks={nnodes}\n")
-        sh.write(f"#SBATCH --cpus-per-task={ncpus}\n")
+        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
         sh.write(f"#SBATCH --clusters={clusters}\n")
         sh.write(f"#SBATCH --partition={partition}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
@@ -210,14 +211,14 @@ def create_job_script(
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
         sh.write(f"#SBATCH --ntasks={nnodes}\n")
-        sh.write(f"#SBATCH --cpus-per-task={ncpus}\n")
+        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
         sh.write(f"#SBATCH --get-user-env\n")
         submission_command = f"sbatch {jobfile}"
     elif machine_name == "WCOSS2":
         sh.write(f"#PBS -o {logfile}\n")
         sh.write(f"#PBS -e {logfile}\n")
-        sh.write(f"#PBS -l place=vscatter:exclhost,select={nnodes}:ncpus={ncpus}:ompthreads=1:mem={memory}\n")
+        sh.write(f"#PBS -l place=vscatter:exclhost,select={nnodes}:ncpus={ncpus_per_node}:ompthreads=1:mem={memory}\n")
         sh.write(f"#PBS -N {jobname}\n")
         sh.write(f"#PBS -q {queue}\n")
         sh.write(f"#PBS -A {account}\n")
@@ -236,7 +237,7 @@ def create_job_script(
     sh.write(f"export PARTITION_BATCH={partition}\n")
     sh.write(f"export PARTITION_DTN={partition_dtn}\n")
     sh.write(f"export CLUSTERS_DTN={clusters_dtn}\n")
-    sh.write(f"export ncpus_per_node={ncpus}\n")
+    sh.write(f"export ncpus_per_node={ncpus_per_node}\n")
     sh.write(f"export MPMD=YES\n")
 
     # --- Set verif-global path ---

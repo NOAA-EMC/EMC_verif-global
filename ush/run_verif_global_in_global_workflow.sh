@@ -245,7 +245,7 @@ export PARTITION_DTN=${PARTITION_DTN:-""}
 
 ## Run settings for machines
 export MPMD="YES"
-export nproc=${nproc:-1}
+export ncpus_per_node=${nproc:-1}
 
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global

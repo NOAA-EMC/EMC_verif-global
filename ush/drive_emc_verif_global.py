@@ -236,7 +236,7 @@ def create_job_script(
     sh.write(f"export PARTITION_BATCH={partition}\n")
     sh.write(f"export PARTITION_DTN={partition_dtn}\n")
     sh.write(f"export CLUSTERS_DTN={clusters_dtn}\n")
-    sh.write(f"export nproc={ncpus}\n")
+    sh.write(f"export ncpus_per_node={ncpus}\n")
     sh.write(f"export MPMD=YES\n")
 
     # --- Set verif-global path ---
@@ -342,7 +342,7 @@ def create_job_script(
         sh.write("\n")
         sh.write("#Set WCOSS2 resources\n")
         sh.write("export nselect=$(cat $PBS_NODEFILE | wc -l)\n")
-        sh.write("export nnp=$(($nselect * $nproc))\n")
+        sh.write("export nproc=$(($nselect * $ncpus_per_node))\n")
 
     # --- Write configuration settings ---
     sh.write("\n")

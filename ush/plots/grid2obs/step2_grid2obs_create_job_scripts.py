@@ -637,12 +637,6 @@ if MPMD == 'YES':
                                 f"poe_jobs{str(node)}")
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    if machine == 'WCOSS2':
-        nselect = subprocess.run(
-            f"cat {poe_filename} | wc -l",
-            shell=True, capture_output=True, encoding="utf8"
-        ).stdout.replace('\n', '')
-        nproc = int(nselect) * int(ncpus_per_node)
     while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(

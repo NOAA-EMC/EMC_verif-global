@@ -38,6 +38,10 @@ RUN_MAPSDA=NO
 name=wcoss2
 user=$USER
 queue_account=VERF-DEV
+nodes=1
+cpus_per_node=128
+memory=100GB
+walltime=04:00:00
 
 [INPUT_OUTPUT]
 #model_list:             model names

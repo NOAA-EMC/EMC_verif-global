@@ -656,7 +656,7 @@ DATA = os.environ['DATA']
 RUN = os.environ['RUN']
 machine = os.environ['machine']
 MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
+ncpus_per_node = int(os.environ['ncpus_per_node'])
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 RUN_abbrev = os.environ['RUN_abbrev']
@@ -718,7 +718,7 @@ if MPMD == 'YES':
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
-            if iproc >= nproc:
+            if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
                 node+=1
@@ -743,7 +743,7 @@ if MPMD == 'YES':
     # poe script for remaining processors
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    while iproc <= nproc:
+    while iproc <= ncpus_per_node:
         if machine in ['HERA', 'URSA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'

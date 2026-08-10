@@ -245,7 +245,11 @@ export PARTITION_DTN=${PARTITION_DTN:-""}
 
 ## Run settings for machines
 export MPMD="YES"
-export nproc=${nproc:-1}
+export ncpus_per_node=${nproc:-1}
+if [ $machine = "WCOSS2" ]; then
+   export nselect=$(cat $PBS_NODEFILE | wc -l)
+   export nproc=$(($nselect * $ncpus_per_node)) 
+fi
 
 ## Set paths for verif_global, MET, and METplus
 export HOMEverif_global=$HOMEverif_global

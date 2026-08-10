@@ -28,7 +28,7 @@ RUN_CASE = (os.environ['RUN'].split('_')[0])
 JOB_GROUP = os.environ['JOB_GROUP']
 machine = os.environ['machine']
 MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
+ncpus_per_node = int(os.environ['ncpus_per_node'])
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 plot_by = os.environ['plot_by']
@@ -331,7 +331,7 @@ if MPMD == 'YES':
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
-            if iproc >= nproc:
+            if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
                 node+=1
@@ -357,13 +357,7 @@ if MPMD == 'YES':
                                 f"poe_jobs{str(node)}")
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    if machine == 'WCOSS2':
-        nselect = subprocess.run(
-            f"cat {poe_filename} | wc -l",
-            shell=True, capture_output=True, encoding="utf8"
-        ).stdout.replace('\n', '')
-        nnp = int(nselect) * int(nproc)
-    while iproc <= nproc:
+    while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 '/bin/echo '+str(iproc)+'\n'

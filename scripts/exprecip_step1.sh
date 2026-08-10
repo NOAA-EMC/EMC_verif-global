@@ -88,7 +88,7 @@ if [ $MPMD = YES ]; then
         export MP_CMDFILE=${poe_script}
         if [ $machine = WCOSS2 ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-            launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,depth cfp"
+            launcher="mpiexec -np ${nproc} -ppn ${ncpus_per_node} --cpu-bind verbose,depth cfp"
         else
             launcher="srun --export=ALL --multi-prog"
         fi

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 ########################################################################
 
 def error_and_exit(message):
-    print(f"{message}. EXITING!")
+    print(f"ERROR: {message}. EXITING!")
     sys.exit(1)
 
 def check_machine(config_machine):
@@ -102,16 +102,10 @@ def create_job_script(
         home_verif_global_path, "scripts",
         f"ex{case.lower()}.sh"
     )
-    if "STEP1" in case:
-        walltime = "04:00:00"
-        memory = "25GB"
-    else:
-        walltime = "06:00:00"
-        memory = "100GB"
     # Set machine specifics
     account = user_config["MACHINE"]["queue_account"]
     if machine_name == 'GAEAC6':
-        nproc = "192"
+        max_ncpus_per_node = "192"
         partition = "batch"
         clusters = "c6"
         queue = "normal"
@@ -137,7 +131,7 @@ def create_job_script(
             "/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive"
         )
     elif machine_name == 'URSA':
-        nproc = "192"
+        max_ncpus_per_node = "192"
         queue = "batch"
         queueserv = "u1-service"
         partition = "u1-compute"
@@ -162,7 +156,7 @@ def create_job_script(
             "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"
         )
     elif machine_name == 'WCOSS2':
-        nproc = "128"
+        max_ncpus_per_node = "128"
         queue = "dev"
         queueserv = "dev_transfer"
         partition = ""
@@ -187,23 +181,15 @@ def create_job_script(
             "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
         )
 
-    if "STEP1" in case:
-        delta = timedelta(days=1)
-        ndate = 0
-        current_date = start_date
-        while current_date <= end_date:
-            ndate+=1
-            current_date += delta
-        if "GRID2GRID" in case:
-            nveriftype = 3
-        if "GRID2OBS" in case:
-            nveriftype = 2
-        if "PRECIP" in case:
-            nveriftype = 1
-        if "SATELLITE" in case:
-            nveriftype = 1
-        nproc = ndate * nveriftype
-
+    nnodes = user_config["MACHINE"]["nodes"]
+    ncpus_per_node = user_config["MACHINE"]["cpus_per_node"]
+    memory = user_config["MACHINE"]["memory"]
+    walltime = user_config["MACHINE"]["walltime"]
+    if int(ncpus_per_node) > int(max_ncpus_per_node):
+        error_and_exit(
+            f"Requested cpus ({ncpus_per_node}) greater than "
+            +f"{machine_name} max ({max_ncpus_per_node})"
+        )
     sh = open(jobfile, "w")
     submission_command = None
     # --- Write the machine-specific part ---
@@ -213,8 +199,8 @@ def create_job_script(
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
-        sh.write(f"#SBATCH --ntasks=1\n")
-        sh.write(f"#SBATCH --cpus-per-task={nproc}\n")
+        sh.write(f"#SBATCH --ntasks={nnodes}\n")
+        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
         sh.write(f"#SBATCH --clusters={clusters}\n")
         sh.write(f"#SBATCH --partition={partition}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
@@ -224,15 +210,15 @@ def create_job_script(
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
-        sh.write(f"#SBATCH --ntasks=1\n")
-        sh.write(f"#SBATCH --cpus-per-task={nproc}\n")
+        sh.write(f"#SBATCH --ntasks={nnodes}\n")
+        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
         sh.write(f"#SBATCH --get-user-env\n")
         submission_command = f"sbatch {jobfile}"
     elif machine_name == "WCOSS2":
         sh.write(f"#PBS -o {logfile}\n")
         sh.write(f"#PBS -e {logfile}\n")
-        sh.write(f"#PBS -l place=shared,select=1:ncpus={nproc}:mem={memory}\n")
+        sh.write(f"#PBS -l place=vscatter:exclhost,select={nnodes}:ncpus={ncpus_per_node}:ompthreads=1:mem={memory}\n")
         sh.write(f"#PBS -N {jobname}\n")
         sh.write(f"#PBS -q {queue}\n")
         sh.write(f"#PBS -A {account}\n")
@@ -251,7 +237,7 @@ def create_job_script(
     sh.write(f"export PARTITION_BATCH={partition}\n")
     sh.write(f"export PARTITION_DTN={partition_dtn}\n")
     sh.write(f"export CLUSTERS_DTN={clusters_dtn}\n")
-    sh.write(f"export nproc={nproc}\n")
+    sh.write(f"export ncpus_per_node={ncpus_per_node}\n")
     sh.write(f"export MPMD=YES\n")
 
     # --- Set verif-global path ---
@@ -339,7 +325,7 @@ def create_job_script(
         +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
     )
 
-    # --- Set fix files ---
+    # --- Set MET/METplus versions ---
     if "STEP1" in case or "MAPS" in case:
         sh.write("\n")
         sh.write("# Set MET and METplus versions\n")
@@ -351,6 +337,13 @@ def create_job_script(
         sh.write("\n")
         sh.write("# Set PYTHONPATH\n")
         sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}/plots\n")
+
+    # --- Set resources ---
+    if machine == 'WCOSS2':
+        sh.write("\n")
+        sh.write("#Set WCOSS2 resources\n")
+        sh.write("export nselect=$(cat $PBS_NODEFILE | wc -l)\n")
+        sh.write("export nproc=$(($nselect * $ncpus_per_node))\n")
 
     # --- Write configuration settings ---
     sh.write("\n")
@@ -415,7 +408,7 @@ if len(sys.argv) != 2:
 config_path = os.path.abspath(sys.argv[1])
 if not os.path.exists(config_path):
     error_and_exit(
-        f"ERROR: {config_path} does not exist. EXITING"
+        f"{config_path} does not exist. EXITING"
     )
 print(f"Parsing {config_path}\n")
 config = configparser.ConfigParser(interpolation=None)

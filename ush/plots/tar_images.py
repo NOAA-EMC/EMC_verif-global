@@ -35,10 +35,12 @@ for case_type in case_type_list:
                                     'images')
     tar_file = os.path.join(
         job_DATA_dir,
-        'verif_global_'+RUN+'_'+case_type+'.tar')
+        'verif_global_'+RUN+'_'+case_type+'.tar'
+    )
     archive_tar_file = os.path.join(
         arch_dir,
-        'verif_global_'+RUN+'_'+case_type+'.tar')
+        'verif_global_'+RUN+'_'+case_type+'.tar'
+    )
     if RUN in ['maps2d', 'mapsda']:
         plot_by = os.environ[f'{RUN}_{case_type}_make_met_data_by']
         job_input_dir = os.path.join(DATA, RUN, 'metplus_output',
@@ -59,5 +61,25 @@ for case_type in case_type_list:
               +"cannot make tar file")
     if os.path.exists(tar_file):
         vfg_util.copy_file(tar_file, archive_tar_file)
+
+if RUN == 'grid2grid_step2':
+    if os.environ['g2g2_make_scorecard'] == 'YES':
+        tar_file = os.path.join(
+            job_DATA_dir, 'verif_global_scorecard.tar'
+        )
+        archive_tar_file = os.path.join(
+            arch_dir, 'verif_global_scorecard.tar'
+        )
+        job_input_dir = os.path.join(DATA, RUN, 'scorecard')
+        if len(glob.glob(job_input_dir+'/*')) != 0:
+            print(f"Making tar file {tar_file} from {job_input_dir}")
+            vfg_util.run_shell_command(
+                ['tar', '-cvf', tar_file, '-C', job_input_dir, '.']
+            )
+        else:
+            print(f"No output generated in {job_input_dir}, "
+                  +"cannot make tar file")
+        if os.path.exists(tar_file):
+            vfg_util.copy_file(tar_file, archive_tar_file)
 
 print("END: "+os.path.basename(__file__))

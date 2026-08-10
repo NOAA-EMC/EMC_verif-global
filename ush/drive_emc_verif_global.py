@@ -324,7 +324,7 @@ def create_job_script(
         +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
     )
 
-    # --- Set fix files ---
+    # --- Set MET/METplus versions ---
     if "STEP1" in case or "MAPS" in case:
         sh.write("\n")
         sh.write("# Set MET and METplus versions\n")
@@ -336,6 +336,13 @@ def create_job_script(
         sh.write("\n")
         sh.write("# Set PYTHONPATH\n")
         sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}/plots\n")
+
+    # --- Set resources ---
+    if machine == 'WCOSS2':
+        sh.write("\n")
+        sh.write("#Set WCOSS2 resources\n")
+        sh.write("export nselect=$(cat $PBS_NODEFILE | wc -l)\n")
+        sh.write("export nnp=$(($nselect * $nproc))\n")
 
     # --- Write configuration settings ---
     sh.write("\n")

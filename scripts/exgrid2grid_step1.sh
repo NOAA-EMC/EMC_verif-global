@@ -108,9 +108,3 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 [[ $status -eq 0 ]] && echo "Succesfully ran copy_stat_files.py"
 echo
-
-# Clean up
-if [ $KEEPDATA = NO ]; then
-    cd ..
-    rm -rf $RUN
-fi

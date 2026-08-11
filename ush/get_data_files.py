@@ -12,6 +12,7 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
+import verif_global_util as vfg_util
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -172,25 +173,31 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
-                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
-                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+             '-q', QUEUESERV, '-A', ACCOUNT, '-o', wget_job_output,
+             '-e', wget_job_output, '-N', wget_job_name,
+             '-l', 'select=1:ncpus=1', wget_job_filename]
+        )
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
     elif machine == 'GAEAC6':
-        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
-                  +'--partition='+PARTITION_DTN+' --constraint=f6 --qos=dtn '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--nodes=1', '--ntasks-per-node=1',
+             '--time='+walltime.strftime('%H:%M:%S'), '--cluster='+CLUSTERS_DTN,
+             '--partition='+PARTITION_DTN, '--constraint=f6', '--qos=dtn',
+             '--account='+ACCOUNT, '--output='+wget_job_output,
+             '--job-name='+wget_job_name, wget_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
     elif machine in ['URSA', 'HERA', 'ORION', 'HERCULES']:
-        os.system('sbatch --ntasks=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT,
+             '--output='+wget_job_output,
+             '--job-name='+wget_job_name, wget_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
     sleep_counter, sleep_checker = 1, 10
@@ -434,17 +441,20 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
-                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
-                  +'-l select=1:ncpus=1 '+hpss_job_filename)
+        vfg_util.run_shell_command(
+            ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+             '-q', QUEUESERV, '-A', ACCOUNT, '-o', hpss_job_output,
+             '-e', hpss_job_output, '-N', hpss_job_name,
+             '-l', 'select=1:ncpus=1', hpss_job_filename]
+        )
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
     elif machine in ['URSA', 'HERA']:
-        os.system('sbatch --ntasks=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
-                  +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
-                  +'--job-name='+hpss_job_name+' '+hpss_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT, '--output='+hpss_job_output,
+             '--job-name='+hpss_job_name, hpss_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'HERCULES', 'GAEAC6']:
@@ -527,7 +537,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         if os.path.exists(model_file):
             if check_file_type(model_file) in ['grib2', 'netcdf']:
                 print(f"Linking {model_file} to {link_model_file}")
-                os.system('ln -sf '+model_file+' '+link_model_file)
+                os.symlink(model_file, link_model_file)
             else:
                 print(f"WARNING: {model_file} is unsupported type "
                       +f"({check_file_type(model_file)})")
@@ -718,10 +728,11 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                 encoding='UTF-8'
                             )
                             if 'center=7' in check_center:
-                                os.system(copygb+' -'+grid.lower()+' -x '
-                                          +save_mean_model_file+' '
-                                          +template_grib2_file+' '
-                                          +'> /dev/null 2>&1')
+                                vfg_util.run_shell_command(
+                                    [copygb, '-'+grid.lower(), '-x',
+                                     save_mean_model_file, template_grib2_file,
+                                     '>', '/dev/null', '2>&1']
+                                )
                         if 'P' in var_level:
                             var_level_grib2 = var_level[1:]+' mb'
                         elif 'Z' in var_level:
@@ -742,12 +753,13 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                                +'considered as a single '
                                                +'layer)')
                         if os.path.exists(template_grib2_file):
-                            os.system(wgrib2+' '+template_grib2_file+' '
-                                      +'-match ":'+var_name+':" '
-                                      +'-match ":'+var_level_grib2+':" '
-                                      +'-grib_out '
-                                      +template_var_grib2_file+' '
-                                      +'> /dev/null 2>&1')
+                            vfg_util.run_shell_command(
+                                [wgrib2, template_grib2_file,
+                                 '-match', '":'+var_name+':"',
+                                 '-match', '":'+var_level_grib2+':"',
+                                 '-grib_out', template_var_grib2_file,
+                                 '>', '/dev/null', '2>&1']
+                            )
                         if os.path.exists(template_var_grib2_file):
                             create_var_template = False
                     # Regrid
@@ -782,9 +794,10 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                 if all_models_have_var:
                     mean_var_nc_file = (mean_file+'_'+var_name+'_'
                                         +var_level+'.nc')
-                    os.system(ncea+' '
-                              +' '.join(mean_model_var_nc_file_list)+' '
-                              +'-O -o '+mean_var_nc_file)
+                    vfg_util.run_shell_command(
+                        [ncea, ' '.join(mean_model_var_nc_file_list),
+                         '-O', '-o', mean_var_nc_file]
+                    )
                     lat_dim_output = subprocess.check_output(
                         ncdump+' -h '+mean_var_nc_file+' '
                         +'| grep ":Nlat = "', shell=True,
@@ -807,16 +820,16 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                     os.environ['HDF5_DISABLE_VERSION_CHECK'] = '1'
                     mean_var_grib2_file = (mean_file+'_'+var_name+'_'
                                            +var_level+'.grib2')
-                    os.system(wgrib2+' '
-                              +template_var_grib2_file+' '
-                              +'-import_netcdf '
-                              +mean_var_nc_file+' '
-                              +'"'+nc_var+'" "0:'+lat_dim+':0:'
-                              +lon_dim+'"  -grib_out '
-                              +mean_var_grib2_file+' '
-                              +'> /dev/null 2>&1')
-                    os.system('cat '+mean_var_grib2_file+' >> '
-                              +mean_file)
+                    vfg_util.run_shell_command(
+                        [wgrib2, template_var_grib2_file, '-import_netcdf',
+                         mean_var_nc_file,
+                         '"'+nc_var+'"', '"0:'+lat_dim+':0:'+lon_dim+'"',
+                         '-grib_out', mean_var_grib2_file,
+                         '>', '/dev/null', '2>&1']
+                    )
+                    vfg_util.run_shell_command(
+                        ['cat', mean_var_grib2_file, '>>', mean_file]
+                    )
         if os.path.exists(mean_file):
             print("Created "+mean_file)
     else:
@@ -902,7 +915,7 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
     if not os.path.exists(link_model_stat_file):
         if os.path.exists(model_stat_file):
             print(f"Linking {model_stat_file} to {link_model_stat_file}")
-            os.system('ln -sf '+model_stat_file+' '+link_model_stat_file)
+            os.symlink(model_stat_file, link_model_stat_file)
         else:
             print("WARNING: "+model_stat_file+" does not exist")
 
@@ -1148,8 +1161,7 @@ if RUN == 'grid2grid_step1':
                                 mean_truth_dir
                             )
                         if os.path.exists(truth_file):
-                            os.system('ln -sf '+truth_file+' '
-                                      +link_truth_file)
+                            os.symlink(truth_file, link_truth_file)
                     # Check model RUN_type truth file exists, if not try
                     # to use model's own f00 file
                     if not os.path.exists(link_truth_file) \
@@ -1163,8 +1175,7 @@ if RUN == 'grid2grid_step1':
                                           valid_time, valid_time, '00')
                         )
                         if os.path.exists(link_model_f00_file):
-                            os.system('ln -sf '+link_model_f00_file+' '
-                                       +link_truth_file)
+                            os.symlink(link_model_f00_file, link_truth_file)
                         if not os.path.exists(link_truth_file):
                             print("WARNING: Unable to link model f00 file as "
                                   +"subsitute truth file "+link_truth_file)
@@ -1634,13 +1645,11 @@ elif RUN == 'grid2obs_step1':
                             if os.path.exists(prod_file):
                                 print("Linking "+prod_file+" to "
                                       +link_prepbufr_file)
-                                os.system('ln -sf '+prod_file+' '
-                                          +link_prepbufr_file)
+                                os.symlink(prod_file, link_prepbufr_file)
                             elif os.path.exists(arch_file):
                                 print("Linking "+arch_file+" to "
                                       +link_prepbufr_file)
-                                os.system('ln -sf '+arch_file+' '
-                                          +link_prepbufr_file)
+                                os.symlink(arch_file, link_prepbufr_file)
                             else:
                                 if prepbufr_run_hpss == 'YES':
                                     print("Did not find "+prod_file+" or "
@@ -1818,11 +1827,11 @@ elif RUN == 'precip_step1':
                                 if os.path.exists(link_PRATE_model_file) \
                                        and not os.path.exists(link_model_file):
                                     wgrib2 = os.environ['WGRIB2']
-                                    os.system(
-                                        wgrib2+' '+link_PRATE_model_file+' -match '
-                                        +'":PRATE:" -rpn "3600:*" -set_var '
-                                        +'APCP -set table_4.10 1 -grib_out '
-                                        +link_model_file+' >>/dev/null'
+                                    vfg_util.run_shell_command(
+                                        [wgrib2, link_PRATE_model_file, '-match',
+                                         '":PRATE:"', '-rpn', '"3600:*"', '-set_var',
+                                         'APCP', '-set', 'table_4.10', '1', '-grib_out',
+                                         link_model_file, '>>/dev/null']
                                     )
                             elif model_var == 'APCP':
                                 get_model_file(
@@ -1893,13 +1902,11 @@ elif RUN == 'precip_step1':
                     if os.path.exists(RUN_type_prod_file):
                         print("Linking "+RUN_type_prod_file+" to "
                               +link_RUN_type_file)
-                        os.system('ln -sf '+RUN_type_prod_file+' '
-                                 +link_RUN_type_file)
+                        os.symlink(RUN_type_prod_file, link_RUN_type_file)
                     elif os.path.exists(RUN_type_arch_file):
                         print("Linking "+RUN_type_arch_file+" to "
                               +link_RUN_type_file)
-                        os.system('ln -sf '+RUN_type_arch_file+' '
-                                  +link_RUN_type_file)
+                        os.symlink(RUN_type_arch_file, link_RUN_type_file)
                     else:
                         if obs_run_hpss == 'YES':
                             print("Did not find "+RUN_type_prod_file+" or "
@@ -2092,7 +2099,7 @@ elif RUN == 'satellite_step1':
                         print(f"=======================================")
                         print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
                         print(f"=======================================")
-                        os.system(f"cp {archive_obs_input_file} {link_RUN_type_file}")
+                        vfg_util.copy_file(archive_obs_input_file, link_RUN_type_file)
                     else:
                         print(f"==============================")
                         print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
@@ -2157,64 +2164,62 @@ elif RUN == 'satellite_step1':
                             os.environ['HOMEMET'],
                             os.environ['HOMEMET_bin_exec'], 'gen_vx_mask'
                         )
-                        os.system(
-                            gen_vx_mask+' '+link_RUN_type_file+' '
-                            +link_RUN_type_file+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
-                            +'-type data -thresh ==1 -mask_field '
-                            +"'name="+'"mask"; level="(0,*,*)";'+"' "
-                            +'-name WATER'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask, link_RUN_type_file, link_RUN_type_file, 
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
+                             '-type', 'data', '-thresh', '==1', '-mask_field',
+                             "'name="+'"mask";', 'level="(0,*,*)";'+"'",
+                             '-name', 'WATER']
                         )
-                        os.system(
-                            gen_vx_mask+' '+link_RUN_type_file+' '
-                            +link_RUN_type_file+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +'-type data -thresh '+'">=0.15"'+' -mask_field '
-                            +"'name="+'"sea_ice_fraction"; level="(0,*,*)";'
-                            +"' "+'-name SEA_ICE'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask, link_RUN_type_file, link_RUN_type_file,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                           +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             '-type', 'data', '-thresh', '">=0.15"', '-mask_field',
+                             "'name="+'"sea_ice_fraction";', 'level="(0,*,*)";'+"'",
+                             '-name', 'SEA_ICE']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_POLAR.nc ')
-                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
-                            +"'name="+'"SEA_ICE"; level="(*,*)";'+"' "
-                            +'-name SEA_ICE_POLAR -value "0"'
+                                          +'.vx_mask.SEA_ICE_POLAR.nc '),
+                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
+                             "'name="+'"SEA_ICE";','level="(*,*)";'+"'",
+                             '-name', 'SEA_ICE_POLAR', '-value', '"0"']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +'-type data -thresh '+"'==0'"+' -intersection '
-                            +'-mask_field '+"'name="+'"SEA_ICE"; '
-                            +'level="(*,*)";'+"' "+'-name SEA_ICE_FREE'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             '-type', 'data', '-thresh', "'==0'", '-intersection',
+                             '-mask_field', "'name="+'"SEA_ICE";',
+                             'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc ')
-                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
-                            +"'name="+'"SEA_ICE_FREE"; level="(*,*)";'+"' "
-                            +'-name SEA_ICE_FREE_POLAR -value "0"'
+                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc '),
+                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
+                             "'name="+'"SEA_ICE_FREE";', 'level="(*,*)";'+"'",
+                             '-name', 'SEA_ICE_FREE_POLAR', '-value', '"0"']
                         )
                     elif os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) == 0:
@@ -2503,8 +2508,7 @@ elif RUN == 'maps2d':
                                 model_obs_ftp_lead_file = link_obtype_file
                                 if not os.path.exists(link_obtype_file):
                                     if os.path.exists(obtype_file):
-                                        os.system('ln -sf '+obtype_file+' '
-                                                  +link_obtype_file)
+                                        os.symlink(obtype_file, link_obtype_file)
                                     else:
                                         print("WARNING: "+obtype_file+" does "
                                               +"not exist")
@@ -2694,7 +2698,6 @@ elif RUN == 'mapsda':
                     print("Creating average files for "+model+" "
                           +"ens"+ens_file_type+" from available data. "
                           +"Saving as "+avg_file)
-                    ncea = os.environ['NCEA']
                     if '.nc4' in model_file_format:
                         process_vars = ''
                     else:
@@ -2702,7 +2705,9 @@ elif RUN == 'mapsda':
                             ' -v tmp,ugrd,vgrd,spfh,pressfc,o3mr,clwmr '
                         )
                     if exisiting_file_list != '':
-                        os.system(ncea+' '+exisiting_file_list+' -o '
-                                  +avg_file+process_vars)
+                        vfg_util.run_shell_command(
+                            ["ncea", exisiting_file_list, '-o',
+                             avg_file+process_vars]
+                        )
 
 print("END: "+os.path.basename(__file__))

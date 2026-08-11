@@ -263,7 +263,7 @@ export HOMEMETplus=$HOMEMETplus
 export PARMMETplus=$HOMEMETplus/parm
 export USHMETplus=$HOMEMETplus/ush
 export PATH="${USHMETplus}:${PATH}"
-export PYTHONPATH="${USHMETplus}:${PYTHONPATH}"
+export PYTHONPATH="${USHMETplus}:${USHverif_global}:${PYTHONPATH}"
 
 ## Set machine and user specific directories
 if [[ ${machine} == "HERA" || ${machine} == "URSA" ]]; then

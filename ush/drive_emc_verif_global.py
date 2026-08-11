@@ -333,10 +333,9 @@ def create_job_script(
         sh.write("export METplus_version=6.0.0\n")
 
     # --- Set python files ---
-    if "STEP2" in case or "MAPS" in case:
-        sh.write("\n")
-        sh.write("# Set PYTHONPATH\n")
-        sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}/plots\n")
+    sh.write("\n")
+    sh.write("# Set PYTHONPATH\n")
+    sh.write("export PYTHONPATH=${PYTHONPATH}:${USHverif_global}\n")
 
     # --- Set resources ---
     if machine == 'WCOSS2':

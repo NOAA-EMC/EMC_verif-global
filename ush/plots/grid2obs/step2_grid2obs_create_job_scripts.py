@@ -214,19 +214,19 @@ base_plot_jobs_info_dict = {
                                      'levels': ['Z2']},
                    'obs_var_dict': {'name': 'TMP',
                                     'levels': ['Z2']},
-                   'obs_name': 'ADPSFC'},
+                   'obs_name': 'IABP'},
         'TMPsfc': {'vx_masks': ['ARCTIC'],
                    'fcst_var_dict': {'name': 'TMP',
                                      'levels': ['Z0']},
                    'obs_var_dict': {'name': 'TMP',
                                     'levels': ['Z0']},
-                   'obs_name': 'ADPSFC'},        
+                   'obs_name': 'IABP'},        
         'PRESsfc': {'vx_masks': ['ARCTIC'],
                    'fcst_var_dict': {'name': 'PRES',
                                      'levels': ['Z0']},
                    'obs_var_dict': {'name': 'PRES',
                                     'levels': ['Z0']},
-                   'obs_name': 'ADPSFC'}        
+                   'obs_name': 'IABP'}        
     }
 }
 
@@ -241,13 +241,18 @@ for pres_levs_job in list(condense_stats_jobs_dict['grid2obs_upper_air'].keys())
     condense_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_types'] = (
         pres_levs_job_line_types
     )
-#### sfc
+#### conus_sfc
 for sfc_job in list(condense_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     if sfc_job == 'UGRD_VGRD10m':
         sfc_job_line_types = ['VL1L2']
     else:
         sfc_job_line_types = ['SL1L2']
     condense_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_types'] = sfc_job_line_types
+if JOB_GROUP == 'condense_stats':
+    JOB_GROUP_dict = condense_stats_jobs_dict
+#### polar_sfc
+for psfc_job in list(condense_stats_jobs_dict['grid2obs_polar_sfc'].keys()):
+    condense_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_types'] = ['SL1L2']
 if JOB_GROUP == 'condense_stats':
     JOB_GROUP_dict = condense_stats_jobs_dict
 
@@ -263,7 +268,7 @@ for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
     filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['interps'] = [
         'BILIN/4'
     ]
-# sfc
+#### conus_sfc
 for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['grid'] = 'G104'
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['interps'] = ['BILIN/4']
@@ -278,14 +283,23 @@ for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
         )
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['obs_var_dict']['threshs'] = (
         sfc_job_obs_threshs
-    )    
-
+    )
+#### polar_sfc
+for psfc_job in list(filter_stats_jobs_dict['grid2obs_polar_sfc'].keys()):
+    filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['grid'] = 'G219'
+    (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\
+     ['fcst_var_dict']['threshs']) = ['NA']
+    (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\
+     ['obs_var_dict']['threshs']) = ['NA']
+    filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['interps'] = [
+        'BILIN/4'
+    ] 
 if JOB_GROUP == 'filter_stats':
     JOB_GROUP_dict = filter_stats_jobs_dict
 
 # make_plots jobs
 make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
-# upper_air
+#### upper_air
 for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
     del make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_types']
     if pres_levs_job == 'UGRD_VGRD':
@@ -309,7 +323,7 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
     make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
         'time_series', 'lead_average','stat_by_level', 'lead_by_level'
     ]
-# sfc
+#### conus_sfc
 for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
     del make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_types']
     if sfc_job == 'UGRD_VGRD10m':
@@ -326,12 +340,32 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
         make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['plots'] = [
             'time_series'
         ]
-        #finish adding meam plots
+        #finish adding mean plots
     sfc_job_plots = ['time_series','lead_average']
     make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = (
         sfc_job_line_type_stats
     )
-    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['plots'] = sfc_job_plots        
+    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['plots'] = sfc_job_plots
+#### polar_sfc
+for psfc_job in list(make_plots_jobs_dict['grid2obs_polar_sfc'].keys()):
+    del make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_types']
+    psfc_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
+    #add mean plots
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR'] = copy.deepcopy(
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]
+    )
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['line_type_stats']=[
+        'SL1L2/FBAR_OBAR'
+    ]
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['plots'] = [
+        'time_series'
+    ]
+    #finish adding mean plots
+    psfc_job_plots = ['time_series','lead_average']
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_type_stats'] = (
+        psfc_job_line_type_stats
+    )
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['plots'] = psfc_job_plots
 if JOB_GROUP == 'make_plots':
     JOB_GROUP_dict = make_plots_jobs_dict
 

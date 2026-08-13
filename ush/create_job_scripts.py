@@ -31,7 +31,8 @@ def init_env_dict():
     env_var_list = [
         'machine', 'HOMEverif_global', 'USHverif_global', 'PARMverif_global',
         'FIXverif_global', 'METplus_version', 'HOMEMETplus', 'USHMETplus',
-        'MET_version', 'HOMEMET', 'DATA', 'RUN', 'CUT', 'TR', 'CONVERT', 'NCDUMP'
+        'HOMEMET_bin_exec', 'MET_version', 'HOMEMET', 'DATA', 'RUN',
+        'CUT', 'TR', 'CONVERT', 'NCDUMP'
     ]
     env_var_dict = {}
     for env_var in env_var_list:

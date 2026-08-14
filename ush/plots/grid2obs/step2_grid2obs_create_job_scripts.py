@@ -260,7 +260,6 @@ if JOB_GROUP == 'condense_stats':
 filter_stats_jobs_dict = copy.deepcopy(condense_stats_jobs_dict)
 #### upper_air
 for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
-    filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['grid'] = 'G003'
     (filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]\
      ['fcst_var_dict']['threshs']) = ['NA']
     (filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]\
@@ -270,7 +269,6 @@ for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
     ]
 #### conus_sfc
 for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
-    filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['grid'] = 'G104'
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['interps'] = ['BILIN/4']
     if 'CAPEsfc' in sfc_job:
         sfc_job_fcst_threshs = ['gt0||']
@@ -286,7 +284,6 @@ for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     )
 #### polar_sfc
 for psfc_job in list(filter_stats_jobs_dict['grid2obs_polar_sfc'].keys()):
-    filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['grid'] = 'G219'
     (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\
      ['fcst_var_dict']['threshs']) = ['NA']
     (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\

@@ -406,12 +406,25 @@ with open(web_job_filename, 'a') as web_job_file:
                                    +' "cd '+web_image_dir+' ; tar -xvf '
                                    +tar_file.rpartition("/")[2]+' "'+'\n')
             if RUN == 'grid2grid_step2':
-                scorecard_dir = os.path.join(DATA, RUN, 'scorecard')
-                if os.path.exists(scorecard_dir):
-                    web_job_file.write('scp -r '+scorecard_dir+'/*'
-                                       +' '+webhostid+'@'+webhost+':'
-                                       +os.path.join(webdir, 'scorecard',
-                                                     '.')+'\n')
+                if os.environ['g2g2_make_scorecard'] == 'YES':
+                    tar_file = os.path.join(
+                        tar_archive_dir, f"verif_global_scorecard.tar"
+                    )
+                    if os.path.exists(tar_file):
+                        web_scorecard_dir = os.path.join(
+                            webdir, "scorecard"
+                        )
+                        web_job_file.write(
+                            f"scp {tar_file} {webhostid}@{webhost}:"
+                            +f"{web_scorecard_dir}/.\n"
+                        )
+                        web_job_file.write(
+                            f"ssh -q -l {webhostid} {webhost} "
+                            +f'"cd {web_scorecard_dir} ; tar -xvf '
+                            +f'{tar_file.rpartition('/')[2]}" \n'
+                        )
+                    else:
+                        print(f"WARNING: {tar_file} does not exists")
         if RUN == 'fit2obs_plots':
             for stat in ['bias', 'rmse']:
                 web_job_file.write('scp -r '+os.path.join(DATA, RUN,

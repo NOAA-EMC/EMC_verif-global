@@ -130,7 +130,8 @@ make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 for avhrr_job in list(make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
     del make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_types']
     make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_type_stats'] = [
-        'SL1L2/FBAR_OBAR', 'SL1L2/ME', 'SL1L2/RMSE' 
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['sat2_ghrsst_ncei_avhrr_anl_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['plots'] = [
         'time_series', 'lead_average'
@@ -140,7 +141,8 @@ for avhrr_job in list(make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
 for ospo_job in list(make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     del make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_types']
     make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_type_stats'] = [
-        'SL1L2/FBAR_OBAR', 'SL1L2/ME', 'SL1L2/RMSE' 
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['sat2_ghrsst_ospo_geopolar_anl_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['plots'] = [
         'time_series', 'lead_average'

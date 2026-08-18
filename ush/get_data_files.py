@@ -481,14 +481,14 @@ def get_file_type(file):
              file_type - string of the file's type
     """
     print("---- Getting file type for "+file)
-    wgrib_check = subprocess.run(
-        'wgrib '+file, shell=True, stdout=subprocess.PIPE,
+    wgrib2_check = subprocess.run(
+        'wgrib2 '+file, shell=True, stdout=subprocess.PIPE,
          stderr=subprocess.STDOUT, encoding='UTF-8'
     )
-    if 'use wgrib2' in wgrib_check.stdout:
-        return 'grib2'
-    elif ':kpds5' in wgrib_check.stdout:
+    if 'grib1 message ignored (use wgrib)' in wgrib2_check.stdout:
         return 'grib1'
+    elif ':d=' in wgrib2_check.stdout:
+        return 'grib2'
     else:
         ncdump_check = subprocess.run(
             'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,

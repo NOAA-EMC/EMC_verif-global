@@ -85,7 +85,8 @@ make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 for ccpa_accum24hr_job in list(make_plots_jobs_dict['ccpa_accum24hr'].keys()):
     del make_plots_jobs_dict['ccpa_accum24hr'][ccpa_accum24hr_job]['line_types']
     make_plots_jobs_dict['ccpa_accum24hr']['24hrCCPA']['line_type_stats'] = [
-        'CTC/ETS', 'CTC/FBIAS'
+        f"CTC/{s.upper()}" \
+        for s in os.environ['precip2_ccpa_accum24hr_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['ccpa_accum24hr']['24hrCCPA']['plots'] = [
         'time_series', 'lead_average', 'threshold_average', 'threshold_by_lead'

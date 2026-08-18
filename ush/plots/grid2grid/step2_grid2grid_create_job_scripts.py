@@ -380,12 +380,13 @@ make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 for anom_job in list(make_plots_jobs_dict['anom'].keys()):
     del make_plots_jobs_dict['anom'][anom_job]['line_types']
     if anom_job == 'UGRD_VGRD':
-        anom_job_line_type_stats = ['VAL1L2/ACC']
+        anom_job_line_type = 'VAL1L2'
     else:
-        anom_job_line_type_stats = ['SAL1L2/ACC']
-    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = (
-        anom_job_line_type_stats
-    )
+        anom_job_line_type = 'SAL1L2'
+    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = [
+        f"{anom_job_line_type}/{s.upper()}" \
+        for s in os.environ['g2g2_anom_stats_list'].split(' ')
+    ]
     make_plots_jobs_dict['anom'][anom_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_date'
     ]
@@ -393,18 +394,13 @@ for anom_job in list(make_plots_jobs_dict['anom'].keys()):
 for pres_job in list(make_plots_jobs_dict['pres'].keys()):
     del make_plots_jobs_dict['pres'][pres_job]['line_types']
     if pres_job == 'UGRD_VGRD':
-        pres_job_line_type_stats = [
-            'VL1L2/ME', 'VL1L2/RMSE', 'VL1L2/MSESS', 'VL1L2/RSD',
-            'VL1L2/RMSE_MD', 'VL1L2/RMSE_PV'
-        ]
+        pres_job_line_type = 'VL1L2'
     else:
-        pres_job_line_type_stats = [
-            'SL1L2/ME', 'SL1L2/RMSE', 'SL1L2/MSESS', 'SL1L2/RSD',
-            'SL1L2/RMSE_MD', 'SL1L2/RMSE_PV'
-        ]
-    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = (
-        pres_job_line_type_stats
-    )
+        pres_job_line_type = 'SL1L2'
+    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = [
+        f"{pres_job_line_type}/{s.upper()}" \
+        for s in os.environ['g2g2_pres_stats_list'].split(' ')
+    ]
     make_plots_jobs_dict['pres'][pres_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_level', 'date_by_level'
     ]
@@ -412,7 +408,8 @@ for pres_job in list(make_plots_jobs_dict['pres'].keys()):
 for sfc_job in list(make_plots_jobs_dict['sfc'].keys()):
     del make_plots_jobs_dict['sfc'][sfc_job]['line_types']
     make_plots_jobs_dict['sfc'][sfc_job]['line_type_stats'] = [
-        'SL1L2/FBAR'
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['g2g2_sfc_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['sfc'][sfc_job]['plots'] = [
         'time_series', 'lead_average'

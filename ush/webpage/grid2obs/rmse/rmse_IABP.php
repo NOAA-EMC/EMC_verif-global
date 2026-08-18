@@ -130,7 +130,7 @@ var types = [];
 
 domains.push({
         displayName: "Arctic",
-        name: "<?php echo $G223Arctic_name; ?>",
+        name: "<?php echo $G219Arctic_name; ?>",
 });
 
 
@@ -293,7 +293,7 @@ function initialize(){
         imageObj = {
                 variable: "<?php echo $Temp2m_name; ?>",
                 season: "<?php echo $Day0_name; ?>",
-                domain: "<?php echo $G223Arctic_name; ?>",
+                domain: "<?php echo $G219Arctic_name; ?>",
                 level: "",
                 validtime: "<?php echo $Valid00_name; ?>",
                 type: "<?php echo $TimeSeries_name; ?>",

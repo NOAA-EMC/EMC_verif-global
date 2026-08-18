@@ -1292,7 +1292,7 @@ elif RUN == 'grid2obs_step1':
                         os.makedirs(os.path.join(iabp_dir, 'wget_jobs'))
                     iabp_YYYYmmdd_file = os.path.join(iabp_dir,
                                                       'iabp.'+YYYYmmdd)
-                    iabp_region_list = ['Arctic', 'Antarctic']
+                    iabp_region_list = ['Arctic']
                     iabp_var_dict = {
                         'BP': ('PRES', '0'),
                         'Ts': ('TMP', '0'),
@@ -1367,8 +1367,13 @@ elif RUN == 'grid2obs_step1':
                                                       'Lat', 'Lon', 'BP', 'Ts',
                                                       'Ta']
                                 )
+                                if "BuoyID" == iabp_reg_YYYYmmdd_data.loc[0]["BuoyID"]:
+                                    idx_start = 1
+                                else:
+                                    idx_start = 0
+                                iabp_reg_YYYYmmdd_data = iabp_reg_YYYYmmdd_data.loc[idx_start:]
                                 niabp_reg_YYYYmmdd_data = len(
-                                    iabp_reg_YYYYmmdd_data.index
+                                    iabp_reg_YYYYmmdd_data[:].index
                                 )
                                 dates = []
                                 for idx in iabp_reg_YYYYmmdd_data.index:
@@ -1462,10 +1467,10 @@ elif RUN == 'grid2obs_step1':
                                         start_var_idx:end_var_idx,
                                         'Observation_Value'
                                     ] = iabp_var_vals.filled()
-                                iabp_ascii2nc_data = (
-                                    iabp_ascii2nc_data.append(
-                                        iabp_ascii2nc_reg_data
-                                    ).reset_index(drop=True)
+                                iabp_ascii2nc_data = pd.concat(
+                                    [iabp_ascii2nc_data,
+                                     iabp_ascii2nc_reg_data],
+                                    ignore_index=True
                                 )
                             iabp_ascii2nc_data_string = (
                                 iabp_ascii2nc_data.to_string(header=False,

@@ -281,7 +281,7 @@ g2o2_polar_sfc_vhr_list=00 06 12 18
 g2o2_polar_sfc_fhr_min=00
 g2o2_polar_sfc_fhr_max=168
 g2o2_polar_sfc_event_eq=True
-g2o2_polar_sfc_grid=G223
+g2o2_polar_sfc_grid=G219
 g2o2_polar_sfc_stats_list=me rmse fbar_obar
 
 [PRECIP_STEP1]

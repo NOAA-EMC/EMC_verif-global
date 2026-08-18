@@ -68,7 +68,6 @@ filter_stats_jobs_dict = copy.deepcopy(condense_stats_jobs_dict)
 # ccpa_accum24hr
 for ccpa_accum24hr_job in list(filter_stats_jobs_dict['ccpa_accum24hr'].keys()):
     filter_stats_jobs_dict['ccpa_accum24hr']['24hrCCPA']['line_types'] = 'CTC'
-    filter_stats_jobs_dict['ccpa_accum24hr']['24hrCCPA']['grid'] = 'G211'
     filter_stats_jobs_dict['ccpa_accum24hr']['24hrCCPA']['fcst_var_dict']['threshs'] = [
         'ge0.2', 'ge2', 'ge5', 'ge10', 'ge15', 'ge25', 'ge35', 'ge50', 'ge75'
     ]

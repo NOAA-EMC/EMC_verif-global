@@ -29,7 +29,7 @@
       $GMC_name = 'g104_gmc';
       $NAK_name = 'g104_nak';
       $SAK_name = 'g104_sak';
-      $G223Arctic_name = 'g223_arctic';
+      $G219Arctic_name = 'g219_arctic';
       $Temp_name = 'tmp';
       $RelHum_name = 'rh';
       $VectWind_name = 'ugrd_vgrd';

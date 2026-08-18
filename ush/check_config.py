@@ -85,7 +85,7 @@ RUN_type_env_vars_dict = {
                            'g2o2_conus_sfc_fcyc_list',
                            'g2o2_conus_sfc_vhr_list', 'g2o2_conus_sfc_fhr_min',
                            'g2o2_conus_sfc_fhr_max', 'g2o2_conus_sfc_event_eq',
-                           'g2o2_conus_sfc_grid', 'g2o2_ conus_sfc_stats_list',
+                           'g2o2_conus_sfc_grid', 'g2o2_conus_sfc_stats_list',
                            'g2o2_polar_sfc_msg_type_list',
                            'g2o2_polar_sfc_gather_by_list',
                            'g2o2_polar_sfc_fcyc_list',

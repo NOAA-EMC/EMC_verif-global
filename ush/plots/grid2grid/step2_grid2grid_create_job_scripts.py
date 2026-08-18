@@ -383,13 +383,10 @@ for anom_job in list(make_plots_jobs_dict['anom'].keys()):
         anom_job_line_type = 'VAL1L2'
     else:
         anom_job_line_type = 'SAL1L2'
-    anom_job_line_type_stats = [
+    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = [
         f"{anom_job_line_type}/{s.upper()}" \
         for s in os.environ['g2g2_anom_stats_list'].split(' ')
     ]
-    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = (
-        anom_job_line_type_stats
-    )
     make_plots_jobs_dict['anom'][anom_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_date'
     ]
@@ -400,13 +397,10 @@ for pres_job in list(make_plots_jobs_dict['pres'].keys()):
         pres_job_line_type = 'VL1L2'
     else:
         pres_job_line_type = 'SL1L2'
-    pres_job_line_type_stats = [
+    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = [
         f"{pres_job_line_type}/{s.upper()}" \
         for s in os.environ['g2g2_pres_stats_list'].split(' ')
     ]
-    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = (
-        pres_job_line_type_stats
-    )
     make_plots_jobs_dict['pres'][pres_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_level', 'date_by_level'
     ]

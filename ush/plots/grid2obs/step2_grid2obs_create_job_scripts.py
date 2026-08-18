@@ -306,13 +306,10 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
         pres_levs_job_line_type = 'VL1L2'
     else:
         pres_levs_job_line_type = 'SL1L2'
-    pres_levs_job_line_type_stats = [
+    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_type_stats'] = [
         f"{pres_levs_job_line_type}/{s.upper()}" \
         for s in pres_levs_stats.split(' ')
     ]
-    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_type_stats'] = (
-        pres_levs_job_line_type_stats
-    )
     make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
         'time_series', 'lead_average','stat_by_level', 'lead_by_level'
     ]
@@ -337,13 +334,10 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
         sfc_job_line_type = 'VL1L2'
     else:
         sfc_job_line_type = 'SL1L2'
-    sfc_job_line_type_stats = [
-       f"{sfc_job_line_type}/{s.upper()}" \
+    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = [
+        f"{sfc_job_line_type}/{s.upper()}" \
         for s in sfc_stats.split(' ')
     ]
-    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = (
-        sfc_job_line_type_stats
-    )
     make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['plots'] = [
         'time_series','lead_average'
     ]
@@ -359,23 +353,28 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
             'time_series'
         ]
 #### polar_sfc
+psfc_stats = os.environ["g2o2_polar_sfc_stats_list"]
+if "fbar_obar" in psfc_stats:
+    psfc_stats = psfc_stats.remove("fbar_obar")
 for psfc_job in list(make_plots_jobs_dict['grid2obs_polar_sfc'].keys()):
     del make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_types']
-    psfc_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
-    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR'] = copy.deepcopy(
-        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]
-    )
-    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['line_type_stats']=[
-        'SL1L2/FBAR_OBAR'
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_type_stats'] = [
+        f"SL1L2/{s.upper()}" \
+        for s in psfc_stats.split(' ')
     ]
-    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['plots'] = [
-        'time_series'
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['plots'] = [
+        'time_series','lead_average'
     ]
-    psfc_job_plots = ['time_series','lead_average']
-    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_type_stats'] = (
-        psfc_job_line_type_stats
-    )
-    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['plots'] = psfc_job_plots
+    if "fbar_obar" in os.environ["g2o2_conus_sfc_stats_list"]:
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR'] = copy.deepcopy(
+            make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]
+        )
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['line_type_stats']=[
+           'SL1L2/FBAR_OBAR'
+        ]
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['plots'] = [
+            'time_series'
+        ]
 if JOB_GROUP == 'make_plots':
     JOB_GROUP_dict = make_plots_jobs_dict
 

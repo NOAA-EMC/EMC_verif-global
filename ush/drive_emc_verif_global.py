@@ -199,8 +199,8 @@ def create_job_script(
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
-        sh.write(f"#SBATCH --ntasks={nnodes}\n")
-        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
+        sh.write(f"#SBATCH --nodes={nnodes}\n")
+        sh.write(f"#SBATCH --ntasks-per-node={ncpus_per_node}\n")
         sh.write(f"#SBATCH --clusters={clusters}\n")
         sh.write(f"#SBATCH --partition={partition}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
@@ -210,8 +210,8 @@ def create_job_script(
         sh.write(f"#SBATCH --job-name={jobname}\n")
         sh.write(f"#SBATCH --output={logfile}\n")
         sh.write(f"#SBATCH --time={walltime}\n")
-        sh.write(f"#SBATCH --ntasks={nnodes}\n")
-        sh.write(f"#SBATCH --cpus-per-task={ncpus_per_node}\n")
+        sh.write(f"#SBATCH --nodes={nnodes}\n")
+        sh.write(f"#SBATCH --ntasks-per-node={ncpus_per_node}\n")
         sh.write(f"#SBATCH --qos={queue}\n")
         sh.write(f"#SBATCH --get-user-env\n")
         submission_command = f"sbatch {jobfile}"
@@ -258,9 +258,13 @@ def create_job_script(
         sh.write("module reset\n")
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
     sh.write(f"module load \"emc_verif_global_{machine.lower()}\"\n")
-    sh.write(f"export HOMEMET=\"${{MET_ROOT}}\"\n")
+    if machine_name == "GAEAC6":
+        sh.write(f"export HOMEMET=\"${{met_ROOT}}\"\n")
+        sh.write(f"export HOMEMETplus=\"${{metplus_ROOT}}\"\n")
+    else:
+        sh.write(f"export HOMEMET=\"${{MET_ROOT}}\"\n")
+        sh.write(f"export HOMEMETplus=\"${{METPLUS_ROOT}}\"\n")
     sh.write(f"export HOMEMET_bin_exec=\"bin\"\n")
-    sh.write(f"export HOMEMETplus=\"${{METPLUS_ROOT}}\"\n")
     sh.write(f"export USHMETplus=\"${{HOMEMETplus}}/ush\"\n")
     sh.write(f"export MET_version=\"12.0.1\"\n")
     sh.write(f"export METplus_version=\"6.0.0\"\n")
@@ -309,9 +313,14 @@ def create_job_script(
     sh.write(f"export obdata_dir={obs_archive}\n")
     sh.write(f"export ccpa_24hr_arch_dir={ccpa_24hr_archive}\n")
     sh.write(f"export sat1_obs_dir={sat_obs_archive}\n")
-    sh.write(f"export prepbufr_prod_upper_air_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
-    sh.write(f"export prepbufr_prod_conus_sfc_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
-    sh.write(f"export ccpa_24hr_prod_dir=/lfs/h1/ops/prod/com/verf_precip/${{verf_precip_ver}}\n")
+    if machine_name == "WCOSS2":
+        sh.write(f"export prepbufr_prod_upper_air_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
+        sh.write(f"export prepbufr_prod_conus_sfc_dir=/lfs/h1/ops/prod/com/obsproc/${{obsproc_ver}}\n")
+        sh.write(f"export ccpa_24hr_prod_dir=/lfs/h1/ops/prod/com/verf_precip/${{verf_precip_ver}}\n")
+    else:
+        sh.write(f"export prepbufr_prod_upper_air_dir=/null/path\n")
+        sh.write(f"export prepbufr_prod_conus_sfc_dir=/null/path\n")
+        sh.write(f"export ccpa_24hr_prod_dir=/null/path\n")
     sh.write(
         'export iabp_ftp="http://iabp.apl.washington.edu/'
         +'Data_Products/Daily_Full_Res_Data"\n'

@@ -471,7 +471,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                 break
             sleep_counter+=1
 
-def check_file_type(file):
+def get_file_type(file):
     """! This checks if a file is netCDF, GRIB1, or GRIB2.
 
          Args:
@@ -480,14 +480,15 @@ def check_file_type(file):
          Returns:
              file_type - string of the file's type
     """
-    wgrib_check = subprocess.run(
-        'wgrib '+file, shell=True, stdout=subprocess.PIPE,
+    print("---- Getting file type for "+file)
+    wgrib2_check = subprocess.run(
+        'wgrib2 '+file, shell=True, stdout=subprocess.PIPE,
          stderr=subprocess.STDOUT, encoding='UTF-8'
     )
-    if 'use wgrib2' in wgrib_check.stdout:
-        return 'grib2'
-    elif ':kpds5' in wgrib_check.stdout:
+    if 'grib1 message ignored (use wgrib)' in wgrib2_check.stdout:
         return 'grib1'
+    elif ':d=' in wgrib2_check.stdout:
+        return 'grib2'
     else:
         ncdump_check = subprocess.run(
             'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,
@@ -500,7 +501,8 @@ def check_file_type(file):
 
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
-                   hpss_data_dir, link_data_dir, link_file_format):
+                   hpss_data_dir, link_data_dir, link_file_format,
+                   check_file_type):
     """! This links a model file from its archive.
          If the file does not exist locally, then retrieve
          from HPSS if requested.
@@ -522,7 +524,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
              link_data_dir    - string of the directory to link
                                 model data to
              link_file_format - string of the linked file name
-
+             check_file_type  - boolean to check file input type
          Returns:
     """
     link_filename = format_filler(link_file_format, valid_time_dt,
@@ -535,12 +537,14 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         if not os.path.exists(model_file):
             model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
-            if check_file_type(model_file) in ['grib2', 'netcdf']:
+            file_type = get_file_type(model_file) if check_file_type else None
+            if check_file_type and file_type not in ['grib2', 'netcdf']:
+                print(f"ERROR: {model_file} is unsupported type "
+                      +f"({file_type})")
+                sys.exit(1)
+            else:
                 print(f"Linking {model_file} to {link_model_file}")
                 os.symlink(model_file, link_model_file)
-            else:
-                print(f"WARNING: {model_file} is unsupported type "
-                      +f"({check_file_type(model_file)})")
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -670,7 +674,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         get_model_file(valid_time_dt, valid_time_dt, '00',
                        mean_model, mean_model_dir, mean_model_file_format,
                        'NO', '/null', output_mean_model_dir,
-                       save_mean_model_file_format)
+                       save_mean_model_file_format, False)
         mean_model_file = os.path.join(output_mean_model_dir,
                                        format_filler(
                                            save_mean_model_file_format,
@@ -999,6 +1003,7 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast files for each model
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1041,7 +1046,9 @@ if RUN == 'grid2grid_step1':
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                   check_model_file_type)
+                    check_model_file_type = False
         # Get truth files for each model
         RUN_abbrev_type_truth_name_short = (
             RUN_abbrev_type_truth_name.split('_')[0]
@@ -1052,6 +1059,7 @@ if RUN == 'grid2grid_step1':
         if RUN_abbrev_type_truth_name_lead == 'f00':
             RUN_abbrev_type_truth_name_lead = '00'
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1129,8 +1137,10 @@ if RUN == 'grid2grid_step1':
                             model_RUN_abbrev_type_data_run_hpss,
                             model_RUN_abbrev_type_truth_hpss_dir,
                             link_model_dir,
-                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}'
+                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}',
+                            check_model_file_type
                         )
+                        check_model_file_type = False
                         truth_file = os.path.join(
                             model_RUN_abbrev_type_truth_dir,
                             format_filler(
@@ -1223,6 +1233,7 @@ elif RUN == 'grid2obs_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1265,7 +1276,9 @@ elif RUN == 'grid2obs_step1':
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                   check_model_file_type)
+                    check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -1735,6 +1748,7 @@ elif RUN == 'precip_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1813,8 +1827,10 @@ elif RUN == 'precip_step1':
                                     model_dir, model_file_format,
                                     model_data_run_hpss, model_hpss_dir,
                                     os.path.join(link_model_dir, 'PRATE_files'),
-                                    'PRATE.f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                                    'PRATE.f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                    check_model_file_type
                                 )
+                                check_model_file_type = False
                                 link_PRATE_model_file = os.path.join(
                                     link_model_dir, 'PRATE_files',
                                     format_filler(
@@ -1844,8 +1860,10 @@ elif RUN == 'precip_step1':
                                     model_dir, model_file_format,
                                     model_data_run_hpss, model_hpss_dir,
                                     link_model_dir,
-                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                    check_model_file_type
                                 )
+                                check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -1976,6 +1994,7 @@ elif RUN == 'satellite_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast and truth files for each model
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -2032,7 +2051,9 @@ elif RUN == 'satellite_step1':
                                            model_data_run_hpss, model_hpss_dir,
                                            link_model_dir,
                                            'f{lead?fmt=%3H}'
-                                           +'.{init?fmt=%Y%m%d%H}')
+                                           +'.{init?fmt=%Y%m%d%H}',
+                                           check_model_file_type)
+                            check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -2362,6 +2383,7 @@ elif RUN == 'maps2d':
             )
             # Get forecast, analysis, observation files for each model
             for model in model_list:
+                check_model_file_type = True
                 model_idx = model_list.index(model)
                 model_dir = model_dir_list[model_idx]
                 model_file_format = model_file_format_list[model_idx]
@@ -2400,7 +2422,9 @@ elif RUN == 'maps2d':
                                        model, model_dir, ftp_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       ftp_link_file_format)
+                                       ftp_link_file_format,
+                                       check_model_file_type)
+                        check_model_file_type = False
                         model_fcst_ftp_lead_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 ftp_link_file_format, valid_time, init_time,
@@ -2447,7 +2471,8 @@ elif RUN == 'maps2d':
                                                model_data_run_hpss,
                                                model_hpss_dir,
                                                link_model_data_dir,
-                                               'anl.{valid?fmt=%Y%m%d%H}')
+                                               'anl.{valid?fmt=%Y%m%d%H}',
+                                               check_model_file_type)
                                 model_obs_ftp_lead_file = os.path.join(
                                     link_model_data_dir, format_filler(
                                         'anl.{valid?fmt=%Y%m%d%H}', valid_time,
@@ -2580,6 +2605,7 @@ elif RUN == 'mapsda':
             RUN_abbrev_type_make_met_data_by
         )
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_hpss_dir = model_hpss_dir_list[model_idx]
             model_file_format = RUN_abbrev_type_model_file_format_list[
@@ -2612,7 +2638,9 @@ elif RUN == 'mapsda':
                                        model, model_dir, model_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                       'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                       check_model_file_type)
+                        check_model_file_type = True
                         model_fcst_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
@@ -2623,7 +2651,7 @@ elif RUN == 'mapsda':
                                        model, model_dir, anl_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       'anl.{valid?fmt=%Y%m%d%H}')
+                                       'anl.{valid?fmt=%Y%m%d%H}', False)
                         model_obs_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 'anl.{valid?fmt=%Y%m%d%H}',
@@ -2684,7 +2712,9 @@ elif RUN == 'mapsda':
                                            link_model_data_dir,
                                            'atmf{lead?fmt=%3H}.ens'
                                            +ens_file_type+'.'
-                                           +'{init?fmt=%Y%m%d%H}.nc')
+                                           +'{init?fmt=%Y%m%d%H}.nc',
+                                           check_model_file_type)
+                            check_model_file_type = True
                             link_ens_file = os.path.join(
                                 link_model_data_dir, format_filler(
                                     'atmf{lead?fmt=%3H}.ens'+ens_file_type+'.'

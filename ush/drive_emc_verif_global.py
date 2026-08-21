@@ -258,7 +258,7 @@ def create_job_script(
         sh.write("module reset\n")
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
     sh.write(f"module load \"emc_verif_global_{machine.lower()}\"\n")
-    if machine_name == "GAEAC6":
+    if machine_name in ["GAEAC6", "URSA"]:
         sh.write(f"export HOMEMET=\"${{met_ROOT}}\"\n")
         sh.write(f"export HOMEMETplus=\"${{metplus_ROOT}}\"\n")
     else:

@@ -28,7 +28,7 @@ RUN_CASE = (RUN.split('_')[0])
 JOB_GROUP = os.environ['JOB_GROUP']
 machine = os.environ['machine']
 MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
+ncpus_per_node = int(os.environ['ncpus_per_node'])
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 plot_by = os.environ['plot_by']
@@ -51,13 +51,13 @@ base_plot_jobs_info_dict = {
                                                'P700', 'P500', 'P400',
                                                'P300', 'P250', 'P200',
                                                'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                               'P20', 'P10', 'P5', 'P1']},
                  'obs_var_dict': {'name': 'TMP',
                                   'levels': ['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                 'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                  'obs_name': 'ADPUPA'},
         'RH': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                    'fcst_var_dict': {'name': 'RH',
@@ -65,13 +65,13 @@ base_plot_jobs_info_dict = {
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                    'obs_var_dict': {'name': 'RH',
                                     'levels': ['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                    'obs_name': 'ADPUPA'},
         'SPFH': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                     'fcst_var_dict': {'name': 'SPFH',
@@ -79,13 +79,13 @@ base_plot_jobs_info_dict = {
                                                   'P700', 'P500', 'P400',
                                                   'P300', 'P250', 'P200',
                                                   'P150', 'P100', 'P50',
-                                                  'P10', 'P5', 'P1']},
+                                                  'P20', 'P10', 'P5', 'P1']},
                     'obs_var_dict': {'name': 'SPFH',
                                      'levels':['P1000', 'P925', 'P850',
                                                 'P700', 'P500', 'P400',
                                                 'P300', 'P250', 'P200',
                                                 'P150', 'P100', 'P50',
-                                                 'P10', 'P5', 'P1']},
+                                                'P20', 'P10', 'P5', 'P1']},
                     'obs_name': 'ADPUPA'},
 
         'HGT': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
@@ -94,13 +94,13 @@ base_plot_jobs_info_dict = {
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']},
+                                                   'P20', 'P10', 'P5', 'P1']},
                       'obs_var_dict': {'name': 'HGT',
                                        'levels': ['P1000', 'P925', 'P850',
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']},
+                                                   'P20', 'P10', 'P5', 'P1']},
                    'obs_name': 'ADPUPA'},
         'UGRD_VGRD': {'vx_masks': ['G003','NH', 'SH', 'TRO', 'G236', 'POLAR','ARCTIC'],
                        'fcst_var_dict': {'name': 'UGRD_VGRD',
@@ -108,13 +108,13 @@ base_plot_jobs_info_dict = {
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']}, 
+                                                   'P20', 'P10', 'P5', 'P1']},
                        'obs_var_dict': {'name': 'UGRD_VGRD',
                                         'levels':  ['P1000', 'P925', 'P850',
                                                    'P700', 'P500', 'P400',
                                                    'P300', 'P250', 'P200',
                                                    'P150', 'P100', 'P50',
-                                                   'P10', 'P5', 'P1']}, 
+                                                   'P20', 'P10', 'P5', 'P1']},
                        'obs_name': 'ADPUPA'}        
     },
     'grid2obs_conus_sfc': {
@@ -146,9 +146,9 @@ base_plot_jobs_info_dict = {
                                'SEC', 'NWC', 'SWC', 'NMT', 'SMT', 'SWD',
                                'GRB', 'LMV', 'GMC', 'APL', 'NAK', 'SAK'],
                           'fcst_var_dict': {'name': 'TCDC',
-                                            'levels': ['L0']},
+                                            'levels': ['TOTAL']},
                           'obs_var_dict': {'name': 'TCDC',
-                                           'levels': ['L0']},
+                                           'levels': ['TOTAL']},
                           'obs_name': 'ADPSFC'},
 
         'PRMSL': {'vx_masks': ['G104','WEST', 'EAST', 'MDW', 'NPL', 'SPL', 'NEC',
@@ -214,19 +214,19 @@ base_plot_jobs_info_dict = {
                                      'levels': ['Z2']},
                    'obs_var_dict': {'name': 'TMP',
                                     'levels': ['Z2']},
-                   'obs_name': 'ADPSFC'},
+                   'obs_name': 'IABP'},
         'TMPsfc': {'vx_masks': ['ARCTIC'],
                    'fcst_var_dict': {'name': 'TMP',
                                      'levels': ['Z0']},
                    'obs_var_dict': {'name': 'TMP',
                                     'levels': ['Z0']},
-                   'obs_name': 'ADPSFC'},        
+                   'obs_name': 'IABP'},        
         'PRESsfc': {'vx_masks': ['ARCTIC'],
                    'fcst_var_dict': {'name': 'PRES',
                                      'levels': ['Z0']},
                    'obs_var_dict': {'name': 'PRES',
                                     'levels': ['Z0']},
-                   'obs_name': 'ADPSFC'}        
+                   'obs_name': 'IABP'}        
     }
 }
 
@@ -241,7 +241,7 @@ for pres_levs_job in list(condense_stats_jobs_dict['grid2obs_upper_air'].keys())
     condense_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_types'] = (
         pres_levs_job_line_types
     )
-#### sfc
+#### conus_sfc
 for sfc_job in list(condense_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     if sfc_job == 'UGRD_VGRD10m':
         sfc_job_line_types = ['VL1L2']
@@ -250,12 +250,16 @@ for sfc_job in list(condense_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
     condense_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_types'] = sfc_job_line_types
 if JOB_GROUP == 'condense_stats':
     JOB_GROUP_dict = condense_stats_jobs_dict
+#### polar_sfc
+for psfc_job in list(condense_stats_jobs_dict['grid2obs_polar_sfc'].keys()):
+    condense_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_types'] = ['SL1L2']
+if JOB_GROUP == 'condense_stats':
+    JOB_GROUP_dict = condense_stats_jobs_dict
 
 # filter_stats jobs
 filter_stats_jobs_dict = copy.deepcopy(condense_stats_jobs_dict)
 #### upper_air
 for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
-    filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['grid'] = 'G003'
     (filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]\
      ['fcst_var_dict']['threshs']) = ['NA']
     (filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]\
@@ -263,9 +267,8 @@ for pres_levs_job in list(filter_stats_jobs_dict['grid2obs_upper_air'].keys()):
     filter_stats_jobs_dict['grid2obs_upper_air'][pres_levs_job]['interps'] = [
         'BILIN/4'
     ]
-# sfc
+#### conus_sfc
 for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
-    filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['grid'] = 'G104'
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['interps'] = ['BILIN/4']
     if 'CAPEsfc' in sfc_job:
         sfc_job_fcst_threshs = ['gt0||']
@@ -278,21 +281,40 @@ for sfc_job in list(filter_stats_jobs_dict['grid2obs_conus_sfc'].keys()):
         )
     filter_stats_jobs_dict['grid2obs_conus_sfc'][sfc_job]['obs_var_dict']['threshs'] = (
         sfc_job_obs_threshs
-    )    
-
+    )
+#### polar_sfc
+for psfc_job in list(filter_stats_jobs_dict['grid2obs_polar_sfc'].keys()):
+    (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\
+     ['fcst_var_dict']['threshs']) = ['NA']
+    (filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]\
+     ['obs_var_dict']['threshs']) = ['NA']
+    filter_stats_jobs_dict['grid2obs_polar_sfc'][psfc_job]['interps'] = [
+        'BILIN/4'
+    ] 
 if JOB_GROUP == 'filter_stats':
     JOB_GROUP_dict = filter_stats_jobs_dict
 
 # make_plots jobs
 make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 # upper_air
+pres_levs_stats = os.environ["g2o2_upper_air_stats_list"].split(' ')
+if "fbar_obar" in pres_levs_stats:
+    pres_levs_stats.remove("fbar_obar")
 for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
     del make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_types']
     if pres_levs_job == 'UGRD_VGRD':
-        pres_levs_job_line_type_stats = ['VL1L2/ME', 'VL1L2/RMSE']
+        pres_levs_job_line_type = 'VL1L2'
     else:
-        pres_levs_job_line_type_stats = ['SL1L2/ME', 'SL1L2/RMSE']
-        #add mean plots
+        pres_levs_job_line_type = 'SL1L2'
+    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_type_stats'] = [
+        f"{pres_levs_job_line_type}/{s.upper()}" \
+        for s in pres_levs_stats
+    ]
+    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
+        'time_series', 'lead_average','stat_by_level', 'lead_by_level'
+    ]
+    if pres_levs_job_line_type == "SL1L2" and \
+            "fbar_obar" in os.environ["g2o2_upper_air_stats_list"]:
         make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR'] = copy.deepcopy(
             make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]
         )
@@ -302,21 +324,25 @@ for pres_levs_job in list(make_plots_jobs_dict['grid2obs_upper_air'].keys()):
         make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job+'_FBAR_OBAR']['plots'] = [
             'time_series'
         ]
-        #finish adding mean plots
-    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['line_type_stats'] = (
-        pres_levs_job_line_type_stats
-    )
-    make_plots_jobs_dict['grid2obs_upper_air'][pres_levs_job]['plots'] =[
-        'time_series', 'lead_average','stat_by_level'
-    ]
-# sfc
+# conus_sfc
+sfc_stats = os.environ["g2o2_conus_sfc_stats_list"].split(' ')
+if "fbar_obar" in sfc_stats:
+    sfc_stats.remove("fbar_obar")
 for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
     del make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_types']
     if sfc_job == 'UGRD_VGRD10m':
-        sfc_job_line_type_stats = ['VL1L2/RMSE', 'VL1L2/ME']
+        sfc_job_line_type = 'VL1L2'
     else:
-        sfc_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
-        #add mean plots
+        sfc_job_line_type = 'SL1L2'
+    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = [
+        f"{sfc_job_line_type}/{s.upper()}" \
+        for s in sfc_stats
+    ]
+    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['plots'] = [
+        'time_series','lead_average'
+    ]
+    if sfc_job_line_type == "SL1L2" and \
+            "fbar_obar" in os.environ["g2o2_conus_sfc_stats_list"]:
         make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR'] = copy.deepcopy(
             make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]
         )
@@ -326,12 +352,29 @@ for sfc_job in list(make_plots_jobs_dict['grid2obs_conus_sfc'].keys()):
         make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job+'_FBAR_OBAR']['plots'] = [
             'time_series'
         ]
-        #finish adding meam plots
-    sfc_job_plots = ['time_series','lead_average']
-    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['line_type_stats'] = (
-        sfc_job_line_type_stats
-    )
-    make_plots_jobs_dict['grid2obs_conus_sfc'][sfc_job]['plots'] = sfc_job_plots        
+#### polar_sfc
+psfc_stats = os.environ["g2o2_polar_sfc_stats_list"].split(' ')
+if "fbar_obar" in psfc_stats:
+    psfc_stats.remove("fbar_obar")
+for psfc_job in list(make_plots_jobs_dict['grid2obs_polar_sfc'].keys()):
+    del make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_types']
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['line_type_stats'] = [
+        f"SL1L2/{s.upper()}" \
+        for s in psfc_stats
+    ]
+    make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]['plots'] = [
+        'time_series','lead_average'
+    ]
+    if "fbar_obar" in os.environ["g2o2_polar_sfc_stats_list"]:
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR'] = copy.deepcopy(
+            make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job]
+        )
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['line_type_stats']=[
+           'SL1L2/FBAR_OBAR'
+        ]
+        make_plots_jobs_dict['grid2obs_polar_sfc'][psfc_job+'_FBAR_OBAR']['plots'] = [
+            'time_series'
+        ]
 if JOB_GROUP == 'make_plots':
     JOB_GROUP_dict = make_plots_jobs_dict
 
@@ -344,8 +387,6 @@ for case_type in case_type_list:
     model_plot_name_list = (
         os.environ[RUN_abbrev+'_model_plot_name_list'].split(' ')
     )
-    print("DEBUG: case_type =", case_type)
-    print("DEBUG: JOB_GROUP_dict keys =", list(JOB_GROUP_dict.keys()))
     case_type_plot_jobs_dict = JOB_GROUP_dict[f"grid2obs_{case_type}"]
     for case_type_job in list(case_type_plot_jobs_dict.keys()):
         # Initialize job environment dictionary
@@ -357,19 +398,15 @@ for case_type in case_type_list:
         job_env_dict['start_date'] = start_date
         job_env_dict['end_date'] = end_date
         job_env_dict['plot_by'] = plot_by
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
-                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
-                              'init_hr_inc']
+        case_type_env_list = ['grid', 'event_eq']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
         if JOB_GROUP in ['filter_stats', 'make_plots']:
-            valid_hr_start = int(job_env_dict['valid_hr_beg'])
+            valid_hr_start = int(job_env_dict['valid_hr_start'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
-            valid_hr_inc = valid_hr_inc // 3600
             valid_hrs = list(range(valid_hr_start,
                                    valid_hr_end+valid_hr_inc,
                                    valid_hr_inc))
@@ -456,11 +493,10 @@ for case_type in case_type_list:
                 job.write('\n')
                 # Write environment variables
                 for name, value in job_env_dict.items():
-                    print("name",name,"value",value)
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2o_command('grid2obs_plots.py',[])
+                    vfg_util.python_command('grid2obs', 'grid2obs_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -563,6 +599,8 @@ for case_type in case_type_list:
                             ['obs_var_dict']['levels']
                         )
                     else:
+                        if 'vert_profile' in job_env_dict:
+                            job_env_dict.pop('vert_profile')
                         job_env_dict['fcst_var_level_list'] = plot_loop_info[2]
                         job_env_dict['obs_var_level_list'] = (
                             case_type_plot_jobs_dict[case_type_job]\
@@ -592,12 +630,10 @@ for case_type in case_type_list:
                         # Write environment variables
                         job_env_dict['job_id'] = 'job'+str(njobs)
                         for name, value in job_env_dict.items():
-                            print("name", name)
-                            print("value",value)
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_g2o_command('grid2obs_plots.py',[])
+                            vfg_util.python_command('grid2obs', 'grid2obs_plots.py',[])
                             +'\n'
                         )
                         job.close()
@@ -617,7 +653,7 @@ if MPMD == 'YES':
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
-            if iproc >= nproc:
+            if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
                 node+=1
@@ -644,13 +680,7 @@ if MPMD == 'YES':
                                 f"poe_jobs{str(node)}")
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    if machine == 'WCOSS2':
-        nselect = subprocess.run(
-            f"cat {poe_filename} | wc -l",
-            shell=True, capture_output=True, encoding="utf8"
-        ).stdout.replace('\n', '')
-        nnp = int(nselect) * int(nproc)
-    while iproc <= nproc:
+    while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'

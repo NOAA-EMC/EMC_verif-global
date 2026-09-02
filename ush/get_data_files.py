@@ -2,8 +2,7 @@
 Program Name: get_data_files.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
-          This gets the necessary data files to run
-          the METplus use case.
+          This gets the necessary data files to run the job.
 '''
 
 import os
@@ -13,6 +12,7 @@ from time import sleep
 import pandas as pd
 import glob
 import numpy as np
+import verif_global_util as vfg_util
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -173,25 +173,31 @@ def wget_data(wget_job_filename, wget_job_name, wget_job_output):
     print("Submitting "+wget_job_filename+" to "+QUEUESERV)
     print("Output sent to "+wget_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+wget_job_output+' '
-                  +'-e '+wget_job_output+' -N '+wget_job_name+' '
-                  +'-l select=1:ncpus=1 '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+             '-q', QUEUESERV, '-A', ACCOUNT, '-o', wget_job_output,
+             '-e', wget_job_output, '-N', wget_job_name,
+             '-l', 'select=1:ncpus=1', wget_job_filename]
+        )
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+wget_job_name+' | wc -l')
     elif machine == 'GAEAC6':
-        os.system('sbatch --nodes=1 --ntasks-per-node=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --cluster='+CLUSTERS_DTN+' '
-                  +'--partition='+PARTITION_DTN+' --constraint=f6 --qos=dtn '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--nodes=1', '--ntasks-per-node=1',
+             '--time='+walltime.strftime('%H:%M:%S'), '--cluster='+CLUSTERS_DTN,
+             '--partition='+PARTITION_DTN, '--constraint=f6', '--qos=dtn',
+             '--account='+ACCOUNT, '--output='+wget_job_output,
+             '--job-name='+wget_job_name, wget_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
     elif machine in ['URSA', 'HERA', 'ORION', 'HERCULES']:
-        os.system('sbatch --ntasks=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
-                  +'--account='+ACCOUNT+' --output='+wget_job_output+' '
-                  +'--job-name='+wget_job_name+' '+wget_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT,
+             '--output='+wget_job_output,
+             '--job-name='+wget_job_name, wget_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +wget_job_name+' -t R,PD -h | wc -l')
     sleep_counter, sleep_checker = 1, 10
@@ -435,17 +441,20 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
     print("Submitting "+hpss_job_filename+" to "+QUEUESERV)
     print("Output sent to "+hpss_job_output)
     if machine == 'WCOSS2':
-        os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-                  +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+hpss_job_output+' '
-                  +'-e '+hpss_job_output+' -N '+hpss_job_name+' '
-                  +'-l select=1:ncpus=1 '+hpss_job_filename)
+        vfg_util.run_shell_command(
+            ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+             '-q', QUEUESERV, '-A', ACCOUNT, '-o', hpss_job_output,
+             '-e', hpss_job_output, '-N', hpss_job_name,
+             '-l', 'select=1:ncpus=1', hpss_job_filename]
+        )
         job_check_cmd = ('qselect -s QR -u '+os.environ['USER']+' '
                          +'-N '+hpss_job_name+' | wc -l')
     elif machine in ['URSA', 'HERA']:
-        os.system('sbatch --ntasks=1 --time='
-                  +walltime.strftime('%H:%M:%S')+' --partition='+QUEUESERV+' '
-                  +'--account='+ACCOUNT+' --output='+hpss_job_output+' '
-                  +'--job-name='+hpss_job_name+' '+hpss_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT, '--output='+hpss_job_output,
+             '--job-name='+hpss_job_name, hpss_job_filename]
+        )
         job_check_cmd = ('squeue -u '+os.environ['USER']+' -n '
                          +hpss_job_name+' -t R,PD -h | wc -l')
     elif machine in ['ORION', 'HERCULES', 'GAEAC6']:
@@ -462,7 +471,7 @@ def get_hpss_data(hpss_job_filename, save_data_dir, save_data_file,
                 break
             sleep_counter+=1
 
-def check_file_type(file):
+def get_file_type(file):
     """! This checks if a file is netCDF, GRIB1, or GRIB2.
 
          Args:
@@ -471,14 +480,15 @@ def check_file_type(file):
          Returns:
              file_type - string of the file's type
     """
-    wgrib_check = subprocess.run(
-        'wgrib '+file, shell=True, stdout=subprocess.PIPE,
+    print("---- Getting file type for "+file)
+    wgrib2_check = subprocess.run(
+        'wgrib2 '+file, shell=True, stdout=subprocess.PIPE,
          stderr=subprocess.STDOUT, encoding='UTF-8'
     )
-    if 'use wgrib2' in wgrib_check.stdout:
-        return 'grib2'
-    elif ':kpds5' in wgrib_check.stdout:
+    if 'grib1 message ignored (use wgrib)' in wgrib2_check.stdout:
         return 'grib1'
+    elif ':d=' in wgrib2_check.stdout:
+        return 'grib2'
     else:
         ncdump_check = subprocess.run(
             'ncdump -h '+file, shell=True, stdout=subprocess.PIPE,
@@ -491,7 +501,8 @@ def check_file_type(file):
 
 def get_model_file(valid_time_dt, init_time_dt, lead_str,
                    name, data_dir, file_format, run_hpss,
-                   hpss_data_dir, link_data_dir, link_file_format):
+                   hpss_data_dir, link_data_dir, link_file_format,
+                   check_file_type):
     """! This links a model file from its archive.
          If the file does not exist locally, then retrieve
          from HPSS if requested.
@@ -513,7 +524,7 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
              link_data_dir    - string of the directory to link
                                 model data to
              link_file_format - string of the linked file name
-
+             check_file_type  - boolean to check file input type
          Returns:
     """
     link_filename = format_filler(link_file_format, valid_time_dt,
@@ -522,17 +533,18 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
     if not os.path.exists(link_model_file):
         model_filename = format_filler(file_format, valid_time_dt,
                                        init_time_dt, lead_str)
-        #Uncomment the model_file line below if using default global archive
-        #model_file = os.path.join(data_dir, name, model_filename)
-        #Uncomment the model_file line below if ARCDIR contains
-        #the model experiment name
-        model_file = os.path.join(data_dir, model_filename)
+        model_file = os.path.join(data_dir, name, model_filename)
+        if not os.path.exists(model_file):
+            model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
-            if check_file_type(model_file) in ['grib2', 'netcdf']:
-                os.system('ln -sf '+model_file+' '+link_model_file)
+            file_type = get_file_type(model_file) if check_file_type else None
+            if check_file_type and file_type not in ['grib2', 'netcdf']:
+                print(f"ERROR: {model_file} is unsupported type "
+                      +f"({file_type})")
+                sys.exit(1)
             else:
-                print(f"WARNING: {model_file} is unsupported type "
-                      +f"({check_file_type(model_file)})")
+                print(f"Linking {model_file} to {link_model_file}")
+                os.symlink(model_file, link_model_file)
         else:
             if run_hpss == 'YES':
                 print("Did not find "+model_file+" online..."
@@ -662,7 +674,7 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
         get_model_file(valid_time_dt, valid_time_dt, '00',
                        mean_model, mean_model_dir, mean_model_file_format,
                        'NO', '/null', output_mean_model_dir,
-                       save_mean_model_file_format)
+                       save_mean_model_file_format, False)
         mean_model_file = os.path.join(output_mean_model_dir,
                                        format_filler(
                                            save_mean_model_file_format,
@@ -720,10 +732,11 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                 encoding='UTF-8'
                             )
                             if 'center=7' in check_center:
-                                os.system(copygb+' -'+grid.lower()+' -x '
-                                          +save_mean_model_file+' '
-                                          +template_grib2_file+' '
-                                          +'> /dev/null 2>&1')
+                                vfg_util.run_shell_command(
+                                    [copygb, '-'+grid.lower(), '-x',
+                                     save_mean_model_file, template_grib2_file,
+                                     '>', '/dev/null', '2>&1']
+                                )
                         if 'P' in var_level:
                             var_level_grib2 = var_level[1:]+' mb'
                         elif 'Z' in var_level:
@@ -744,12 +757,13 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                                                +'considered as a single '
                                                +'layer)')
                         if os.path.exists(template_grib2_file):
-                            os.system(wgrib2+' '+template_grib2_file+' '
-                                      +'-match ":'+var_name+':" '
-                                      +'-match ":'+var_level_grib2+':" '
-                                      +'-grib_out '
-                                      +template_var_grib2_file+' '
-                                      +'> /dev/null 2>&1')
+                            vfg_util.run_shell_command(
+                                [wgrib2, template_grib2_file,
+                                 '-match', '":'+var_name+':"',
+                                 '-match', '":'+var_level_grib2+':"',
+                                 '-grib_out', template_var_grib2_file,
+                                 '>', '/dev/null', '2>&1']
+                            )
                         if os.path.exists(template_var_grib2_file):
                             create_var_template = False
                     # Regrid
@@ -784,9 +798,10 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                 if all_models_have_var:
                     mean_var_nc_file = (mean_file+'_'+var_name+'_'
                                         +var_level+'.nc')
-                    os.system(ncea+' '
-                              +' '.join(mean_model_var_nc_file_list)+' '
-                              +'-O -o '+mean_var_nc_file)
+                    vfg_util.run_shell_command(
+                        [ncea, ' '.join(mean_model_var_nc_file_list),
+                         '-O', '-o', mean_var_nc_file]
+                    )
                     lat_dim_output = subprocess.check_output(
                         ncdump+' -h '+mean_var_nc_file+' '
                         +'| grep ":Nlat = "', shell=True,
@@ -809,16 +824,16 @@ def create_mean_truth(mean_model_list, mean_model_dir_list,
                     os.environ['HDF5_DISABLE_VERSION_CHECK'] = '1'
                     mean_var_grib2_file = (mean_file+'_'+var_name+'_'
                                            +var_level+'.grib2')
-                    os.system(wgrib2+' '
-                              +template_var_grib2_file+' '
-                              +'-import_netcdf '
-                              +mean_var_nc_file+' '
-                              +'"'+nc_var+'" "0:'+lat_dim+':0:'
-                              +lon_dim+'"  -grib_out '
-                              +mean_var_grib2_file+' '
-                              +'> /dev/null 2>&1')
-                    os.system('cat '+mean_var_grib2_file+' >> '
-                              +mean_file)
+                    vfg_util.run_shell_command(
+                        [wgrib2, template_var_grib2_file, '-import_netcdf',
+                         mean_var_nc_file,
+                         '"'+nc_var+'"', '"0:'+lat_dim+':0:'+lon_dim+'"',
+                         '-grib_out', mean_var_grib2_file,
+                         '>', '/dev/null', '2>&1']
+                    )
+                    vfg_util.run_shell_command(
+                        ['cat', mean_var_grib2_file, '>>', mean_file]
+                    )
         if os.path.exists(mean_file):
             print("Created "+mean_file)
     else:
@@ -903,7 +918,8 @@ def get_model_stat_file(valid_time_dt, init_time_dt, lead_str,
                                                  +'.stat')
     if not os.path.exists(link_model_stat_file):
         if os.path.exists(model_stat_file):
-            os.system('ln -sf '+model_stat_file+' '+link_model_stat_file)
+            print(f"Linking {model_stat_file} to {link_model_stat_file}")
+            os.symlink(model_stat_file, link_model_stat_file)
         else:
             print("WARNING: "+model_stat_file+" does not exist")
 
@@ -987,6 +1003,7 @@ if RUN == 'grid2grid_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast files for each model
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1029,7 +1046,9 @@ if RUN == 'grid2grid_step1':
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                   check_model_file_type)
+                    check_model_file_type = False
         # Get truth files for each model
         RUN_abbrev_type_truth_name_short = (
             RUN_abbrev_type_truth_name.split('_')[0]
@@ -1040,6 +1059,7 @@ if RUN == 'grid2grid_step1':
         if RUN_abbrev_type_truth_name_lead == 'f00':
             RUN_abbrev_type_truth_name_lead = '00'
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1090,7 +1110,11 @@ if RUN == 'grid2grid_step1':
                                 model_hpss_dir
                             )
                         else:
-                            model_RUN_abbrev_type_truth_dir = global_archive
+                            if RUN_abbrev_type_truth_name_short == 'gdas':
+                                RUN_abbrev_type_truth_name_short = 'gfs'
+                            model_RUN_abbrev_type_truth_dir = os.path.join(
+                                global_archive,  RUN_abbrev_type_truth_name_short
+                            )
                             model_RUN_abbrev_type_truth_file_format = (
                                 RUN_abbrev_type_truth_file_format_list[0]
                             )
@@ -1104,8 +1128,6 @@ if RUN == 'grid2grid_step1':
                                 model_RUN_abbrev_type_data_run_hpss = (
                                     model_data_run_hpss
                                 )
-                            if RUN_abbrev_type_truth_name_short == 'gdas':
-                                RUN_abbrev_type_truth_name_short = 'gfs'
                         get_model_file(
                             valid_time, valid_time,
                             RUN_abbrev_type_truth_name_lead,
@@ -1115,29 +1137,23 @@ if RUN == 'grid2grid_step1':
                             model_RUN_abbrev_type_data_run_hpss,
                             model_RUN_abbrev_type_truth_hpss_dir,
                             link_model_dir,
-                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}'
+                            RUN_type+'.truth.{valid?fmt=%Y%m%d%H}',
+                            check_model_file_type
                         )
+                        check_model_file_type = False
                         truth_file = os.path.join(
                             model_RUN_abbrev_type_truth_dir,
-                            RUN_abbrev_type_truth_name_short,
                             format_filler(
                                 model_RUN_abbrev_type_truth_file_format,
                                 valid_time, valid_time,
                                 RUN_abbrev_type_truth_name_lead
                             )
                         )
-                    elif RUN_abbrev_type_truth_name in ['common_anl',
-                                                        'common_f00',
-                                                        'model_mean']:
-                        if 'common' in RUN_abbrev_type_truth_name:
-                            mean_truth_dir = os.path.join(
-                                cwd, 'data', RUN_abbrev_type_truth_name
-                            )
-                        elif RUN_abbrev_type_truth_name == 'model_mean':
-                            mean_truth_dir = os.path.join(
-                                cwd, 'data',
-                                RUN_type+'_'+RUN_abbrev_type_truth_name
-                            )
+                    elif RUN_abbrev_type_truth_name in ['model_mean']:
+                        mean_truth_dir = os.path.join(
+                            cwd, 'data',
+                            RUN_type+'_'+RUN_abbrev_type_truth_name
+                        )
                         if not os.path.exists(mean_truth_dir):
                             os.makedirs(mean_truth_dir)
                         truth_file = os.path.join(
@@ -1155,8 +1171,7 @@ if RUN == 'grid2grid_step1':
                                 mean_truth_dir
                             )
                         if os.path.exists(truth_file):
-                            os.system('ln -sf '+truth_file+' '
-                                      +link_truth_file)
+                            os.symlink(truth_file, link_truth_file)
                     # Check model RUN_type truth file exists, if not try
                     # to use model's own f00 file
                     if not os.path.exists(link_truth_file) \
@@ -1170,69 +1185,10 @@ if RUN == 'grid2grid_step1':
                                           valid_time, valid_time, '00')
                         )
                         if os.path.exists(link_model_f00_file):
-                            os.system('ln -sf '+link_model_f00_file+' '
-                                       +link_truth_file)
+                            os.symlink(link_model_f00_file, link_truth_file)
                         if not os.path.exists(link_truth_file):
                             print("WARNING: Unable to link model f00 file as "
                                   +"subsitute truth file "+link_truth_file)
-elif RUN == 'grid2grid_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                   model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'grid2grid', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'grid2obs_step1':
     # Read in RUN related environment variables
     prepbufr_run_hpss = os.environ[RUN_abbrev+'_prepbufr_data_run_hpss']
@@ -1277,6 +1233,7 @@ elif RUN == 'grid2obs_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -1319,7 +1276,9 @@ elif RUN == 'grid2obs_step1':
                                    model, model_dir, model_file_format,
                                    model_data_run_hpss, model_hpss_dir,
                                    link_model_dir,
-                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                   'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                   check_model_file_type)
+                    check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -1346,7 +1305,7 @@ elif RUN == 'grid2obs_step1':
                         os.makedirs(os.path.join(iabp_dir, 'wget_jobs'))
                     iabp_YYYYmmdd_file = os.path.join(iabp_dir,
                                                       'iabp.'+YYYYmmdd)
-                    iabp_region_list = ['Arctic', 'Antarctic']
+                    iabp_region_list = ['Arctic']
                     iabp_var_dict = {
                         'BP': ('PRES', '0'),
                         'Ts': ('TMP', '0'),
@@ -1421,8 +1380,13 @@ elif RUN == 'grid2obs_step1':
                                                       'Lat', 'Lon', 'BP', 'Ts',
                                                       'Ta']
                                 )
+                                if "BuoyID" == iabp_reg_YYYYmmdd_data.loc[0]["BuoyID"]:
+                                    idx_start = 1
+                                else:
+                                    idx_start = 0
+                                iabp_reg_YYYYmmdd_data = iabp_reg_YYYYmmdd_data.loc[idx_start:]
                                 niabp_reg_YYYYmmdd_data = len(
-                                    iabp_reg_YYYYmmdd_data.index
+                                    iabp_reg_YYYYmmdd_data[:].index
                                 )
                                 dates = []
                                 for idx in iabp_reg_YYYYmmdd_data.index:
@@ -1516,10 +1480,10 @@ elif RUN == 'grid2obs_step1':
                                         start_var_idx:end_var_idx,
                                         'Observation_Value'
                                     ] = iabp_var_vals.filled()
-                                iabp_ascii2nc_data = (
-                                    iabp_ascii2nc_data.append(
-                                        iabp_ascii2nc_reg_data
-                                    ).reset_index(drop=True)
+                                iabp_ascii2nc_data = pd.concat(
+                                    [iabp_ascii2nc_data,
+                                     iabp_ascii2nc_reg_data],
+                                    ignore_index=True
                                 )
                             iabp_ascii2nc_data_string = (
                                 iabp_ascii2nc_data.to_string(header=False,
@@ -1568,12 +1532,16 @@ elif RUN == 'grid2obs_step1':
                         prepbufr_dict['file_type'] = prepbufr
                         prepbufr_dict_list.append(prepbufr_dict)
                     elif RUN_type == 'conus_sfc':
-                        prepbufr = 'nam'
+                        if valid_time >= datetime.datetime(2026, 7, 13, 0):
+                            prepbufr = 'rrfs'
+                            offset_hr = '00'
+                        else:
+                            prepbufr = 'nam'
+                            offset_hr = str(int(HH)%6).zfill(2)
                         link_prepbufr_file = os.path.join(
                             link_prepbufr_dir, 'prepbufr.'+prepbufr+'.'
                             +YYYYmmddHH
                         )
-                        offset_hr = str(int(HH)%6).zfill(2)
                         offset_time = valid_time + datetime.timedelta(
                             hours=int(offset_hr)
                         )
@@ -1585,20 +1553,22 @@ elif RUN == 'grid2obs_step1':
                         offset_dd = offset_time.strftime('%d')
                         offset_HH = offset_time.strftime('%H')
                         offset_filename = (
-                            'nam.t'+offset_HH+'z.prepbufr.tm'+offset_hr
+                            prepbufr+'.t'+offset_HH+'z.prepbufr.tm'+offset_hr
                         )
                         prepbufr_prod_file = os.path.join(
-                            prepbufr_prod_conus_sfc_dir, 'nam.'
+                            prepbufr_prod_conus_sfc_dir, prepbufr+'.'
                             +offset_YYYYmmdd, offset_filename
                         )
                         prepbufr_arch_file = os.path.join(
-                            prepbufr_arch_dir, 'nam', 'nam.'
+                            prepbufr_arch_dir, prepbufr, prepbufr+'.'
                             +offset_YYYYmmdd, offset_filename
                         )
                         if offset_time \
                                 >= datetime.datetime.strptime('20240522',
                                                               '%Y%m%d'):
-                            prepbufr_hpss_tar_prefix = 'com_obsproc_v1.2_nam.'
+                            prepbufr_hpss_tar_prefix = (
+                                'com_obsproc_v1.2_'+prepbufr+'.'
+                            )
                         elif offset_time \
                                 >= datetime.datetime.strptime('20221129',
                                                               '%Y%m%d') \
@@ -1631,11 +1601,29 @@ elif RUN == 'grid2obs_step1':
                             )
                         else:
                             prepbufr_hpss_tar_prefix = 'com2_nam_prod_nam.'
-                        prepbufr_hpss_tar = os.path.join(
-                            hpss_prod_base_dir, 'rh'+offset_YYYY,
-                            offset_YYYYmm, offset_YYYYmmdd,
-                            prepbufr_hpss_tar_prefix
-                            +offset_YYYYmmddHH+'.bufr.tar')
+                        if prepbufr == 'rrfs':
+                            if int(offset_HH) >= 0 and int(offset_HH) <= 5:
+                                tar_hr_span = "00-05"
+                            elif int(offset_HH) >= 6 and int(offset_HH) <= 11:
+                                tar_hr_span = "06-11"
+                            elif int(offset_HH) >= 12 and int(offset_HH) <= 17:
+                                tar_hr_span = "12-17"
+                            else:
+                                tar_hr_span = "18-23"
+                            prepbufr_hpss_tar = os.path.join(
+                                hpss_prod_base_dir, 'rh'+offset_YYYY,
+                                offset_YYYYmm, offset_YYYYmmdd,
+                                prepbufr_hpss_tar_prefix
+                                +offset_YYYYmmdd+tar_hr_span
+                                +'.obsproc_bufr.tar'
+                            )
+                        else:
+                            prepbufr_hpss_tar = os.path.join(
+                                hpss_prod_base_dir, 'rh'+offset_YYYY,
+                                offset_YYYYmm, offset_YYYYmmdd,
+                                prepbufr_hpss_tar_prefix
+                                +offset_YYYYmmddHH+'.bufr.tar'
+                            )
                         prepbufr_hpss_file = offset_filename
                         prepbufr_dict = {}
                         prepbufr_dict['prod_file'] = prepbufr_prod_file
@@ -1675,13 +1663,11 @@ elif RUN == 'grid2obs_step1':
                             if os.path.exists(prod_file):
                                 print("Linking "+prod_file+" to "
                                       +link_prepbufr_file)
-                                os.system('ln -sf '+prod_file+' '
-                                          +link_prepbufr_file)
+                                os.symlink(prod_file, link_prepbufr_file)
                             elif os.path.exists(arch_file):
                                 print("Linking "+arch_file+" to "
                                       +link_prepbufr_file)
-                                os.system('ln -sf '+arch_file+' '
-                                          +link_prepbufr_file)
+                                os.symlink(arch_file, link_prepbufr_file)
                             else:
                                 if prepbufr_run_hpss == 'YES':
                                     print("Did not find "+prod_file+" or "
@@ -1708,64 +1694,6 @@ elif RUN == 'grid2obs_step1':
                                           +"at "+YYYYmmddHH)
                     else:
                         print("Already got "+link_prepbufr_file)
-elif RUN == 'grid2obs_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                        model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'grid2obs', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'precip_step1':
     # Read in RUN related environment variables
     obs_run_hpss = os.environ[RUN_abbrev+'_obs_data_run_hpss']
@@ -1820,6 +1748,7 @@ elif RUN == 'precip_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get model forecast files
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_hpss_dir = model_hpss_dir_list[model_idx]
@@ -1898,8 +1827,10 @@ elif RUN == 'precip_step1':
                                     model_dir, model_file_format,
                                     model_data_run_hpss, model_hpss_dir,
                                     os.path.join(link_model_dir, 'PRATE_files'),
-                                    'PRATE.f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                                    'PRATE.f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                    check_model_file_type
                                 )
+                                check_model_file_type = False
                                 link_PRATE_model_file = os.path.join(
                                     link_model_dir, 'PRATE_files',
                                     format_filler(
@@ -1917,11 +1848,11 @@ elif RUN == 'precip_step1':
                                 if os.path.exists(link_PRATE_model_file) \
                                        and not os.path.exists(link_model_file):
                                     wgrib2 = os.environ['WGRIB2']
-                                    os.system(
-                                        wgrib2+' '+link_PRATE_model_file+' -match '
-                                        +'":PRATE:" -rpn "3600:*" -set_var '
-                                        +'APCP -set table_4.10 1 -grib_out '
-                                        +link_model_file+' >>/dev/null'
+                                    vfg_util.run_shell_command(
+                                        [wgrib2, link_PRATE_model_file, '-match',
+                                         '":PRATE:"', '-rpn', '"3600:*"', '-set_var',
+                                         'APCP', '-set', 'table_4.10', '1', '-grib_out',
+                                         link_model_file, '>>/dev/null']
                                     )
                             elif model_var == 'APCP':
                                 get_model_file(
@@ -1929,8 +1860,10 @@ elif RUN == 'precip_step1':
                                     model_dir, model_file_format,
                                     model_data_run_hpss, model_hpss_dir,
                                     link_model_dir,
-                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}'
+                                    'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                    check_model_file_type
                                 )
+                                check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -1992,13 +1925,11 @@ elif RUN == 'precip_step1':
                     if os.path.exists(RUN_type_prod_file):
                         print("Linking "+RUN_type_prod_file+" to "
                               +link_RUN_type_file)
-                        os.system('ln -sf '+RUN_type_prod_file+' '
-                                 +link_RUN_type_file)
+                        os.symlink(RUN_type_prod_file, link_RUN_type_file)
                     elif os.path.exists(RUN_type_arch_file):
                         print("Linking "+RUN_type_arch_file+" to "
                               +link_RUN_type_file)
-                        os.system('ln -sf '+RUN_type_arch_file+' '
-                                  +link_RUN_type_file)
+                        os.symlink(RUN_type_arch_file, link_RUN_type_file)
                     else:
                         if obs_run_hpss == 'YES':
                             print("Did not find "+RUN_type_prod_file+" or "
@@ -2026,64 +1957,6 @@ elif RUN == 'precip_step1':
                     else:
                         print("WARNING: "+RUN_type_prod_file+" and "
                                +RUN_type_arch_file+" do not exist")
-elif RUN == 'precip_step2':
-    # Read in RUN related environment variables
-    # Get stat files for each option in RUN_type_list
-    for RUN_type in RUN_type_list:
-        RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
-        # Read in RUN_type environment variables
-        RUN_abbrev_type_fcyc_list = os.environ[
-            RUN_abbrev_type+'_fcyc_list'
-        ].split(' ')
-        RUN_abbrev_type_vhr_list = os.environ[
-            RUN_abbrev_type+'_vhr_list'
-        ].split(' ')
-        RUN_abbrev_type_start_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_beg'
-        ]
-        RUN_abbrev_type_end_hr = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_end'
-        ]
-        RUN_abbrev_type_hr_inc = os.environ[
-            RUN_abbrev_type+'_'+make_met_data_by.lower()+'_hr_inc'
-        ]
-        RUN_abbrev_type_fhr_list = os.environ[
-            RUN_abbrev_type+'_fhr_list'
-        ].split(', ')
-        RUN_abbrev_type_gather_by_list = os.environ[
-            RUN_abbrev_type+'_gather_by_list'
-        ].split(' ')
-        # Get date and time information for RUN_type
-        RUN_abbrev_type_time_info_dict = get_time_info(
-            start_date, end_date, RUN_abbrev_type_start_hr,
-            RUN_abbrev_type_end_hr, RUN_abbrev_type_hr_inc,
-            RUN_abbrev_type_fhr_list, plot_by
-        )
-        # Get stat files model
-        for model in model_list:
-            model_idx = model_list.index(model)
-            model_stat_dir = model_stat_dir_list[model_idx]
-            model_RUN_abbrev_type_gather_by = (
-                RUN_abbrev_type_gather_by_list[model_idx]
-            )
-            link_model_RUN_type_dir = os.path.join(cwd, 'data',
-                                                   model, RUN_type)
-            if not os.path.exists(link_model_RUN_type_dir):
-                os.makedirs(link_model_RUN_type_dir)
-            for time in RUN_abbrev_type_time_info_dict:
-                valid_time = time['valid_time']
-                init_time = time['init_time']
-                lead = time['lead']
-                if init_time.strftime('%H') not in RUN_abbrev_type_fcyc_list:
-                    continue
-                elif valid_time.strftime('%H') not in RUN_abbrev_type_vhr_list:
-                    continue
-                else:
-                    get_model_stat_file(valid_time, init_time, lead,
-                                        model, model_stat_dir,
-                                        model_RUN_abbrev_type_gather_by,
-                                        'precip', RUN_type,
-                                        link_model_RUN_type_dir)
 elif RUN == 'satellite_step1':
     import netCDF4 as nc
     # Read in RUN related environment variables
@@ -2121,6 +1994,7 @@ elif RUN == 'satellite_step1':
         RUN_abbrev_type_valid_time_list = []
         # Get forecast and truth files for each model
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_dir = model_dir_list[model_idx]
             model_file_format = model_file_format_list[model_idx]
@@ -2177,7 +2051,9 @@ elif RUN == 'satellite_step1':
                                            model_data_run_hpss, model_hpss_dir,
                                            link_model_dir,
                                            'f{lead?fmt=%3H}'
-                                           +'.{init?fmt=%Y%m%d%H}')
+                                           +'.{init?fmt=%Y%m%d%H}',
+                                           check_model_file_type)
+                            check_model_file_type = False
         # Get RUN_type observation files
         for valid_time in RUN_abbrev_type_valid_time_list:
             print("- Gathering truth file for "
@@ -2249,7 +2125,7 @@ elif RUN == 'satellite_step1':
                         print(f"=======================================")
                         print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
                         print(f"=======================================")
-                        os.system(f"cp {archive_obs_input_file} {link_RUN_type_file}")
+                        vfg_util.copy_file(archive_obs_input_file, link_RUN_type_file)
                     else:
                         print(f"==============================")
                         print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
@@ -2314,64 +2190,62 @@ elif RUN == 'satellite_step1':
                             os.environ['HOMEMET'],
                             os.environ['HOMEMET_bin_exec'], 'gen_vx_mask'
                         )
-                        os.system(
-                            gen_vx_mask+' '+link_RUN_type_file+' '
-                            +link_RUN_type_file+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
-                            +'-type data -thresh ==1 -mask_field '
-                            +"'name="+'"mask"; level="(0,*,*)";'+"' "
-                            +'-name WATER'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask, link_RUN_type_file, link_RUN_type_file, 
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
+                             '-type', 'data', '-thresh', '==1', '-mask_field',
+                             "'name="+'"mask";', 'level="(0,*,*)";'+"'",
+                             '-name', 'WATER']
                         )
-                        os.system(
-                            gen_vx_mask+' '+link_RUN_type_file+' '
-                            +link_RUN_type_file+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +'-type data -thresh '+'">=0.15"'+' -mask_field '
-                            +"'name="+'"sea_ice_fraction"; level="(0,*,*)";'
-                            +"' "+'-name SEA_ICE'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask, link_RUN_type_file, link_RUN_type_file,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                           +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             '-type', 'data', '-thresh', '">=0.15"', '-mask_field',
+                             "'name="+'"sea_ice_fraction";', 'level="(0,*,*)";'+"'",
+                             '-name', 'SEA_ICE']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_POLAR.nc ')
-                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
-                            +"'name="+'"SEA_ICE"; level="(*,*)";'+"' "
-                            +'-name SEA_ICE_POLAR -value "0"'
+                                          +'.vx_mask.SEA_ICE_POLAR.nc '),
+                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
+                             "'name="+'"SEA_ICE";','level="(*,*)";'+"'",
+                             '-name', 'SEA_ICE_POLAR', '-value', '"0"']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +'-type data -thresh '+"'==0'"+' -intersection '
-                            +'-mask_field '+"'name="+'"SEA_ICE"; '
-                            +'level="(*,*)";'+"' "+'-name SEA_ICE_FREE'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             '-type', 'data', '-thresh', "'==0'", '-intersection',
+                             '-mask_field', "'name="+'"SEA_ICE";',
+                             'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
                         )
-                        os.system(
-                            gen_vx_mask+' '
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                        vfg_util.run_shell_command(
+                            [gen_vx_mask,
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc ')
-                            +os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                          +'.vx_mask.SEA_ICE_FREE.nc '),
+                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc ')
-                            +'-type lat -thresh '+"'<60&&>-60'"+' -mask_field '
-                            +"'name="+'"SEA_ICE_FREE"; level="(*,*)";'+"' "
-                            +'-name SEA_ICE_FREE_POLAR -value "0"'
+                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc '),
+                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
+                             "'name="+'"SEA_ICE_FREE";', 'level="(*,*)";'+"'",
+                             '-name', 'SEA_ICE_FREE_POLAR', '-value', '"0"']
                         )
                     elif os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) == 0:
@@ -2379,7 +2253,7 @@ elif RUN == 'satellite_step1':
                         os.remove(link_RUN_type_file)
                     else:
                         print("WARNING: could not get "+RUN_type_ftp_file)
-elif RUN == 'satellite_step2':
+elif 'step2' in RUN:
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
@@ -2435,7 +2309,7 @@ elif RUN == 'satellite_step2':
                     get_model_stat_file(valid_time, init_time, lead,
                                         model, model_stat_dir,
                                         model_RUN_abbrev_type_gather_by,
-                                        'satellite', RUN_type,
+                                        RUN.replace('_step2', ''), RUN_type,
                                         link_model_RUN_type_dir)
 elif RUN == 'maps2d':
     # Read in RUN related environment variables
@@ -2509,6 +2383,7 @@ elif RUN == 'maps2d':
             )
             # Get forecast, analysis, observation files for each model
             for model in model_list:
+                check_model_file_type = True
                 model_idx = model_list.index(model)
                 model_dir = model_dir_list[model_idx]
                 model_file_format = model_file_format_list[model_idx]
@@ -2547,7 +2422,9 @@ elif RUN == 'maps2d':
                                        model, model_dir, ftp_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       ftp_link_file_format)
+                                       ftp_link_file_format,
+                                       check_model_file_type)
+                        check_model_file_type = False
                         model_fcst_ftp_lead_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 ftp_link_file_format, valid_time, init_time,
@@ -2594,7 +2471,8 @@ elif RUN == 'maps2d':
                                                model_data_run_hpss,
                                                model_hpss_dir,
                                                link_model_data_dir,
-                                               'anl.{valid?fmt=%Y%m%d%H}')
+                                               'anl.{valid?fmt=%Y%m%d%H}',
+                                               check_model_file_type)
                                 model_obs_ftp_lead_file = os.path.join(
                                     link_model_data_dir, format_filler(
                                         'anl.{valid?fmt=%Y%m%d%H}', valid_time,
@@ -2660,8 +2538,7 @@ elif RUN == 'maps2d':
                                 model_obs_ftp_lead_file = link_obtype_file
                                 if not os.path.exists(link_obtype_file):
                                     if os.path.exists(obtype_file):
-                                        os.system('ln -sf '+obtype_file+' '
-                                                  +link_obtype_file)
+                                        os.symlink(obtype_file, link_obtype_file)
                                     else:
                                         print("WARNING: "+obtype_file+" does "
                                               +"not exist")
@@ -2728,6 +2605,7 @@ elif RUN == 'mapsda':
             RUN_abbrev_type_make_met_data_by
         )
         for model in model_list:
+            check_model_file_type = True
             model_idx = model_list.index(model)
             model_hpss_dir = model_hpss_dir_list[model_idx]
             model_file_format = RUN_abbrev_type_model_file_format_list[
@@ -2760,7 +2638,9 @@ elif RUN == 'mapsda':
                                        model, model_dir, model_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}')
+                                       'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
+                                       check_model_file_type)
+                        check_model_file_type = True
                         model_fcst_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 'f{lead?fmt=%3H}.{init?fmt=%Y%m%d%H}',
@@ -2771,7 +2651,7 @@ elif RUN == 'mapsda':
                                        model, model_dir, anl_file_format,
                                        model_data_run_hpss, model_hpss_dir,
                                        link_model_data_dir,
-                                       'anl.{valid?fmt=%Y%m%d%H}')
+                                       'anl.{valid?fmt=%Y%m%d%H}', False)
                         model_obs_file = os.path.join(
                             link_model_data_dir, format_filler(
                                 'anl.{valid?fmt=%Y%m%d%H}',
@@ -2832,7 +2712,9 @@ elif RUN == 'mapsda':
                                            link_model_data_dir,
                                            'atmf{lead?fmt=%3H}.ens'
                                            +ens_file_type+'.'
-                                           +'{init?fmt=%Y%m%d%H}.nc')
+                                           +'{init?fmt=%Y%m%d%H}.nc',
+                                           check_model_file_type)
+                            check_model_file_type = True
                             link_ens_file = os.path.join(
                                 link_model_data_dir, format_filler(
                                     'atmf{lead?fmt=%3H}.ens'+ens_file_type+'.'
@@ -2851,7 +2733,6 @@ elif RUN == 'mapsda':
                     print("Creating average files for "+model+" "
                           +"ens"+ens_file_type+" from available data. "
                           +"Saving as "+avg_file)
-                    ncea = os.environ['NCEA']
                     if '.nc4' in model_file_format:
                         process_vars = ''
                     else:
@@ -2859,7 +2740,9 @@ elif RUN == 'mapsda':
                             ' -v tmp,ugrd,vgrd,spfh,pressfc,o3mr,clwmr '
                         )
                     if exisiting_file_list != '':
-                        os.system(ncea+' '+exisiting_file_list+' -o '
-                                  +avg_file+process_vars)
+                        vfg_util.run_shell_command(
+                            ["ncea", exisiting_file_list, '-o',
+                             avg_file+process_vars]
+                        )
 
 print("END: "+os.path.basename(__file__))

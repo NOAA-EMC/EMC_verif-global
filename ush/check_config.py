@@ -1,5 +1,5 @@
 '''
-Program Name: check_config_settings.py
+Program Name: check_config.py
 Contact(s): Mallory Row
 Abstract: This script is run by all scripts in scripts/.
           This does a check on the user's settings in
@@ -20,14 +20,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 # Do check for all environment variables needed by config
 RUN_type_env_vars_dict = {
     'shared': ['model_list', 'model_dir_list', 'model_stat_dir_list',
-               'model_file_format_list', 'model_data_run_hpss',
-               'model_hpss_dir_list', 'hpss_walltime', 'OUTPUTROOT',
-               'start_date', 'end_date', 'spinup_period_start',
-               'spinup_period_end', 'make_met_data_by', 'plot_by',
-               'SEND2WEB', 'webhost', 'webhostid', 'webdir', 'img_quality',
-               'MET_version', 'METplus_version', 'METplus_verbosity',
-               'MET_verbosity', 'log_MET_output_to_METplus', 'SENDARCH',
-               'KEEPDATA', 'SENDECF', 'SENDCOM', 'SENDDBN', 'SENDDBN_NTC'],
+               'model_file_format_list', 'OUTPUTROOT', 'start_date',
+               'end_date', 'KEEPDATA'],
     'RUN_GRID2GRID_STEP1': ['g2g1_type_list', 'g2g1_anom_truth_name',
                             'g2g1_anom_truth_file_format_list',
                             'g2g1_anom_fcyc_list', 'g2g1_anom_vhr_list',
@@ -48,15 +42,20 @@ RUN_type_env_vars_dict = {
                             'g2g2_anom_gather_by_list', 'g2g2_anom_fcyc_list',
                             'g2g2_anom_vhr_list', 'g2g2_anom_fhr_min',
                             'g2g2_anom_fhr_max', 'g2g2_anom_event_eq',
-                            'g2g2_anom_grid', 'g2g2_pres_truth_name_list',
+                            'g2g2_anom_grid', 'g2g2_anom_stats_list',
+                            'g2g2_pres_truth_name_list',
                             'g2g2_pres_gather_by_list', 'g2g2_pres_fcyc_list',
                             'g2g2_pres_vhr_list', 'g2g2_pres_fhr_min',
                             'g2g2_pres_fhr_max', 'g2g2_pres_event_eq',
-                            'g2g2_pres_grid', 'g2g2_sfc_truth_name_list',
+                            'g2g2_pres_grid', 'g2g2_pres_stats_list',
+                            'g2g2_sfc_truth_name_list',
                             'g2g2_sfc_gather_by_list', 'g2g2_sfc_fcyc_list',
                             'g2g2_sfc_vhr_list', 'g2g2_sfc_fhr_min',
                             'g2g2_sfc_fhr_max', 'g2g2_sfc_event_eq',
-                            'g2g2_sfc_grid', 'g2g2_make_scorecard'],
+                            'g2g2_sfc_grid', 'g2g2_sfc_stats_list',
+                            'g2g2_make_scorecard',
+                            'g2g2_scorecard_ci_method',
+                            'g2g2_scorecard_average_method'],
     'RUN_GRID2OBS_STEP1': ['g2o1_type_list',
                            'g2o1_upper_air_msg_type_list',
                            'g2o1_upper_air_fcyc_list',
@@ -80,19 +79,19 @@ RUN_type_env_vars_dict = {
                            'g2o2_upper_air_fcyc_list',
                            'g2o2_upper_air_vhr_list', 'g2o2_upper_air_fhr_min',
                            'g2o2_upper_air_fhr_max', 'g2o2_upper_air_event_eq',
-                           'g2o2_upper_air_grid',
+                           'g2o2_upper_air_grid', 'g2o2_upper_air_stats_list',
                            'g2o2_conus_sfc_msg_type_list',
                            'g2o2_conus_sfc_gather_by_list',
                            'g2o2_conus_sfc_fcyc_list',
                            'g2o2_conus_sfc_vhr_list', 'g2o2_conus_sfc_fhr_min',
                            'g2o2_conus_sfc_fhr_max', 'g2o2_conus_sfc_event_eq',
-                           'g2o2_conus_sfc_grid',
+                           'g2o2_conus_sfc_grid', 'g2o2_conus_sfc_stats_list',
                            'g2o2_polar_sfc_msg_type_list',
                            'g2o2_polar_sfc_gather_by_list',
                            'g2o2_polar_sfc_fcyc_list',
                            'g2o2_polar_sfc_vhr_list', 'g2o2_polar_sfc_fhr_min',
                            'g2o2_polar_sfc_fhr_max', 'g2o2_polar_sfc_event_eq',
-                           'g2o2_polar_sfc_grid'],
+                           'g2o2_polar_sfc_grid', 'g2o2_polar_sfc_stats_list'],
     'RUN_PRECIP_STEP1': ['precip1_type_list',
                          'precip1_ccpa_accum24hr_model_bucket_list',
                          'precip1_ccpa_accum24hr_model_var_list',
@@ -110,7 +109,8 @@ RUN_type_env_vars_dict = {
                          'precip2_ccpa_accum24hr_fhr_min',
                          'precip2_ccpa_accum24hr_fhr_max',
                          'precip2_ccpa_accum24hr_event_eq',
-                         'precip2_ccpa_accum24hr_grid'],
+                         'precip2_ccpa_accum24hr_grid',
+                         'precip2_ccpa_accum24hr_stats_list'],
     'RUN_SATELLITE_STEP1': ['sat1_type_list',
                             'sat1_ghrsst_ncei_avhrr_anl_fcyc_list',
                             'sat1_ghrsst_ncei_avhrr_anl_fhr_min',
@@ -127,19 +127,21 @@ RUN_type_env_vars_dict = {
     'RUN_SATELLITE_STEP2': ['sat2_model_plot_name_list',
                             'sat2_type_list',
                             'sat2_ghrsst_ncei_avhrr_anl_gather_by_list',
-                            'sat2_ghrsst_ospo_geopolar_anl_fcyc_list',
+                            'sat2_ghrsst_ncei_avhrr_anl_fcyc_list',
                             'sat2_ghrsst_ncei_avhrr_anl_fhr_min',
                             'sat2_ghrsst_ncei_avhrr_anl_fhr_max',
                             'sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh',
-                            'sat2_ghrsst_ospo_geopolar_anl_event_eq',
-                            'sat2_ghrsst_ospo_geopolar_anl_grid',
+                            'sat2_ghrsst_ncei_avhrr_anl_event_eq',
+                            'sat2_ghrsst_ncei_avhrr_anl_grid',
+                            'sat2_ghrsst_ncei_avhrr_anl_stats_list',
                             'sat2_ghrsst_ospo_geopolar_anl_gather_by_list',
                             'sat2_ghrsst_ospo_geopolar_anl_fcyc_list',
                             'sat2_ghrsst_ospo_geopolar_anl_fhr_min',
                             'sat2_ghrsst_ospo_geopolar_anl_fhr_max',
-                            'sat2_ghrsst_ncei_avhrr_anl_sea_ice_thresh',
+                            'sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh',
                             'sat2_ghrsst_ospo_geopolar_anl_event_eq',
-                            'sat2_ghrsst_ospo_geopolar_anl_grid'],
+                            'sat2_ghrsst_ospo_geopolar_anl_grid',
+                            'sat2_ghrsst_ospo_geopolar_anl_stats_list'],
     'RUN_FIT2OBS_PLOTS': ['fit2obs_plots_expnlist', 'fit2obs_plots_expdlist',
                           'fit2obs_plots_endianlist', 'fit2obs_plots_cycle',
                           'fit2obs_plots_oinc', 'fit2obs_plots_finc',
@@ -174,6 +176,26 @@ RUN_type_env_vars_dict = {
                    'mapsda_ens_model_file_format_list',
                    'mapsda_ens_model_data_run_hpss']
 }
+
+if 'step1' in RUN:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['make_met_data_by', 'spinup_period_start', 'spinup_period_end',
+         'MET_version', 'METplus_version', 'model_data_run_hpss',
+         'model_hpss_dir_list', 'hpss_walltime', 'SENDARCH']
+    )
+if RUN in ['grid2grid_step2', 'grid2obs_step2', 'precip_step2',
+           'satellite_step2', 'fit2obs_plots', 'maps2d', 'mapsda']:
+    RUN_type_env_vars_dict['shared'].extend(
+        ['SEND2WEB', 'webhost', 'webhostid', 'webdir',
+         'img_quality', 'plot_by', 'tar_archive_dir']
+    )
+    if RUN in ['maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].extend(
+            ['model_data_run_hpss', 'model_hpss_dir_list', 'hpss_walltime']
+        )
+    if RUN in ['fit2obs_plots', 'maps2d', 'mapsda']:
+        RUN_type_env_vars_dict['shared'].remove('model_stat_dir_list')
+      
 RUN_type_env_check_list = ['shared', 'RUN_'+RUN.upper()]
 for RUN_type_env_check in RUN_type_env_check_list:
     RUN_type_env_var_check_list = RUN_type_env_vars_dict[RUN_type_env_check]
@@ -362,22 +384,20 @@ for config_var in check_config_var_len_list:
 
 # Do check for valid list config variable options
 valid_config_var_values_dict = {
-    'model_data_run_hpss': ['YES', 'NO'],
-    'make_met_data_by': ['VALID', 'INIT'],
-    'plot_by': ['VALID', 'INIT'],
-    'SEND2WEB': ['YES', 'NO'],
-    'img_quality': ['low', 'medium', 'high'],
-    'METplus_verbosity': ['DEBUG', 'INFO', 'WARN', 'ERORR'],
-    'MET_verbosity': ['0', '1', '2', '3', '4', '5'],
-    'log_MET_output_to_METplus': ['yes', 'no'],
-    'SENDARCH': ['YES', 'NO'],
-    'KEEPDATA': ['YES', 'NO'],
-    'SENDARCH': ['YES', 'NO'],
-    'SENDECF': ['YES', 'NO'],
-    'SENDCOM': ['YES', 'NO'],
-    'SENDDBN': ['YES', 'NO'],
-    'SENDDBN_NTC': ['YES', 'NO']
+    'KEEPDATA': ['YES', 'NO']
 }
+if 'step1' in RUN:
+    valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
+    valid_config_var_values_dict['make_met_data_by'] = ['VALID', 'INIT']
+    valid_config_var_values_dict['SENDARCH'] = ['YES', 'NO']
+else:
+    valid_config_var_values_dict['SEND2WEB'] = ['YES', 'NO']
+    valid_config_var_values_dict['img_quality'] = ['low', 'medium', 'high']
+    if 'step2' in RUN:
+        valid_config_var_values_dict['plot_by'] = ['VALID', 'INIT']
+    elif RUN in ['maps2d', 'mapsda']:
+        valid_config_var_values_dict['model_data_run_hpss'] = ['YES', 'NO']
+
 if RUN == 'grid2grid_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -394,7 +414,7 @@ if RUN == 'grid2grid_step1':
             expected_truth_file_format = (
                 'pgb'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[1]
                 +'.'+os.environ[RUN_abbrev_type+'_truth_name'].split('_')[0]
-                +'.{valid?fmt=%Y%m%d%H}'
+                +'.{valid?fmt=%Y%m%d%H}.grib2'
             )
             if os.environ[RUN_abbrev_type+'_truth_file_format_list'] \
                     != expected_truth_file_format:
@@ -425,6 +445,8 @@ if RUN == 'grid2grid_step1':
                               +os.environ[RUN_abbrev_type+'_truth_name'])
                         sys.exit(1)
 elif RUN == 'grid2grid_step2':
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_ci_method"] = ["EMC"]
+    valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_average_method"] = ["MEAN"]
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
@@ -435,8 +457,6 @@ elif RUN == 'grid2grid_step2':
                                                              'gdas_anl',
                                                              'gdas_f00',
                                                              'ecm_f00',
-                                                             'common_anl',
-                                                             'common_f00',
                                                              'model_mean']
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',

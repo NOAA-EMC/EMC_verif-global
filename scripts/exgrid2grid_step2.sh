@@ -35,10 +35,10 @@ if [ $machine = "WCOSS2" ]; then
 fi
 
 # Check user's configuration file
-python $USHverif_global/check_config_step2.py
+python $USHverif_global/check_config.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Successfully ran check_config_step2.py"
+[[ $status -eq 0 ]] && echo "Successfully ran check_config.py"
 echo
 
 # Set up environment variables for initialization, valid, and forecast hours and source them
@@ -55,21 +55,21 @@ echo
 
 # Link needed data files and set up model information
 mkdir -p data
-python $USHverif_global/get_data_files_step2.py
+python $USHverif_global/get_data_files.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Successfully ran get_data_files_step2.py"
+[[ $status -eq 0 ]] && echo "Successfully ran get_data_files.py"
 echo
 
 # Create output directories for plots
-python $USHverif_global/create_step2_output_dirs.py
+python $USHverif_global/create_output_dirs.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Successfully ran create_step2_output_dirs.py"
+[[ $status -eq 0 ]] && echo "Successfully ran create_output_dirs.py"
 echo
 
 if [[ "$g2g2_make_scorecard" == "YES" ]]; then
-    IFS=' ' read -ra mdl_list <<< "${model_list}"
+    mdl_list=( ${model_list} )
     let num_mdl=${#mdl_list[@]}
     if [[ $num_mdl -lt 2 ]]; then
         echo "DEBUG :: The number of models defined in model_list is less than two."
@@ -86,7 +86,6 @@ if [[ "$g2g2_make_scorecard" == "YES" ]]; then
 else
     exec_procs="condense_stats filter_stats make_plots"
 fi
-
 
 # Create and run job scripts for condense_stats, filter_stats, and make_plots
 for group in ${exec_procs}; do
@@ -109,8 +108,8 @@ for group in ${exec_procs}; do
             export MP_CMDFILE=${poe_script}
             if [ $machine = WCOSS2 ]; then
                 export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-                launcher="mpiexec -np ${nproc} -ppn ${nproc} --cpu-bind verbose,core cfp"
-            elif [ $machine = HERA -o $machine = ORION -o $machine = HERCULES -o $machine = GAEAC6 ]; then
+                launcher="mpiexec -np ${nproc} -ppn ${ncpus_per_node} --cpu-bind verbose,depth cfp"
+            else
                 launcher="srun --export=ALL --multi-prog"
             fi
             $launcher $MP_CMDFILE
@@ -133,10 +132,10 @@ if [[ "$g2g2_make_scorecard" == "YES" ]]; then
 fi
 
 # Tar up plots
-python $USHverif_global/plots/grid2grid/step2_grid2grid_tar_images.py
+python $USHverif_global/plots/tar_images.py
 status=$?
 [[ $status -ne 0 ]] && exit $status
-[[ $status -eq 0 ]] && echo "Successfully ran step2_grid2grid_tar_images.py"
+[[ $status -eq 0 ]] && echo "Successfully ran tar_images.py"
 
 # Send images to web
 if [ $SEND2WEB = YES ] ; then
@@ -145,9 +144,4 @@ if [ $SEND2WEB = YES ] ; then
     [[ $status -ne 0 ]] && exit $status
     [[ $status -eq 0 ]] && echo "Successfully ran build_webpage.py"
     echo
-else
-    if [ $KEEPDATA = NO ]; then
-        cd ..
-        rm -rf $RUN
-    fi
 fi

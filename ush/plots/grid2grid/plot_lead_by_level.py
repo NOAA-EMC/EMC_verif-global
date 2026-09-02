@@ -236,6 +236,9 @@ class LeadByLevel:
         )
         ymesh, xmesh = np.meshgrid(vert_profile_levels_int, fhr_idx_list)
         nsubplots = len(model_idx_list)
+        if nsubplots == 0:
+             self.logger.info(f"Empty dataframe, skipping")
+             sys.exit(0)
         if nsubplots == 1:
             gs_row, gs_col = 1, 1
             gs_hspace, gs_wspace = 0, 0
@@ -336,6 +339,9 @@ class LeadByLevel:
         else:
             plot_right_logo = False
             self.logger.debug(f"{plot_right_logo_path} does not exist")
+        if self.plot_info_dict['img_quality'] != 'high':
+            plot_left_logo = False
+            plot_right_logo = False
         image_name = plot_specs_lbl.get_savefig_name(
             self.output_dir, self.plot_info_dict, self.date_info_dict
         )

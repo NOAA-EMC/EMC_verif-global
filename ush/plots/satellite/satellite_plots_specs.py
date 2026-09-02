@@ -189,6 +189,11 @@ class PlotSpecs:
         plt.rcParams['legend.borderaxespad'] = self.legend_border_axis_pad
         plt.rcParams['legend.columnspacing'] = self.legend_col_space
         plt.rcParams['legend.frameon'] = self.legend_frame_on
+        img_quality = os.environ['img_quality']
+        if img_quality == 'low':
+            plt.rcParams['savefig.dpi'] = 50
+        elif img_quality == 'medium':
+            plt.rcParams['savefig.dpi'] = 75
         if float(matplotlib.__version__[0:3]) >= 3.3:
             plt.rcParams['date.epoch'] = '0000-12-31T00:00:00'
 
@@ -322,6 +327,7 @@ class PlotSpecs:
                                    +'Waves 10-20'),
             'HPBL/L0': 'Planetary Boundary Layer Height',
             'ICEC_DAILYAVG/Z0': 'Daily Avg Ice Concentration',
+            'ICEC_Z0_mean/Z0': 'Daily Avg Ice Concentration',
             'ICEEX_DAILYAVG/Z0': 'Daily Avg Ice Extent',
             'O3MR/all': 'Ozone Mixing Ratio - All Levels',
             'O3MR/trop': 'Ozone Mixing Ratio - Troposphere',
@@ -416,6 +422,7 @@ class PlotSpecs:
             'TMP/L0': 'Tropopause Temperature',
             'TMP/Z2': '2 meter Temperature',
             'TMP/Z0': 'Surface Temperature',
+            'TMP_Z0_mean/Z0': 'Daily Average Surface Temperature',
             'TMP_ANOM_DAILYAVG/Z2': '2 meter Daily Avg Temperature Anomaly',
             'TOZNE/L0': 'Total Ozone (Dobson)',
             'TSOIL/Z10-0': '10-0 cm Soil Temperature',
@@ -858,12 +865,6 @@ class PlotSpecs:
                  plot_type_savefig_name+'_'
                  +''.join(['f'+f.zfill(3) for \
                             f in date_info_dict['forecast_hours']])
-            )
-        elif self.plot_type in ['lead_average', 'lead_by_level',
-                                'lead_by_date']:
-            plot_type_savefig_name = (
-                 plot_type_savefig_name+'_'
-                 +'f'+str(date_info_dict['forecast_hours'][-1]).zfill(3)
             )
         grid_savefig_name = plot_info_dict['grid']
         region_savefig_dict = {

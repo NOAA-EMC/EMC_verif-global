@@ -28,7 +28,7 @@ RUN_CASE = (RUN.split('_')[0])
 JOB_GROUP = os.environ['JOB_GROUP']
 machine = os.environ['machine']
 MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
+ncpus_per_node = int(os.environ['ncpus_per_node'])
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 plot_by = os.environ['plot_by']
@@ -36,8 +36,8 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
-CI_METHOD = os.environ["CI_METHOD"]
-AVERAGE_METHOD = os.environ["AVERAGE_METHOD"]
+CI_METHOD = os.environ["g2g2_scorecard_ci_method"]
+AVERAGE_METHOD = os.environ["g2g2_scorecard_average_method"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,
@@ -365,11 +365,10 @@ for anom_job in list(scorecard_avg_ci_jobs_dict['anom'].keys()):
 # pres
 for pres_job in list(scorecard_avg_ci_jobs_dict['pres'].keys()):
     scorecard_avg_ci_jobs_dict['pres'][pres_job]['metric'] = [
-        'bias', 'rmse', 'msess', 'rsd', 'rmse_md', 'rmse_pv'
+        'bias', 'rmse'
     ]
 # sfc
-for sfc_job in list(scorecard_avg_ci_jobs_dict['sfc'].keys()):
-    scorecard_avg_ci_jobs_dict['sfc'][sfc_job]['metric'] = ['fbar']
+del scorecard_avg_ci_jobs_dict['sfc']
 
 # Assign the final dictionary to JOB_GROUP_dict for return
 if JOB_GROUP == 'scorecard_avg_ci':
@@ -381,12 +380,13 @@ make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 for anom_job in list(make_plots_jobs_dict['anom'].keys()):
     del make_plots_jobs_dict['anom'][anom_job]['line_types']
     if anom_job == 'UGRD_VGRD':
-        anom_job_line_type_stats = ['VAL1L2/ACC']
+        anom_job_line_type = 'VAL1L2'
     else:
-        anom_job_line_type_stats = ['SAL1L2/ACC']
-    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = (
-        anom_job_line_type_stats
-    )
+        anom_job_line_type = 'SAL1L2'
+    make_plots_jobs_dict['anom'][anom_job]['line_type_stats'] = [
+        f"{anom_job_line_type}/{s.upper()}" \
+        for s in os.environ['g2g2_anom_stats_list'].split(' ')
+    ]
     make_plots_jobs_dict['anom'][anom_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_date'
     ]
@@ -394,18 +394,13 @@ for anom_job in list(make_plots_jobs_dict['anom'].keys()):
 for pres_job in list(make_plots_jobs_dict['pres'].keys()):
     del make_plots_jobs_dict['pres'][pres_job]['line_types']
     if pres_job == 'UGRD_VGRD':
-        pres_job_line_type_stats = [
-            'VL1L2/ME', 'VL1L2/RMSE', 'VL1L2/MSESS', 'VL1L2/RSD',
-            'VL1L2/RMSE_MD', 'VL1L2/RMSE_PV'
-        ]
+        pres_job_line_type = 'VL1L2'
     else:
-        pres_job_line_type_stats = [
-            'SL1L2/ME', 'SL1L2/RMSE', 'SL1L2/MSESS', 'SL1L2/RSD',
-            'SL1L2/RMSE_MD', 'SL1L2/RMSE_PV'
-        ]
-    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = (
-        pres_job_line_type_stats
-    )
+        pres_job_line_type = 'SL1L2'
+    make_plots_jobs_dict['pres'][pres_job]['line_type_stats'] = [
+        f"{pres_job_line_type}/{s.upper()}" \
+        for s in os.environ['g2g2_pres_stats_list'].split(' ')
+    ]
     make_plots_jobs_dict['pres'][pres_job]['plots'] = [
         'time_series', 'lead_average', 'lead_by_level', 'date_by_level'
     ]
@@ -413,7 +408,8 @@ for pres_job in list(make_plots_jobs_dict['pres'].keys()):
 for sfc_job in list(make_plots_jobs_dict['sfc'].keys()):
     del make_plots_jobs_dict['sfc'][sfc_job]['line_types']
     make_plots_jobs_dict['sfc'][sfc_job]['line_type_stats'] = [
-        'SL1L2/FBAR'
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['g2g2_sfc_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['sfc'][sfc_job]['plots'] = [
         'time_series', 'lead_average'
@@ -430,6 +426,8 @@ for case_type in case_type_list:
     model_plot_name_list = (
         os.environ[RUN_abbrev+'_model_plot_name_list'].split(' ')
     )
+    if JOB_GROUP == 'scorecard_avg_ci' and case_type == 'sfc':
+        continue
     case_type_plot_jobs_dict = JOB_GROUP_dict[case_type]
     for case_type_job in list(case_type_plot_jobs_dict.keys()):
         # Initialize job environment dictionary
@@ -441,16 +439,13 @@ for case_type in case_type_list:
         job_env_dict['start_date'] = start_date
         job_env_dict['end_date'] = end_date
         job_env_dict['plot_by'] = plot_by
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
-                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
-                              'init_hr_inc']
+        case_type_env_list = ['grid', 'event_eq']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
         if JOB_GROUP in ['filter_stats', 'scorecard_avg_ci', 'make_plots']:
-            valid_hr_start = int(job_env_dict['valid_hr_beg'])
+            valid_hr_start = int(job_env_dict['valid_hr_start'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
             valid_hrs = list(range(valid_hr_start,
@@ -461,8 +456,8 @@ for case_type in case_type_list:
             .split(' ')
         )
         obs_list = []
-        for cobs in config_obs_list:
-            idx = config_obs_list.index(cobs)
+        for idx in range(len(config_obs_list)):
+            cobs = config_obs_list[idx]
             obs_list.append(cobs.replace('self', model_list[idx]))
         for data_name in ['fcst', 'obs']:
             job_env_dict[data_name+'_var_name'] =  (
@@ -552,7 +547,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                    vfg_util.python_command('grid2grid', 'grid2grid_plots.py',[])
                     +'\n'
                 )
                 job.close()
@@ -606,7 +601,7 @@ for case_type in case_type_list:
                     job.write('export '+name+'="'+value+'"\n')
                 job.write('\n')
                 job.write(
-                    vfg_util.python_g2g_command('scorecard_avg_ci.py',[])
+                    vfg_util.python_command('grid2grid', 'scorecard_avg_ci.py',[])
                     +'\n'
                 )
                 job.close()
@@ -705,6 +700,8 @@ for case_type in case_type_list:
                             ['obs_var_dict']['levels']
                         )
                     else:
+                        if 'vert_profile' in job_env_dict:
+                            job_env_dict.pop('vert_profile')
                         job_env_dict['fcst_var_level_list'] = plot_loop_info[2]
                         job_env_dict['obs_var_level_list'] = (
                             case_type_plot_jobs_dict[case_type_job]\
@@ -737,7 +734,7 @@ for case_type in case_type_list:
                             job.write('export '+name+'="'+value+'"\n')
                         job.write('\n')
                         job.write(
-                            vfg_util.python_g2g_command('grid2grid_plots.py',[])
+                            vfg_util.python_command('grid2grid', 'grid2grid_plots.py',[])
                             +'\n'
                         )
                         job.close()
@@ -757,7 +754,7 @@ if MPMD == 'YES':
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
-            if iproc >= nproc:
+            if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
                 node+=1
@@ -784,13 +781,7 @@ if MPMD == 'YES':
                                 f"poe_jobs{str(node)}")
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    if machine == 'WCOSS2':
-        nselect = subprocess.run(
-            f"cat {poe_filename} | wc -l",
-            shell=True, capture_output=True, encoding="utf8"
-        ).stdout.replace('\n', '')
-        nnp = int(nselect) * int(nproc)
-    while iproc <= nproc:
+    while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'

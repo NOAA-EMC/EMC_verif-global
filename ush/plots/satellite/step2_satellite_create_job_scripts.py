@@ -28,7 +28,7 @@ RUN_CASE = (RUN.split('_')[0])
 JOB_GROUP = os.environ['JOB_GROUP']
 machine = os.environ['machine']
 MPMD = os.environ['MPMD']
-nproc = int(os.environ['nproc'])
+ncpus_per_node = int(os.environ['ncpus_per_node'])
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 plot_by = os.environ['plot_by']
@@ -130,7 +130,8 @@ make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
 for avhrr_job in list(make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
     del make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_types']
     make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_type_stats'] = [
-        'SL1L2/FBAR_OBAR', 'SL1L2/ME', 'SL1L2/RMSE' 
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['sat2_ghrsst_ncei_avhrr_anl_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['plots'] = [
         'time_series', 'lead_average'
@@ -140,7 +141,8 @@ for avhrr_job in list(make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
 for ospo_job in list(make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     del make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_types']
     make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_type_stats'] = [
-        'SL1L2/FBAR_OBAR', 'SL1L2/ME', 'SL1L2/RMSE' 
+        f"SL1L2/{s.upper()}" \
+        for s in os.environ['sat2_ghrsst_ospo_geopolar_anl_stats_list'].split(' ')
     ]
     make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['plots'] = [
         'time_series', 'lead_average'
@@ -168,16 +170,13 @@ for case_type in case_type_list:
         job_env_dict['start_date'] = start_date
         job_env_dict['end_date'] = end_date
         job_env_dict['plot_by'] = plot_by
-        case_type_env_list = ['grid', 'event_eq', 'fhr_list', 'valid_hr_list',
-                              'valid_hr_beg', 'valid_hr_end', 'valid_hr_inc',
-                              'init_hr_list', 'init_hr_beg', 'init_hr_end',
-                              'init_hr_inc']
+        case_type_env_list = ['grid', 'event_eq']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[RUN_abbrev_type+'_'+case_type_env]
             )
         if JOB_GROUP in ['filter_stats', 'make_plots']:
-            valid_hr_start = int(job_env_dict['valid_hr_beg'])
+            valid_hr_start = int(job_env_dict['valid_hr_start'])
             valid_hr_end = int(job_env_dict['valid_hr_end'])
             valid_hr_inc = int(job_env_dict['valid_hr_inc'])
             valid_hrs = list(range(valid_hr_start,
@@ -425,7 +424,7 @@ if MPMD == 'YES':
     while njob <= njob_files:
         job = 'job'+str(njob)
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
-            if iproc >= nproc:
+            if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
                 node+=1
@@ -452,13 +451,7 @@ if MPMD == 'YES':
                                 f"poe_jobs{str(node)}")
     poe_file = open(poe_filename, 'a')
     iproc+=1
-    if machine == 'WCOSS2':
-        nselect = subprocess.run(
-            f"cat {poe_filename} | wc -l",
-            shell=True, capture_output=True, encoding="utf8"
-        ).stdout.replace('\n', '')
-        nnp = int(nselect) * int(nproc)
-    while iproc <= nproc:
+    while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'

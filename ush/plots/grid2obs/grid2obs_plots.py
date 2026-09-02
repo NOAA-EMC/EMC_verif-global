@@ -91,6 +91,7 @@ elif JOB_GROUP == 'make_plots':
     obs_var_thresh_list = os.environ['obs_var_thresh_list'].split(', ')
     stat = os.environ['stat']
     plot = os.environ['plot']
+    img_quality = os.environ['img_quality']
 
 # Set variables
 start_date_dt = datetime.datetime.strptime(start_date, '%Y%m%d')
@@ -98,7 +99,7 @@ end_date_dt = datetime.datetime.strptime(end_date, '%Y%m%d')
 now = datetime.datetime.now()
 
 # Set up directory paths
-logo_dir = os.path.join(USHverif_global, 'plots', 'grid2grid', 'logos')
+logo_dir = os.path.join(USHverif_global, 'plots', 'logos')
 RUN_dir = os.path.join(DATA, RUN)
 stat_base_dir = os.path.join(RUN_dir, 'data')
 logging_dir = os.path.join(DATA, RUN, 'plot_output', 'logs')
@@ -144,9 +145,6 @@ if JOB_GROUP in ['filter_stats', 'make_plots']:
     original_date_info_dict['init_hr_end'] = init_hr_end
     original_date_info_dict['init_hr_inc'] = init_hr_inc
     valid_hr_start = valid_hr_start.strip().rstrip(',')
-    print("valid_hr_start",valid_hr_start)
-    print("vaild_hr_end",valid_hr_end)
-    print("valid_hr_inc",valid_hr_inc)
     valid_hrs = list(range(int(valid_hr_start),
                            int(valid_hr_end)+int(valid_hr_inc),
                            int(valid_hr_inc)))
@@ -175,6 +173,7 @@ if JOB_GROUP in ['filter_stats', 'make_plots']:
         original_plot_info_dict['obs_var_thresh'] = obs_var_thresh
     elif JOB_GROUP == 'make_plots':
         original_plot_info_dict['stat'] = stat
+        original_plot_info_dict['img_quality'] = img_quality
         fcst_var_prod = list(
             itertools.product([fcst_var_name], fcst_var_level_list,
                               fcst_var_thresh_list)
@@ -355,10 +354,6 @@ elif JOB_GROUP == 'make_plots':
                 make_ts = True
             else:
                 make_ts = False
-            if plot_info_dict['stat'] == 'FBAR_OBAR' \
-                    and str(date_info_dict['forecast_hour']) not in \
-                    ['24', '72', '120']:
-                make_ts = False
             if make_ts:
                 plot_ts = p_ts.TimeSeries(logger, job_input_dir,
                                           job_DATA_dir, model_info_dict,
@@ -483,6 +478,10 @@ elif JOB_GROUP == 'make_plots':
             plot_info_dict['vert_profile'] = sbl_info[2]
             plot_info_dict['fcst_var_level'] = sbl_info[2]
             plot_info_dict['obs_var_level'] = sbl_info[2]
+            init_hr = vfg_util.get_init_hour(
+                int(date_info_dict['valid_hr_start']),
+                int(date_info_dict['forecast_hour'])
+            )
             for t in range(len(fcst_var_thresh_list)):
                 plot_info_dict['fcst_var_thresh'] = fcst_var_thresh_list[t]
                 plot_info_dict['obs_var_thresh'] = obs_var_thresh_list[t]
@@ -490,7 +489,8 @@ elif JOB_GROUP == 'make_plots':
                     job_DATA_dir, plot_info_dict, date_info_dict
                 )
                 job_input_dir = make_plots_input_dir
-                if not os.path.exists(job_DATA_image_name) \
+                if init_hr in init_hrs \
+                        and not os.path.exists(job_DATA_image_name) \
                         and plot_info_dict['stat'] != 'FBAR_OBAR':
                     make_sbl = True
                 else:
@@ -506,6 +506,52 @@ elif JOB_GROUP == 'make_plots':
                                                  plot_info_dict,
                                                  met_info_dict, logo_dir)
                     plot_sbl.make_stat_by_level()
+    elif plot == 'lead_by_level':
+        import plot_lead_by_level as p_lbl
+        fhrs_lbl = []
+        for fhr in fhrs:
+            if fhr % 24 == 0:
+                fhrs_lbl.append(fhr)
+        vert_profiles = [os.environ['vert_profile']]
+        for lbl_info in list(itertools.product(valid_hrs, vert_profiles)):
+            date_info_dict['valid_hr_start'] = str(lbl_info[0])
+            date_info_dict['valid_hr_end'] = str(lbl_info[0])
+            date_info_dict['valid_hr_inc'] = '24'
+            date_info_dict['forecast_hours'] = fhrs_lbl
+            plot_info_dict['fcst_var_name'] = fcst_var_name
+            plot_info_dict['obs_var_name'] = obs_var_name
+            plot_info_dict['vert_profile'] = lbl_info[1]
+            plot_info_dict['fcst_var_level'] = lbl_info[1]
+            plot_info_dict['obs_var_level'] = lbl_info[1]
+            for t in range(len(fcst_var_thresh_list)):
+                plot_info_dict['fcst_var_thresh'] = fcst_var_thresh_list[t]
+                plot_info_dict['obs_var_thresh'] = obs_var_thresh_list[t]
+                job_DATA_image_name = plot_specs.get_savefig_name(
+                    job_DATA_dir, plot_info_dict, date_info_dict
+                )
+                job_input_dir = make_plots_input_dir
+                if not os.path.exists(job_DATA_image_name) \
+                        and plot_info_dict['stat'] != 'FBAR_OBAR':
+                    if len(date_info_dict['forecast_hours']) <= 1:
+                        logger.warning("No span of forecast hours to plot, "
+                                       +"given 1 forecast hour, skipping "
+                                       +"lead_by_level plots")
+                        make_lbl = False
+                    else:
+                        make_lbl = True
+                else:
+                    make_lbl = False
+                del plot_info_dict['fcst_var_level']
+                del plot_info_dict['obs_var_level']
+                if make_lbl:
+                    plot_lbl = p_lbl.LeadByLevel(logger,
+                                                 job_input_dir,
+                                                 job_DATA_dir,
+                                                 model_info_dict,
+                                                 date_info_dict,
+                                                 plot_info_dict,
+                                                 met_info_dict, logo_dir)
+                    plot_lbl.make_lead_by_level()
     else:
         logger.error(plot+" not recognized")
         sys.exit(1)

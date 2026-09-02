@@ -46,12 +46,12 @@ cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
     'cmap_diff', colors_diff
 )
 noaa_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plots', 'maps2d', 'logos', 
+    os.path.join(os.environ['USHverif_global'], 'plots', 'logos', 
                  'noaa.png')
 )
 noaa_logo_alpha = 0.5
 nws_logo_img_array = matplotlib.image.imread(
-    os.path.join(os.environ['USHverif_global'], 'plots', 'maps2d', 'logos',
+    os.path.join(os.environ['USHverif_global'], 'plots', 'logos',
                  'nws.png')
 )
 nws_logo_alpha = 0.5
@@ -286,7 +286,7 @@ elif img_quality == 'medium':
 
 # Set up location of Natural Earth files
 if machine == 'WCOSS2':
-    config['data_dir']='/u/emc.vpppg/.local/share/cartopy'
+    config['data_dir']='/lfs/h2/emc/vpppg/noscrub/emc.vpppg/metplus_share/cartopy'
 elif machine == 'URSA' or machine == 'HERA':
     config['data_dir']='/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/cartopy'
 elif machine == 'ORION': 

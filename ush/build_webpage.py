@@ -5,7 +5,7 @@ Abstract: This is run at the end of all step2 scripts
           in scripts/.
           This creates a job card to:
               1) if needed, create website from
-                 EMC_verif-global template (webpage.tar)
+                 EMC_verif-global template (webpage/)
                  at specified user location on web server
               2) send images to web server
           It then submits to the transfer queue.
@@ -15,6 +15,7 @@ import os
 import datetime
 import glob
 import shutil
+import verif_global_util as vfg_util
 
 print("BEGIN: "+os.path.basename(__file__))
 
@@ -32,7 +33,8 @@ PARTITION_BATCH = os.environ['PARTITION_BATCH']
 webhost = os.environ['webhost']
 webhostid = os.environ['webhostid']
 webdir = os.environ['webdir']
-print("Webhost: "+webhost)
+tar_archive_dir = os.environ['tar_archive_dir']
+
 if RUN == 'fit2obs_plots':
     DATA = DATA.replace('/fit2obs_plots/data', '')
     webdir = webdir.replace(
@@ -42,32 +44,12 @@ if RUN == 'fit2obs_plots':
     nimages = 0
     for root, dirs, files in os.walk(web_fits_dir, topdown=False):
         nimages = nimages + len(glob.glob(os.path.join(root, '*.png')))
-    print("Webhost location: "+webdir)
-    print("\nTotal images within "+web_fits_dir+": "+str(nimages))
-elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
-    plot_by = os.environ['plot_by']
-    RUN_abbrev = os.environ['RUN_abbrev']
-    case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-    for case_type in case_type_list:
-        image_list = os.listdir(
-            os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
-                         'make_plots', case_type)
-        )
-        nimages = len(image_list)
-        print("Webhost location: "+webdir)
-        print("\nTotal images in "
-              +os.path.join(DATA, RUN, 'plot_output', 'plot_by_'+plot_by,
-                            'make_plots', case_type)+": "
-              +str(nimages))
 else:
-    image_list = os.listdir(
-        os.path.join(DATA, RUN, 'metplus_output', 'images')
+    tar_files = glob.glob(
+         os.path.join(tar_archive_dir, f"verif_global_{RUN}_*.tar")
     )
-    nimages = len(image_list)
-    print("Webhost location: "+webdir)
-    print("\nTotal images in "
-          +os.path.join(DATA, RUN, 'metplus_output', 'images')+": "
-          +str(nimages))
+print("Webhost: "+webhost)
+print("Webhost location: "+webdir)
 
 # Set up job wall time information
 web_walltime = '180'
@@ -373,8 +355,10 @@ if RUN == 'fit2obs_plots':
                         shutil.copy(bias_src, bias_dest)
 
 # Create job card
-web_job_filename = os.path.join(DATA, 'batch_jobs',
+web_job_filename = os.path.join(DATA, '..', 'jobs',
                                 NET+'_'+RUN+'_web.sh')
+if os.path.exists(web_job_filename):
+    os.remove(web_job_filename)
 with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('#!/bin/sh'+'\n')
         web_job_file.write('set -x'+'\n')
@@ -387,34 +371,60 @@ with open(web_job_filename, 'a') as web_job_file:
         web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
                            +' "mkdir -p '+webdir+' "'+'\n')
         web_job_file.write('    sleep 30\n')
-        web_job_file.write('    scp -q '+os.path.join(USHverif_global,
-                                                      'webpage.tar')+'  '
+        web_job_file.write('    scp -rq '+os.path.join(USHverif_global,
+                                                      'webpage/*')+'  '
                            +webhostid+'@'+webhost+':'+webdir+'/.'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "cd '+webdir+' ; tar -xvf webpage.tar "'+'\n')
-        web_job_file.write('    ssh -q -l '+webhostid+' '+webhost
-                           +' "rm '+os.path.join(webdir, 'webpage.tar')
-                           +' "'+'\n')
         web_job_file.write('fi'+'\n')
         web_job_file.write('\n')
         if RUN == 'fit2obs_plots':
             web_job_file.write('scp -r '+ os.path.join(DATA, RUN, 'images')
                                +' '+webhostid+'@'+webhost+':'
                                +os.path.join(webdir, RUN_type, '.')+'\n')
-        elif RUN == 'grid2grid_step2' or RUN == 'precip_step2':
-            for case_type in case_type_list:
-                web_job_file.write('scp -r '+os.path.join(DATA, RUN,
-                                                          'plot_output',
-                                                          'plot_by_'+plot_by,
-                                                          'make_plots', case_type)
-                                   +' '+webhostid+'@'+webhost+':'
-                                   +os.path.join(webdir, RUN_type, '.')+'\n')
         else:
-            web_job_file.write('scp -r '+os.path.join(DATA, RUN,
-                                                      'metplus_output',
-                                                      'images')
-                               +' '+webhostid+'@'+webhost+':'
-                               +os.path.join(webdir, RUN_type, '.')+'\n')
+            for tar_file in tar_files:
+                if RUN == "satellite_step2":
+                    case_type = (
+                        tar_file.rpartition("/")[2].replace(
+                            "verif_global_satellite_step2_", ""
+                        ).replace(
+                            ".tar", ""
+                        )
+                    )
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images', case_type
+                    )
+                else:
+                    web_image_dir = os.path.join(
+                        webdir, RUN_type, 'images'
+                    )
+                web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                                   +' "mkdir -p "'+web_image_dir+'\n')
+                web_job_file.write(f"scp "+tar_file
+                                   +' '+webhostid+'@'+webhost+':'
+                                   +web_image_dir+'\n')
+                web_job_file.write('ssh -q -l '+webhostid+' '+webhost
+                                   +' "cd '+web_image_dir+' ; tar -xvf '
+                                   +tar_file.rpartition("/")[2]+' "'+'\n')
+            if RUN == 'grid2grid_step2':
+                if os.environ['g2g2_make_scorecard'] == 'YES':
+                    tar_file = os.path.join(
+                        tar_archive_dir, f"verif_global_scorecard.tar"
+                    )
+                    if os.path.exists(tar_file):
+                        web_scorecard_dir = os.path.join(
+                            webdir, "scorecard"
+                        )
+                        web_job_file.write(
+                            f"scp {tar_file} {webhostid}@{webhost}:"
+                            +f"{web_scorecard_dir}/.\n"
+                        )
+                        web_job_file.write(
+                            f"ssh -q -l {webhostid} {webhost} "
+                            +f'"cd {web_scorecard_dir} ; tar -xvf '
+                            +f'{tar_file.rpartition('/')[2]}" \n'
+                        )
+                    else:
+                        print(f"WARNING: {tar_file} does not exists")
         if RUN == 'fit2obs_plots':
             for stat in ['bias', 'rmse']:
                 web_job_file.write('scp -r '+os.path.join(DATA, RUN,
@@ -423,40 +433,45 @@ with open(web_job_filename, 'a') as web_job_file:
                                    +' '+webhostid+'@'+webhost+':'
                                    +os.path.join(webdir, RUN_type, stat, '.\n')
                 )
-        if KEEPDATA == 'NO':
-            web_job_file.write('\n')
-            web_job_file.write('cd ..\n')
-            web_job_file.write('rm -rf '+RUN)
 
 # Submit job card
 os.chmod(web_job_filename, 0o755)
-web_job_output = web_job_filename.replace('.sh', '.out')
+web_job_output = os.path.join(DATA, '..', 'logs',
+                              NET+'_'+RUN+'_web.out')
 web_job_name = web_job_filename.rpartition('/')[2].replace('.sh', '')
 print("Submitting "+web_job_filename+" to "+QUEUESERV)
 print("Output sent to "+web_job_output)
 if machine == 'WCOSS2':
-    os.system('qsub -V -l walltime='+walltime.strftime('%H:%M:%S')+' '
-              +'-q '+QUEUESERV+' -A '+ACCOUNT+' -o '+web_job_output+' '
-              +'-e '+web_job_output+' -N '+web_job_name+' '
-              +'-l select=1:ncpus=1 '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['qsub', '-l', 'walltime='+walltime.strftime('%H:%M:%S'),
+         '-q', QUEUESERV, '-A', ACCOUNT, '-o', web_job_output,
+         '-e', web_job_output, '-N', web_job_name,
+         '-l', 'select=1:ncpus=1', web_job_filename]
+    )
 elif machine == 'HERA':
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+         '--partition='+QUEUESERV, '--account='+ACCOUNT,
+         '--output='+web_job_output, '--job-name='+web_job_name,
+         web_job_filename]
+    )
 elif machine == 'GAEAC6':
     CLUSTERS = os.environ['CLUSTERS']
-    os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--clusters='+CLUSTERS+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+    vfg_util.run_shell_command(
+        ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+         '--clusters='+CLUSTERS, '--account='+ACCOUNT,
+         '--output='+web_job_output, '--job-name='+web_job_name,
+         web_job_filename]
+    )
 elif machine in ["ORION", "HERCULES", "GAEAC6"]:
     if webhost == 'emcrzdm.ncep.noaa.gov':
         print("ERROR: Currently " + machine + " cannot connect to "+webhost)
     else:
-        os.system('sbatch --ntasks=1 --time='+walltime.strftime('%H:%M:%S')+' '
-                  +'--partition='+QUEUESERV+' --account='+ACCOUNT+' '
-                  +'--output='+web_job_output+' '
-                  +'--job-name='+web_job_name+' '+web_job_filename)
+        vfg_util.run_shell_command(
+            ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
+             '--partition='+QUEUESERV, '--account='+ACCOUNT,
+             '--output='+web_job_output, '--job-name='+web_job_name,
+             web_job_filename]
+        )
 
 print("END: "+os.path.basename(__file__))

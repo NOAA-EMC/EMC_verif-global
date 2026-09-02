@@ -221,7 +221,6 @@ class TimeSeries:
             xtick_intvl = 1
         else:
             xtick_intvl = int(len(plot_dates)/n_xticks)
-        print("plot_dates",plot_dates)    
         date_intvl = int((plot_dates[1]-plot_dates[0]).total_seconds())
         stat_min = np.ma.masked_invalid(np.nan)
         stat_max = np.ma.masked_invalid(np.nan)
@@ -271,6 +270,9 @@ class TimeSeries:
         else:
             plot_right_logo = False
             self.logger.debug(f"{plot_right_logo_path} does not exist")
+        if self.plot_info_dict['img_quality'] != 'high':
+            plot_left_logo = False
+            plot_right_logo = False
         image_name = plot_specs_ts.get_savefig_name(
             self.output_dir, self.plot_info_dict, self.date_info_dict
         )

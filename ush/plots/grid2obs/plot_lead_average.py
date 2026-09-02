@@ -290,6 +290,9 @@ class LeadAverage:
         else:
             plot_right_logo = False
             self.logger.debug(f"{plot_right_logo_path} does not exist")
+        if self.plot_info_dict['img_quality'] != 'high':
+            plot_left_logo = False
+            plot_right_logo = False
         image_name = plot_specs_la.get_savefig_name(
             self.output_dir, self.plot_info_dict, self.date_info_dict
         )

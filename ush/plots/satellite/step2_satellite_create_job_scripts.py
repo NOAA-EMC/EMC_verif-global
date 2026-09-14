@@ -423,7 +423,7 @@ if MPMD == 'YES':
     njob, iproc, node = 1, 0, 1
     while njob <= njob_files:
         job = 'job'+str(njob)
-        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
+        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6', 'URSA']:
             if iproc >= ncpus_per_node:
                 poe_file.close()
                 iproc = 0
@@ -433,7 +433,7 @@ if MPMD == 'YES':
         if iproc == 0:
             poe_file = open(poe_filename, 'w')
         iproc+=1
-        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
+        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6', 'URSA']:
             poe_file.write(
                 str(iproc-1)+' '
                 +os.path.join(JOB_GROUP_jobs_dir,job)+'\n'
@@ -452,7 +452,7 @@ if MPMD == 'YES':
     poe_file = open(poe_filename, 'a')
     iproc+=1
     while iproc <= ncpus_per_node:
-        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6']:
+        if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6', 'URSA']:
             poe_file.write(
                 str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )

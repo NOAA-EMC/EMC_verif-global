@@ -448,7 +448,7 @@ if machine == 'WCOSS2':
          '-e', web_job_output, '-N', web_job_name,
          '-l', 'select=1:ncpus=1', web_job_filename]
     )
-elif machine == 'HERA':
+elif machine in ['HERA', 'URSA']:
     vfg_util.run_shell_command(
         ['sbatch', '--ntasks=1', '--time='+walltime.strftime('%H:%M:%S'),
          '--partition='+QUEUESERV, '--account='+ACCOUNT,

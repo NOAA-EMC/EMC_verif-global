@@ -534,8 +534,6 @@ def get_model_file(valid_time_dt, init_time_dt, lead_str,
         model_filename = format_filler(file_format, valid_time_dt,
                                        init_time_dt, lead_str)
         model_file = os.path.join(data_dir, name, model_filename)
-        if not os.path.exists(model_file):
-            model_file = os.path.join(data_dir, model_filename)
         if os.path.exists(model_file):
             file_type = get_file_type(model_file) if check_file_type else None
             if check_file_type and file_type not in ['grib2', 'netcdf']:
@@ -1172,23 +1170,6 @@ if RUN == 'grid2grid_step1':
                             )
                         if os.path.exists(truth_file):
                             os.symlink(truth_file, link_truth_file)
-                    # Check model RUN_type truth file exists, if not try
-                    # to use model's own f00 file
-                    if not os.path.exists(link_truth_file) \
-                            and RUN_abbrev_type_truth_name != 'self_f00':
-                        print("WARNING: "+RUN_type+" truth file ("
-                              +truth_file+") not found...will try to link "
-                              +"model f00 from "+link_model_dir+" instead")
-                        link_model_f00_file = os.path.join(
-                            link_model_dir,
-                            format_filler('f000.{init?fmt=%Y%m%d%H}',
-                                          valid_time, valid_time, '00')
-                        )
-                        if os.path.exists(link_model_f00_file):
-                            os.symlink(link_model_f00_file, link_truth_file)
-                        if not os.path.exists(link_truth_file):
-                            print("WARNING: Unable to link model f00 file as "
-                                  +"subsitute truth file "+link_truth_file)
 elif RUN == 'grid2obs_step1':
     # Read in RUN related environment variables
     prepbufr_run_hpss = os.environ[RUN_abbrev+'_prepbufr_data_run_hpss']

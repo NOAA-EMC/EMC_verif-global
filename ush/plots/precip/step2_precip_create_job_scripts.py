@@ -342,7 +342,8 @@ if MPMD == 'YES':
         iproc+=1
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6', 'URSA']:
             poe_file.write(
-                os.path.join(JOB_GROUP_jobs_dir,job)+'\n'
+                str(iproc-1)+' '
+                +os.path.join(JOB_GROUP_jobs_dir,job)+'\n'
             )
         else:
             poe_file.write(
@@ -360,7 +361,7 @@ if MPMD == 'YES':
     while iproc <= ncpus_per_node:
         if machine in ['HERA', 'ORION', 'HERCULES', 'GAEAC6', 'URSA']:
             poe_file.write(
-                '/bin/echo '+str(iproc)+'\n'
+                str(iproc-1)+' /bin/echo '+str(iproc)+'\n'
             )
         else:
             poe_file.write(

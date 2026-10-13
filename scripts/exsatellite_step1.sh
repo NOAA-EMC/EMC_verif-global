@@ -90,7 +90,7 @@ if [ $MPMD = YES ]; then
             export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
             launcher="mpiexec -np ${nproc} -ppn ${ncpus_per_node} --cpu-bind verbose,depth cfp"
         else
-            launcher="srun --export=ALL --multi-prog"
+            launcher="srun --export=ALL --multi-prog --kill-on-bad-exit=0"
         fi
         $launcher $MP_CMDFILE
     done

@@ -144,13 +144,13 @@ def create_job_script(
             "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/archive"
         )
         prepbufr_archive = (
-            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/prepbufr"
+            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/prepbufr"
         )
         obs_archive = (
-            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata"
+            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data"
         )
         ccpa_24hr_archive = (
-            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
+            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ccpa_accum24hr"
         )
         sat_obs_archive = (
             "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"

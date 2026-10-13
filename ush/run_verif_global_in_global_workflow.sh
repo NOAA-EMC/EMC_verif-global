@@ -268,8 +268,8 @@ export PYTHONPATH="${USHMETplus}:${USHverif_global}:${PYTHONPATH}"
 ## Set machine and user specific directories
 if [[ ${machine} == "HERA" || ${machine} == "URSA" ]]; then
     export global_archive="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/archive"
-    export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/prepbufr"
-    export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
+    export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/prepbufr"
+    export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ccpa_accum24hr"
 elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
     export global_archive="/work2/noaa/global/role-global/data/metplus.data/archive"
     export prepbufr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/prepbufr"

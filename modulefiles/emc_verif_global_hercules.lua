@@ -19,6 +19,9 @@ load(pathJoin("prod_util", prod_util_ver))
 grib_util_ver=os.getenv("grib_util_ver") or "1.4.0"
 load(pathJoin("grib-util", grib_util_ver))
 
+wgrib2_ver=os.getenv("wgrib2_ver") or "3.1.1"
+load(pathJoin("wgrib2", wgrib2_ver))
+
 netcdf_c_ver=os.getenv("netcdf_c_ver") or "4.9.2"
 load(pathJoin("netcdf-c", netcdf_c_ver))
 

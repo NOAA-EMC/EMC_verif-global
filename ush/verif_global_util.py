@@ -2244,3 +2244,14 @@ def get_ci_file(stat, input_filename, fcst_lead, output_base_dir, ci_method):
     CI_file = os.path.join(output_base_dir, 'data',
                            CI_filename)
     return CI_file
+
+def read_preset_yaxis_file(use_preset_yaxis, input_filename):
+    columns = ["VAR_STAT", "MIN", "MAX", "INC"]
+    if use_preset_yaxis == "True":
+        preset_df = pd.read_csv(
+            input_filename, sep=" ", header=None,
+            names=columns
+        )
+    else:
+        preset_df = pd.DataFrame(columns=columns)
+    return preset_df

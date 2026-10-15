@@ -34,7 +34,7 @@ end_date = os.environ['end_date']
 plot_by = os.environ['plot_by']
 RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
-use_set_yaxis = os.environ["g2g2_use_set_yaxis"]
+use_set_yaxis = os.environ["precip2_use_set_yaxis"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,

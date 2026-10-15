@@ -582,7 +582,7 @@ def main():
         'use_preset_yaxis': 'USE_PRESET_YAXIS',
         'yaxis_min': 'YAXIS_MIN',
         'yaxis_max': 'YAXIS_MAX',
-        'yaxis_inc': 'YAXIS_INC',
+        'yaxis_inc': 'YAXIS_INC',
     }
     MET_INFO_DICT = {
         'root': '/PATH/TO/MET',

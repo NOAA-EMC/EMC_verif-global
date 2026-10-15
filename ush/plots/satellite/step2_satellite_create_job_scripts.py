@@ -36,6 +36,7 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
+use_set_yaxis = os.environ["sat2_use_set_yaxis"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,

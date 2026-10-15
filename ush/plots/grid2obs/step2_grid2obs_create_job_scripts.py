@@ -36,7 +36,7 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
-use_set_yaxis = os.environ["g2g2_use_set_yaxis"]
+use_set_yaxis = os.environ["g2o2_use_set_yaxis"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,
@@ -447,7 +447,7 @@ for case_type in case_type_list:
             ts_preset_yaxis_df = vfg_util.read_preset_yaxis_file(
                 use_set_yaxis,
                 os.path.join(os.environ['USHverif_global'], 'plots',
-                             'gridobs', 'time_series_preset_yaxis.txt')
+                             'grid2obs', 'time_series_preset_yaxis.txt')
             )
         for loop_info in JOB_GROUP_case_type_job_product_loops:
             if JOB_GROUP in ['condense_stats', 'filter_stats']:

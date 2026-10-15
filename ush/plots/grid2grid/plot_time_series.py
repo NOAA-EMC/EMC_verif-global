@@ -450,14 +450,15 @@ class TimeSeries:
         preset_y_axis_tick_max = ax.get_yticks()[-1]
         preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
         if self.plot_info_dict['use_preset_yaxis'] == "True":
-            ax.set_yticks(
-                np.arange(float(self.plot_info_dict['yaxis_min']),
-                          (float(self.plot_info_dict['yaxis_max'])
-                           + float(self.plot_info_dict['yaxis_inc'])),
-                          float(self.plot_info_dict['yaxis_inc']))
+            ymin = float(self.plot_info_dict['yaxis_min'])
+            ymax = float(self.plot_info_dict['yaxis_max'])
+            yinc = float(self.plot_info_dict['yaxis_inc'])
+            self.logger.debug(
+                "Using user defined y axis: "
+                +f"{ymin} to {ymax} every {yinc}"
             )
-            ax.set_ylim([float(self.plot_info_dict['yaxis_min']),
-                         float(self.plot_info_dict['yaxis_max'])])
+            ax.set_yticks(np.arange(ymin, ymax+yinc, yinc))
+            ax.set_ylim([ymin,ymax])
         else:
             if self.plot_info_dict['stat'] in ['ACC']:
                 y_axis_tick_inc = 0.1

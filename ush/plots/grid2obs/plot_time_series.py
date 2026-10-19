@@ -454,7 +454,7 @@ class TimeSeries:
             ymax = float(self.plot_info_dict['yaxis_max'])
             yinc = float(self.plot_info_dict['yaxis_inc'])
             self.logger.debug(
-                "Using user defined y axis: "
+                "Using user-defined y-axis: "
                 +f"{ymin} to {ymax} every {yinc}"
             )
             ax.set_yticks(np.arange(ymin, ymax+yinc, yinc))

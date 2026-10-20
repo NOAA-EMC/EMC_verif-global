@@ -162,6 +162,9 @@ g2g1_sfc_gather_by=VALID
 #####                                 rmse_pv - Root Mean Square Error from Pattern Variation
 #####                                 fbar - Forecast Mean
 #g2g2_make_scorecard: create scorecard (YES) or not (NO)
+#g2g2_use_set_yaxis: for time series plots let y-axis vary (False)
+#                    or use preset values for a certain stats (True)
+#                    if True, see ush/plots/grid2grid/time_series_preset_yaxis.txt to set
 g2g2_model_plot_name_list=gfs
 g2g2_type_list=anom pres sfc
 g2g2_anom_truth_name_list=self_anl
@@ -194,6 +197,7 @@ g2g2_sfc_stats_list=fbar
 g2g2_make_scorecard=YES
 g2g2_scorecard_ci_method=EMC
 g2g2_scorecard_average_method=MEAN
+g2g2_use_set_yaxis=False
 
 [GRID2OBS_STEP1]
 #g2o1_type_list: list type of verifications to run for grid-to-obs: upper_air, conus_sfc, polar_sfc
@@ -254,6 +258,9 @@ g2o1_prepbufr_data_run_hpss=NO
 #####                                  rmse - Root Mean Square Error
 #####                                  fbar_obar - Forecast and Observation Means
 #####                                  --- time series plots only
+#g2o2_use_set_yaxis: for time series plots let y-axis vary (False)
+#                    or use preset values for a certain stats (True)
+#                    if True, see ush/plots/grid2obs/time_series_preset_yaxis.txt to set
 g2o2_model_plot_name_list=gfs
 g2o2_type_list=upper_air conus_sfc
 g2o2_upper_air_msg_type_list=ADPUPA
@@ -283,6 +290,7 @@ g2o2_polar_sfc_fhr_max=168
 g2o2_polar_sfc_event_eq=True
 g2o2_polar_sfc_grid=G219
 g2o2_polar_sfc_stats_list=me rmse fbar_obar
+g2o2_use_set_yaxis=False
 
 [PRECIP_STEP1]
 #precip1_type_list: precip observation type/name and accumulation length: ccpa_accum24hr
@@ -322,6 +330,9 @@ precip1_obs_data_run_hpss=NO
 #####                                   [ccpa_accum24hr]: ets fbias
 #####                                   ets - Equitable Threat Score
 #####                                   fbias - Frequency Bias
+#precip2_use_set_yaxis: for time series plots let y-axis vary (False)
+#                       or use preset values for a certain stats (True)
+#                       if True, see ush/plots/precip/time_series_preset_yaxis.txt to set
 precip2_model_plot_name_list=gfs
 precip2_type_list=ccpa_accum24hr
 precip2_ccpa_accum24hr_truth_name_list=ccpa_accum24hr
@@ -332,6 +343,7 @@ precip2_ccpa_accum24hr_fhr_max=240
 precip2_ccpa_accum24hr_event_eq=False
 precip2_ccpa_accum24hr_grid=G211
 precip2_ccpa_accum24hr_stats_list=ets fbias
+precip2_use_set_yaxis=False
 
 [SATELLITE_STEP1]
 #sat1_type_list: list of satellite/satellite analysis to run verification for: ghrsst_ncei_avhrr_anl, ghrsst_ospo_geopolar_anl
@@ -373,6 +385,9 @@ sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 #####                                      me - Bias (Mean Error)
 #####                                      rmse - Root Mean Square Error
 #####                                      fbar_obar - Forecast and Observation Means
+#sat2_use_set_yaxis: for time series plots let y-axis vary (False)
+#                    or use preset values for a certain stats (True)
+#                    if True, see ush/plots/satellite/time_series_preset_yaxis.txt to set
 sat2_model_plot_name_list=gfs
 sat2_type_list=ghrsst_ospo_geopolar_anl
 sat2_ghrsst_ncei_avhrr_anl_gather_by_list=VALID
@@ -393,6 +408,7 @@ sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 sat2_ghrsst_ospo_geopolar_anl_event_eq=False
 sat2_ghrsst_ospo_geopolar_anl_grid=G219
 sat2_ghrsst_ospo_geopolar_anl_stats_list=me rmse fbar_obar
+sat2_use_set_yaxis=False
 
 [FIT2OBS_PLOTS]
 #fit2obs_plots_expnlist:   experiment names, only 7 allowed, fnl is operational GFS

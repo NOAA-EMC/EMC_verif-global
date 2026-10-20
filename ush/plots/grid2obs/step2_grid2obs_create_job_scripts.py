@@ -36,6 +36,7 @@ RUN_abbrev = os.environ['RUN_abbrev']
 case_type_list = os.environ[RUN_abbrev+'_type_list'].split(' ')
 met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
+use_set_yaxis = os.environ["g2o2_use_set_yaxis"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,
@@ -443,6 +444,11 @@ for case_type in case_type_list:
                 case_type_plot_jobs_dict[case_type_job]['vx_masks'],
                 case_type_plot_jobs_dict[case_type_job]['interps']
             ))
+            ts_preset_yaxis_df = vfg_util.read_preset_yaxis_file(
+                use_set_yaxis,
+                os.path.join(os.environ['USHverif_global'], 'plots',
+                             'grid2obs', 'time_series_preset_yaxis.txt')
+            )
         for loop_info in JOB_GROUP_case_type_job_product_loops:
             if JOB_GROUP in ['condense_stats', 'filter_stats']:
                 job_env_dict['fcst_var_level'] = loop_info[1]
@@ -516,6 +522,23 @@ for case_type in case_type_list:
                 job_env_dict['vx_mask'] = loop_info[2]
                 job_env_dict['interp_method'] = loop_info[3].split('/')[0]
                 job_env_dict['interp_points'] = loop_info[3].split('/')[1]
+                if job_env_dict['plot'] == 'time_series':
+                    check_combo = f"{job_env_dict['fcst_var_name']}_{job_env_dict['stat']}"
+                    var_name_stat_settings = ts_preset_yaxis_df.query("VAR_STAT == @check_combo")
+                    if not var_name_stat_settings.empty:
+                        job_env_dict['use_preset_yaxis'] = 'True'
+                        job_env_dict['yaxis_min'] = str(var_name_stat_settings['MIN'].iloc[0])
+                        job_env_dict['yaxis_max'] = str(var_name_stat_settings['MAX'].iloc[0])
+                        job_env_dict['yaxis_inc'] = str(var_name_stat_settings['INC'].iloc[0])
+                    else:
+                        job_env_dict['use_preset_yaxis'] = 'False'
+                        job_env_dict['yaxis_min'] = 'NA'
+                        job_env_dict['yaxis_max'] = 'NA'
+                        job_env_dict['yaxis_inc'] = 'NA'
+                else:
+                    for check_key in ['use_preset_yaxis', 'yaxis_min',
+                                      'yaxis_max', 'yaxis_inc']:
+                        job_env_dict.pop(check_key, None)
                 if job_env_dict['plot'] == 'valid_hour_average':
                     plot_valid_hrs_loop = [valid_hrs]
                 else:

@@ -449,44 +449,55 @@ class TimeSeries:
         preset_y_axis_tick_min = ax.get_yticks()[0]
         preset_y_axis_tick_max = ax.get_yticks()[-1]
         preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
-        if self.plot_info_dict['stat'] in ['ACC']:
-            y_axis_tick_inc = 0.1
-        elif self.plot_info_dict['stat'] in ['FBIAS'] \
-                and self.plot_info_dict['fcst_var_name'] \
-                in ['SNOD_A24', 'WEASD_A24']:
-            y_axis_tick_inc = 1
-        else:
-            y_axis_tick_inc = preset_y_axis_tick_inc
-        if np.ma.is_masked(stat_min):
-            y_axis_min = preset_y_axis_tick_min
+        if self.plot_info_dict['use_preset_yaxis'] == "True":
+            ymin = float(self.plot_info_dict['yaxis_min'])
+            ymax = float(self.plot_info_dict['yaxis_max'])
+            yinc = float(self.plot_info_dict['yaxis_inc'])
+            self.logger.debug(
+                "Using user-defined y-axis: "
+                +f"{ymin} to {ymax} every {yinc}"
+            )
+            ax.set_yticks(np.arange(ymin, ymax+yinc, yinc))
+            ax.set_ylim([ymin,ymax])
         else:
             if self.plot_info_dict['stat'] in ['ACC']:
-                y_axis_min = round(stat_min,1) - y_axis_tick_inc
+                y_axis_tick_inc = 0.1
             elif self.plot_info_dict['stat'] in ['FBIAS'] \
                     and self.plot_info_dict['fcst_var_name'] \
                     in ['SNOD_A24', 'WEASD_A24']:
-                y_axis_min = 0
+                y_axis_tick_inc = 1
             else:
+                y_axis_tick_inc = preset_y_axis_tick_inc
+            if np.ma.is_masked(stat_min):
                 y_axis_min = preset_y_axis_tick_min
-                while y_axis_min > stat_min:
-                    y_axis_min = y_axis_min - y_axis_tick_inc
-        if np.ma.is_masked(stat_max):
-            y_axis_max = preset_y_axis_tick_max
-        else:
-            if self.plot_info_dict['stat'] in ['ACC']:
-                y_axis_max = 1
-            elif self.plot_info_dict['stat'] in ['FBIAS'] \
-                    and self.plot_info_dict['fcst_var_name'] \
-                    in ['SNOD_A24', 'WEASD_A24']:
-                y_axis_max = 10
             else:
-                y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
-                while y_axis_max < stat_max:
-                    y_axis_max = y_axis_max + y_axis_tick_inc
-        ax.set_yticks(
-            np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
-        )
-        ax.set_ylim([y_axis_min, y_axis_max])
+                if self.plot_info_dict['stat'] in ['ACC']:
+                    y_axis_min = round(stat_min,1) - y_axis_tick_inc
+                elif self.plot_info_dict['stat'] in ['FBIAS'] \
+                        and self.plot_info_dict['fcst_var_name'] \
+                        in ['SNOD_A24', 'WEASD_A24']:
+                    y_axis_min = 0
+                else:
+                    y_axis_min = preset_y_axis_tick_min
+                    while y_axis_min > stat_min:
+                        y_axis_min = y_axis_min - y_axis_tick_inc
+            if np.ma.is_masked(stat_max):
+                y_axis_max = preset_y_axis_tick_max
+            else:
+                if self.plot_info_dict['stat'] in ['ACC']:
+                    y_axis_max = 1
+                elif self.plot_info_dict['stat'] in ['FBIAS'] \
+                        and self.plot_info_dict['fcst_var_name'] \
+                        in ['SNOD_A24', 'WEASD_A24']:
+                    y_axis_max = 10
+                else:
+                    y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
+                    while y_axis_max < stat_max:
+                        y_axis_max = y_axis_max + y_axis_tick_inc
+            ax.set_yticks(
+                np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
+            )
+            ax.set_ylim([y_axis_min, y_axis_max])
         if len(ax.lines) != 0:
             legend = ax.legend(
                 bbox_to_anchor=(plot_specs_ts.legend_bbox[0],
@@ -568,6 +579,10 @@ def main():
         'obs_var_name': 'OBS_VAR_NAME',
         'obs_var_level': 'OBS_VAR_LEVEL',
         'obs_var_thresh': 'OBS_VAR_THRESH',
+        'use_preset_yaxis': 'USE_PRESET_YAXIS',
+        'yaxis_min': 'YAXIS_MIN',
+        'yaxis_max': 'YAXIS_MAX',
+        'yaxis_inc': 'YAXIS_INC',
     }
     MET_INFO_DICT = {
         'root': '/PATH/TO/MET',

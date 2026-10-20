@@ -92,6 +92,11 @@ elif JOB_GROUP == 'make_plots':
     stat = os.environ['stat']
     plot = os.environ['plot']
     img_quality = os.environ['img_quality']
+    if plot == 'time_series':
+        use_preset_yaxis = os.environ['use_preset_yaxis']
+        yaxis_min = os.environ['yaxis_min']
+        yaxis_max = os.environ['yaxis_max']
+        yaxis_inc = os.environ['yaxis_inc']
 
 # Set variables
 start_date_dt = datetime.datetime.strptime(start_date, '%Y%m%d')
@@ -341,6 +346,10 @@ elif JOB_GROUP == 'make_plots':
             plot_info_dict['obs_var_name'] = ts_info[2][1][0]
             plot_info_dict['obs_var_level'] = ts_info[2][1][1]
             plot_info_dict['obs_var_thresh'] = ts_info[2][1][2]
+            plot_info_dict['use_preset_yaxis'] = use_preset_yaxis
+            plot_info_dict['yaxis_min'] = yaxis_min
+            plot_info_dict['yaxis_max'] = yaxis_max
+            plot_info_dict['yaxis_inc'] = yaxis_inc
             init_hr = vfg_util.get_init_hour(
                 int(date_info_dict['valid_hr_start']),
                 int(date_info_dict['forecast_hour'])

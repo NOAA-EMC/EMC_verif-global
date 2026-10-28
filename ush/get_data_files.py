@@ -1110,9 +1110,7 @@ if RUN == 'grid2grid_step1':
                         else:
                             if RUN_abbrev_type_truth_name_short == 'gdas':
                                 RUN_abbrev_type_truth_name_short = 'gfs'
-                            model_RUN_abbrev_type_truth_dir = os.path.join(
-                                global_archive,  RUN_abbrev_type_truth_name_short
-                            )
+                            model_RUN_abbrev_type_truth_dir = global_archive
                             model_RUN_abbrev_type_truth_file_format = (
                                 RUN_abbrev_type_truth_file_format_list[0]
                             )

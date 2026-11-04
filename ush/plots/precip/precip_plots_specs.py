@@ -211,7 +211,7 @@ class PlotSpecs:
         """
         stat_plot_name_dict = {
             'ACC': 'Anomaly Correlation Coefficient',
-            'BIAS': 'Bias (Mean Error)',
+            'BIAS': 'Bias (Mean Error) [Fcst-Obs]',
             'CORR': 'Pearson Correlation Coefficient',
             'CSI': 'Critical Success Index',
             'ETS': 'Equitable Threat Score',
@@ -222,7 +222,7 @@ class PlotSpecs:
             'FY_OY': 'Forecast:Yes,Obs:Yes',
             'GSS': 'Gilbert Skill Score',
             'HSS': 'Heidke Skill Score',
-            'ME': 'Mean Error (Bias)',
+            'ME': 'Mean Error (Bias) [Fcst-Obs]',
             'OBAR': 'Observation Mean',
             'POD': 'Probability of Detection',
             'PERFDIAG': 'Performance Diagram',

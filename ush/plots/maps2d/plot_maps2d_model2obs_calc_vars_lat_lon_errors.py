@@ -207,7 +207,12 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     if str(plot_data_area_avg) == 'nan':
         ax_tmp.set_title('--', loc='right')
     else:
-        ax_tmp.set_title(round(plot_data_area_avg, 3), loc='right')
+        ax_tmp.set_title(
+            f"avg: {plot_data_area_avg:.2f}\n"
+            +f"min: {np.nanmin(plot_data):.2f},"
+            +f"max: {np.nanmax(plot_data):.2f}",
+            loc='right', fontsize=14
+        )
     # Get plotting levels, if needed
     if np.all(np.isnan(plot_levels)):
         if np.isnan(np.nanmax(plot_data)):
@@ -271,6 +276,7 @@ model_list = os.environ['model_list'].split(' ')
 model_plot_name_list = os.environ['maps2d_model_plot_name_list'].split(' ')
 machine = os.environ['machine']
 img_quality = os.environ['img_quality']
+use_fixed_levels = os.environ['maps2d_model2obs_use_fixed_levels']
 
 # Set image quality
 if img_quality == 'low':
@@ -326,8 +332,12 @@ var_info_forcast_to_plot_list = itertools.product(
     forecast_to_plot_list
 )
 for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
-    get_levels = True
-    get_diff_levels = True
+    if use_fixed_levels == "NO":
+        get_levels = True
+        get_diff_levels = True
+    else:
+        get_levels = False
+        get_diff_levels = False
     var_name = var_info_forcast_to_plot[0].partition('_')[0]
     var_level = var_info_forcast_to_plot[0].partition('_')[2]
     forecast_to_plot = var_info_forcast_to_plot[1]
@@ -703,13 +713,13 @@ for var_info_forcast_to_plot in var_info_forcast_to_plot_list:
     # Build formal plot title
     full_title = (
         var_info_title+'\n'
-        +dates_title+' '+make_met_data_by_hrs_title+'\n'
+        +dates_title+' '+make_met_data_by_hrs_title+', '
         +forecast_to_plot_title
     )
     fig.suptitle(full_title,
                  x = suptitle_x_loc, y = suptitle_y_loc,
                  horizontalalignment = title_loc,
-                 verticalalignment = title_loc)
+                 verticalalignment = 'bottom')
     noaa_img = fig.figimage(noaa_logo_img_array,
                  noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
                  zorder=1, alpha=noaa_logo_alpha)

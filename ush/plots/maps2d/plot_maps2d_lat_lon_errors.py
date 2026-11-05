@@ -208,7 +208,12 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     if str(plot_data_area_avg) == 'nan':
         ax_tmp.set_title('--', loc='right')
     else:
-        ax_tmp.set_title(round(plot_data_area_avg, 3), loc='right')
+        ax_tmp.set_title(
+            f"avg: {plot_data_area_avg:.2f}\n"
+            +f"min: {np.nanmin(plot_data):.2f},"
+            +f"max: {np.nanmax(plot_data):.2f}",
+            loc='right', fontsize=14
+    )
     # Get plotting levels, if needed
     if np.all(np.isnan(plot_levels)):
         if np.isnan(np.nanmax(plot_data)):
@@ -270,6 +275,7 @@ var_name = os.environ['var_name']
 var_levels = os.environ['var_levels'].split(', ')
 RUN_type = os.environ['RUN_type']
 machine = os.environ['machine']
+use_fixed_levels = os.environ['use_fixed_levels']
 if RUN_type == 'model2model':
     forecast_anl_diff = os.environ['forecast_anl_diff']
     if forecast_to_plot == 'anl':
@@ -354,8 +360,12 @@ for var_level in var_levels:
     )
     model_num = 0
     subplot_CF_dict = {}
-    get_levels = True
-    get_diff_levels = True
+    if use_fixed_levels == "NO":
+        get_levels = True
+        get_diff_levels = True
+    else:
+        get_levels = False
+        get_diff_levels = False
     print("Working on lat-lon error plots for "+var_name+" "+var_level)
     for env_var_model in env_var_model_list:
         model_num+=1
@@ -663,13 +673,13 @@ for var_level in var_levels:
     # Build formal plot title
     full_title = (
         var_info_title+'\n'
-        +dates_title+' '+make_met_data_by_hrs_title+'\n'
+        +dates_title+' '+make_met_data_by_hrs_title+', '
         +forecast_to_plot_title
     )
     fig.suptitle(full_title,
                  x = suptitle_x_loc, y = suptitle_y_loc,
                  horizontalalignment = title_loc,
-                 verticalalignment = title_loc)
+                 verticalalignment = 'bottom')
     noaa_img = fig.figimage(noaa_logo_img_array,
                  noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
                  zorder=1, alpha=noaa_logo_alpha)

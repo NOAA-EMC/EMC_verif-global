@@ -962,7 +962,7 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
+            levels_diff = np.array([-4,-3,-2,-1,-0.5,-0.1,0,0.1,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '6': #maximum wind level
@@ -988,14 +988,14 @@ def get_maps2d_plot_settings(var_name, var_level):
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.5,1,2,3,4])
+            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.1,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '104': #sigma level
             levels = np.array(
                 [240,245,250,255,260,265,270,275,280,285,290,295,300]
             )
-            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.5,1,2,3,4])
+            levels_diff = np.array([-4,-3,-2,-1,-0.1,0,0.1,0.5,1,2,3,4])
             var_scale = 1
             var_units = 'K'
         elif var_GRIB_lvl_typ == '213': #low cloud top level

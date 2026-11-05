@@ -242,6 +242,7 @@ var_levels = os.environ['var_levels'].split(', ')
 forecast_anl_diff = os.environ['forecast_anl_diff']
 RUN_type = os.environ['RUN_type']
 img_quality = os.environ['img_quality']
+use_fixed_levels = os.environ['use_fixed_levels']
 
 # Set image quality
 if img_quality == 'low':
@@ -472,8 +473,12 @@ for var_levels_type in list(var_levels_type_dict.keys()):
         var_level_type_num_list.append(var_level.replace('hPa', ''))
         var_levels_idx_list.append(var_levels.index(var_level))
     var_levels_type_num = np.asarray(var_level_type_num_list, dtype=float)
-    get_levels = True
-    get_diff_levels = True
+    if use_fixed_levels == "NO":
+        get_levels = True
+        get_diff_levels = True
+    else:
+        get_levels = False
+        get_diff_levels = False
     model_num = 0
     subplot_CF_dict = {}
     for env_var_model in env_var_model_list:

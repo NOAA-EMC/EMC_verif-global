@@ -444,7 +444,8 @@ fit2obs_plots_scrdir=/lfs/h2/emc/global/noscrub/Jack.Woollen/plotfits
 #####                                        for a single forecast hour use f (ex. f120),
 #####                                        for a day use d (ex. d5) which will include the 4 forecast hours for that day
 #####                                                 (d5 = f120 f114 f108 and f102)
-#####    maps2d_regrid_to_grid:          NCEP grid to regrid data to
+#####    maps2d_[type]_regrid_to_grid:   NCEP grid to regrid data to
+#####    maps2d_[type]_use_fixed_levels: use fixed contour levels (YES) or dynamically set (NO)
 #maps2d_model2model_forecast_anl_diff: plot the difference of model forecast from an analysis (YES) or don't (NO)
 #maps2d_model2obs_use_ceres: use CERES data for cloud and radiation obs. (YES) or use ISCCP, SRB, NVAP, UWisc for cloud and radiation obs. (NO)
 #maps2d_model2obs_use_monthly_mean: use monthly mean from datasets, if available (YES) or use climatology generated from datasets (NO)
@@ -458,12 +459,14 @@ maps2d_model2model_hour_list=00
 maps2d_model2model_forecast_to_plot_list=anl d1 d5 d10
 maps2d_model2model_regrid_to_grid=G002
 maps2d_model2model_forecast_anl_diff=NO
+maps2d_model2model_use_fixed_levels=YES
 maps2d_model2obs_make_met_data_by=INIT
 maps2d_model2obs_hour_list=00
 maps2d_model2obs_forecast_to_plot_list=anl d1 d5 d10
 maps2d_model2obs_regrid_to_grid=G002
 maps2d_model2obs_use_ceres=NO
 maps2d_model2obs_use_monthly_mean=NO
+maps2d_model2obs_used_fixed_levels=YES
 
 [MAPSDA]
 #mapsda_model_plot_name_list: list of models reference name on plots
@@ -475,6 +478,7 @@ maps2d_model2obs_use_monthly_mean=NO
 #####    mapsda_[type]_hour_list:              all hours to be included in verification: HH
 #####    mapsda_[type]_regrid_to_grid:         NCEP grid to regrid data to
 #####    mapsda_[type]_guess_hour:             forecast hour from last cycle used as first guess
+#####    mapsda_[type]_use_fixed_levels:       use fixed contour levels (YES) or dynamically set (NO)
 #mapsda_gdas_model_file_format_list: file format of model GDAS files
 #mapsda_gdas_anl_file_format_list: file format of analysis files for GDAS maps
 #mapsda_ens_model_dir_list: directory where model ens files are located
@@ -490,6 +494,7 @@ mapsda_gdas_regrid_to_grid=G002
 mapsda_gdas_guess_hour=06
 mapsda_gdas_model_file_format_list=pgbf{lead?fmt=%2H}.gdas.{init?fmt=%Y%m%d%H}.grib2
 mapsda_gdas_anl_file_format_list=pgbanl.gdas.{valid?fmt=%Y%m%d%H}.grib2
+mapsda_gdas_use_fixed_levels=YES
 mapsda_ens_make_met_data_by=INIT
 mapsda_ens_hour_list=00
 mapsda_ens_regrid_to_grid=G002
@@ -497,3 +502,4 @@ mapsda_ens_guess_hour=06
 mapsda_ens_model_dir_list=/some/path/gfs_dev
 mapsda_ens_model_file_format_list=gdas.t{init?fmt=%H}z.atmf{lead?fmt=%3H}.ens[mean,spread].nc
 mapsda_ens_model_data_run_hpss=NO
+mapsda_ens_use_fixed_levels=YES

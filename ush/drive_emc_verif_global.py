@@ -35,12 +35,17 @@ def check_machine(config_machine):
         re.compile(r"^ddecflow[0-9]{2}$"), hostname
     )
     gaeac6_match = re.match(re.compile(r"^gaea6[1-8]{1}"), hostname)
+    hercules_match = re.match(
+        re.compile(r"^hercules-login-[1-4]{1}.hpc.msstate.edu"), hostname
+    )
     if cactus_match or dogwood_match or cactus_match2 or dogwood_match2:
         machine = "WCOSS2"
     elif ursa_match:
         machine = "URSA"
     elif gaeac6_match:
         machine = "GAEAC6"
+    elif hercules_match:
+        machine = "HERCULES"
     else:
         error_and_exit(f"Cannot find match for {hostname}")
     if config_machine != machine:
@@ -180,6 +185,31 @@ def create_job_script(
         sat_obs_archive = (
             "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
         )
+    elif machine_name == 'HERCULES':
+        max_ncpus_per_node = "80"
+        queue = "batch"
+        queueserv = "service"
+        partition = "hercules"
+        clusters_dtn = ""
+        partition_dtn = ""
+        fix_files = (
+            "/work2/noaa/global/role-global/fix/verif/20220805"
+        )
+        global_archive = (
+            "/work2/noaa/global/role-global/data/metplus.data/archive"
+        )
+        prepbufr_archive = (
+            "/work2/noaa/global/role-global/data/metplus.data/prepbufr"
+        )
+        obs_archive = (
+            "/work2/noaa/global/role-global/data/metplus.data/obs_data"
+        )
+        ccpa_24hr_archive = (
+            "/work2/noaa/global/role-global/data/metplus.data/obs_data//ccpa_accum24hr"
+        )
+        sat_obs_archive = (
+            "/null/path"
+        )
 
     nnodes = user_config["MACHINE"]["nodes"]
     ncpus_per_node = user_config["MACHINE"]["cpus_per_node"]
@@ -225,6 +255,16 @@ def create_job_script(
         sh.write(f"#PBS -l walltime={walltime}\n")
         sh.write("#PBS -l debug=true\n")
         submission_command = f"qsub {jobfile}"
+    elif machine_name == "HERCULES":
+        sh.write(f"#SBATCH --account={account}\n")
+        sh.write(f"#SBATCH --job-name={jobname}\n")
+        sh.write(f"#SBATCH --output={logfile}\n")
+        sh.write(f"#SBATCH --time={walltime}\n")
+        sh.write(f"#SBATCH --nodes={nnodes}\n")
+        sh.write(f"#SBATCH --ntasks-per-node={ncpus_per_node}\n")
+        sh.write(f"#SBATCH --partition={partition}\n")
+        sh.write(f"#SBATCH --qos={queue}\n")
+        submission_command = f"sbatch {jobfile}"
     sh.write("\nset -eux\n")
 
     # --- Set machine name ---
@@ -252,13 +292,13 @@ def create_job_script(
     sh.write("# Load the needed modules for METplus\n")
     if machine_name == "WCOSS2":
         sh.write(f"source ${{HOMEverif_global}}/versions/run.ver\n")
-    if machine_name == "URSA":
+    if machine_name in ["URSA", "HERCULES"]:
         sh.write("module purge\n")
     else:
         sh.write("module reset\n")
     sh.write(f"module use \"${{HOMEverif_global}}/modulefiles\"\n")
     sh.write(f"module load \"emc_verif_global_{machine.lower()}\"\n")
-    if machine_name in ["GAEAC6", "URSA"]:
+    if machine_name in ["GAEAC6", "URSA", "HERCULES"]:
         sh.write(f"export HOMEMET=\"${{met_ROOT}}\"\n")
         sh.write(f"export HOMEMETplus=\"${{metplus_ROOT}}\"\n")
     else:
@@ -472,7 +512,7 @@ if start_date > end_date:
 ### Check machine
 machine = config["MACHINE"]["name"].upper()
 check_machine(machine)
-ALLOWED_MACHINES = ["GAEAC6", "WCOSS2", "URSA"]
+ALLOWED_MACHINES = ["GAEAC6", "WCOSS2", "URSA", "HERCULES"]
 if machine not in ALLOWED_MACHINES:
     error_and_exit(
         f"Invalid machine name '{machine}'. "

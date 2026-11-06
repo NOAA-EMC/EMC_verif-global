@@ -35,7 +35,28 @@ plt.rcParams['figure.titlesize'] = 16
 if float(matplotlib.__version__[0:3]) >= 3.3:
     plt.rcParams['date.epoch'] = '0000-12-31T00:00:00'
 title_loc = 'center'
-cmap_diff = plt.cm.bwr
+cmap_diff_original = plt.cm.bwr
+colors_diff = cmap_diff_original(
+    np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
+)
+cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_diff', colors_diff
+)
+cmap_diff = cmap_diff.with_extremes(under="#262A76")
+cmap_diff = cmap_diff.with_extremes(over="#A80000")
+
+cmap_inc_original = plt.cm.PiYG_r
+colors_inc= cmap_inc_original(
+    np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
+)   
+cmap_inc = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_inc', colors_inc
+)
+
+cmap_inc_rmse = plt.cm.BuPu
+
+cmap_spread = plt.cm.afmhot_r
+
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plots', 'logos', 'noaa.png')
 )
@@ -449,7 +470,7 @@ for env_var_model in env_var_model_list:
     for var_level in var_levels:
         var_level_num+=1
         var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
-            mapsda_plot_util.get_maps2d_plot_settings(var_name, var_level)
+            mapsda_plot_util.get_mapsda_plot_settings(var_name, var_level)
         )
         if RUN_type == 'gdas':
             model_obtype = os.environ[env_var_model+'_obtype']
@@ -803,16 +824,7 @@ for stat in plot_stats_list:
                 )
                 if model_num == 1:
                     levels_plot = mapsda_plot_util.get_clevels(stat_data, 1.25)
-                    cmap_plot_original = plt.cm.PiYG_r
-                    colors_plot = cmap_plot_original(
-                        np.append(np.linspace(0,0.3,10),
-                                  np.linspace(0.7,1,10))
-                    )
-                    cmap_plot = (
-                        matplotlib.colors.\
-                        LinearSegmentedColormap.from_list('cmap_plot',
-                                                          colors_plot)
-                    )
+                    cmap_plot = cmap_inc
             elif stat == 'rmse':
                 if model_num == 1:
                     print("Plotting "+model+" increment RMSE")
@@ -828,7 +840,7 @@ for stat in plot_stats_list:
                          ])**2
                     )
                     levels_plot = np.nan
-                    cmap_plot = plt.cm.BuPu
+                    cmap_plot = cmap_inc_rmse
                     model1_stat_data = stat_data
                 else:
                     print("Plotting "+model+" - "+model1+" increment RMSE")
@@ -881,7 +893,7 @@ for stat in plot_stats_list:
                             get_levels = False
                     elif stat == 'spread':
                         levels_plot = np.nan
-                        cmap_plot = plt.cm.afmhot_r
+                        cmap_plot = cmap_spread
                 else:
                     print("Plotting "+model+"-"+model1+" ensemble "+stat)
                     stat_data = (

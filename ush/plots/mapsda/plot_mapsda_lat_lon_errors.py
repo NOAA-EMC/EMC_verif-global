@@ -688,11 +688,12 @@ for stat in plot_stats_list:
                         model_level = (
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
-                        var_info_title = (
-                            f"approx. {var_info_title} "
-                            +"[Model Native Level: "+str(round(model_level, 2))
-                            +" hPa]"
-                        )
+                        if model_num == 1:
+                            var_info_title = (
+                                f"approx. {var_info_title} "
+                                +"[Native Level: "+str(round(model_level, 2))
+                                +" hPa]"
+                            )
                     # Get index data
                     model_data_lat = np.flipud(
                         model_data.variables['grid_yt'][:]
@@ -844,13 +845,13 @@ for stat in plot_stats_list:
                 )
                 subplot_CF_dict[ax_subplot_loc] = CF_ax
         # Build formal plot title
-        full_title = (stat_title+'\n'+var_info_title+'\n'
+        full_title = (stat_title+'-'+var_info_title+'\n'
                       +dates_title+' '+make_met_data_by_hrs_title+', '
                       +forecast_to_plot_title)
         fig.suptitle(full_title,
                      x = suptitle_x_loc, y = suptitle_y_loc,
                      horizontalalignment = title_loc,
-                     verticalalignment = title_loc)
+                     verticalalignment = 'bottom')
         noaa_img = fig.figimage(noaa_logo_img_array,
                                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
                                 zorder=1, alpha=noaa_logo_alpha)

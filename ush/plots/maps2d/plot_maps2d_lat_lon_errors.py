@@ -45,6 +45,9 @@ colors_diff = cmap_diff_original(
 cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
     'cmap_diff', colors_diff
 )
+cmap_diff = cmap_diff.with_extremes(under="#262A76")
+cmap_diff = cmap_diff.with_extremes(over="#A80000")
+
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plots', 'logos', 
                  'noaa.png')

@@ -150,26 +150,15 @@ def get_mapsda_plot_settings(var_name, var_level):
     else: #instanteous
         formal_var_time_range = ''
     # Get settings
-    if var_name == 'HGT': #geopotential height (gpm)
-        formal_var_name = 'Geopotential Height'
-        cmap = plt.cm.cubehelix_r
-        if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
-            levels = np.nan
-            levels_diff = np.array([-120,-80,-40,-20,-10,0,10,20,40,80,120])
-            var_scale = 1
-            var_units = 'gpm'
-        else:
-            print("ERROR: cannot find plot settings for "+var_name+" "
-                  +"at "+var_GRIB_lvl_typ)
-            sys.exit(1)
-    elif var_name == 'MSLET': #mean sea-level pressure (NAM reduction) (Pa)
+    if var_name == 'MSLET': #mean sea-level pressure (NAM reduction) (Pa)
         formal_var_name = 'Mean Sea Level Pressure (NAM Reduction)'
         cmap = plt.cm.rainbow
         if var_GRIB_lvl_typ == '102': #mean sea level
             levels = np.array(
                 [960,965,970,975,980,985,990,995,1000,1005,1010,1015,1020]
             )
-            levels_diff = np.array([-10,-5,-4,-3,-2,-1,0,1,2,3,4,5,10])
+            levels_diff = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5])
+            levels_inc = np.array([-1,-0.75,-0.5,-0.25,-0.20,-0.15,-0.1,0,0.1,0.15,0.20,0.25,0.5,0.75,1])
             var_scale = 0.01
             var_units = 'hPa'
     elif var_name == 'PRES': #pressure (Pa)
@@ -179,7 +168,8 @@ def get_mapsda_plot_settings(var_name, var_level):
             levels = np.array(
                 [500,550,600,650,700,750,800,850,900,950,1000,1010]
             )
-            levels_diff = np.array([-10,-5,-4,-3,-2,-1,0,1,2,3,4,5,10])
+            levels_diff = np.array([-5,-4,-3,-2,-1,-0.05,0,0.05,1,2,3,4,5])
+            levels_inc = np.array([-1,-0.75,-0.5,-0.25,-0.20,-0.15,-0.1,0,0.1,0.15,0.20,0.25,0.5,0.75,1])
             var_scale = 0.01
             var_units = 'hPa'
         else:
@@ -192,24 +182,11 @@ def get_mapsda_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
             levels_diff = np.array(
-                [-2,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,2]
+                [-0.1,-0.075,-0.05,-0.025,-0.01,-0.005,0,0.005,0.01,0.025,0.05,0.075,0.1]
             )
+            levels_inc = np.array([-5,-4,-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3,4,5])
             var_scale = 1000000
             var_units = 'ppmg'
-        else:
-            print("ERROR: cannot find plot settings for "+var_name+" "
-                  +"at "+var_GRIB_lvl_typ)
-            sys.exit(1)
-    elif var_name == 'PRMSL': #pressure reduced to MSL (Pa)
-        formal_var_name = 'Pressure Reduced to MSL'
-        cmap = plt.cm.rainbow
-        if var_GRIB_lvl_typ == '102': #mean sea level
-            levels = np.array(
-                [960,965,970,975,980,985,990,995,1000,1005,1010,1015,1020]
-            )
-            levels_diff = np.array([-10,-5,-4,-3,-2,-1,0,1,2,3,4,5,10])
-            var_scale = 0.01
-            var_units = 'hPa'
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
@@ -220,8 +197,24 @@ def get_mapsda_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
             levels_diff = np.array([-20,-15,-10,-5,-2,0,2,5,10,15,20])
+            levels_inc = np.array([-5,-4,-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = '%'
+        else:
+            print("ERROR: cannot find plot settings for "+var_name+" "
+                  +"at "+var_GRIB_lvl_typ)
+            sys.exit(1)
+    elif var_name == 'SPFH': #specific humidity (kg kg-1)
+        formal_var_name = 'Specific Humidity'
+        cmap = plt.cm.Greens
+        if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
+            levels = np.nan
+            levels_diff = np.array(
+                [-3,-2,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,2,3]
+            )
+            levels_inc = np.array([-3,-1.5,-1,-0.5,-0.25,-0.1,0,0.1,0.25,0.5,1,1.5,3])
+            var_scale = 1000
+            var_units = 'g 'r'$\mathregular{kg^{-1}}$'''
         else:
             print("ERROR: cannot find plot settings for "+var_name+" "
                   +"at "+var_GRIB_lvl_typ)
@@ -229,16 +222,10 @@ def get_mapsda_plot_settings(var_name, var_level):
     elif var_name == 'TMP': #temperature (K)
         formal_var_name = 'Temperature'
         cmap = plt.cm.rainbow
-        if var_GRIB_lvl_typ == '1': #surface
-            levels = np.array(
-                [240,245,250,255,260,265,270,275,280,285,290,295,300]
-            )
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
-            var_scale = 1
-            var_units = 'K'
-        elif var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
+        if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.nan
-            levels_diff = np.array([-4,-3,-2,-1,-0.5,0,0.5,1,2,3,4])
+            levels_diff = np.array([-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3])
+            levels_inc = np.array([-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3])
             var_scale = 1
             var_units = 'K'
         else:
@@ -251,6 +238,7 @@ def get_mapsda_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
             levels_diff = np.array([-5,-3,-2,-1,-0.5,0,0.5,1,2,3,5])
+            levels_inc = np.array([-5,-4,-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -263,6 +251,7 @@ def get_mapsda_plot_settings(var_name, var_level):
         if var_GRIB_lvl_typ == '100': #isobaric/pressure levels (hPa)
             levels = np.array([-30,-20,-10,-5,-2,-1,1,2,5,10,20,30])
             levels_diff = np.array([-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3])
+            levels_inc = np.array([-5,-4,-3,-2,-1,-0.5,-0.25,0,0.25,0.5,1,2,3,4,5])
             var_scale = 1
             var_units = 'm 'r'$\mathregular{s^{-1}}$'''
         else:
@@ -281,7 +270,7 @@ def get_mapsda_plot_settings(var_name, var_level):
             formal_var_level+' '+formal_var_name+' ('+var_units+')'
             +formal_var_time_range
         )
-    return (var_info_title, levels, levels_diff, cmap, var_scale,
+    return (var_info_title, levels, levels_diff, levels_inc, cmap, var_scale,
             formal_var_name)
 
 def get_clevels(data, spacing):

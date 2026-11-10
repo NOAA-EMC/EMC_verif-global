@@ -52,10 +52,14 @@ colors_inc= cmap_inc_original(
 cmap_inc = matplotlib.colors.LinearSegmentedColormap.from_list(
     'cmap_inc', colors_inc
 )
+cmap_inc = cmap_inc.with_extremes(under="#053311")
+cmap_inc = cmap_inc.with_extremes(over="#3f0540")
 
 cmap_inc_rmse = plt.cm.BuPu
+levels_rmse = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
 
 cmap_spread = plt.cm.afmhot_r
+levels_spread = np.array([0,0.05,0.1,0.25,0.5,0.75,1,2,3,4,5])
 
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plots', 'logos', 'noaa.png')
@@ -312,6 +316,8 @@ if RUN_type == 'gdas':
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
 img_quality = os.environ['img_quality']
+use_fixed_levels = os.environ['use_fixed_levels']
+
 
 # Set image quality
 if img_quality == 'low':
@@ -469,7 +475,7 @@ for env_var_model in env_var_model_list:
     var_level_num = 0
     for var_level in var_levels:
         var_level_num+=1
-        var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
+        var_info_title, levels, levels_diff, levels_inc, cmap, var_scale, cbar00_title = (
             mapsda_plot_util.get_mapsda_plot_settings(var_name, var_level)
         )
         if RUN_type == 'gdas':
@@ -765,7 +771,18 @@ for stat in plot_stats_list:
         var_levels_type_num = np.asarray(var_level_type_num_list, dtype=float)
         model_num = 0
         subplot_CF_dict = {}
-        get_levels = True
+        if use_fixed_levels == "NO":
+            get_levels = True
+            get_levels_diff = True
+            if RUN_type == 'gdas':
+                get_levels_inc = True
+                get_levels_rmse = True
+        else:
+            get_levels = False
+            get_levels_diff = False
+            if RUN_type == 'gdas':
+                get_levels_inc = False
+                get_levels_rmse = False
         for env_var_model in env_var_model_list:
             model_num+=1
             model = os.environ[env_var_model]
@@ -822,9 +839,11 @@ for stat in plot_stats_list:
                         model_num-1,var_levels_idx_list,:
                     ]
                 )
-                if model_num == 1:
-                    levels_plot = mapsda_plot_util.get_clevels(stat_data, 1.25)
-                    cmap_plot = cmap_inc
+                if get_levels_inc and model_num == 1:
+                    levels_inc = mapsda_plot_util.get_clevels(stat_data, 1.25)
+                    get_levels_inc = False
+                levels_plot = levels_inc
+                cmap_plot = cmap_inc
             elif stat == 'rmse':
                 if model_num == 1:
                     print("Plotting "+model+" increment RMSE")
@@ -839,7 +858,10 @@ for stat in plot_stats_list:
                              model_num-1,var_levels_idx_list,:
                          ])**2
                     )
-                    levels_plot = np.nan
+                    if get_levels_rmse:
+                        levels_rmse = np.nan
+                        get_levels_rmse = False
+                    levels_plot = levels_rmse
                     cmap_plot = cmap_inc_rmse
                     model1_stat_data = stat_data
                 else:
@@ -854,9 +876,11 @@ for stat in plot_stats_list:
                              model_num-1,var_levels_idx_list,:
                          ])**2
                     ) - model1_stat_data
-                    if model_num == 2:
-                        levels_plot = mapsda_plot_util.get_clevels(stat_data, 1.25)
-                        cmap_plot = cmap_diff
+                    if get_levels_diff:
+                        levels_diff = mapsda_plot_util.get_clevels(stat_data, 1.25)
+                        get_levels_diff = False
+                    levels_plot = levels_diff
+                    cmap_plot = cmap_diff
             elif stat in ['mean', 'spread']:
                 subplot_title = model_plot_name
                 if stat == 'mean':
@@ -891,8 +915,13 @@ for stat in plot_stats_list:
                             else:
                                 levels_plot = np.nan
                             get_levels = False
+                        else:
+                            levels_plot = levels
                     elif stat == 'spread':
-                        levels_plot = np.nan
+                        if get_levels:
+                            levels_plot = np.nan
+                        else:
+                            levels_plot = levels_spread
                         cmap_plot = cmap_spread
                 else:
                     print("Plotting "+model+"-"+model1+" ensemble "+stat)
@@ -903,7 +932,10 @@ for stat in plot_stats_list:
                          - model1_stat_data
                     )
                     if model_num == 2:
-                        levels_plot = mapsda_plot_util.get_clevels(stat_data, 1.25)
+                        if get_levels_diff:
+                            levels_plot = mapsda_plot_util.get_clevels(stat_data, 1.25)
+                        else:
+                            levels_plot = levels_diff
                         cmap_plot = cmap_diff
             ax = draw_subplot_map(
                 subplot_num, subplot_title, nsubplots, latlon_area,

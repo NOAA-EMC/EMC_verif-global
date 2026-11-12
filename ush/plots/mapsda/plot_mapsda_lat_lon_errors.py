@@ -858,13 +858,13 @@ for stat in plot_stats_list:
                 )
                 subplot_CF_dict[ax_subplot_loc] = CF_ax
         # Build formal plot title
-        full_title = (stat_title+'-'+var_info_title+'\n'
+        full_title = (stat_title+'\n'+var_info_title+'\n'
                       +dates_title+' '+make_met_data_by_hrs_title+', '
                       +forecast_to_plot_title)
         fig.suptitle(full_title,
                      x = suptitle_x_loc, y = suptitle_y_loc,
                      horizontalalignment = title_loc,
-                     verticalalignment = 'bottom')
+                     verticalalignment = title_loc)
         noaa_img = fig.figimage(noaa_logo_img_array,
                                 noaa_logo_xpixel_loc, noaa_logo_ypixel_loc,
                                 zorder=1, alpha=noaa_logo_alpha)

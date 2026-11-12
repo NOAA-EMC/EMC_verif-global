@@ -37,7 +37,7 @@ if RUN_type == 'model2model':
     forecast_anl_diff = os.environ['forecast_anl_diff']
 if RUN_type == 'model2obs':
     obtype_var_name_list = os.environ['obtype_var_name'].split(', ')
-model_regex = re.compile("model(\d+)$")
+model_regex = re.compile(r"model(\d+)$")
 all_model_dict = {}
 for key in list(os.environ.keys()):
     model_regex_match = model_regex.match(key)

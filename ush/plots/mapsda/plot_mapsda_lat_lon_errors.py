@@ -45,6 +45,25 @@ colors_diff = cmap_diff_original(
 cmap_diff = matplotlib.colors.LinearSegmentedColormap.from_list(
     'cmap_diff', colors_diff
 )
+cmap_diff = cmap_diff.with_extremes(under="#262A76")
+cmap_diff = cmap_diff.with_extremes(over="#A80000")
+
+cmap_inc_original = plt.cm.PiYG_r
+colors_inc= cmap_inc_original(
+    np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
+)   
+cmap_inc = matplotlib.colors.LinearSegmentedColormap.from_list(
+    'cmap_inc', colors_inc
+)
+cmap_inc = cmap_inc.with_extremes(under="#053311")
+cmap_inc = cmap_inc.with_extremes(over="#3f0540")
+
+cmap_inc_rmse = plt.cm.BuPu
+levels_rmse = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
+
+cmap_spread = plt.cm.afmhot_r
+levels_spread = np.array([0,0.05,0.1,0.25,0.5,0.75,1,2,3,4,5])
+
 noaa_logo_img_array = matplotlib.image.imread(
     os.path.join(os.environ['USHverif_global'], 'plots', 'logos',
                  'noaa.png')
@@ -256,7 +275,12 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     if str(plot_data_area_avg) == 'nan':
         ax_tmp.set_title('--', loc='right')
     else:
-        ax_tmp.set_title(round(plot_data_area_avg, 3), loc='right')
+        ax_tmp.set_title(
+            f"avg: {plot_data_area_avg:.2f}\n"
+            +f"min: {np.nanmin(plot_data):.2f}, "
+            +f"max: {np.nanmax(plot_data):.2f}",
+            loc='right', fontsize=14
+        )
     # Get plotting levels, if needed
     if np.all(np.isnan(plot_levels)):
         if np.isnan(np.nanmax(plot_data)):
@@ -323,6 +347,7 @@ if RUN_type == 'gdas':
 elif RUN_type == 'ens':
     plot_stats_list = ['mean', 'spread']
 img_quality = os.environ['img_quality']
+use_fixed_levels = os.environ['use_fixed_levels']
 
 # Set image quality
 if img_quality == 'low':
@@ -440,8 +465,8 @@ for stat in plot_stats_list:
                     regrid_lon = tmp_model_data_lon
                     regrid_lon_res = tmp_model_data_lon_res
     for var_level in var_levels:
-        var_info_title, levels, levels_diff, cmap, var_scale, cbar00_title = (
-            mapsda_plot_util.get_maps2d_plot_settings(var_name, var_level)
+        var_info_title, levels, levels_diff, levels_inc, cmap, var_scale, cbar00_title = (
+            mapsda_plot_util.get_mapsda_plot_settings(var_name, var_level)
         )
         model_num = 0
         subplot_CF_dict = {}
@@ -472,15 +497,22 @@ for stat in plot_stats_list:
                     )
             # Set up plot
             if model_num == 1:
+                if use_fixed_levels == "NO":
+                    get_levels = True
+                    get_levels_diff = True
+                    if RUN_type == 'gdas':
+                        get_levels_inc = True
+                        get_levels_rmse = True
+                else:
+                    get_levels = False
+                    get_levels_diff = False
+                    if RUN_type == 'gdas':
+                        get_levels_inc = False
+                        get_levels_rmse = False
                 if RUN_type == 'ens':
                     nsubplots = nmodels
-                    get_diff_levels = True
-                    get_levels = True
                 else:
                     nsubplots = nmodels + 1
-                    get_inc_levels = True
-                    get_diff_levels = True
-                    get_levels = True
                 if nsubplots == 1:
                     x_figsize, y_figsize = 14, 7
                     row, col = 1, 1
@@ -668,11 +700,12 @@ for stat in plot_stats_list:
                         model_level = (
                             model_levels[model_levels_var_level_diff_min_idx]
                         )
-                        var_info_title = (
-                            f"approx. {var_info_title} "
-                            +"[Model Native Level: "+str(round(model_level, 2))
-                            +" hPa]"
-                        )
+                        if model_num == 1:
+                            var_info_title = (
+                                f"approx. {var_info_title} "
+                                +"[Native Level: "+str(round(model_level, 2))
+                                +" hPa]"
+                            )
                     # Get index data
                     model_data_lat = np.flipud(
                         model_data.variables['grid_yt'][:]
@@ -750,33 +783,29 @@ for stat in plot_stats_list:
                 if RUN_type == 'gdas':
                     if stat == 'inc':
                         print("Plotting "+model+" increments")
-                        if get_inc_levels:
-                            levels_plot = mapsda_plot_util.get_clevels(stat_data,
+                        if get_levels_inc:
+                            levels_inc = mapsda_plot_util.get_clevels(stat_data,
                                                                        1.25)
-                            cmap_plot_original = plt.cm.PiYG_r
-                            colors_plot = cmap_plot_original(
-                                np.append(np.linspace(0,0.3,10),
-                                          np.linspace(0.7,1,10))
-                            )
-                            cmap_plot = (
-                                matplotlib.colors.\
-                                LinearSegmentedColormap.from_list('cmap_plot',
-                                                                  colors_plot)
-                            )
-                            get_inc_levels = False
+                            get_levels_inc = False
+                        cmap_plot = cmap_inc
+                        levels_plot = levels_inc
                     elif stat == 'rmse':
                         if model_num == 1:
                             print("Plotting "+model1+" increment RMSE")
-                            levels_plot = np.nan
-                            cmap_plot = plt.cm.BuPu
+                            if get_levels_rmse:
+                                 levels_rmse = np.nan
+                                 get_levels_rmse = False
+                            levels_plot = levels_rmse
+                            cmap_plot = cmap_inc_rmse
                         else:
                             print("Plotting "+model+" - "+model1+" "
                                   +"increment RMSE")
-                            if get_diff_levels:
-                                levels_plot = mapsda_plot_util.get_clevels(stat_data,
+                            if get_levels_diff:
+                                levels_diff = mapsda_plot_util.get_clevels(stat_data,
                                                                            1.25)
-                                cmap_plot = cmap_diff
-                                get_diff_levels = False
+                                get_levels_diff = False
+                            cmap_plot = cmap_diff
+                            levels_plot = levels_diff
                 elif RUN_type == 'ens':
                     if model_num == 1:
                         print("Plotting "+model+" ensemble "+stat)
@@ -786,22 +815,28 @@ for stat in plot_stats_list:
                                 if var_name in ['UGRD', 'VGRD', 'VVEL', 'LFTX',
                                                 '4LFTX', 'UFLX', 'VFLX',
                                                 'GFLX']:
-                                    levels_plot = mapsda_plot_util.get_clevels(
+                                    levels = mapsda_plot_util.get_clevels(
                                         stat_data, 1.25
                                     )
                                 else:
-                                    levels_plot = np.nan
-                            get_levels = False
+                                    levels = np.nan
+                                get_levels = False
+                            levels_plot = levels
                         elif stat == 'spread':
-                            cmap_plot = plt.cm.afmhot_r
-                            levels_plot = np.nan
+                            cmap_plot = cmap_spread
+                            if get_levels:
+                                levels_spread = np.nan
+                                get_levels = False
+                            levels_plot = levels_spread
                     else:
                         print("Plotting "+model+"-"+model1+" ensemble "+stat)
-                        if get_diff_levels:
+                        cmap_plot = cmap_diff
+                        if get_levels_diff:
                             levels_plot = mapsda_plot_util.get_clevels(stat_data,
                                                                        1.25)
-                            cmap_plot = cmap_diff
-                            get_diff_levels = False
+                            get_levels_diff = False
+                        else:
+                            levels_plot = levels_diff
                 ax_subplot_loc = (
                     str(ax.get_subplotspec().rowspan.start)+','
                     +str(ax.get_subplotspec().colspan.start)

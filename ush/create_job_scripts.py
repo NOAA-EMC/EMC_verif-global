@@ -453,7 +453,8 @@ def create_job_scripts_maps(start_date_dt, end_date_dt, case, case_abbrev,
     for case_type in case_type_list:
         case_abbrev_type = case_abbrev+'_'+case_type
         case_type_env_list = ['make_met_data_by', 'regrid_to_grid',
-                              'hour_beg', 'hour_end', 'hour_inc']
+                              'hour_beg', 'hour_end', 'hour_inc',
+                              'use_fixed_levels']
         for case_type_env in case_type_env_list:
             job_env_dict[case_type_env] = (
                 os.environ[case_abbrev_type+'_'+case_type_env]

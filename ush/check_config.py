@@ -158,12 +158,14 @@ RUN_type_env_vars_dict = {
                    'maps2d_model2model_forecast_to_plot_list',
                    'maps2d_model2model_regrid_to_grid',
                    'maps2d_model2model_forecast_anl_diff',
+                   'maps2d_model2model_use_fixed_levels',
                    'maps2d_model2obs_make_met_data_by',
                    'maps2d_model2obs_hour_list',
                    'maps2d_model2obs_forecast_to_plot_list',
                    'maps2d_model2obs_regrid_to_grid',
                    'maps2d_model2obs_use_ceres',
-                   'maps2d_model2obs_use_monthly_mean'],
+                   'maps2d_model2obs_use_monthly_mean',
+                   'maps2d_model2obs_use_fixed_levels'],
     'RUN_MAPSDA': ['mapsda_model_plot_name_list', 'mapsda_latlon_area',
                    'mapsda_plot_diff', 'mapsda_type_list',
                    'mapsda_gdas_make_met_data_by',
@@ -172,13 +174,15 @@ RUN_type_env_vars_dict = {
                    'mapsda_gdas_regrid_to_grid',
                    'mapsda_gdas_model_file_format_list',
                    'mapsda_gdas_anl_file_format_list',
+                   'mapsda_gdas_use_fixed_levels',
                    'mapsda_ens_make_met_data_by',
                    'mapsda_ens_hour_list',
                    'mapsda_ens_guess_hour',
                    'mapsda_ens_regrid_to_grid',
                    'mapsda_ens_model_dir_list',
                    'mapsda_ens_model_file_format_list',
-                   'mapsda_ens_model_data_run_hpss']
+                   'mapsda_ens_model_data_run_hpss',
+                   'mapsda_ens_use_fixed_levels']
 }
 
 if 'step1' in RUN:
@@ -618,6 +622,8 @@ elif RUN == 'maps2d':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_make_met_data_by'] = ['VALID', 'INIT']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_use_fixed_levels'] = ['YES', 'NO']
         if RUN_type == 'model2model':
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_forecast_anl_diff'] = ['YES', 'NO']
@@ -661,6 +667,8 @@ elif RUN == 'mapsda':
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_make_met_data_by'] = ['VALID', 'INIT']
+        valid_config_var_values_dict[RUN_abbrev_type
+                                     +'_use_fixed_levels'] = ['YES', 'NO']
         if RUN_type == 'ens':
             valid_config_var_values_dict[RUN_abbrev_type
                                          +'_model_data_run_hpss'] = ['YES',

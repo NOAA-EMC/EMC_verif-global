@@ -277,7 +277,7 @@ def plot_subplot_data(ax_tmp, map_ax_tmp, plot_data, plot_data_lat,
     else:
         ax_tmp.set_title(
             f"avg: {plot_data_area_avg:.2f}\n"
-            +f"min: {np.nanmin(plot_data):.2f},"
+            +f"min: {np.nanmin(plot_data):.2f}, "
             +f"max: {np.nanmax(plot_data):.2f}",
             loc='right', fontsize=14
         )

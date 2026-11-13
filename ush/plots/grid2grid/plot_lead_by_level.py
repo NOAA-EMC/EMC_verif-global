@@ -195,7 +195,7 @@ class LeadByLevel:
                         and level == vert_profile_levels[0]:
                     stat_vert_prof_forecast_hours_avg_df = pd.DataFrame(
                         np.nan, pd.MultiIndex.from_product(
-                            [model_idx_list,
+                            [[],
                              self.date_info_dict['forecast_hours']],
                             names=['model', 'fhr']
                         ),

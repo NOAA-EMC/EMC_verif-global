@@ -514,7 +514,8 @@ class TimeSeries:
                  (legend_box.x1,legend_box.y1)]
             )
             legend_box_inv_y1 = legend_box_inv[1][1]
-            if stat_min < legend_box_inv_y1:
+            if stat_min < legend_box_inv_y1 \
+                    and self.plot_info_dict['use_preset_yaxis'] == "NO":
                 while stat_min < legend_box_inv_y1:
                     y_axis_min = y_axis_min - y_axis_tick_inc
                     ax.set_yticks(

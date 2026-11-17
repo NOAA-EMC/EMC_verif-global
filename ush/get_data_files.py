@@ -2101,14 +2101,8 @@ elif RUN == 'satellite_step1':
                         )
                         adjust_time = 43200
                     if os.path.exists(archive_obs_input_file):
-                        print(f"=======================================")
-                        print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
-                        print(f"=======================================")
                         vfg_util.copy_file(archive_obs_input_file, link_RUN_type_file)
                     else:
-                        print(f"==============================")
-                        print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
-                        print(f"==============================")
                         RUN_type_wget_job_filename = os.path.join(
                             link_RUN_type_dir, 'wget_jobs',
                             'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'

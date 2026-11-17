@@ -38,7 +38,7 @@ met_ver = os.environ['MET_version']
 MET_ROOT = os.environ['HOMEMET']
 CI_METHOD = os.environ["g2g2_scorecard_ci_method"]
 AVERAGE_METHOD = os.environ["g2g2_scorecard_average_method"]
-use_set_yaxis = os.environ["g2g2_use_set_yaxis"]
+use_preset_yaxis = os.environ["g2g2_use_preset_yaxis"]
 
 njobs = 0
 JOB_GROUP_jobs_dir = os.path.join(DATA, RUN,
@@ -499,7 +499,7 @@ for case_type in case_type_list:
                 case_type_plot_jobs_dict[case_type_job]['interps']
             ))
             ts_preset_yaxis_df = vfg_util.read_preset_yaxis_file(
-                use_set_yaxis,
+                use_preset_yaxis,
                 os.path.join(os.environ['USHverif_global'], 'plots',
                              'grid2grid', 'time_series_preset_yaxis.txt')
             )
@@ -627,12 +627,12 @@ for case_type in case_type_list:
                     check_combo = f"{job_env_dict['fcst_var_name']}_{job_env_dict['stat']}"
                     var_name_stat_settings = ts_preset_yaxis_df.query("VAR_STAT == @check_combo")
                     if not var_name_stat_settings.empty:
-                        job_env_dict['use_preset_yaxis'] = 'True'
+                        job_env_dict['use_preset_yaxis'] = 'YES'
                         job_env_dict['yaxis_min'] = str(var_name_stat_settings['MIN'].iloc[0])
                         job_env_dict['yaxis_max'] = str(var_name_stat_settings['MAX'].iloc[0])
                         job_env_dict['yaxis_inc'] = str(var_name_stat_settings['INC'].iloc[0])
                     else:
-                        job_env_dict['use_preset_yaxis'] = 'False'
+                        job_env_dict['use_preset_yaxis'] = 'NO'
                         job_env_dict['yaxis_min'] = 'NA'
                         job_env_dict['yaxis_max'] = 'NA'
                         job_env_dict['yaxis_inc'] = 'NA'

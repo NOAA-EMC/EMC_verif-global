@@ -570,17 +570,24 @@ class PlotSpecs:
              'NAO': 'Northern Atlantic Ocean',
              'NPO': 'Northern Pacific Ocean',
              'NHX': 'Northern Hemisphere 20N-80N',
+             'NH': 'Northern Hemisphere 20N-90N',
              'NorthAtlantic': 'Northeast (North Atlantic)',
              'NPlains': 'Northern Plains',
              'NRockies': 'Northern Rockies',
              'PacificNW': 'Pacific Northwest',
              'PacificSW': 'Pacific Southwest',
              'PNA': 'Pacific North America',
+             'Polar': 'Polar 60S-90S and 50N-90N',
              'Prairie': 'Prairie',
              'S60': '60S-90S',
              'SAO': 'Southern Atlantic Ocean',
+             'SEA_ICE': 'Sea-Ice Covered',
+             'SEA_ICE_POLAR': 'Polar - Sea-Ice Covered',
+             'SEA_ICE_FREE': 'Sea-Ice Free',
+             'SEA_ICE_FREE_POLAR': 'Polar - Sea-Ice Free',
              'SPO': 'Southern Pacific Ocean',
              'SHX': 'Southern Hemisphere 20S-80S',
+             'SH': 'Southern Hemisphere 20N-90N',
              'Southeast': 'Southeast',
              'Southwest': 'Southwest',
              'SPlains': 'Southern Plains',
@@ -757,7 +764,7 @@ class PlotSpecs:
         plot_title = plot_title+' '+'('+units+')'
         if var_thresh_for_title != 'NA'\
                and plot_info_dict['fcst_var_name'] not in ['SST_DAILYAVG']:
-            plot_title = plot_title+', '+var_thresh_for_title.replace('>','$\u003E$').replace('>=','$\u2265$').replace('||','')+' '+units
+            plot_title = plot_title+', '+var_thresh_for_title.replace('||','')+' '+units
             if plot_info_dict['fcst_var_name'] == 'APCP':
                 thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
                 thresh_in = round(thresh_value*0.0393701, 3)

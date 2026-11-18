@@ -115,8 +115,7 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
                 RUN_abbrev_type_vhr_list = [ '12' ]
                 RUN_abbrev_type_obs_daily_file = 'True'
         elif 'satellite' in RUN:
-            if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                            'ghrsst_ospo_geopolar_anl']:
+            if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                 RUN_abbrev_type_vhr_list = [ '00' ]
                 RUN_abbrev_type_obs_daily_file = 'True'
         else:
@@ -149,8 +148,7 @@ if RUN in ['grid2grid_step1', 'grid2grid_step2',
                     RUN_type.split('accum')[1].replace('hr','')
                 )
             elif 'satellite' in RUN:
-                if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                                'ghrsst_ospo_geopolar_anl']:
+                if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                     RUN_abbrev_type_accum_length = '24'
             if int(RUN_abbrev_type_fhr_min) \
                     < int(RUN_abbrev_type_accum_length):

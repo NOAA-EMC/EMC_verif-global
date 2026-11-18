@@ -223,11 +223,6 @@ variables.push({
 });
 
 maptypes.push({
-        url: "rmse_ghrsst_ncei_avhrr_anl.php",
-        displayName: "GHRSST NCEI AVHRR Analysis",
-        name: "rmse_ghrsst_ncei_avhrr_anl",
-});
-maptypes.push({
         url: "rmse_ghrsst_ospo_geopolar_anl.php",
         displayName: "GHRSST OSPO Geo-Polar Analysis",
         name: "rmse_ghrsst_ospo_geopolar_anl",

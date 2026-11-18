@@ -365,14 +365,6 @@ def create_job_script(
         'export iabp_ftp="http://iabp.apl.washington.edu/'
         +'Data_Products/Daily_Full_Res_Data"\n'
     )
-    sh.write(
-        'export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov'
-        +'/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"\n'
-    )
-    sh.write(
-        'export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans'
-        +'/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"\n'
-    )
 
     # --- Set MET/METplus versions ---
     if "STEP1" in case or "MAPS" in case:

@@ -1938,9 +1938,6 @@ elif RUN == 'precip_step1':
                                +RUN_type_arch_file+" do not exist")
 elif RUN == 'satellite_step1':
     import netCDF4 as nc
-    # Read in RUN related environment variables
-    ghrsst_ncei_avhrr_anl_ftp = os.environ['ghrsst_ncei_avhrr_anl_ftp']
-    ghrsst_ospo_geopolar_anl_ftp = os.environ['ghrsst_ospo_geopolar_anl_ftp']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -2012,8 +2009,7 @@ elif RUN == 'satellite_step1':
                 if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
-                    if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                                    'ghrsst_ospo_geopolar_anl']:
+                    if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                         lead_intvl = 6
                         nfiles_in_mean = 5
                         lead_in_mean_list = []
@@ -2063,35 +2059,13 @@ elif RUN == 'satellite_step1':
                     os.makedirs(os.path.join(link_RUN_type_dir, 'wget_jobs'))
                 link_RUN_type_file = os.path.join(link_RUN_type_dir,
                                                   RUN_type+'.'+YYYYmmddHH)
-                if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                                'ghrsst_ospo_geopolar_anl']:
+                if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                     sat1_obs_input_dir=os.environ[f"{RUN_abbrev}_obs_dir"]
-                    # ghrsst_ncei_avhrr_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
-                    if RUN_type == 'ghrsst_ncei_avhrr_anl':
-                        RUN_type_ftp_file = os.path.join(
-                            ghrsst_ncei_avhrr_anl_ftp,
-                            YYYYM1, DOYM1,
-                            YYYYmmddM1
-                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
-                            +'v02.0-fv02.1.nc'
-                        )
-                        archive_obs_input_file= os.path.join(
-                            sat1_obs_input_dir, RUN_type,
-                            YYYYM1, YYYYmmM1,
-                            YYYYmmddM1
-                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
-                            +'v02.0-fv02.1.nc'
-                        )
-                        adjust_time = 86400
                     # ghrsst_ospo_geopolar_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
-                    elif RUN_type == 'ghrsst_ospo_geopolar_anl':
-                        RUN_type_ftp_file = os.path.join(
-                            ghrsst_ospo_geopolar_anl_ftp,
-                            YYYYM1, DOYM1,
-                            YYYYmmddM1
-                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
-                            +'-GLOB-v02.0-fv01.0.nc'
-                        )
+                    if RUN_type == 'ghrsst_ospo_geopolar_anl':
+                        sea_ice_thresh = os.environ[
+                            "sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh"
+                        ]
                         archive_obs_input_file= os.path.join(
                             sat1_obs_input_dir, RUN_type,
                             YYYYM1, YYYYmmM1,
@@ -2102,27 +2076,6 @@ elif RUN == 'satellite_step1':
                         adjust_time = 43200
                     if os.path.exists(archive_obs_input_file):
                         vfg_util.copy_file(archive_obs_input_file, link_RUN_type_file)
-                    else:
-                        RUN_type_wget_job_filename = os.path.join(
-                            link_RUN_type_dir, 'wget_jobs',
-                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
-                        )
-                        RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
-                        RUN_type_wget_job_output = os.path.join(
-                            link_RUN_type_dir, 'wget_jobs',
-                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
-                        )
-                        ftp_user="--user=ho-chun.huang@noaa.gov"
-                        ftp_password="--password=anonymous"
-                        with open(RUN_type_wget_job_filename, 'w') \
-                                as RUN_type_wget_job_file:
-                            RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
-                            RUN_type_wget_job_file.write('wget '+ftp_user+' '+ftp_password+' '+RUN_type_ftp_file
-                                                         +' -O '
-                                                         +link_RUN_type_file)
-                        wget_data(RUN_type_wget_job_filename,
-                                  RUN_type_wget_job_name,
-                                  RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
                         link_RUN_type_file_data = nc.Dataset(
@@ -2175,9 +2128,9 @@ elif RUN == 'satellite_step1':
                             [gen_vx_mask, link_RUN_type_file, link_RUN_type_file,
                              os.path.join(link_RUN_type_dir, RUN_type+'.'
                                            +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             '-type', 'data', '-thresh', '">=0.15"', '-mask_field',
-                             "'name="+'"sea_ice_fraction";', 'level="(0,*,*)";'+"'",
-                             '-name', 'SEA_ICE']
+                             '-type', 'data', '-thresh', f'">={sea_ice_thresh}"',
+                             '-mask_field', "'name="+'"sea_ice_fraction";',
+                             'level="(0,*,*)";'+"'", '-name', 'SEA_ICE']
                         )
                         vfg_util.run_shell_command(
                             [gen_vx_mask,
@@ -2220,12 +2173,6 @@ elif RUN == 'satellite_step1':
                              "'name="+'"SEA_ICE_FREE";', 'level="(*,*)";'+"'",
                              '-name', 'SEA_ICE_FREE_POLAR', '-value', '"0"']
                         )
-                    elif os.path.exists(link_RUN_type_file) \
-                            and os.path.getsize(link_RUN_type_file) == 0:
-                        print("WARNING: could not get "+RUN_type_ftp_file)
-                        os.remove(link_RUN_type_file)
-                    else:
-                        print("WARNING: could not get "+RUN_type_ftp_file)
 elif 'step2' in RUN:
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list

@@ -1,6 +1,5 @@
 <?php include '../../globalvars.php';
       $stat_title = 'Satellite: RMSE';
-      $GHRSST_NCEI_AVHRR_ANL_url = $image_location.'/ghrsst_ncei_avhrr_anl/satellite.rmse.VVV_z0.PPP_TTTSSS.DDD.png';
       $GHRSST_OSPO_GEOPOLAR_ANL_url = $image_location.'/ghrsst_ospo_geopolar_anl/satellite.rmse.VVV_z0.PPP_TTTSSS.DDD.png';
       $NHem_name = 'g219_nh';
       $SHem_name = 'g219_sh';

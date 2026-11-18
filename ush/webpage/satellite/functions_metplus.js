@@ -96,6 +96,10 @@ function getURL(domain,variable,frame,level,season,validtime,type){
         newurl = newurl.replace("TTT",validtime);
 	newurl = newurl.replace("PPP",type);
 	newurl = newurl.replace("Q",frame);
+        if(variable == 'icec_z0_mean'){
+                newurl = newurl.replace(".me.",".me_ge0p15.");
+                newurl = newurl.replace(".rmse.",".rmse_ge0p15.");
+        }
 	return newurl;
 }
 

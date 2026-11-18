@@ -56,7 +56,7 @@ RUN_type_env_vars_dict = {
                             'g2g2_make_scorecard',
                             'g2g2_scorecard_ci_method',
                             'g2g2_scorecard_average_method',
-                            'g2g2_use_set_yaxis'],
+                            'g2g2_use_preset_yaxis'],
     'RUN_GRID2OBS_STEP1': ['g2o1_type_list',
                            'g2o1_upper_air_msg_type_list',
                            'g2o1_upper_air_fcyc_list',
@@ -93,7 +93,7 @@ RUN_type_env_vars_dict = {
                            'g2o2_polar_sfc_vhr_list', 'g2o2_polar_sfc_fhr_min',
                            'g2o2_polar_sfc_fhr_max', 'g2o2_polar_sfc_event_eq',
                            'g2o2_polar_sfc_grid', 'g2o2_polar_sfc_stats_list',
-                           'g2o2_use_set_yaxis'],
+                           'g2o2_use_preset_yaxis'],
     'RUN_PRECIP_STEP1': ['precip1_type_list',
                          'precip1_ccpa_accum24hr_model_bucket_list',
                          'precip1_ccpa_accum24hr_model_var_list',
@@ -113,7 +113,7 @@ RUN_type_env_vars_dict = {
                          'precip2_ccpa_accum24hr_event_eq',
                          'precip2_ccpa_accum24hr_grid',
                          'precip2_ccpa_accum24hr_stats_list',
-                         'precip2_use_set_yaxis'],
+                         'precip2_use_preset_yaxis'],
     'RUN_SATELLITE_STEP1': ['sat1_type_list',
                             'sat1_ghrsst_ospo_geopolar_anl_fcyc_list',
                             'sat1_ghrsst_ospo_geopolar_anl_fhr_min',
@@ -131,7 +131,7 @@ RUN_type_env_vars_dict = {
                             'sat2_ghrsst_ospo_geopolar_anl_event_eq',
                             'sat2_ghrsst_ospo_geopolar_anl_grid',
                             'sat2_ghrsst_ospo_geopolar_anl_stats_list',
-                            'sat2_use_set_yaxis'],
+                            'sat2_use_preset_yaxis'],
     'RUN_FIT2OBS_PLOTS': ['fit2obs_plots_expnlist', 'fit2obs_plots_expdlist',
                           'fit2obs_plots_endianlist', 'fit2obs_plots_cycle',
                           'fit2obs_plots_oinc', 'fit2obs_plots_finc',
@@ -441,7 +441,7 @@ if RUN == 'grid2grid_step1':
 elif RUN == 'grid2grid_step2':
     valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_ci_method"] = ["EMC"]
     valid_config_var_values_dict[f"{RUN_abbrev}_scorecard_average_method"] = ["MEAN"]
-    valid_config_var_values_dict[f"{RUN_abbrev}_use_set_yaxis"] = ['True', 'False']
+    valid_config_var_values_dict[f"{RUN_abbrev}_use_preset_yaxis"] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
@@ -457,7 +457,7 @@ elif RUN == 'grid2grid_step2':
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']
         valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_event_eq'] = ['True', 'False']
+                                     +'_event_eq'] = ['YES', 'NO']
 elif RUN == 'grid2obs_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -493,7 +493,7 @@ elif RUN == 'grid2obs_step1':
     valid_config_var_values_dict[RUN_abbrev
                                  +'_prepbufr_data_run_hpss'] = ['YES', 'NO']
 elif RUN == 'grid2obs_step2':
-    valid_config_var_values_dict[f"{RUN_abbrev}_use_set_yaxis"] = ['True', 'False']
+    valid_config_var_values_dict[f"{RUN_abbrev}_use_preset_yaxis"] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         if RUN_type == 'polar_sfc':
@@ -527,7 +527,7 @@ elif RUN == 'grid2obs_step2':
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']
         valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_event_eq'] = ['True', 'False']
+                                     +'_event_eq'] = ['YES', 'NO']
 elif RUN == 'precip_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -556,14 +556,14 @@ elif RUN == 'precip_step1':
     valid_config_var_values_dict[RUN_abbrev
                                  +'_obs_data_run_hpss'] = ['YES', 'NO']
 elif RUN == 'precip_step2':
-    valid_config_var_values_dict[f"{RUN_abbrev}_use_set_yaxis"] = ['True', 'False']
+    valid_config_var_values_dict[f"{RUN_abbrev}_use_preset_yaxis"] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']
         valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_event_eq'] = ['True', 'False']
+                                     +'_event_eq'] = ['YES', 'NO']
 elif RUN == 'satellite_step1':
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -574,14 +574,14 @@ elif RUN == 'satellite_step1':
                   +"must be <= 1")
             sys.exit(1)
 elif RUN == 'satellite_step2':
-    valid_config_var_values_dict[f"{RUN_abbrev}_use_set_yaxis"] = ['True', 'False']
+    valid_config_var_values_dict[f"{RUN_abbrev}_use_preset_yaxis"] = ['YES', 'NO']
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
         valid_config_var_values_dict[RUN_abbrev_type
                                      +'_gather_by_list'] = ['VALID', 'INIT',
                                                             'VSDB']
         valid_config_var_values_dict[RUN_abbrev_type
-                                     +'_event_eq'] = ['True', 'False']
+                                     +'_event_eq'] = ['YES', 'NO']
         if float(os.environ[RUN_abbrev_type+'_sea_ice_thresh']) > 1:
             print("ERROR: value of "+RUN_abbrev_type+"_sea_ice_thresh "
                   +"must be <= 1")

@@ -449,7 +449,7 @@ class TimeSeries:
         preset_y_axis_tick_min = ax.get_yticks()[0]
         preset_y_axis_tick_max = ax.get_yticks()[-1]
         preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
-        if self.plot_info_dict['use_preset_yaxis'] == "True":
+        if self.plot_info_dict['use_preset_yaxis'] == "YES":
             ymin = float(self.plot_info_dict['yaxis_min'])
             ymax = float(self.plot_info_dict['yaxis_max'])
             yinc = float(self.plot_info_dict['yaxis_inc'])
@@ -514,7 +514,8 @@ class TimeSeries:
                  (legend_box.x1,legend_box.y1)]
             )
             legend_box_inv_y1 = legend_box_inv[1][1]
-            if stat_min < legend_box_inv_y1:
+            if stat_min < legend_box_inv_y1 \
+                    and self.plot_info_dict['use_preset_yaxis'] == "NO":
                 while stat_min < legend_box_inv_y1:
                     y_axis_min = y_axis_min - y_axis_tick_inc
                     ax.set_yticks(

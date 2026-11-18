@@ -358,7 +358,7 @@ sat1_type_list=ghrsst_ospo_geopolar_anl
 sat1_ghrsst_ospo_geopolar_anl_fcyc_list=00
 sat1_ghrsst_ospo_geopolar_anl_fhr_min=00
 sat1_ghrsst_ospo_geopolar_anl_fhr_max=168
-sat1_ghrsst_ospo_geopolar_anl_grid=G219
+sat1_ghrsst_ospo_geopolar_anl_grid=G193
 sat1_ghrsst_ospo_geopolar_anl_gather_by=VALID
 sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 
@@ -390,7 +390,7 @@ sat2_ghrsst_ospo_geopolar_anl_fhr_min=00
 sat2_ghrsst_ospo_geopolar_anl_fhr_max=168
 sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh=0.15
 sat2_ghrsst_ospo_geopolar_anl_event_eq=NO
-sat2_ghrsst_ospo_geopolar_anl_grid=G219
+sat2_ghrsst_ospo_geopolar_anl_grid=G193
 sat2_ghrsst_ospo_geopolar_anl_stats_list=me rmse fbar_obar
 sat2_use_preset_yaxis=NO
 

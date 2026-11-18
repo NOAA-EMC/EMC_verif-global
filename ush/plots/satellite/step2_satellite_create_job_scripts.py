@@ -83,10 +83,11 @@ for ospo_job in list(filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
          ['obs_var_dict']['threshs']) = ['NA']
     elif ospo_job == "ICEC":
+        sea_ice_thresh = os.environ['sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['fcst_var_dict']['threshs']) = ['>=0.15||']
+         ['fcst_var_dict']['threshs']) = [f'>={sea_ice_thresh}||']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['obs_var_dict']['threshs']) = ['>=0.15']
+         ['obs_var_dict']['threshs']) = [f'>={sea_ice_thresh}']
     filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['interps'] = ['NEAREST/1']
 if JOB_GROUP == 'filter_stats':
     JOB_GROUP_dict = filter_stats_jobs_dict

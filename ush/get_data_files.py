@@ -2067,11 +2067,8 @@ elif RUN == 'satellite_step1':
                             "sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh"
                         ]
                         archive_obs_input_file= os.path.join(
-                            sat1_obs_input_dir, RUN_type,
-                            YYYYM1, YYYYmmM1,
-                            YYYYmmddM1
-                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
-                            +'-GLOB-v02.0-fv01.0.nc'
+                            sat1_obs_input_dir,
+                            f"{YYYYmmddM1}_OSPO_L4_GHRSST.nc"
                         )
                         adjust_time = 43200
                     if os.path.exists(archive_obs_input_file):

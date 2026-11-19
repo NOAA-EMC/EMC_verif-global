@@ -133,7 +133,7 @@ def create_job_script(
             "/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/gpfs/f6/drsa-precip3/world-shared/Ho-Chun.Huang/obs_archive"
+            "/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/obdata/ghrsst_ospo"
         )
     elif machine_name == 'URSA':
         max_ncpus_per_node = "192"
@@ -158,7 +158,7 @@ def create_job_script(
             "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/scratch4/NCEPDEV/naqfc/Ho-Chun.Huang/noscrub/obs_archive"
+            "/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ghrsst_ospo"
         )
     elif machine_name == 'WCOSS2':
         max_ncpus_per_node = "128"
@@ -183,7 +183,7 @@ def create_job_script(
             "/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verif_global_obs_archive"
+            "/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ghrsst_ospo"
         )
     elif machine_name == 'HERCULES':
         max_ncpus_per_node = "80"
@@ -205,10 +205,10 @@ def create_job_script(
             "/work2/noaa/global/role-global/data/metplus.data/obs_data"
         )
         ccpa_24hr_archive = (
-            "/work2/noaa/global/role-global/data/metplus.data/obs_data//ccpa_accum24hr"
+            "/work2/noaa/global/role-global/data/metplus.data/obs_data/ccpa_accum24hr"
         )
         sat_obs_archive = (
-            "/null/path"
+            "/work2/noaa/global/role-global/data/metplus.data/obs_data/ghrsst_ospo"
         )
 
     nnodes = user_config["MACHINE"]["nodes"]

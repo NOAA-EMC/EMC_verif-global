@@ -2123,52 +2123,33 @@ elif RUN == 'satellite_step1':
                         vfg_util.run_shell_command(
                             [gen_vx_mask, link_RUN_type_file, link_RUN_type_file,
                              os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                           +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             '-type', 'data', '-thresh', f'">={sea_ice_thresh}"',
-                             '-mask_field', "'name="+'"sea_ice_fraction";',
-                             'level="(0,*,*)";'+"'", '-name', 'SEA_ICE']
-                        )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
                                           +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_POLAR.nc '),
-                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
-                             "'name="+'"SEA_ICE";','level="(*,*)";'+"'",
-                             '-name', 'SEA_ICE_POLAR', '-value', '"0"']
+                             '-type', 'data', '-thresh', '==4', '-mask_field',
+                             "'name="+'"mask";', 'level="(0,*,*)";'+"'",
+                             '-name', 'SEA_ICE']
                         )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             '-type', 'data', '-thresh', "'==0'", '-intersection',
-                             '-mask_field', "'name="+'"SEA_ICE";',
-                             'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
-                        )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc '),
-                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
-                             "'name="+'"SEA_ICE_FREE";', 'level="(*,*)";'+"'",
-                             '-name', 'SEA_ICE_FREE_POLAR', '-value', '"0"']
-                        )
+                        regions_dict = {
+                            'POLAR': '<60&&>-60',
+                            'ARCTIC': '<60',
+                            'ANTARCTIC': '>-60',
+                            'NH': '<20',
+                            'SH': '>-20',
+                        }
+                        for mask in ['WATER', 'SEA_ICE']:
+                            for key, value in regions_dict.items():
+                                vfg_util.run_shell_command(
+                                    [gen_vx_mask,
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH+'.vx_mask.'+mask+'.nc '),
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH+'.vx_mask.'+mask+'.nc '),
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH
+                                                  +'.vx_mask.'+mask+'_'+key+'.nc '),
+                                     '-type', 'lat', '-thresh', "'"+value+"'", '-mask_field',
+                                     "'name="+'"'+mask+'";','level="(*,*)";'+"'",
+                                     '-name', mask+'_'+key, '-value', '"0"']
+                                )
 elif 'step2' in RUN:
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list

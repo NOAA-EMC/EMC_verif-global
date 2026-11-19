@@ -577,7 +577,7 @@ class PlotSpecs:
              'PacificNW': 'Pacific Northwest',
              'PacificSW': 'Pacific Southwest',
              'PNA': 'Pacific North America',
-             'Polar': 'Polar 60S-90S and 50N-90N',
+             'POLAR': 'Polar 60S-90S and 50N-90N',
              'Prairie': 'Prairie',
              'S60': '60S-90S',
              'SAO': 'Southern Atlantic Ocean',

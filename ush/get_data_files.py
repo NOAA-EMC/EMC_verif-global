@@ -2056,7 +2056,6 @@ elif RUN == 'satellite_step1':
                 link_RUN_type_dir = os.path.join(cwd, 'data', RUN_type)
                 if not os.path.exists(link_RUN_type_dir):
                     os.makedirs(link_RUN_type_dir)
-                    os.makedirs(os.path.join(link_RUN_type_dir, 'wget_jobs'))
                 link_RUN_type_file = os.path.join(link_RUN_type_dir,
                                                   RUN_type+'.'+YYYYmmddHH)
                 if RUN_type in ['ghrsst_ospo_geopolar_anl']:

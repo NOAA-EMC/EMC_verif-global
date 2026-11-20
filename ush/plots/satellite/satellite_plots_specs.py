@@ -53,10 +53,7 @@ class PlotSpecs:
         self.legend_ncol = 1
         self.title_loc = 'center'
         self.fig_size=(16.,16.)
-        if self.plot_type in ['time_series',
-                              'time_series_multifhr',
-                              'long_term_time_series',
-                              'long_term_time_series_multifhr']:
+        if self.plot_type =='time_series':
             self.fig_size = (16., 8.)
             self.fig_subplot_top = 0.87
             self.fig_subplot_bottom = 0.1
@@ -68,22 +65,7 @@ class PlotSpecs:
             self.legend_frame_on = False
             self.legend_bbox = (0.5, 0.05)
             self.legend_ncol = 4
-            if self.plot_type in ['time_series_multifhr',
-                                  'long_term_time_series',
-                                  'long_term_time_series_multifhr']:
-                self.fig_subplot_top = 0.85
-        elif self.plot_type == 'histogram':
-            self.fig_size = (16., 8.)
-            self.fig_subplot_top = 0.87
-            self.fig_subplot_bottom = 0.1
-            self.fig_subplot_right = 0.925
-            self.fig_subplot_left = 0.085
-            self.axis_label_size = 15
-            self.xtick_label_size = 15
-            self.ytick_label_size = 15
-        elif self.plot_type in ['lead_average', 'valid_hour_average',
-                                'threshold_average',
-                                'long_term_time_series_diff']:
+        elif self.plot_type in 'lead_average':
             self.fig_size = (16., 16.)
             self.fig_subplot_top = 0.9
             self.fig_subplot_bottom = 0.05
@@ -92,67 +74,6 @@ class PlotSpecs:
             self.legend_frame_on = False
             self.legend_bbox = (0.5, 0.05)
             self.legend_ncol = 5
-            self.fig_title_size = 18
-            if self.plot_type == 'long_term_time_series_diff':
-                self.legend_font_size = 15
-        elif self.plot_type in ['lead_by_date',
-                                'long_term_annual_mean',
-                                'long_term_lead_by_date']:
-            self.fig_size = (16., 16.)
-            self.axis_title_pad = 5
-            self.axis_title_loc = 'left'
-            self.fig_subplot_top = 0.9
-            self.fig_subplot_bottom = 0.075
-            self.fig_subplot_right = 0.923
-            self.fig_subplot_left = 0.15
-            self.fig_title_size = 18
-            if self.plot_type == 'long_term_annual_mean':
-                self.fig_subplot_left = 0.1
-                self.fig_subplot_right = 0.9
-            if self.plot_type == 'long_term_lead_by_date':
-                self.fig_subplot_left = 0.1
-            if self.plot_type == 'lead_by_date':
-                self.ytick_major_pad = 5
-                self.fig_subplot_left = 0.1575
-        elif self.plot_type == 'stat_by_level':
-            self.fig_size = (16., 16.)
-            self.fig_subplot_top = 0.925
-            self.fig_subplot_bottom = 0.05
-            self.fig_subplot_right = 0.925
-            self.fig_subplot_left = 0.1
-            self.legend_frame_on = False
-            self.legend_bbox = (0.01, 0.995)
-            self.legend_ncol = 1
-            self.legend_font_size = 15
-            self.legend_loc = 'upper left'
-            self.fig_title_size = 18
-        elif self.plot_type in ['lead_by_level', 'date_by_level']:
-            self.fig_size = (16., 16.)
-            self.axis_title_pad = 5
-            self.axis_title_loc = 'left'
-            self.fig_subplot_top = 0.95
-            self.fig_subplot_bottom = 0.025
-            self.fig_subplot_right = 0.95
-            self.fig_subplot_left = 0.1
-            self.fig_title_size = 18
-        elif self.plot_type in ['precip_spatial_map', 'nohrsc_spatial_map']:
-            self.fig_size = (8., 6.)
-            self.fig_title_size = 13
-            self.fig_subplot_right = 0.975
-            self.fig_subplot_left = 0.025
-            self.axis_label_size = 12
-            self.xtick_label_size = 12
-            self.axis_tick_size = 13
-        elif self.plot_type == 'performance_diagram':
-            self.fig_size = (16., 16.)
-            self.fig_subplot_top = 0.9
-            self.fig_subplot_bottom = 0.175
-            self.fig_subplot_right = 0.85
-            self.fig_subplot_left = 0.075
-            self.legend_frame_on = True
-            self.legend_loc = 'upper center'
-            self.legend_ncol = 5
-            self.legend_font_size = 16
             self.fig_title_size = 18
         else:
             self.logger.error(f"{self.plot_type} not recognized")
@@ -210,30 +131,9 @@ class PlotSpecs:
                                   (string)
         """
         stat_plot_name_dict = {
-            'ACC': 'Anomaly Correlation Coefficient',
-            'BIAS': 'Bias (Mean Error) [Fcst-Obs]',
-            'CORR': 'Pearson Correlation Coefficient',
-            'CSI': 'Critical Success Index',
-            'ETS': 'Equitable Threat Score',
-            'FBAR': 'Forecast Mean',
             'FBAR_OBAR': 'Forecast and Observation Mean',
-            'FBIAS': 'Frequency Bias',
-            'FSS': 'Fraction Skill Score',
-            'FY_OY': 'Forecast:Yes,Obs:Yes',
-            'GSS': 'Gilbert Skill Score',
-            'HSS': 'Heidke Skill Score',
-            'ME': 'Mean Error (Bias) [Fcst-Obs]',
-            'OBAR': 'Observation Mean',
-            'POD': 'Probability of Detection',
-            'PERFDIAG': 'Performance Diagram',
+            'ME': 'Bias (Mean Error) [Fcst-Obs]',
             'RMSE': 'Root Mean Square Error',
-            'S1': 'S1 Score',
-            'SRATIO': 'Success Ratio (1-FAR)',
-            'STDEV_ERR': 'Standard Deviation of Error',
-            'MSESS': "Murphy's Mean Square Error Skill Score",
-            'RSD': 'Ratio of Standard Deviation',
-            'RMSE_MD': 'Root Mean Square Error from Mean Error',
-            'RMSE_PV': 'Root Mean Square Error from Pattern Variation'
         }
         if stat in list(stat_plot_name_dict.keys()):
             stat_plot_name = stat_plot_name_dict[stat]
@@ -256,246 +156,8 @@ class PlotSpecs:
         """
         var_name_level = var_name+'/'+var_level
         var_plot_name_dict = {
-            'APCP/A24': '24-hr Accumulated Precipitation',
-            'APCP_A24/A24': '24-hr Accumulated Precipitation',
-            'CAPE/P90-0': 'Mixed-Layer CAPE',
-            'CAPE/Z0': 'Surface Based CAPE',
-            'CFRZR/L0': 'Precipitation Type - Freezing Rain',
-            'CICEP/L0': 'Precipitation Type - Ice Pellets',
-            'CRAIN/L0': 'Precipitation Type - Rain',
-            'CSNOW/L0': 'Precipitation Type - Snow',
-            'CWAT/L0': 'Cloud Water',
-            'DPT/Z2': '2 meter Dewpoint',
-            'GUST/Z0': 'Surface Wind Gust',
-            'HGT/CEILING': 'Ceiling',
-            'HGT/all': 'Geopotential Height - All Levels',
-            'HGT/trop': 'Geopotential Height - Troposphere',
-            'HGT/ltrop': 'Geopotential Height - Lower Troposphere',
-            'HGT/utrop': 'Geopotential Height - Upper Troposphere',
-            'HGT/strat': 'Geopotential Height - Stratosphere',
-            'HGT/P1': '1 hPa Geopotential Height',
-            'HGT/P5': '5 hPa Geopotential Height',
-            'HGT/P10': '10 hPa Geopotential Height',
-            'HGT/P20': '20 hPa Geopotential Height',
-            'HGT/P50': '50 hPa Geopotential Height',
-            'HGT/P100': '100 hPa Geopotential Height',
-            'HGT/P150': '150 hPa Geopotential Height',
-            'HGT/P200': '200 hPa Geopotential Height',
-            'HGT/P250': '250 hPa Geopotential Height',
-            'HGT/P300': '300 hPa Geopotential Height',
-            'HGT/P400': '400 hPa Geopotential Height',
-            'HGT/P500': '500 hPa Geopotential Height',
-            'HGT/P700': '700 hPa Geopotential Height',
-            'HGT/P850': '850 hPa Geopotential Height',
-            'HGT/P925': '925 hPa Geopotential Height',
-            'HGT/P1000': '1000 hPa Geopotential Height',
-            'HGT/TROPOPAUSE': 'Tropopause Geopotential Height',
-            'HGT/L0': 'Tropopause Geopotential Height',
-            'HGT_ANOM_DAILYAVG/P500': ('500 hPa Daily Avg '
-                                       +'Geopotential Height Anomaly'),
-            'HGT_WV1_0-3/P250': ('250 hPa Geopotential Height: '
-                                 +'Waves 0-3'),
-            'HGT_WV1_0-20/P250': ('250 hPa Geopotential Height: '
-                                  +'Waves 0-20'),
-            'HGT_WV1_4-9/P250': ('250 hPa Geopotential Height: '
-                                 +'Waves 4-9'),
-            'HGT_WV1_10-20/P250': ('250 hPa Geopotential Height: '
-                                   +'Waves 10-20'),
-            'HGT_WV1_0-3/P500': ('500 hPa Geopotential Height: '
-                                        +'Waves 0-3'),
-            'HGT_WV1_0-20/P500': ('500 hPa Geopotential Height: '
-                                         +'Waves 0-20'),
-            'HGT_WV1_4-9/P500': ('500 hPa Geopotential Height: '
-                                        +'Waves 4-9'),
-            'HGT_WV1_10-20/P500': ('500 hPa Geopotential Height: '
-                                          +'Waves 10-20'),
-            'HGT_WV1_0-3/P700': ('700 hPa Geopotential Height: '
-                                 +'Waves 0-3'),
-            'HGT_WV1_0-20/P700': ('700 hPa Geopotential Height: '
-                                  +'Waves 0-20'),
-            'HGT_WV1_4-9/P700': ('700 hPa Geopotential Height: '
-                                 +'Waves 4-9'),
-            'HGT_WV1_10-20/P700': ('700 hPa Geopotential Height: '
-                                   +'Waves 10-20'),
-            'HGT_WV1_0-3/P1000': ('1000 hPa Geopotential Height: '
-                                  +'Waves 0-3'),
-            'HGT_WV1_0-20/P1000': ('1000 hPa Geopotential Height: '
-                                   +'Waves 0-20'),
-            'HGT_WV1_4-9/P1000': ('1000 hPa Geopotential Height: '
-                                 +'Waves 4-9'),
-            'HGT_WV1_10-20/P1000': ('1000 hPa Geopotential Height: '
-                                   +'Waves 10-20'),
-            'HPBL/L0': 'Planetary Boundary Layer Height',
-            'ICEC_DAILYAVG/Z0': 'Daily Avg Ice Concentration',
             'ICEC_Z0_mean/Z0': 'Daily Avg Ice Concentration',
-            'ICEEX_DAILYAVG/Z0': 'Daily Avg Ice Extent',
-            'O3MR/all': 'Ozone Mixing Ratio - All Levels',
-            'O3MR/trop': 'Ozone Mixing Ratio - Troposphere',
-            'O3MR/ltrop': 'Ozone Mixing Ratio - Lower Troposphere',
-            'O3MR/utrop': 'Ozone Mixing Ratio - Upper Troposphere',
-            'O3MR/strat': 'Ozone Mixing Ratio - Stratosphere',
-            'O3MR/P1': '1 hPa Ozone Mixing Ratio',
-            'O3MR/P5': '5 hPa Ozone Mixing Ratio',
-            'O3MR/P10': '10 hPa Ozone Mixing Ratio',
-            'O3MR/P20': '20 hPa Ozone Mixing Ratio',
-            'O3MR/P30': '30 hPa Ozone Mixing Ratio',
-            'O3MR/P50': '50 hPa Ozone Mixing Ratio',
-            'O3MR/P70': '70 hPa Ozone Mixing Ratio',
-            'O3MR/P100': '100 hPa Ozone Mixing Ratio',
-            'O3MR/P925': '925 hPa Ozone Mixing Ratio',
-            'PRES/TROPOPAUSE': 'Tropopause Pressure',
-            'PRES/L0': 'Tropopause Pressure',
-            'PRES/Z0': 'Surface Pressure',
-            'PRMSL/Z0': 'Pressure Reduced to MSL',
-            'PWAT/L0': 'Precipitable Water',
-            'RH/all': 'Relative Humidity - All Levels',
-            'RH/trop': 'Relative Humidity - Troposphere',
-            'RH/ltrop': 'Relative Humidity - Lower Troposphere',
-            'RH/utrop': 'Relative Humidity - Upper Troposphere',
-            'RH/strat': 'Relative Humidity - Stratosphere',
-            'RH/P1': '1 hPa Relative Humidity',
-            'RH/P5': '5 hPa Relative Humidity',
-            'RH/P10': '10 hPa Relative Humidity',
-            'RH/P20': '20 hPa Relative Humidity',
-            'RH/P50': '50 hPa Relative Humidity',
-            'RH/P100': '100 hPa Relative Humidity',
-            'RH/P150': '150 hPa Relative Humidity',
-            'RH/P200': '200 hPa Relative Humidity',
-            'RH/P250': '250 hPa Relative Humidity',
-            'RH/P300': '300 hPa Relative Humidity',
-            'RH/P400': '400 hPa Relative Humidity',
-            'RH/P500': '500 hPa Relative Humidity',
-            'RH/P700': '700 hPa Relative Humidity',
-            'RH/P850': '850 hPa Relative Humidity',
-            'RH/P925': '925 hPa Relative Humidity',
-            'RH/P1000': '1000 hPa Relative Humidity',
-            'RH/Z2': '2 meter Relative Humidity',
-            'SNOD_A24/Z0': '24-hr Snow Accumulation (SNOD)',
-            'SOILW/Z10-0': '10-0 cm Volumetric Soil Moisture Content',
-            'SPFH/all': 'Specific Humidity - All Levels',
-            'SPFH/trop': 'Specific Humidity - Troposphere',
-            'SPFH/ltrop': 'Specific Humidity - Lower Troposphere',
-            'SPFH/utrop': 'Specific Humidity - Upper Troposphere',
-            'SPFH/strat': 'Specific Humidity - Stratosphere',
-            'SPFH/P1': '1 hPa Specific Humidity',
-            'SPFH/P5': '5 hPa Specific Humidity',
-            'SPFH/P10': '10 hPa Specific Humidity',
-            'SPFH/P20': '20 hPa Specific Humidity',
-            'SPFH/P50': '50 hPa Specific Humidity',
-            'SPFH/P100': '100 hPa Specific Humidity',
-            'SPFH/P150': '150 hPa Specific Humidity',
-            'SPFH/P200': '200 hPa Specific Humidity',
-            'SPFH/P250': '250 hPa Specific Humidity',
-            'SPFH/P300': '300 hPa Specific Humidity',
-            'SPFH/P400': '400 hPa Specific Humidity',
-            'SPFH/P500': '500 hPa Specific Humidity',
-            'SPFH/P700': '700 hPa Specific Humidity',
-            'SPFH/P850': '850 hPa Specific Humidity',
-            'SPFH/P925': '925 hPa Specific Humidity',
-            'SPFH/P1000': '1000 hPa Specific Humidity',
-            'SPFH/Z2': '2 meter Specific Humidity',
-            'SST_DAILYAVG/Z0': 'Daily Avg Sea Surface Temperature',
-            'TCDC/TOTAL': 'Total Cloud Cover',
-            'TMP/all': 'Temperature - All Levels',
-            'TMP/trop': 'Temperature - Troposphere',
-            'TMP/ltrop': 'Temperature - Lower Troposphere',
-            'TMP/utrop': 'Temperature - Upper Troposphere',
-            'TMP/strat': 'Temperature - Stratosphere',
-            'TMP/P1': '1 hPa Temperature',
-            'TMP/P5': '5 hPa Temperature',
-            'TMP/P10': '10 hPa Temperature',
-            'TMP/P20': '20 hPa Temperature',
-            'TMP/P50': '50 hPa Temperature',
-            'TMP/P100': '100 hPa Temperature',
-            'TMP/P150': '150 hPa Temperature',
-            'TMP/P100': '100 hPa Temperature',
-            'TMP/P200': '200 hPa Temperature',
-            'TMP/P250': '250 hPa Temperature',
-            'TMP/P300': '300 hPa Temperature',
-            'TMP/P400': '400 hPa Temperature',
-            'TMP/P500': '500 hPa Temperature',
-            'TMP/P700': '700 hPa Temperature',
-            'TMP/P850': '850 hPa Temperature',
-            'TMP/P925': '925 hPa Temperature',
-            'TMP/P1000': '1000 hPa Temperature',
-            'TMP/TROPOPAUSE': 'Tropopause Temperature',
-            'TMP/L0': 'Tropopause Temperature',
-            'TMP/Z2': '2 meter Temperature',
-            'TMP/Z0': 'Surface Temperature',
-            'TMP_Z0_mean/Z0': 'Daily Average Surface Temperature',
-            'TMP_ANOM_DAILYAVG/Z2': '2 meter Daily Avg Temperature Anomaly',
-            'TOZNE/L0': 'Total Ozone (Dobson)',
-            'TSOIL/Z10-0': '10-0 cm Soil Temperature',
-            'UGRD/all': 'U-Component of Wind - All Levels',
-            'UGRD/trop': 'U-Component of Wind - Troposphere',
-            'UGRD/ltrop': 'U-Component of Wind - Lower Troposphere',
-            'UGRD/utrop': 'U-Component of Wind - Upper Troposphere',
-            'UGRD/strat': 'U-Component of Wind - Stratosphere',
-            'UGRD/P1': '1 hPa U-Component of Wind',
-            'UGRD/P5': '5 hPa U-Component of Wind',
-            'UGRD/P10': '10 hPa U-Component of Wind',
-            'UGRD/P20': '20 hPa U-Component of Wind',
-            'UGRD/P50': '50 hPa U-Component of Wind',
-            'UGRD/P100': '100 hPa U-Component of Wind',
-            'UGRD/P150': '150 hPa U-Component of Wind',
-            'UGRD/P200': '200 hPa U-Component of Wind',
-            'UGRD/P250': '250 hPa U-Component of Wind',
-            'UGRD/P300': '300 hPa U-Component of Wind',
-            'UGRD/P400': '400 hPa U-Component of Wind',
-            'UGRD/P500': '500 hPa U-Component of Wind',
-            'UGRD/P700': '700 hPa U-Component of Wind',
-            'UGRD/P850': '850 hPa U-Component of Wind',
-            'UGRD/P925': '925 hPa U-Component of Wind',
-            'UGRD/P1000': '1000 hPa U-Component of Wind',
-            'UGRD/Z10': '10 meter U-Component of Wind',
-            'UGRD_VGRD/all': 'Vector Wind - All Levels',
-            'UGRD_VGRD/trop': 'Vector Wind - Troposphere',
-            'UGRD_VGRD/ltrop': 'Vector Wind - Lower Troposphere',
-            'UGRD_VGRD/utrop': 'Vector Wind - Upper Troposphere',
-            'UGRD_VGRD/strat': 'Vector Wind - Stratosphere',
-            'UGRD_VGRD/P1': '1 hPa Vector Wind',
-            'UGRD_VGRD/P5': '5 hPa Vector Wind',
-            'UGRD_VGRD/P10': '10 hPa Vector Wind',
-            'UGRD_VGRD/P20': '20 hPa Vector Wind',
-            'UGRD_VGRD/P50': '50 hPa Vector Wind',
-            'UGRD_VGRD/P100': '100 hPa Vector Wind',
-            'UGRD_VGRD/P150': '150 hPa Vector Wind',
-            'UGRD_VGRD/P200': '200 hPa Vector Wind',
-            'UGRD_VGRD/P250': '250 hPa Vector Wind',
-            'UGRD_VGRD/P300': '300 hPa Vector Wind',
-            'UGRD_VGRD/P400': '400 hPa Vector Wind',
-            'UGRD_VGRD/P500': '500 hPa Vector Wind',
-            'UGRD_VGRD/P700': '700 hPa Vector Wind',
-            'UGRD_VGRD/P850': '850 hPa Vector Wind',
-            'UGRD_VGRD/P925': '925 hPa Vector Wind',
-            'UGRD_VGRD/P1000': '1000 hPa Vector Wind',
-            'UGRD_VGRD/Z10': '10 meter Vector Wind',
-            'VIS/Z0': 'Visibility',
-            'VGRD/all': 'V-Component of Wind - All Levels',
-            'VGRD/trop': 'V-Component of Wind - Troposphere',
-            'VGRD/ltrop': 'V-Component of Wind - Lower Troposphere',
-            'VGRD/utrop': 'V-Component of Wind - Upper Troposphere',
-            'VGRD/strat': 'V-Component of Wind - Stratosphere',
-            'VGRD/P1': '1 hPa V-Component of Wind',
-            'VGRD/P5': '5 hPa V-Component of Wind',
-            'VGRD/P10': '10 hPa V-Component of Wind',
-            'VGRD/P20': '20 hPa V-Component of Wind',
-            'VGRD/P50': '50 hPa V-Component of Wind',
-            'VGRD/P100': '100 hPa V-Component of Wind',
-            'VGRD/P150': '150 hPa V-Component of Wind',
-            'VGRD/P200': '200 hPa V-Component of Wind',
-            'VGRD/P250': '250 hPa V-Component of Wind',
-            'VGRD/P300': '300 hPa V-Component of Wind',
-            'VGRD/P400': '400 hPa V-Component of Wind',
-            'VGRD/P500': '500 hPa V-Component of Wind',
-            'VGRD/P700': '700 hPa V-Component of Wind',
-            'VGRD/P850': '850 hPa V-Component of Wind',
-            'VGRD/P925': '925 hPa V-Component of Wind',
-            'VGRD/P1000': '1000 hPa V-Component of Wind',
-            'VGRD/Z10': '10 meter V-Component of Wind',
-            'WEASD/Z0': 'Water Equivalent of Accumulated Snow Depth',
-            'WEASD_A24/Z0': '24-hr Snow Accumulation (WEASD)',
-            'WNDSHR/P850-P200': 'Wind Shear (850-200 hPa)'
+            'TMP_Z0_mean/Z0': 'Daily Average Surface/Skin Temperature',
         }
         if var_name_level in list(var_plot_name_dict.keys()):
             var_plot_name = var_plot_name_dict[var_name_level]
@@ -516,18 +178,7 @@ class PlotSpecs:
                                  (string)
         """
         obs_plot_name_dict = {
-            'ecmwf': 'ECMWF Anl',
-            'gfs': 'GFS Anl',
-            'gfs_anl': "Model's Own Anl.",
-            '24hrCCPA': 'CCPA',
-            '24hrNOHRSC': 'NOHRSC',
-            'osi_saf': 'OSI-SAF',
             'ghrsst_ospo': 'GHRSST-OSPO',
-            'ADPSFC': 'METARS',
-            'gfsv16': "Model's Own Anl.",
-            'gfsv16_anl': "Model's Own Anl.",
-            'gfsv17': "Model's Own Anl.",
-            'gfsv17_anl': "Model's Own Anl."
         }
         if ob_name in list(obs_plot_name_dict.keys()):
             obs_plot_name = obs_plot_name_dict[ob_name]
@@ -548,51 +199,16 @@ class PlotSpecs:
                                      (string)
         """
         vx_mask_plot_name_dict = {
-             'Alaska': 'Alaska',
-             'ANTARCTIC': 'Antarctic 50S-90S',
-             'Appalachia': 'Appalachia',
-             'ARCTIC': 'Arctic 50N-90N',
-             'ATL_MDR': 'Atlantic Main Development Region',
-             'CONUS': 'CONUS',
-             'CONUS_Central': 'CONUS - Central',
-             'CONUS_East': 'CONUS - East',
-             'CONUS_South': 'CONUS - South',
-             'CONUS_West': 'CONUS - West',
-             'CPlains': 'Central Plains',
-             'DeepSouth': 'Deep South',
-             'EPAC_MDR': 'East Pacific Main Development Region',
-             'G002': 'Global',
-             'GreatBasin': 'Great Basin',
-             'GreatLakes': 'Great Lakes',
-             'Mezquital': 'Mezquital',
-             'MidAtlantic': 'Mid-Atlantic',
-             'N60': '60N-90N',
-             'NAO': 'Northern Atlantic Ocean',
-             'NPO': 'Northern Pacific Ocean',
-             'NHX': 'Northern Hemisphere 20N-80N',
-             'NH': 'Northern Hemisphere 20N-90N',
-             'NorthAtlantic': 'Northeast (North Atlantic)',
-             'NPlains': 'Northern Plains',
-             'NRockies': 'Northern Rockies',
-             'PacificNW': 'Pacific Northwest',
-             'PacificSW': 'Pacific Southwest',
-             'PNA': 'Pacific North America',
-             'POLAR': 'Polar 60S-90S and 50N-90N',
-             'Prairie': 'Prairie',
-             'S60': '60S-90S',
-             'SAO': 'Southern Atlantic Ocean',
-             'SEA_ICE': 'Sea-Ice Covered',
-             'SEA_ICE_POLAR': 'Polar - Sea-Ice Covered',
-             'SEA_ICE_FREE': 'Sea-Ice Free',
-             'SEA_ICE_FREE_POLAR': 'Polar - Sea-Ice Free',
-             'SPO': 'Southern Pacific Ocean',
-             'SHX': 'Southern Hemisphere 20S-80S',
-             'SH': 'Southern Hemisphere 20N-90N',
-             'Southeast': 'Southeast',
-             'Southwest': 'Southwest',
-             'SPlains': 'Southern Plains',
-             'SRockies': 'Southern Rockies',
-             'TRO': 'Tropics 20S-20N',
+            'SEA_ICE_ANTARCTIC': 'Antarctic (60S-90S)',
+            'SEA_ICE_ARCTIC': 'Arctic (60N-90N)',
+            'SEA_ICE_NH': 'Northern Hemisphere (20N-90N)',
+            'SEA_ICE_POLAR': 'Polar (60S-90S and 60N-90N)',
+            'SEA_ICE_SH': 'Southern Hemisphere (20S-90S)',
+            'WATER_ANTARCTIC': 'Antarctic (60S-90S, Water Only)',
+            'WATER_ARCTIC': 'Arctic (60N-90N, Water Only)',
+            'WATER_NH': 'Northern Hemisphere (20N-90N, Water Only)',
+            'WATER_POLAR': 'Polar (60S-90S and 60N-90N, Water Only)',
+            'WATER_SH': 'Southern Hemisphere (20S-90S, Water Only)',
         }
         if vx_mask in list(vx_mask_plot_name_dict.keys()):
             vx_mask_plot_name = vx_mask_plot_name_dict[vx_mask]
@@ -662,8 +278,7 @@ class PlotSpecs:
             title_other_hr_list.sort()
             date_plot_name = (date_plot_name+', '.join(plot_by_hr_list)
                               +', valid: '+', '.join(title_other_hr_list))
-        if plot_type not in ['lead_average', 'valid_hour_average',
-                             'lead_by_date', 'lead_by_level']:
+        if plot_type not in ['lead_average']:
             forecast_day_list = []
             for forecast_hour in forecast_hour_list:
                 forecast_day = int(forecast_hour)/24.
@@ -730,49 +345,18 @@ class PlotSpecs:
                                 +int(date_info_dict['valid_hr_inc']),
                                 int(date_info_dict['valid_hr_inc']))
             ]
-        if self.plot_type in ['time_series', 'stat_by_level',
-                              'date_by_level',
-                              'performance_diagram', 'threshold_average']:
+        if self.plot_type == 'time_series':
             fhr_for_title = [date_info_dict['forecast_hour']]
         else:
             fhr_for_title = date_info_dict['forecast_hours']
-        if plot_info_dict['interp_method'] in ['WV1_0-20', 'WV1_0-3',
-                                               'WV1_4-9', 'WV1_10-20']:
-            var_name_for_title = (plot_info_dict['fcst_var_name']
-                                  +'_'+plot_info_dict['interp_method'])
-        else:
-            var_name_for_title = plot_info_dict['fcst_var_name']
-        if self.plot_type in ['stat_by_level', 'lead_by_level', 
-                              'date_by_level']:
-            var_level_for_title = plot_info_dict['vert_profile']
-        else:
-            var_level_for_title = plot_info_dict['fcst_var_level']
-        if self.plot_type in ['performance_diagram', 'threshold_average']:
-            var_thresh_for_title = 'NA'
-        else:
-            var_thresh_for_title = plot_info_dict['fcst_var_thresh']
-        if plot_info_dict['fcst_var_name'] == 'CAPE' \
-                and plot_info_dict['stat'] in ['RMSE', 'BIAS', 'ME',
-                                               'FBAR_OBAR']:
-            var_thresh_for_title = 'NA'
+        var_name_for_title = plot_info_dict['fcst_var_name']
+        var_level_for_title = plot_info_dict['fcst_var_level']
+        var_thresh_for_title = plot_info_dict['fcst_var_thresh']
         plot_title = (plot_title
                       +self.get_var_plot_name(var_name_for_title,
                                               var_level_for_title))
-        if plot_info_dict['fcst_var_name'] == 'ICEEX_DAILYAVG' \
-                and units == '10^6_km^2':
-            units = 'x'+units.replace('_', ' ')
         plot_title = plot_title+' '+'('+units+')'
-        if var_thresh_for_title != 'NA'\
-               and plot_info_dict['fcst_var_name'] not in ['SST_DAILYAVG']:
-            plot_title = plot_title+', '+var_thresh_for_title.replace('||','')+' '+units
-            if plot_info_dict['fcst_var_name'] == 'APCP':
-                thresh_value = float(plot_info_dict['fcst_var_thresh'][2:])
-                thresh_in = round(thresh_value*0.0393701, 3)
-                plot_title = plot_title+' ('+str(thresh_in)+' in)'
-        if plot_info_dict['interp_method'] == 'NBRHD_SQUARE':
-            plot_title = (plot_title+' '
-                          +'Neighborhood Pts: '
-                          +plot_info_dict['interp_points'])
+        #plot_title = plot_title+', '+var_thresh_for_title.replace('||','')+' '+units
         plot_title = (plot_title+'\n'
                       +self.get_dates_plot_name(date_info_dict['plot_by'],
                                                 date_info_dict['start_date'],
@@ -795,64 +379,24 @@ class PlotSpecs:
                               be saved as (string)
         """
         component_savefig_name = plot_info_dict['RUN_CASE']
-        if plot_info_dict['stat'] == 'PERFDIAG':
-            metric_savefig_name = 'ctc'
-        else:
-            metric_savefig_name = plot_info_dict['stat']
-        if plot_info_dict['interp_method'] == 'NBRHD_SQUARE':
-            nwidth = int(np.sqrt(float(plot_info_dict['interp_points'])))
-            metric_savefig_name = (
-                metric_savefig_name+'_'
-                +'width'+str(nwidth)
-            )
+        metric_savefig_name = plot_info_dict['stat']
         if 'fcst_var_thresh' in list(plot_info_dict.keys()):
             if plot_info_dict['fcst_var_thresh'] != 'NA':
                 thresh_symbol, thresh_letter = vfg_util.format_thresh(
                     plot_info_dict['fcst_var_thresh']
                 )
-                if plot_info_dict['fcst_var_name'] not in ['SST_DAILYAVG']:
-                   metric_savefig_name = (
-                       metric_savefig_name+'_'
-                       +thresh_letter.replace('.','p').replace('||','')
-                )
         parameter_savefig_name = plot_info_dict['fcst_var_name']
-        if plot_info_dict['interp_method'] in ['WV1_0-20', 'WV1_0-3',
-                                               'WV1_4-9', 'WV1_10-20']:
-            parameter_savefig_name = (
-                parameter_savefig_name+'_'
-                +plot_info_dict['interp_method'].replace('WV1_', '')\
-                .replace('-', '_')
-            )
         level_savefig_name = (
             plot_info_dict['fcst_var_level'].replace('-', '_')\
             .replace('.', 'p')
         )
         if self.plot_type == 'time_series':
             plot_type_savefig_name = 'timeseries'
-        elif self.plot_type == 'time_series_multifhr':
-            plot_type_savefig_name = 'timeseries'
         elif self.plot_type == 'lead_average':
             plot_type_savefig_name = 'fhrmean'
-        elif self.plot_type == 'lead_by_date':
-            plot_type_savefig_name = 'leaddate'
-        elif self.plot_type == 'lead_by_level':
-            plot_type_savefig_name = 'vertprof_fhrmean'
-        elif self.plot_type == 'date_by_level':
-            plot_type_savefig_name = 'vertprof_date'
-        elif self.plot_type == 'performance_diagram':
-            plot_type_savefig_name = 'perfdiag'
-        elif self.plot_type == 'stat_by_level':
-            plot_type_savefig_name = 'vertprof'
-        elif self.plot_type == 'threshold_average':
-            plot_type_savefig_name = 'threshmean'
-        elif self.plot_type == 'valid_hour_average':
-            plot_type_savefig_name = 'vhrmean'
         else:
             plot_type_savefig_name = self.plot_type.replace('_', '')
-        if self.plot_type in ['time_series', 'time_series_multifhr',
-                              'lead_average', 'stat_by_level', 'lead_by_level',
-                              'lead_by_date', 'date_by_level',
-                              'performance_diagram', 'threshold_average']:
+        if self.plot_type in ['time_series', 'lead_average']:
             plot_type_savefig_name = plot_type_savefig_name+'_valid'
             valid_hr = int(date_info_dict['valid_hr_start'])
             while valid_hr <= int(date_info_dict['valid_hr_end']):
@@ -860,58 +404,23 @@ class PlotSpecs:
                                           +str(valid_hr).zfill(2))
                 valid_hr+=int(date_info_dict['valid_hr_inc'])
             plot_type_savefig_name = plot_type_savefig_name+'Z'
-        if self.plot_type in ['time_series', 'date_by_level',
-                              'stat_by_level', 'performance_diagram',
-                              'threshold_average']:
+        if self.plot_type == 'time_series':
             plot_type_savefig_name = (
                  plot_type_savefig_name+'_'
                  +'f'+date_info_dict['forecast_hour'].zfill(3)
             )
-        elif self.plot_type == 'time_series_multifhr':
-            plot_type_savefig_name = (
-                 plot_type_savefig_name+'_'
-                 +''.join(['f'+f.zfill(3) for \
-                            f in date_info_dict['forecast_hours']])
-            )
         grid_savefig_name = plot_info_dict['grid']
         region_savefig_dict = {
-            'Alaska': 'alaska',
-            'Appalachia': 'buk_apl',
-            'ANTARCTIC': 'antarctic',
-            'ARCTIC': 'arctic',
-            'ATL_MDR': 'al_mdr',
-            'CONUS': 'CONUS',
-            'CONUS_East': 'buk_conus_e',
-            'CONUS_Central': 'buk_conus_c',
-            'CONUS_South': 'buk_conus_s',
-            'CONUS_West': 'buk_conus_w',
-            'CPlains': 'buk_cpl',
-            'DeepSouth': 'buk_ds',
-            'EPAC_MDR': 'ep_mdr',
-            'G002': 'glb',
-            'GreatBasin': 'buk_grb',
-            'GreatLakes': 'buk_grlk',
-            'Mezqutial': 'buk_mez',
-            'MidAtlantic': 'buk_matl',
-            'N60': 'N60',
-            'NAO': 'NAO',
-            'NHX': 'NHX',
-            'NorthAtlantic': 'buk_ne',
-            'NPlains': 'buk_npl',
-            'NPO': 'NPO',
-            'NRockies': 'buk_nrk',
-            'PacificNW': 'buk_npw',
-            'PacificSW': 'buk_psw',
-            'Prairie': 'buk_pra',
-            'S60': 'S60',
-            'SAO': 'SAO',
-            'SHX': 'SHX',
-            'Southeast': 'buk_se',
-            'Southwest': 'buk_sw',
-            'SPlains': 'buk_spl',
-            'SPO': 'SPO',
-            'SRockies': 'buk_srk',
-            'TRO': 'TRO'
+            'SEA_ICE_ANTARCTIC': 'antarctic',
+            'SEA_ICE_ARCTIC': 'arctic',
+            'SEA_ICE_NH': 'nh', 
+            'SEA_ICE_POLAR': 'polar',
+            'SEA_ICE_SH': 'sh',
+            'WATER_ANTARCTIC': 'antarctic',
+            'WATER_ARCTIC': 'arctic',
+            'WATER_NH': 'nh',
+            'WATER_POLAR': 'polar',
+            'WATER_SH': 'sh',
         }
         if plot_info_dict['vx_mask'] in list(region_savefig_dict.keys()):
             region_savefig_name = (
@@ -927,11 +436,6 @@ class PlotSpecs:
             +grid_savefig_name+'_'+region_savefig_name
             +'.png'
         ).lower()
-        if plot_info_dict['fcst_var_name'] == 'CAPE':
-            savefig_name = (savefig_name.replace('_z0', '_l0')\
-                            .replace('_p90_0', '_l90'))
-            if plot_info_dict['stat'] in ['RMSE', 'BIAS', 'ME', 'FBAR_OBAR']:
-                savefig_name = savefig_name.replace('_gt0||', '')
         image_path = os.path.join(image_dir, savefig_name)
         return image_path
 
@@ -972,199 +476,6 @@ class PlotSpecs:
                 x_loc = x_figsize * dpi * 0.948
                 y_loc = y_figsize * dpi * 0.945
         return x_loc, y_loc, alpha
-
-    def get_plot_colormaps(self, stat):
-        """! Get colormaps for contour plots
-
-             Args:
-                 stat    - statistic name (string)
-
-             Returns:
-                 subplot0_cmap  - colormap for subplot 0
-                 subplotsN_cmap - colormap for other subplots
-        """
-        if stat in ['BIAS', 'ME', 'FBIAS']:
-            cmap_bias_original = plt.cm.PiYG_r
-            colors_bias = cmap_bias_original(
-                np.append(np.linspace(0,0.3,10), np.linspace(0.7,1,10))
-            )
-            subplot0_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-                'cmap_bias', colors_bias
-            )
-        else:
-            subplot0_cmap = plt.cm.BuPu_r
-        if stat in ['BIAS', 'ME', 'FBIAS']:
-            subplotsN_cmap = subplot0_cmap
-        else:
-            if stat in ['RMSE', 'RMSE_MD', 'RMSE_PV', 'FBAR_OBAR']:
-                cmap_diff_original = plt.cm.bwr
-            else:
-                cmap_diff_original = plt.cm.bwr_r
-            colors_diff = cmap_diff_original(
-                np.append(np.linspace(0,0.425,10), np.linspace(0.575,1,10))
-            )
-            subplotsN_cmap = (
-                matplotlib.colors.LinearSegmentedColormap.from_list('cmap_diff',
-                                                                    colors_diff)
-            )
-        return subplot0_cmap, subplotsN_cmap
-
-    def get_centered_contour_levels(self, data, center_value, spacing):
-        """! Get contour levels for plotting levels center on a certain
-             value
-                  Args:
-                      data         - array of data to be contoured
-                      center_value - center value of the levels (integer)
-                      spacing      - float for spacing for power function,
-                                     value of 1.0 gives evenly spaced
-                                     contour intervals
-                  Returns:
-                      center_clevels - array of contour levels
-        """
-        if np.abs(np.nanmin(data)) > np.nanmax(data):
-            cmax = np.abs(np.nanmin(data))
-            cmin = np.nanmin(data)
-        else:
-            cmax = np.nanmax(data)
-            cmin = -1 * np.nanmax(data)
-        if cmax > 100:
-            cmax = cmax - (cmax * 0.2)
-            cmin = cmin + (cmin * 0.2)
-        elif cmax > 10:
-            cmax = cmax - (cmax * 0.1)
-            cmin = cmin + (cmin * 0.1)
-        if cmax > 1:
-            cmin = round(cmin-1,0)
-            cmax = round(cmax+1,0)
-        else:
-            cmin = round(cmin-0.1,1)
-            cmax = round(cmax+0.1,1)
-        steps = 6
-        span = cmax
-        dx = 1.0 / (steps-1)
-        pos = np.array([0 + (i*dx)**spacing*span for i in range(steps)],
-                       dtype=float)
-        neg = np.array(pos[1:], dtype=float) * -1
-        centered_clevels = np.append(neg[::-1], pos)
-        if center_value != 0:
-            centered_clevels = centered_clevels + center_value
-        return centered_clevels
-
-    def get_plot_contour_levels(self, stat, subplot0_data, subplotsN_data):
-        """! Get contour levels
-
-             Args:
-                 stat           - statistic name (string)
-                 subplot0_data  - array of data for subplot 0
-                 subplotsN_data - array of data for other subplots
-
-             Returns:
-                 have_subplot0_levs  - boolean if have valid values
-                                       subplot 0
-                 subplot0_levs       - array of contour levels for
-                                       subplot 0
-                 have_subplotsN_levs - boolean if have valid values
-                                       other subplots
-                 subplotsN_levs      - array of contour levels for
-                                       other subplots
-        """
-        have_subplot0_levs = False
-        subplot0_levs = np.array([np.nan])
-        if stat == 'ACC':
-            have_subplot0_levs = True
-            subplot0_levs = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8,
-                                      0.9, 0.95, 0.99, 1])
-        elif not np.ma.masked_invalid(subplot0_data).mask.all():
-            cmax = np.nanmax(subplot0_data)
-            if cmax > 100:
-                spacing = 2.25
-            elif cmax > 10:
-                spacing = 2
-            else:
-                spacing = 1.75
-            if stat in ['RMSE', 'RMSE_MD', 'RMSE_PV']:
-                steps = 12
-                dx = 1.0 / (steps-1)
-                have_subplot0_levs = True
-                subplot0_levs = np.array(
-                    [0+(i*dx)**spacing*cmax for i in range(steps)],
-                    dtype=float
-                )
-            elif stat in ['BIAS', 'ME', 'FBIAS']:
-                if stat in ['BIAS', 'ME']:
-                    center_value = 0
-                elif stat == 'FBIAS':
-                    center_value = 1
-                have_subplot0_levs = True
-                subplot0_levs = self.get_centered_contour_levels(
-                    subplot0_data, center_value, spacing
-                )
-        have_subplotsN_levs = False
-        subplotsN_levs = np.array([np.nan])
-        if stat == 'ACC':
-            have_subplotsN_levs = True
-            subplotsN_levs = np.array([-0.5, -0.4, -0.3, -0.2, -0.1, -0.05,
-                                       0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
-        else:
-            if np.shape(subplotsN_data) != np.shape([np.nan]):
-                if stat in ['BIAS', 'ME', 'FBIAS']:
-                    have_subplotsN_levs = have_subplot0_levs
-                    subplotsN_levs = subplot0_levs
-                if not have_subplotsN_levs:
-                    for N in range(len(np.array(subplotsN_data)[:,0,0])):
-                        if stat in ['BIAS', 'ME', 'FBIAS']:
-                            subplotN_data = np.array(subplotsN_data)[N,:,:]
-                            if np.nanmax(subplotN_data) > 100:
-                                spacing = 2.25
-                            elif np.nanmax(subplotN_data) > 100:
-                                spacing = 2
-                            else:
-                                spacing = 1.75
-                            if stat in ['BIAS', 'ME']:
-                                center_value = 0
-                            elif stat == 'FBIAS':
-                                center_value = 1
-                        else:
-                            subplotN_data = (np.array(subplotsN_data)[N,:,:]
-                                             - subplot0_data)
-                            center_value = 0
-                            spacing = 1.25
-                        if not np.ma.masked_invalid(subplotN_data).mask.all():
-                            have_subplotsN_levs = True
-                            subplotsN_levs = self.get_centered_contour_levels(
-                                subplotN_data, center_value, spacing
-                            )
-                            break
-        return have_subplot0_levs, subplot0_levs, have_subplotsN_levs, subplotsN_levs
-
-    def get_vert_profile_levels(self, vert_profile):
-        """! Get list of levels that make up the vertical profile
-
-             Args:
-                vert_profile - name of vertical profile (string)
-
-             Returns:
-                 vert_profile_levs - list of pressure levels that
-                                     make up the vertical profile
-                                     (strings)
-        """
-        vert_profile_levels_dict = {
-            'all': ['P1000', 'P850', 'P700', 'P500',
-                    'P200', 'P100', 'P50', 'P20', 'P10',
-                    'P5', 'P1'],
-            'ltrop': ['P1000', 'P850', 'P700', 'P500'],
-            'utrop': ['P500', 'P200', 'P100'],
-            'trop': ['P1000', 'P850', 'P700', 'P500',
-                     'P200', 'P100'],
-            'strat': ['P100', 'P50', 'P20', 'P10', 'P5', 'P1']
-        }
-        if vert_profile in list(vert_profile_levels_dict.keys()):
-            vert_profile_levels = vert_profile_levels_dict[vert_profile]
-        else:
-            self.logger.debug(f"{vert_profile} not recognized, "
-                              +f"using all levels")
-            vert_profile_levels = vert_profile_levels_dict['all']
-        return vert_profile_levels
 
     def get_marker_plot_settings(self):
         """! Get dictionary plot settings for models
@@ -1237,98 +548,5 @@ class PlotSpecs:
             'obs': {'color': '#aaaaaa',
                     'marker': 'None', 'markersize': 0,
                     'linestyle': 'solid', 'linewidth': 2},
-            'gfs': {'color': '#000000',
-                    'marker': 'o', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 3},
-            'gfsv16': {'color': '#000000',
-                    'marker': 'o', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 3},
-            'gfsv17': {'color': '#fb2020',
-                    'marker': 'o', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 3},
-            'gfs00Z': {'color': '#000000',
-                       'marker': 'o', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 3},
-            'gfs06Z': {'color': '#fb2020',
-                       'marker': '^', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'gfs12Z': {'color': '#1e3cff',
-                       'marker': 'X', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'gfs18Z': {'color': '#e69f00',
-                       'marker': 'o', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'cfs': {'color': '#56b4e9',
-                    'marker': 'o', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 1.5},
-            'cmc': {'color': '#1e3cff',
-                     'marker': 'X', 'markersize': 7,
-                     'linestyle': 'solid', 'linewidth': 1.5},
-            'cmc_regional': {'color': '#8400c8',
-                             'marker': 'D', 'markersize': 6,
-                             'linestyle': 'solid', 'linewidth': 1.5},
-            'dwd': {'color': '#56b4e9',
-                    'marker': 'o', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 1.5},
-            'ecmwf': {'color': '#fb2020',
-                      'marker': '^', 'markersize': 7,
-                      'linestyle': 'solid', 'linewidth': 1.5},
-            'fnmoc': {'color': '#00dc00',
-                      'marker': 'P', 'markersize': 7,
-                      'linestyle': 'solid', 'linewidth': 1.5},
-            'imd': {'color': '#8400c8',
-                    'marker': 'D', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 1.5},
-            'jma': {'color': '#696969',
-                    'marker': 's', 'markersize': 6,
-                    'linestyle': 'solid', 'linewidth': 1.5},
-            'metfra': {'color': '#00dc00',
-                      'marker': 'P', 'markersize': 7,
-                      'linestyle': 'solid', 'linewidth': 1.5},
-            'ukmet': {'color': '#e69f00',
-                      'marker': 'o', 'markersize': 7,
-                      'linestyle': 'solid', 'linewidth': 1.5},
         }
         return model_plot_settings_dict
-
-    def get_forecast_hour_plot_settings(self):
-        """! Get dictionary plot settings for forecast hours
-
-             Args:
-
-             Returns:
-                 forecast_hour_plot_settings_dict - dictionary of
-                                                    forecast hours
-                                                    plotting specifications
-                                                    (strings)
-        """
-        forecast_hour_plot_settings_dict = {
-            'fhr_n1': {'color': '#fb2020',
-                       'marker': 'o', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr_n2': {'color': '#00dc00',
-                       'marker': '^', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr_n3': {'color': '#1e3cff',
-                       'marker': 'X', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr_n4': {'color': '#e69f00',
-                       'marker': 'o', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr024': {'color': '#fb2020',
-                       'marker': 'o', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr048': {'color': '#00dc00',
-                       'marker': '^', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr072': {'color': '#1e3cff',
-                       'marker': 'X', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr120': {'color': '#000000',
-                       'marker': 's', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'fhr240': {'color': '#e69f00',
-                       'marker': 'o', 'markersize': 7,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-        }
-        return forecast_hour_plot_settings_dict

@@ -46,16 +46,14 @@ vfg_util.make_dir(JOB_GROUP_jobs_dir)
 # Set up base plotting information dictionary
 base_plot_jobs_info_dict = {
     'ghrsst_ospo_geopolar_anl': {
-        'SST': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                             'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                             'SEA_ICE_FREE_POLAR'],
+        'SST': {'vx_masks': ['WATER_ANTARCTIC', 'WATER_ARCTIC',
+                             'WATER_NH', 'WATER_POLAR', 'WATER_SH'],
                 'fcst_var_dict': {'name': 'TMP_Z0_mean',
                                   'levels': ['Z0'] },
                 'obs_var_dict': {'name': 'analysed_sst',
                                  'levels': ['0,*,*'] }},
-        'ICEC': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                             'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                             'SEA_ICE_FREE_POLAR'],
+        'ICEC': {'vx_masks': ['SEA_ICE_ANTARCTIC', 'SEA_ICE_ARCTIC',
+                              'SEA_ICE_NH', 'SEA_ICE_POLAR', 'SEA_ICE_SH'],
                 'fcst_var_dict': {'name': 'ICEC_Z0_mean',
                                   'levels': ['Z0'] },
                 'obs_var_dict': {'name': 'sea_ice_fraction',
@@ -79,9 +77,9 @@ filter_stats_jobs_dict = copy.deepcopy(condense_stats_jobs_dict)
 for ospo_job in list(filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     if ospo_job == "SST":
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['fcst_var_dict']['threshs']) = ['NA']
+         ['fcst_var_dict']['threshs']) = ['>=271.15&&']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['obs_var_dict']['threshs']) = ['NA']
+         ['obs_var_dict']['threshs']) = ['>=271.15']
     elif ospo_job == "ICEC":
         sea_ice_thresh = os.environ['sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\

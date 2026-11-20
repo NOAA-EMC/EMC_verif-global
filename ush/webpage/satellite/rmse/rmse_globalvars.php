@@ -4,11 +4,8 @@
       $NHem_name = 'g193_nh';
       $SHem_name = 'g193_sh';
       $Polar_name = 'g193_polar';
+      $Antarctic_name = 'g193_antarctic';
       $Arctic_name = 'g193_arctic';
-      $SeaIce_name = 'g193_sea_ice';
-      $SeaIceFree_name = 'g193_sea_ice_free';
-      $PolarSeaIce_name = 'g193_sea_ice_polar';
-      $PolarSeaIceFree_name = 'g193_sea_ice_free_polar';
       $SST_name = 'tmp_z0_mean';
       $IceCon_name = 'icec_z0_mean';
       $Valid00_name = 'valid00z';

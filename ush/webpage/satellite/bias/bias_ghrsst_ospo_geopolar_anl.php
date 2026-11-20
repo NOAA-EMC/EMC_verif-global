@@ -137,24 +137,12 @@ domains.push({
         name: "<?php echo $Polar_name; ?>",
 });
 domains.push({
+        displayName: "Antarctic",
+        name: "<?php echo $Antarctic_name; ?>",
+});
+domains.push({
         displayName: "Arctic",
         name: "<?php echo $Arctic_name; ?>",
-});
-domains.push({
-        displayName: "Sea Ice",
-        name: "<?php echo $SeaIce_name; ?>",
-});
-domains.push({
-        displayName: "Sea Ice Free",
-        name: "<?php echo $SeaIceFree_name; ?>",
-});
-domains.push({
-        displayName: "Polar - Sea Ice",
-        name: "<?php echo $PolarSeaIce_name; ?>",
-});
-domains.push({
-        displayName: "Polar - Sea Ice Free",
-        name: "<?php echo $PolarSeaIceFree_name; ?>",
 });
 
 levels.push({
@@ -214,7 +202,7 @@ validtimes.push({
 });
 
 variables.push({
-        displayName: "SST",
+        displayName: "Surface/Skin Temperature",
         name: "<?php echo $SST_name; ?>",
 });
 variables.push({

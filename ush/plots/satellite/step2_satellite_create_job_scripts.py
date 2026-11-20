@@ -45,33 +45,15 @@ vfg_util.make_dir(JOB_GROUP_jobs_dir)
 
 # Set up base plotting information dictionary
 base_plot_jobs_info_dict = {
-    'ghrsst_ncei_avhrr_anl': {
-        'SST': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                             'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                             'SEA_ICE_FREE_POLAR'],
-                'fcst_var_dict': {'name': 'TMP_Z0_mean',
-                                  'levels': ['Z0'] },
-                'obs_var_dict': {'name': 'analysed_sst',
-                                 'levels': ['0,*,*'] }},
-        'ICEC': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                              'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                              'SEA_ICE_FREE_POLAR'],
-                 'fcst_var_dict': {'name': 'ICEC_Z0_mean',
-                                   'levels': ['Z0'] },
-                 'obs_var_dict': {'name': 'sea_ice_fraction',
-                                  'levels': ['0,*,*'] }}
-    },
     'ghrsst_ospo_geopolar_anl': {
-        'SST': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                             'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                             'SEA_ICE_FREE_POLAR'],
+        'SST': {'vx_masks': ['WATER_ANTARCTIC', 'WATER_ARCTIC',
+                             'WATER_NH', 'WATER_POLAR', 'WATER_SH'],
                 'fcst_var_dict': {'name': 'TMP_Z0_mean',
                                   'levels': ['Z0'] },
                 'obs_var_dict': {'name': 'analysed_sst',
                                  'levels': ['0,*,*'] }},
-        'ICEC': {'vx_masks': ['NH', 'SH', 'POLAR', 'ARCTIC', 'SEA_ICE',
-                             'SEA_ICE_FREE', 'SEA_ICE_POLAR',
-                             'SEA_ICE_FREE_POLAR'],
+        'ICEC': {'vx_masks': ['SEA_ICE_ANTARCTIC', 'SEA_ICE_ARCTIC',
+                              'SEA_ICE_NH', 'SEA_ICE_POLAR', 'SEA_ICE_SH'],
                 'fcst_var_dict': {'name': 'ICEC_Z0_mean',
                                   'levels': ['Z0'] },
                 'obs_var_dict': {'name': 'sea_ice_fraction',
@@ -81,11 +63,6 @@ base_plot_jobs_info_dict = {
 
 # condense_stats jobs
 condense_stats_jobs_dict = copy.deepcopy(base_plot_jobs_info_dict)
-# ghrsst_ncei_avhrr_anl
-for avhrr_job in list(condense_stats_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
-    condense_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_types'] = (
-        ['SL1L2']
-    )
 # ghrsst_ospo_geopolar_anl
 for ospo_job in list(condense_stats_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     condense_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_types'] = (
@@ -96,48 +73,25 @@ if JOB_GROUP == 'condense_stats':
 
 # filter_stats jobs
 filter_stats_jobs_dict = copy.deepcopy(condense_stats_jobs_dict)
-# ghrsst_ncei_avhrr_anl
-for avhrr_job in list(filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
-    if avhrr_job == "SST":
-        (filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]\
-         ['fcst_var_dict']['threshs']) = ['NA']
-        (filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]\
-         ['obs_var_dict']['threshs']) = ['NA']
-    elif ospo_job == "ICEC":
-        (filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]\
-         ['fcst_var_dict']['threshs']) = ['>=0.15||']
-        (filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]\
-         ['obs_var_dict']['threshs']) = ['>=0.15']
-    filter_stats_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['interps'] = ['NEAREST/1']
 # ghrsst_ospo_geopolar_anl
 for ospo_job in list(filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     if ospo_job == "SST":
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['fcst_var_dict']['threshs']) = ['NA']
+         ['fcst_var_dict']['threshs']) = ['>=271.15&&']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['obs_var_dict']['threshs']) = ['NA']
+         ['obs_var_dict']['threshs']) = ['>=271.15']
     elif ospo_job == "ICEC":
+        sea_ice_thresh = os.environ['sat2_ghrsst_ospo_geopolar_anl_sea_ice_thresh']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['fcst_var_dict']['threshs']) = ['>=0.15||']
+         ['fcst_var_dict']['threshs']) = [f'>={sea_ice_thresh}||']
         (filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]\
-         ['obs_var_dict']['threshs']) = ['>=0.15']
+         ['obs_var_dict']['threshs']) = [f'>={sea_ice_thresh}']
     filter_stats_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['interps'] = ['NEAREST/1']
 if JOB_GROUP == 'filter_stats':
     JOB_GROUP_dict = filter_stats_jobs_dict
 
 # make_plots jobs
 make_plots_jobs_dict = copy.deepcopy(filter_stats_jobs_dict)
-# ghrsst_ncei_avhrr_anl
-for avhrr_job in list(make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'].keys()):
-    del make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_types']
-    make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['line_type_stats'] = [
-        f"SL1L2/{s.upper()}" \
-        for s in os.environ['sat2_ghrsst_ncei_avhrr_anl_stats_list'].split(' ')
-    ]
-    make_plots_jobs_dict['ghrsst_ncei_avhrr_anl'][avhrr_job]['plots'] = [
-        'time_series', 'lead_average'
-    ]
-# pres
 # ghrsst_ospo_geopolar_anl
 for ospo_job in list(make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'].keys()):
     del make_plots_jobs_dict['ghrsst_ospo_geopolar_anl'][ospo_job]['line_types']

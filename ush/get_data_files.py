@@ -1938,9 +1938,6 @@ elif RUN == 'precip_step1':
                                +RUN_type_arch_file+" do not exist")
 elif RUN == 'satellite_step1':
     import netCDF4 as nc
-    # Read in RUN related environment variables
-    ghrsst_ncei_avhrr_anl_ftp = os.environ['ghrsst_ncei_avhrr_anl_ftp']
-    ghrsst_ospo_geopolar_anl_ftp = os.environ['ghrsst_ospo_geopolar_anl_ftp']
     # Get model forecast and truth files for each option in RUN_type_list
     for RUN_type in RUN_type_list:
         RUN_abbrev_type = RUN_abbrev+'_'+RUN_type
@@ -2012,8 +2009,7 @@ elif RUN == 'satellite_step1':
                 if get_file:
                     if valid_time not in RUN_abbrev_type_valid_time_list:
                         RUN_abbrev_type_valid_time_list.append(valid_time)
-                    if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                                    'ghrsst_ospo_geopolar_anl']:
+                    if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                         lead_intvl = 6
                         nfiles_in_mean = 5
                         lead_in_mean_list = []
@@ -2060,75 +2056,22 @@ elif RUN == 'satellite_step1':
                 link_RUN_type_dir = os.path.join(cwd, 'data', RUN_type)
                 if not os.path.exists(link_RUN_type_dir):
                     os.makedirs(link_RUN_type_dir)
-                    os.makedirs(os.path.join(link_RUN_type_dir, 'wget_jobs'))
                 link_RUN_type_file = os.path.join(link_RUN_type_dir,
                                                   RUN_type+'.'+YYYYmmddHH)
-                if RUN_type in ['ghrsst_ncei_avhrr_anl',
-                                'ghrsst_ospo_geopolar_anl']:
+                if RUN_type in ['ghrsst_ospo_geopolar_anl']:
                     sat1_obs_input_dir=os.environ[f"{RUN_abbrev}_obs_dir"]
-                    # ghrsst_ncei_avhrr_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
-                    if RUN_type == 'ghrsst_ncei_avhrr_anl':
-                        RUN_type_ftp_file = os.path.join(
-                            ghrsst_ncei_avhrr_anl_ftp,
-                            YYYYM1, DOYM1,
-                            YYYYmmddM1
-                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
-                            +'v02.0-fv02.1.nc'
-                        )
-                        archive_obs_input_file= os.path.join(
-                            sat1_obs_input_dir, RUN_type,
-                            YYYYM1, YYYYmmM1,
-                            YYYYmmddM1
-                            +'120000-NCEI-L4_GHRSST-SSTblend-AVHRR_OI-GLOB-'
-                            +'v02.0-fv02.1.nc'
-                        )
-                        adjust_time = 86400
                     # ghrsst_ospo_geopolar_anl: YYYYmmddM-1 00Z-YYYYmmdd 00Z
-                    elif RUN_type == 'ghrsst_ospo_geopolar_anl':
-                        RUN_type_ftp_file = os.path.join(
-                            ghrsst_ospo_geopolar_anl_ftp,
-                            YYYYM1, DOYM1,
-                            YYYYmmddM1
-                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
-                            +'-GLOB-v02.0-fv01.0.nc'
-                        )
+                    if RUN_type == 'ghrsst_ospo_geopolar_anl':
+                        sea_ice_thresh = os.environ[
+                            "sat1_ghrsst_ospo_geopolar_anl_sea_ice_thresh"
+                        ]
                         archive_obs_input_file= os.path.join(
-                            sat1_obs_input_dir, RUN_type,
-                            YYYYM1, YYYYmmM1,
-                            YYYYmmddM1
-                            +'000000-OSPO-L4_GHRSST-SSTfnd-Geo_Polar_Blended'
-                            +'-GLOB-v02.0-fv01.0.nc'
+                            sat1_obs_input_dir,
+                            f"{YYYYmmddM1}_OSPO_L4_GHRSST.nc"
                         )
                         adjust_time = 43200
                     if os.path.exists(archive_obs_input_file):
-                        print(f"=======================================")
-                        print(f"DEBUG :: Get {archive_obs_input_file} FROM OBS ARCHIVE {sat1_obs_input_dir}")
-                        print(f"=======================================")
                         vfg_util.copy_file(archive_obs_input_file, link_RUN_type_file)
-                    else:
-                        print(f"==============================")
-                        print(f"DEBUG :: Get {archive_obs_input_file} by WGETS")
-                        print(f"==============================")
-                        RUN_type_wget_job_filename = os.path.join(
-                            link_RUN_type_dir, 'wget_jobs',
-                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.sh'
-                        )
-                        RUN_type_wget_job_name = 'wget_'+RUN_type+'.'+YYYYmmddHH
-                        RUN_type_wget_job_output = os.path.join(
-                            link_RUN_type_dir, 'wget_jobs',
-                            'wget_'+RUN_type+'.'+YYYYmmddHH+'.out'
-                        )
-                        ftp_user="--user=ho-chun.huang@noaa.gov"
-                        ftp_password="--password=anonymous"
-                        with open(RUN_type_wget_job_filename, 'w') \
-                                as RUN_type_wget_job_file:
-                            RUN_type_wget_job_file.write('#!/bin/sh'+'\n')
-                            RUN_type_wget_job_file.write('wget '+ftp_user+' '+ftp_password+' '+RUN_type_ftp_file
-                                                         +' -O '
-                                                         +link_RUN_type_file)
-                        wget_data(RUN_type_wget_job_filename,
-                                  RUN_type_wget_job_name,
-                                  RUN_type_wget_job_output)
                     if os.path.exists(link_RUN_type_file) \
                             and os.path.getsize(link_RUN_type_file) > 0:
                         link_RUN_type_file_data = nc.Dataset(
@@ -2180,58 +2123,33 @@ elif RUN == 'satellite_step1':
                         vfg_util.run_shell_command(
                             [gen_vx_mask, link_RUN_type_file, link_RUN_type_file,
                              os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                           +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             '-type', 'data', '-thresh', '">=0.15"', '-mask_field',
-                             "'name="+'"sea_ice_fraction";', 'level="(0,*,*)";'+"'",
+                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
+                             '-type', 'data', '-thresh', '==4', '-mask_field',
+                             "'name="+'"mask";', 'level="(0,*,*)";'+"'",
                              '-name', 'SEA_ICE']
                         )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_POLAR.nc '),
-                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
-                             "'name="+'"SEA_ICE";','level="(*,*)";'+"'",
-                             '-name', 'SEA_ICE_POLAR', '-value', '"0"']
-                        )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.WATER.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH+'.vx_mask.SEA_ICE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             '-type', 'data', '-thresh', "'==0'", '-intersection',
-                             '-mask_field', "'name="+'"SEA_ICE";',
-                             'level="(*,*)";'+"'", '-name', 'SEA_ICE_FREE']
-                        )
-                        vfg_util.run_shell_command(
-                            [gen_vx_mask,
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE.nc '),
-                             os.path.join(link_RUN_type_dir, RUN_type+'.'
-                                          +YYYYmmddHH
-                                          +'.vx_mask.SEA_ICE_FREE_POLAR.nc '),
-                             '-type', 'lat', '-thresh', "'<60&&>-60'", '-mask_field',
-                             "'name="+'"SEA_ICE_FREE";', 'level="(*,*)";'+"'",
-                             '-name', 'SEA_ICE_FREE_POLAR', '-value', '"0"']
-                        )
-                    elif os.path.exists(link_RUN_type_file) \
-                            and os.path.getsize(link_RUN_type_file) == 0:
-                        print("WARNING: could not get "+RUN_type_ftp_file)
-                        os.remove(link_RUN_type_file)
-                    else:
-                        print("WARNING: could not get "+RUN_type_ftp_file)
+                        regions_dict = {
+                            'POLAR': '<60&&>-60',
+                            'ARCTIC': '<60',
+                            'ANTARCTIC': '>-60',
+                            'NH': '<20',
+                            'SH': '>-20',
+                        }
+                        for mask in ['WATER', 'SEA_ICE']:
+                            for key, value in regions_dict.items():
+                                vfg_util.run_shell_command(
+                                    [gen_vx_mask,
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH+'.vx_mask.'+mask+'.nc '),
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH+'.vx_mask.'+mask+'.nc '),
+                                     os.path.join(link_RUN_type_dir, RUN_type+'.'
+                                                  +YYYYmmddHH
+                                                  +'.vx_mask.'+mask+'_'+key+'.nc '),
+                                     '-type', 'lat', '-thresh', "'"+value+"'", '-mask_field',
+                                     "'name="+'"'+mask+'";','level="(*,*)";'+"'",
+                                     '-name', mask+'_'+key, '-value', '"0"']
+                                )
 elif 'step2' in RUN:
     # Read in RUN related environment variables
     # Get stat files for each option in RUN_type_list

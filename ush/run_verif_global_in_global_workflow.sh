@@ -132,13 +132,7 @@ export precip1_ccpa_accum24hr_grid=${precip1_ccpa_accum24hr_grid:-"G211"}
 export precip1_ccpa_accum24hr_gather_by=${precip1_ccpa_accum24hr_gather_by:-"VALID"}
 export precip1_obs_data_run_hpss=${precip1_obs_data_run_hpss:-"YES"}
 # SATELLITE STEP 1
-export sat1_type_list=${sat1_type_list:-"ghrsst_ncei_avhrr_anl ghrsst_ospo_geopolar_anl"}
-export sat1_ghrsst_ncei_avhrr_anl_fcyc_list=${sat1_ghrsst_ncei_avhrr_anl_fcyc_list:-${fcyc_list}}
-export sat1_ghrsst_ncei_avhrr_anl_fhr_min=${sat1_ghrsst_ncei_avhrr_anl_fhr_min:-${FHMIN_GFS}}
-export sat1_ghrsst_ncei_avhrr_anl_fhr_max=${sat1_ghrsst_ncei_avhrr_anl_fhr_max:-${FHMAX_GFS}}
-export sat1_ghrsst_ncei_avhrr_anl_grid=${sat1_ghrsst_ncei_avhrr_anl_grid:-"G219"}
-export sat1_ghrsst_ncei_avhrr_anl_gather_by=${sat1_ghrsst_ncei_avhrr_anl_gather_by:-"VALID"}
-export sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh=${sat1_ghrsst_ncei_avhrr_anl_sea_ice_thresh:-"0.15"}
+export sat1_type_list=${sat1_type_list:-"ghrsst_ospo_geopolar_anl"}
 export sat1_ghrsst_ospo_geopolar_anl_fcyc_list=${sat1_ghrsst_ospo_geopolar_anl_fcyc_list:-${fcyc_list}}
 export sat1_ghrsst_ospo_geopolar_anl_fhr_min=${sat1_ghrsst_ospo_geopolar_anl_fhr_min:-${FHMIN_GFS}}
 export sat1_ghrsst_ospo_geopolar_anl_fhr_max=${sat1_ghrsst_ospo_geopolar_anl_fhr_max:-${FHMAX_GFS}}
@@ -185,11 +179,6 @@ precip1_ccpa_accum24hr_check_vhour="12"
 precip1_ccpa_accum24hr_fhr_max_idate="$($NDATE -${precip1_ccpa_accum24hr_fhr_max} ${vPDY}${precip1_ccpa_accum24hr_check_vhour})"
 if [ $precip1_ccpa_accum24hr_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
     export precip1_ccpa_accum24hr_fhr_max="$(echo $($NHOUR ${vPDY}${precip1_ccpa_accum24hr_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
-fi
-sat1_ghrsst_ncei_avhrr_anl_check_vhour="00"
-sat1_ghrsst_ncei_avhrr_anl_fhr_max_idate="$($NDATE -${sat1_ghrsst_ncei_avhrr_anl_fhr_max} ${vPDY}${sat1_ghrsst_ncei_avhrr_anl_check_vhour})"
-if [ $sat1_ghrsst_ncei_avhrr_anl_fhr_max_idate -le $SDATE_GFS_YYYYMMDDHH ] ; then
-    export sat1_ghrsst_ncei_avhrr_anl_fhr_max="$(echo $($NHOUR ${vPDY}${sat1_ghrsst_ncei_avhrr_anl_check_vhour} $SDATE_GFS_YYYYMMDDHH))"
 fi
 sat1_ghrsst_ospo_geopolar_anl_check_vhour="00"
 sat1_ghrsst_ospo_geopolar_anl_fhr_max_idate="$($NDATE -${sat1_ghrsst_ospo_geopolar_anl_fhr_max} ${vPDY}${sat1_ghrsst_ospo_geopolar_anl_check_vhour})"
@@ -270,18 +259,22 @@ if [[ ${machine} == "HERA" || ${machine} == "URSA" ]]; then
     export global_archive="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/archive"
     export prepbufr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/prepbufr"
     export ccpa_24hr_arch_dir="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ccpa_accum24hr"
+    export sat_obs_archive="/scratch3/NCEPDEV/global/role.glopara/data/metplus.data/obs_data/ghrsst_ospo"
 elif [ $machine = "ORION" -o $machine = "HERCULES" ]; then
     export global_archive="/work2/noaa/global/role-global/data/metplus.data/archive"
     export prepbufr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/prepbufr"
     export ccpa_24hr_arch_dir="/work2/noaa/global/role-global/data/metplus.data/obdata/ccpa_accum24hr"
+    export sat_obs_archive="/work2/noaa/global/role-global/data/metplus.data/obs_data/ghrsst_ospo"
 elif [ $machine = "WCOSS2" ]; then
     export global_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/model_data"
     export prepbufr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/prepbufr"
     export ccpa_24hr_arch_dir="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ccpa_accum24hr"
+    export sat_obs_archive="/lfs/h2/emc/vpppg/noscrub/emc.vpppg/verification/global/archive/obs_data/ghrsst_ospo"
 elif [ $machine = "GAEAC6" ]; then
     export global_archive="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/archive"
     export prepbufr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/prepbufr"
     export ccpa_24hr_arch_dir="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/metplus.data/obdata/ccpa_accum24hr"
+    export sat_obs_archive="/gpfs/f6/drsa-precip3/world-shared/role.glopara/data/obdata/ghrsst_ospo"
 fi
 
 ## Set operational directories
@@ -291,8 +284,6 @@ export ccpa_24hr_prod_dir="/lfs/h1/ops/prod/com/verf_precip/${verf_precip_ver}"
 
 ## Some online sites
 export iabp_ftp="http://iabp.apl.washington.edu/Data_Products/Daily_Full_Res_Data"
-export ghrsst_ncei_avhrr_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/NCEI/AVHRR_OI"
-export ghrsst_ospo_geopolar_anl_ftp="https://www.ncei.noaa.gov/data/oceans/ghrsst/L4/GLOB/OSPO/Geo_Polar_Blended"
 
 ## Do checks on switches to run verification for
 if [ $METPCASE = g2g1 ]; then
